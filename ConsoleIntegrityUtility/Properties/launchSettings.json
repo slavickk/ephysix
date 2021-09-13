@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ConsoleIntegrityUtility": {
+      "commandName": "Project",
+      "commandLineArgs": "c:\\d\\model.yml"
+    }
+  }
+}
