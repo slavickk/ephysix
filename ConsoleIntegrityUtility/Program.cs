@@ -13,7 +13,7 @@ namespace ConsoleIntegrityUtility
 
             string value = System.Text.Encoding.UTF8.GetString(bytes);*/
             var pip2 = new Pipeline();
-            pip2.Save( @"c:\d\aa3.yml");
+            pip2.Save( @"aa3.yml");
        /*     var tt=typeof(LongLifeRepositorySender).IsSubclassOf(typeof(Sender));
             var tt1 = typeof(LongLifeRepositorySender).IsAssignableTo(typeof(Sender));
             // typeof(ComparerForValue).GenericTypeParameters

@@ -5,13 +5,13 @@ VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestJsonRazbor", "TestJsonRazbor\TestJsonRazbor.csproj", "{6A4FB636-033D-4F28-BC83-B331C3F63EC7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaxMind.GeoIP2", "..\GeoIP2-dotnet\MaxMind.GeoIP2\MaxMind.GeoIP2.csproj", "{0A43F4C2-45B6-484B-B2BA-563C9BA56875}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParserLibrary", "ParserLibrary\ParserLibrary.csproj", "{C4F3E7EF-5767-4074-B5C5-73E108CB3F44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleIntegrityUtility", "ConsoleIntegrityUtility\ConsoleIntegrityUtility.csproj", "{7DAFDB2C-3564-408B-89EF-1CEF04BE8504}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleIntegrityUtility", "ConsoleIntegrityUtility\ConsoleIntegrityUtility.csproj", "{7DAFDB2C-3564-408B-89EF-1CEF04BE8504}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppTestUtility", "ConsoleAppTestUtility\ConsoleAppTestUtility.csproj", "{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppTestUtility", "ConsoleAppTestUtility\ConsoleAppTestUtility.csproj", "{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaxMind.GeoIP2", "MaxMind.GeoIP2\MaxMind.GeoIP2.csproj", "{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,6 @@ Global
 		{6A4FB636-033D-4F28-BC83-B331C3F63EC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A4FB636-033D-4F28-BC83-B331C3F63EC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A4FB636-033D-4F28-BC83-B331C3F63EC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A43F4C2-45B6-484B-B2BA-563C9BA56875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A43F4C2-45B6-484B-B2BA-563C9BA56875}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A43F4C2-45B6-484B-B2BA-563C9BA56875}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A43F4C2-45B6-484B-B2BA-563C9BA56875}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C4F3E7EF-5767-4074-B5C5-73E108CB3F44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C4F3E7EF-5767-4074-B5C5-73E108CB3F44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4F3E7EF-5767-4074-B5C5-73E108CB3F44}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +35,10 @@ Global
 		{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
