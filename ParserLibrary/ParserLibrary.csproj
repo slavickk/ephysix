@@ -15,4 +15,14 @@
     <ProjectReference Include="..\MaxMind.GeoIP2\MaxMind.GeoIP2.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="GeoData\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="GeoData\GeoLite2-Country.mmdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

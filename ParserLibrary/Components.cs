@@ -11,6 +11,7 @@ using CSScriptLib;
 using System.Reflection;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Net.Http;
 
 namespace ParserLibrary
 {
@@ -380,6 +381,37 @@ return true;
     }
     public  class JsonSender:Sender
     {
+        HttpClient client;
+        public JsonSender()
+        {
+            var handler = new HttpClientHandler();
+            //handler.MaxConnectionsPerServer = 2;
+            client = new HttpClient(handler);
+        }
+
+        public  async Task<string> internSend(string body)
+        {
+//            var myContent = JsonConvert.SerializeObject(data);
+           // Затем вам нужно будет создать объект контента для отправки этих данных, я буду использовать объект ByteArrayContent , но вы можете использовать или создать другой тип, если хотите.
+
+/*            var buffer = System.Text.Encoding.UTF8.GetBytes(body);
+            var byteContent = new ByteArrayContent(buffer);
+            HttpContent content;
+            content.
+*/
+            var stringContent = new StringContent(body, UnicodeEncoding.UTF8, "application/json"); // use MediaTypeNames.Application.Json in Core 3.0+ and Standard 2.1+
+
+            var result=await client.PostAsync(url, stringContent);
+
+
+            if (result.IsSuccessStatusCode)
+            {
+                var response = await result.Content.ReadAsStringAsync();
+                return response;
+            }
+            return "";
+        }
+
         public string url = @"https://195.170.67:51200/Rec";
         public override void send(AbstrParser.UniEl root)
         {

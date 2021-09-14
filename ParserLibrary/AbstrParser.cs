@@ -111,7 +111,7 @@ namespace ParserLibrary
 
 
        // public static Drawer treeView1;
-        public static List<AbstrParser> availParser = new List<AbstrParser>() { new JsonParser(), new Base64Parser(), new IPAddrParser() };
+        public static List<AbstrParser> availParser = new List<AbstrParser>() { new JsonParser(), new XmlParser(), new Base64Parser(), new IPAddrParser() };
         public static DrawerFactory drawerFactory;
         public abstract bool canRazbor(string line, UniEl ancestor, List<UniEl> list);
         public virtual bool canRazbor(byte[] bytes, UniEl ancestor, List<UniEl> list)
@@ -286,7 +286,8 @@ namespace ParserLibrary
 
     public class IPAddrParser : AbstrParser
     {
-        const string dbPath = @"C:\Data\GeoLite2-Country_20210720\GeoLite2-Country.mmdb";
+        const string dbPath = @"GeoData\GeoLite2-Country.mmdb";
+//        DatabaseReader reader = null;
         DatabaseReader reader = new DatabaseReader(dbPath, FileAccessMode.Memory);
 
 
@@ -377,6 +378,7 @@ namespace ParserLibrary
           */
         public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list)
         {
+       //     return false;
             Match match = Regex.Match(line, @"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
             if (!match.Success || match.Length != line.Length)
                 return false;
@@ -441,7 +443,18 @@ namespace ParserLibrary
     {
         public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list)
         {
-            if (!(line.Trim()[0] == '<' && line.Trim()[^1] == '>'))
+            if (line.Contains("<SOAP-ENV"))
+            {
+                int yy = 0;
+            }
+            var line1 = line.Trim();
+            if (line1.Length < 3)
+                return false;
+            if (!(line1[0] == '<' && line1[^1] == '>'))
+                return false;
+            if (line.ToUpper().Contains("<!DOCTYPE HTML"))
+                return false;
+            if (line.ToUpper().Contains("<HTML>"))
                 return false;
             XmlDocument docXml;
             try
@@ -460,12 +473,30 @@ namespace ParserLibrary
         }
 
         delegate bool mustRazbor(UniEl el);
-        private void ExtractXmlFields(XmlNode property, UniEl ancestor, List<UniEl> list)
+        private void ExtractXmlFields(XmlNode property, UniEl ancestor, List<UniEl> list,bool isAttr=false)
         {
             var type = property.GetType();
             var name = property.Name;
+            if(isAttr)
+            {
+                name = "@" + name;
+            }
+            if(name=="mcp:Action")
+            {
+                int yy = 0;
+            }
             UniEl newEl = CreateNode(ancestor, list, name);
             var value = property.Value;
+            if (type.Name == "XmlElement")
+            {
+
+
+                foreach (XmlNode node in property.Attributes)
+                {
+                    ExtractXmlFields(node, newEl, list,true);
+                }
+            }
+
             foreach (XmlNode node in property.ChildNodes)
             {
                 ExtractXmlFields(node, newEl, list);
@@ -498,10 +529,18 @@ namespace ParserLibrary
         static string rootEls = "";
         public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list)
         {
-            if (line.Trim().Length == 0)
+            var line1 = line.Trim();
+
+            if (line1.Length == 0)
                 return false;
-            if (!(line.Trim()[0] == '{' && line.Trim()[^1] == '}') && !(line.Trim()[0] == '[' && line.Trim()[^1] == ']'))
+            if (!(line1[0] == '{' && line1[^1] == '}') && !(line1[0] == '[' && line1[^1] == ']'))
                 return false;
+            if(line1[0] == '[' && line1[^1] == ']')
+            {
+
+                if (line1.Length > 2 && !(line1[1] == '{' && line1[^2] == '}'))
+                    return false;
+            }
             JsonDocument doc;
             DateTime time1 = DateTime.Now;
             try
@@ -571,7 +610,10 @@ namespace ParserLibrary
                         else
                         {
                             UniEl newEl = CreateNode(ancestor, list, name);
-
+                            if(value.ToString().Contains("<SOAP"))
+                            {
+                                int yy = 0;
+                            }
                             foreach (var pars in availParser)
                                 if (pars.canRazbor(value.ToString(), newEl, list))
                                 {

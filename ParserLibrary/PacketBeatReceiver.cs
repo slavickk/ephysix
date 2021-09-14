@@ -59,7 +59,7 @@ namespace ParserLibrary
             for (; ; )
             {
                 if (debugMode)
-                    Console.WriteLine("[Server] waiting for clients...");
+                    Console.WriteLine("[Server] waiting for clients on port "+port+"...");
                 using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
                 {
                     LumberJackHandler serv = null;
@@ -154,6 +154,24 @@ namespace ParserLibrary
             var time = DateTime.Now;
             return time.ToString() + "." + time.Millisecond;
         }
+        async Task<byte[]> ReadAll(Stream sr, NetworkStream sw,uint compressedSize)
+        {
+            int allData = 0;
+            byte[] inData = new byte[compressedSize];
+            do
+            {
+                int readBytes = await sr.ReadAsync(inData, allData, inData.Length-allData);
+
+                if (readBytes <=0) //error
+                {
+                    Console.WriteLine("not all data received "+allData+" "+readBytes);
+                    await sendAck(sw, lastFrameToAck); // We ack the last frame we received then crash the connection
+                    return null;
+                }
+                allData += readBytes;
+            } while (allData < compressedSize);
+            return inData;
+        }
         public async Task parseStream(Stream sr, NetworkStream sw)
         {
             {
@@ -217,6 +235,10 @@ namespace ParserLibrary
                     uint compressedSize = BitConverter.ToUInt32(btsWindowSize, 0); // the number of frames before ack.
                     if (owner.debugMode)
                         Console.WriteLine("compressed wnd size:" + compressedSize);
+                    byte[] inData =await ReadAll(sr, sw, compressedSize);
+                    if (inData == null)
+                        return;
+                    /*
                     byte[] inData = new byte[compressedSize];
                     readBytes = await sr.ReadAsync(inData, 0, inData.Length);
 
@@ -225,7 +247,7 @@ namespace ParserLibrary
                         Console.WriteLine("not all data received");
                         await sendAck(sw, lastFrameToAck); // We ack the last frame we received then crash the connection
                         return;
-                    }
+                    }*/
                     //                    allReceivedBytes.AddRange(inData);
 
                     //                    byte[] outData;
@@ -237,13 +259,15 @@ namespace ParserLibrary
                         outZStream.finish();
                         outMemoryStream.Position = 0;
                         int i = 0;
+                        DateTime time1 = DateTime.Now;
                         while (outMemoryStream.Position < outMemoryStream.Length)
                         {
                             i++;
                             await parseStream(outMemoryStream, sw);
                         }
+                        var diff = (DateTime.Now - time1).TotalMilliseconds;
                         if (owner.debugMode)
-                            Console.WriteLine("unpack " + i + " compressed files");
+                            Console.WriteLine("unpack " + i + " compressed files;"+diff+" ms ");
                         //                    Console.WriteLine("return from compressed " + isMemStream);
                         //                      return;
                         //                        outData = outMemoryStream.ToArray();
@@ -324,7 +348,7 @@ namespace ParserLibrary
         public  async Task Handle(TcpClient tcpClient)
         {
             if (owner.debugMode)
-                Console.WriteLine("[Server] Client has connected");
+                Console.WriteLine(DTWM() + "[Server] Client has connected");
             clear();
             using (var networkStream = tcpClient.GetStream())
             {
@@ -335,7 +359,7 @@ namespace ParserLibrary
                     first = false;
                 }
                 if (owner.debugMode)
-                    Console.WriteLine("end send");
+                    Console.WriteLine(DTWM() + "end send");
             }
         }
     }
