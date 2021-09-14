@@ -172,9 +172,9 @@ namespace TestJsonRazbor
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            var pip2 = Pipeline.load();// (@"C:\D\aa1.yml");
+/*            var pip2 = Pipeline.load();// (@"C:\D\aa1.yml");
             var pip1 = new Pipeline();
-            pip1.Save();
+            pip1.Save();*/
 
             /*     byte bytes = 1;
                  var a = bytes & 0b10000000;

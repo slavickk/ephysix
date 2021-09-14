@@ -2,8 +2,7 @@
   "profiles": {
     "ConsoleIntegrityUtility": {
       "commandName": "Project",
-      "commandLineArgs": "model.yml",
-      "workingDirectory": "C:\\Users\\User\\Documents"
+      "commandLineArgs": "C:\\Users\\User\\Documents\\model.yml"
     }
   }
 }

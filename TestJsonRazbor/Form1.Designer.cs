@@ -797,7 +797,7 @@ namespace TestJsonRazbor
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            this.openFileDialog1.InitialDirectory = "c:\\d\\out";
+            this.openFileDialog1.InitialDirectory = @"C:\Users\User\Documents\PacketOut";
             // 
             // Form1
             // 
