@@ -20,7 +20,6 @@ using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Core;
 using System.Net;
-using Syncfusion.Windows.Forms.Edit.Enums;
 using System.Net.Sockets;
 
 namespace TestJsonRazbor
@@ -172,6 +171,9 @@ namespace TestJsonRazbor
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+//            var pip=Pipeline.load(@"C:\Users\User\Documents\model.yml");
+            Pipeline pip = new Pipeline();
+            pip.Save(@"C:\Users\User\Documents\aa3.yml");
 /*            var pip2 = Pipeline.load();// (@"C:\D\aa1.yml");
             var pip1 = new Pipeline();
             pip1.Save();*/
@@ -196,14 +198,6 @@ namespace TestJsonRazbor
 
                  */
 
-            this.editControl1.ApplyConfiguration(KnownLanguages.CSharp);
-            this.editControl1.Text = @"        using System;
-        using ParserLibrary;
-        bool Filter(AbstrParser.UniEl el)
-        {                                                
-            return true;
-        }
-";
             //    Samples.CreateDelegate();
             /*   int cycle = 1;
                for(int i=0; i < cycle;i++)
@@ -237,7 +231,7 @@ namespace TestJsonRazbor
             }
 
             var aa = AbstrParser.PathBuilder(new string[] { "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name", "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/-Name", "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/String/Model" });
-            drawFactory = new TreeDrawerFactory(treeView1);
+//            drawFactory = new TreeDrawerFactory(treeView1);
 
             //            AbstrParser.treeView1 = treeView1;
             //            var file_name = @"C:\Data\All_MBCH.postman_collection.json";
@@ -284,7 +278,33 @@ namespace TestJsonRazbor
 
         }
         int indexSearch = 0;
+        const string dirPath = @"C:\Users\User\Documents\PacketOut";
         private void button1_Click(object sender, EventArgs e)
+        {
+            if (checkBoxFromDir.Checked)
+            {
+                int count = 0;
+                comboBoxFoundedFiles.Items.Clear();
+                foreach(var fileName in Directory.GetFiles(dirPath))
+                {
+                    using(StreamReader sw = new StreamReader(fileName))
+                    {
+                        if(sw.ReadToEnd().Contains(textBoxSearch.Text))
+                        {
+                            count++;
+                            comboBoxFoundedFiles.Items.Add(fileName);
+                        }
+                    }
+                }
+                this.Text = "founded " + count + "files";
+            }
+            else
+            {
+                found();
+            }
+        }
+
+        void found()
         {
             checkBox1.Checked = false;
             int index = 0;
@@ -305,6 +325,7 @@ namespace TestJsonRazbor
                 }
             }
             MessageBox.Show("not found");
+
         }
 
         TreeNode searchInTree(TreeNode node, string searhedText, int indexSearch, ref int index)
@@ -333,7 +354,7 @@ namespace TestJsonRazbor
 
                 int result = script.Product(3, 3)
             */
-            Samples.LoadCodeWithInterface();
+         //   Samples.LoadCodeWithInterface();
             //            CScript
             if (checkBox1.Checked)
                 indexSearch = 0;
@@ -397,18 +418,31 @@ namespace TestJsonRazbor
         public class DemoSender : Sender
         {
             TreeView tree;
+            public static bool noDraw = false;
             public DemoSender(TreeView  tree1)
             {
                 tree = tree1;
-                tree.Nodes.Clear();
-                tree.Nodes.Add("Output");
+                Clear();
             }
-            public override void send(AbstrParser.UniEl root)
+
+            public void Clear()
             {
-                tree.Nodes[0].Nodes.Add("Item");
-                var rootNode=tree.Nodes[0].Nodes[tree.Nodes[0].Nodes.Count - 1];
-                foreach (var el in root.childs)
-                    rootNode.Nodes.Add(el.Name + "\":\"" + el.Value);
+                if (!noDraw)
+                {
+                    tree.Nodes.Clear();
+                    tree.Nodes.Add("Output");
+                }
+            }
+
+            public async override Task send(AbstrParser.UniEl root)
+            {
+                if (!noDraw)
+                {
+                    tree.Nodes[0].Nodes.Add("Item");
+                    var rootNode = tree.Nodes[0].Nodes[tree.Nodes[0].Nodes.Count - 1];
+                    foreach (var el in root.childs)
+                        rootNode.Nodes.Add(el.Name + "\":\"" + el.Value);
+                }
             }
         }
 
@@ -416,12 +450,12 @@ namespace TestJsonRazbor
         {
             try
             {
-                Step pip = new Step() { receiver = new FileReceiver(),sender = new DemoSender(treeView2) };
+/*                Step pip = new Step() { receiver = new FileReceiver(),sender = new DemoSender(treeView2) };
                 pip.filters.Clear();
                 pip.filters.Add(new ConditionFilter() { conditionPath = textBoxFilterFieldPath.Text, conditionCalcer = new ComparerForValue() { value_for_compare = textBoxFilterValue.Text } });
                 pip.outputFields = fields;
-                pip.run();
-                listBox2.Items.Clear();
+                pip.run().GetAwaiter().GetResult();
+                listBox2.Items.Clear();*/
               /*  foreach (var item in pip.sender.outString)
                 {
                     listBox2.Items.Add(item);
@@ -554,12 +588,14 @@ namespace TestJsonRazbor
                 }
             }
         }
+        string lastFile = "";
         private void button9_Click(object sender, EventArgs e)
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
+                lastFile = openFileDialog1.FileName;
                 treeView1.Nodes[0].Nodes.Clear();
-                ParseInput(openFileDialog1.FileName);
+                ParseInput(lastFile);
             }
 
 
@@ -697,6 +733,58 @@ namespace TestJsonRazbor
 
             }
 
+        }
+
+        private void comboBoxFoundedFiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(comboBoxFoundedFiles.SelectedIndex >=0)
+            {
+                treeView1.Nodes[0].Nodes.Clear();
+                indexSearch = 0;
+                lastFile = comboBoxFoundedFiles.SelectedItem.ToString();
+                ParseInput(lastFile);
+                found();
+
+            }
+        }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            if(openFileDialog2.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    var pip = Pipeline.load(openFileDialog2.FileName);
+                    TestReceiver rec;
+                    if (checkBoxFromDir.Checked)
+                        rec = new TestReceiver() { path = dirPath, pattern = "*.*" };
+                    else
+                        rec = new TestReceiver() { path = lastFile, pattern = "" };
+                    pip.steps[0].receiver = rec;
+                    pip.steps[0].sender = new DemoSender(treeView2);
+
+                    int cycle = 1000;
+                    ConditionFilter.isNew = true;
+                        DemoSender.noDraw= true;
+                    DateTime time1 = DateTime.Now;
+                    for (int i = 0; i < cycle; i++)
+                    {
+                        pip.run().GetAwaiter().GetResult();
+                    }
+                    var milli = (DateTime.Now - time1).TotalMilliseconds;
+                    int index=this.Text.IndexOf("::");
+                    string text = ":: exec " + treeView2.Nodes[0].Nodes.Count;
+                    if (index < 0)
+                        this.Text += text;
+                    else
+                        this.Text = this.Text.Substring(0, index) + this.Text;
+                    treeView2.ExpandAll();
+                } 
+                catch(Exception e78)
+                {
+                    MessageBox.Show(e78.ToString());
+                }
+            }
         }
     }
     public interface ICalc

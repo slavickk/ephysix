@@ -7,19 +7,20 @@ using System.IO;
 using System.Net.Sockets;
 using zlib;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace ParserLibrary
 {
     public class PacketBeatReceiver : Receiver
     {
         public int port = 15001;
-        public override void start()
+        public async override Task start()
         {
             Start(port);
         }
         public PacketBeatReceiver()
         {
-            this.saver = new ReplaySaver() { path = @"C:\D\Out" };
+//            this.saver = new ReplaySaver() { path = @"C:\D\Out" };
         }
 
         int Start(int port)
@@ -60,24 +61,65 @@ namespace ParserLibrary
             {
                 if (debugMode)
                     Console.WriteLine("[Server] waiting for clients on port "+port+"...");
-                using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
+//                using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
                 {
-                    LumberJackHandler serv = null;
+                    var tcpClient = await tcpListener.AcceptTcpClientAsync();
+                    Console.WriteLine("accept");
+                    Action<object> action =async  (client1) => {
+                        LumberJackHandler serv = null;
+                        TcpClient client = client1 as TcpClient;
+                        try
+                        {
+
+                            serv = getHandler();
+                            await serv.Handle(client);
+                        }
+                        catch (Exception e77)
+                        {
+                            Console.WriteLine("[Server] client connection lost" + e77.ToString());
+                        }
+                        finally
+                        {
+                            if (serv != null)
+                            {
+                                handlers.Add(serv);
+                                serv = null;
+                            }
+                            client?.Dispose();
+
+                        }
+
+                        //                        client.Close();
+                    };
+                    
+                    await new TaskFactory().StartNew(action,tcpClient, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+
+/*                    LumberJackHandler serv = null;
                     try
                     {
                         serv = getHandler();
-                        await serv.Handle(tcpClient);
-                    }
-                    catch (Exception e77)
-                    {
-                        Console.WriteLine("[Server] client connection lost" + e77.ToString());
-                    }
-                    finally
-                    {
-                        if (serv != null)
-                            handlers.Add(serv);
+                        var t=Task.Run(async () => {
+                            try
+                            {
+                                await serv.Handle(tcpClient);
+                            }
+                            catch (Exception e77)
+                            {
+                                Console.WriteLine("[Server] client connection lost" + e77.ToString());
+                            }
+                            finally
+                            {
+                                if (serv != null)
+                                {
+                                    handlers.Add(serv);
+                                    serv = null;
+                                }
 
-                    }
+                            }
+
+                        });
+                    }*/
+
                 }
             }
         }
@@ -172,7 +214,8 @@ namespace ParserLibrary
             } while (allData < compressedSize);
             return inData;
         }
-        public async Task parseStream(Stream sr, NetworkStream sw)
+        public static bool multiThreadMode = true;
+        public async Task parseStream(Stream sr, NetworkStream sw,List<Task> tasks)
         {
             {
                 LumberFrame frame = new LumberFrame();
@@ -260,10 +303,11 @@ namespace ParserLibrary
                         outMemoryStream.Position = 0;
                         int i = 0;
                         DateTime time1 = DateTime.Now;
+//                        List<Task> tasks = new List<Task>();
                         while (outMemoryStream.Position < outMemoryStream.Length)
                         {
                             i++;
-                            await parseStream(outMemoryStream, sw);
+                            await parseStream(outMemoryStream, sw,tasks);
                         }
                         var diff = (DateTime.Now - time1).TotalMilliseconds;
                         if (owner.debugMode)
@@ -315,7 +359,12 @@ namespace ParserLibrary
                     //                allReceivedBytes.AddRange(btsAll);
 
                     frame.strJson = encoder.GetString(btsAll);
-                    owner.signal(frame.strJson);
+                    if(multiThreadMode)
+                        tasks.Add(Task.Run(async () => {
+                            await owner.signal(frame.strJson);
+                        }) );
+                    else
+                        await owner.signal(frame.strJson);
                     //                    Console.WriteLine("json:" + frame.strJson.Length);
                     //                    File.WriteAllText(@"C:\d\out\aa_"+(orderFiles++)+"_" + DateTime.Now.Second + DateTime.Now.Millisecond + ".json", frame.strJson);
 
@@ -347,19 +396,35 @@ namespace ParserLibrary
 
         public  async Task Handle(TcpClient tcpClient)
         {
+            DateTime time = DateTime.Now;
             if (owner.debugMode)
                 Console.WriteLine(DTWM() + "[Server] Client has connected");
             clear();
             using (var networkStream = tcpClient.GetStream())
             {
+                List<Task> tasks = new List<Task>();
                 bool first = true;
                 while (first || networkStream.DataAvailable)
                 {
-                    await parseStream(networkStream, networkStream);
+                    await parseStream(networkStream, networkStream,tasks);
                     first = false;
                 }
+                if(multiThreadMode)
+                {
+                    Task t = Task.WhenAll(tasks.ToArray());
+                    try
+                    {
+                        await t;
+                    }
+                    catch { }
+
+                    if (t.Status == TaskStatus.RanToCompletion)
+                        ;// Console.WriteLine("All Requests attempts succeeded.");
+                    else if (t.Status == TaskStatus.Faulted)
+                        Console.WriteLine("Requests attempts failed");
+                }
                 if (owner.debugMode)
-                    Console.WriteLine(DTWM() + "end send");
+                    Console.WriteLine(DTWM() + "end send "+(DateTime.Now-time).TotalMilliseconds+" ms");
             }
         }
     }

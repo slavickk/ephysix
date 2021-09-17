@@ -14,7 +14,6 @@
     <PackageReference Include="CS-Script.Core" Version="2.0.0" />
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
     <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
-    <PackageReference Include="Syncfusion.Edit.Windows" Version="19.2.0.57" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 

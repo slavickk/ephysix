@@ -30,7 +30,6 @@ namespace TestJsonRazbor
         private void InitializeComponent()
         {
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Root");
-            Syncfusion.Windows.Forms.Edit.Implementation.Config.Config config1 = new Syncfusion.Windows.Forms.Edit.Implementation.Config.Config();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.textBoxSearch = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -85,7 +84,6 @@ namespace TestJsonRazbor
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.treeView2 = new System.Windows.Forms.TreeView();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.editControl1 = new Syncfusion.Windows.Forms.Edit.EditControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.textBoxYaml = new System.Windows.Forms.TextBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -93,6 +91,11 @@ namespace TestJsonRazbor
             this.button8 = new System.Windows.Forms.Button();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.checkBoxFromDir = new System.Windows.Forms.CheckBox();
+            this.comboBoxFoundedFiles = new System.Windows.Forms.ComboBox();
+            this.button3 = new System.Windows.Forms.Button();
+            this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
+            this.openFileDialog3 = new System.Windows.Forms.OpenFileDialog();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -116,8 +119,6 @@ namespace TestJsonRazbor
             this.splitContainer4.Panel1.SuspendLayout();
             this.splitContainer4.Panel2.SuspendLayout();
             this.splitContainer4.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.editControl1)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -137,16 +138,16 @@ namespace TestJsonRazbor
             // 
             // textBoxSearch
             // 
-            this.textBoxSearch.Location = new System.Drawing.Point(0, 5);
+            this.textBoxSearch.Location = new System.Drawing.Point(7, 5);
             this.textBoxSearch.Name = "textBoxSearch";
             this.textBoxSearch.Size = new System.Drawing.Size(200, 39);
             this.textBoxSearch.TabIndex = 1;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(231, 5);
+            this.button1.Location = new System.Drawing.Point(216, 5);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(150, 46);
+            this.button1.Size = new System.Drawing.Size(108, 46);
             this.button1.TabIndex = 2;
             this.button1.Text = "Search";
             this.button1.UseVisualStyleBackColor = true;
@@ -155,7 +156,7 @@ namespace TestJsonRazbor
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(406, 12);
+            this.checkBox1.Location = new System.Drawing.Point(330, 6);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(165, 36);
             this.checkBox1.TabIndex = 3;
@@ -165,16 +166,16 @@ namespace TestJsonRazbor
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(748, 14);
+            this.textBox1.Location = new System.Drawing.Point(1151, 10);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(951, 39);
             this.textBox1.TabIndex = 4;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(590, 12);
+            this.button2.Location = new System.Drawing.Point(2385, 303);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(118, 46);
+            this.button2.Size = new System.Drawing.Size(31, 46);
             this.button2.TabIndex = 5;
             this.button2.Text = "button2";
             this.button2.UseVisualStyleBackColor = true;
@@ -701,7 +702,6 @@ namespace TestJsonRazbor
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.editControl1);
             this.tabPage2.Location = new System.Drawing.Point(8, 8);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -709,41 +709,6 @@ namespace TestJsonRazbor
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Script";
             this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // editControl1
-            // 
-            this.editControl1.AllowZoom = false;
-            this.editControl1.ChangedLinesMarkingLineColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(238)))), ((int)(((byte)(98)))));
-            this.editControl1.CodeSnipptSize = new System.Drawing.Size(100, 100);
-            this.editControl1.Configurator = config1;
-            this.editControl1.ContextChoiceBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.editControl1.ContextChoiceBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(233)))), ((int)(((byte)(166)))), ((int)(((byte)(50)))));
-            this.editControl1.ContextChoiceForeColor = System.Drawing.SystemColors.InfoText;
-            this.editControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editControl1.IndicatorMarginBackColor = System.Drawing.Color.Empty;
-            this.editControl1.LineNumbersColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.editControl1.Location = new System.Drawing.Point(3, 3);
-            this.editControl1.MarkerAreaWidth = 32;
-            this.editControl1.Name = "editControl1";
-            this.editControl1.RenderRightToLeft = false;
-            this.editControl1.ScrollPosition = new System.Drawing.Point(0, 0);
-            this.editControl1.SelectionTextColor = System.Drawing.Color.FromArgb(((int)(((byte)(173)))), ((int)(((byte)(214)))), ((int)(((byte)(255)))));
-            this.editControl1.Size = new System.Drawing.Size(2356, 1272);
-            this.editControl1.StatusBarSettings.CoordsPanel.Width = 150;
-            this.editControl1.StatusBarSettings.EncodingPanel.Width = 100;
-            this.editControl1.StatusBarSettings.FileNamePanel.Width = 100;
-            this.editControl1.StatusBarSettings.InsertPanel.Width = 33;
-            this.editControl1.StatusBarSettings.Offcie2007ColorScheme = Syncfusion.Windows.Forms.Office2007Theme.Blue;
-            this.editControl1.StatusBarSettings.Offcie2010ColorScheme = Syncfusion.Windows.Forms.Office2010Theme.Blue;
-            this.editControl1.StatusBarSettings.StatusPanel.Width = 70;
-            this.editControl1.StatusBarSettings.TextPanel.Width = 214;
-            this.editControl1.StatusBarSettings.VisualStyle = Syncfusion.Windows.Forms.Tools.Controls.StatusBar.VisualStyle.Default;
-            this.editControl1.TabIndex = 0;
-            this.editControl1.Text = "editControl1";
-            this.editControl1.UseXPStyleBorder = true;
-            this.editControl1.VisualColumn = 13;
-            this.editControl1.VScrollMode = Syncfusion.Windows.Forms.Edit.ScrollMode.Immediate;
-            this.editControl1.ZoomFactor = 1F;
             // 
             // tabPage3
             // 
@@ -776,7 +741,7 @@ namespace TestJsonRazbor
             // 
             // button9
             // 
-            this.button9.Location = new System.Drawing.Point(1705, 10);
+            this.button9.Location = new System.Drawing.Point(2108, 6);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(150, 46);
             this.button9.TabIndex = 9;
@@ -786,7 +751,7 @@ namespace TestJsonRazbor
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(1861, 10);
+            this.button8.Location = new System.Drawing.Point(2264, 6);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(150, 46);
             this.button8.TabIndex = 8;
@@ -797,13 +762,56 @@ namespace TestJsonRazbor
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            this.openFileDialog1.InitialDirectory = @"C:\Users\User\Documents\PacketOut";
+            this.openFileDialog1.InitialDirectory = "C:\\Users\\User\\Documents\\PacketOut";
+            // 
+            // checkBoxFromDir
+            // 
+            this.checkBoxFromDir.AutoSize = true;
+            this.checkBoxFromDir.Location = new System.Drawing.Point(490, 10);
+            this.checkBoxFromDir.Name = "checkBoxFromDir";
+            this.checkBoxFromDir.Size = new System.Drawing.Size(132, 36);
+            this.checkBoxFromDir.TabIndex = 21;
+            this.checkBoxFromDir.Text = "from dir";
+            this.checkBoxFromDir.UseVisualStyleBackColor = true;
+            // 
+            // comboBoxFoundedFiles
+            // 
+            this.comboBoxFoundedFiles.FormattingEnabled = true;
+            this.comboBoxFoundedFiles.Location = new System.Drawing.Point(628, 8);
+            this.comboBoxFoundedFiles.Name = "comboBoxFoundedFiles";
+            this.comboBoxFoundedFiles.Size = new System.Drawing.Size(242, 40);
+            this.comboBoxFoundedFiles.TabIndex = 22;
+            this.comboBoxFoundedFiles.SelectedIndexChanged += new System.EventHandler(this.comboBoxFoundedFiles_SelectedIndexChanged);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(915, 4);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(150, 46);
+            this.button3.TabIndex = 23;
+            this.button3.Text = "Test yaml";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            // 
+            // openFileDialog2
+            // 
+            this.openFileDialog2.FileName = "openFileDialog2";
+            this.openFileDialog2.Filter = "Yaml files |*.yml";
+            this.openFileDialog2.InitialDirectory = "C:\\Users\\User\\Documents";
+            // 
+            // openFileDialog3
+            // 
+            this.openFileDialog3.FileName = "openFileDialog1";
+            this.openFileDialog3.InitialDirectory = "C:\\Users\\User\\Documents\\PacketOut";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2420, 1408);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.comboBoxFoundedFiles);
+            this.Controls.Add(this.checkBoxFromDir);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.button8);
             this.Controls.Add(this.button9);
@@ -843,8 +851,6 @@ namespace TestJsonRazbor
             this.splitContainer4.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
             this.splitContainer4.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.editControl1)).EndInit();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             this.ResumeLayout(false);
@@ -876,7 +882,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
-        private Syncfusion.Windows.Forms.Edit.EditControl editControl1;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ComboBox comboBox1;
@@ -916,6 +921,11 @@ namespace TestJsonRazbor
         private System.Windows.Forms.SplitContainer splitContainer3;
         private System.Windows.Forms.SplitContainer splitContainer4;
         private System.Windows.Forms.TreeView treeView2;
+        private System.Windows.Forms.CheckBox checkBoxFromDir;
+        private System.Windows.Forms.ComboBox comboBoxFoundedFiles;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.OpenFileDialog openFileDialog2;
+        private System.Windows.Forms.OpenFileDialog openFileDialog3;
     }
 }
 

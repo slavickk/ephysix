@@ -32,7 +32,7 @@ namespace ConsoleIntegrityUtility
                 Console.WriteLine("Error:"+e77.Message);
                 return -1;
             }
-            pip.run();
+            pip.run().GetAwaiter().GetResult();
             return 0;
         }
     }
