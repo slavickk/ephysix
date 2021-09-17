@@ -17,7 +17,7 @@ namespace ParserLibrary
         List<Item> list = new List<Item>();
         bool changed = false;
 
-        public override void send(AbstrParser.UniEl root)
+        public async override Task send(AbstrParser.UniEl root)
         {
 
             List<AbstrParser.UniEl> stored_list =root.toList();

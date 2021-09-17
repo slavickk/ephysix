@@ -166,6 +166,32 @@ namespace ParserLibrary
                     newEl.childs.Add(nod.copy(newEl));
                 return newEl;
             }
+
+            public IEnumerable<UniEl> getAllDescentants(string[] path,int index)
+            {
+                if (this.Name == path[index])
+                {
+                    if (index == path.Length - 1)
+                        yield return this;
+                    else
+                    {
+                        foreach (var el in this.childs)
+                        {
+//                            el.getAllDescentants(path, index + 1);
+                            foreach (var el2 in el.getAllDescentants(path, index + 1))
+                                yield return el2;
+
+                            /*                            yield return el;
+                                                        foreach (var el1 in el.childs)
+                                                        {
+                            //                                yield return el1;
+                                                            return  el1.getAllDescentants(path,index+1));
+                                                        }*/
+                        }
+                    }
+                }
+            }
+
             public IEnumerable<UniEl> getAllDescentants()
             {
                 foreach (var el in this.childs)
@@ -185,6 +211,10 @@ namespace ParserLibrary
                 set
                 {
                     ancestor1 = value;
+                    if (ancestor1 != null)
+                        rootIndex = ancestor1.rootIndex + 1;
+                    else
+                        rootIndex = 0;
                     if (ancestor1 != null && !ancestor1.childs.Contains(this))
                         ancestor1.childs.Add(this);
                 }
@@ -195,6 +225,7 @@ namespace ParserLibrary
             }
             public List<UniEl> childs = new List<UniEl>();
             public Drawer treeNode= null;
+            public int rootIndex;
             public string path
             {
                 get
@@ -479,7 +510,7 @@ namespace ParserLibrary
             var name = property.Name;
             if(isAttr)
             {
-                name = "@" + name;
+                name = "-" + name;
             }
             if(name=="mcp:Action")
             {

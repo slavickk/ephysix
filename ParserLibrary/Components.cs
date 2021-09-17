@@ -12,6 +12,8 @@ using System.Reflection;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Net.Http;
+using System.Data.HashFunction.xxHash;
+
 
 namespace ParserLibrary
 {
@@ -30,22 +32,24 @@ namespace ParserLibrary
                 debugMode = value.debugMode;
             }
         }
-        public delegate void StringReceived(string input);
+        public delegate  void StringReceived(string input);
         public delegate void BytesReceived(byte[] input);
-        public event StringReceived stringReceived;
-        public void signal(string input)
+        public Func<string,Task> stringReceived;
+        public async Task signal(string input)
         {
             if (saver != null)
                 saver.save(input);
-            stringReceived?.Invoke(input);
+            if(stringReceived != null)
+                await stringReceived(input);
         }
-        public abstract void start();
+        public async virtual Task start()
+        { }
     }
     public abstract class Sender
     {
         [YamlIgnore]
         public Step owner;
-        public virtual void send(AbstrParser.UniEl root)
+        public async virtual Task send(AbstrParser.UniEl root)
         {
             if (owner.debugMode)
                 Console.WriteLine("send result");
@@ -103,34 +107,97 @@ return true;
     public class ConditionFilter : Filter
     {
         public string conditionPath { get; set; }
+        public string[] tokens=null;
+
+        /*public ConditionFilter()
+        {
+
+        }*/
         //                                  Item/everything!/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name
         //Item/everything!/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name
         //       [JsonInclude]
         public ComparerV conditionCalcer { get; set; } = new ScriptCompaper();
-
+        public static bool isNew = true;
         public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list)
         {
+            if (isNew)
+            {
+                if (tokens == null)
+                    tokens = conditionPath.Split("/");
+                return list[0].getAllDescentants(tokens,0).Where(ii =>  conditionCalcer.Compare(ii));
+            }
+            else
             return list.Where(ii => ii.path == conditionPath && conditionCalcer.Compare(ii));
         }
     }
+
+    public abstract class ConverterOutput
+    {
+        public abstract string Convert(string value, AbstrParser.UniEl el);
+    }
+    public class CryptoHash : ConverterOutput
+    {
+        public int SizeInBits = 64;
+        public override string Convert(string value, AbstrParser.UniEl el)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class Hash : ConverterOutput
+    {
+        public int SizeInBits = 64;
+        bool init = false;
+        public Hash()
+        {
+
+        }
+         IxxHash instance ;
+        void Init()
+        {
+            if(!init)
+            {
+                init = true;
+                instance = xxHashFactory.Instance.Create(new xxHashConfig() { HashSizeInBits = SizeInBits });
+            }
+
+        }
+        public override string Convert(string value, AbstrParser.UniEl el)
+        {
+            Init();
+            return instance.ComputeHash(Encoding.ASCII.GetBytes(value)).AsHexString();
+        }
+    }
+
 
     public abstract class OutputValue
     {
         public string outputPath;
         public enum TypeCopy { Value, Structure };
         public TypeCopy typeCopy = TypeCopy.Value;
+        public enum OnEmptyAction { Skip, FillEmpty };
+        public OnEmptyAction onEmptyValueAction = OnEmptyAction.Skip;
+
+        public ConverterOutput converter = null;
+
         public abstract string getValue(AbstrParser.UniEl rootEl);
-        public virtual void addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+        public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
         {
             // Пока поддерживается только линейная структура записи
             if (typeCopy == TypeCopy.Value)
             {
+                var el1= getValue(inputRoot);
+
+                if (el1 == "" && onEmptyValueAction == OnEmptyAction.Skip)
+                    return false;
+                if (converter != null)
+                    el1 = converter.Convert(el1, inputRoot);
                 AbstrParser.UniEl el = new AbstrParser.UniEl(outputRoot);
                 el.Name = outputPath;
-                el.Value = getValue(inputRoot);
+                el.Value = el1;
             }
             else
                 outputRoot.childs.Add(inputRoot.copy(outputRoot));
+            return true;
         }
     }
 
@@ -154,32 +221,60 @@ return true;
             return outputPath + "; from " + conditionPath;
         }
         public string conditionPath { get; set; }
+
+        public string[] conditionPathToken = null;
         public ComparerV conditionCalcer { get; set; }
         public string valuePath { get; set; } = "";
+        public string[] valuePathToken = null;
         public override string getValue(AbstrParser.UniEl rootEl)
         {
-
-            var pathOwn = rootEl.path;
-            var patts1 = AbstrParser.PathBuilder(new string[] { pathOwn, conditionPath });
-
-
-            var patts = AbstrParser.PathBuilder(new string[] { conditionPath, valuePath });
-
-            var rootEl1 = getLocalRoot(patts1, 0, rootEl);
-
-
-            foreach (var item in rootEl1.getAllDescentants().Where(ii => ii.path == conditionPath && ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
+            if (ConditionFilter.isNew)
             {
-                var item1 = item;
-                if (valuePath != "")
-                {
-                    item1 = getLocalRoot(patts, 0, item1);
-                    foreach (var item2 in item1.getAllDescentants().Where(ii => ii.path == valuePath))
-                        return item2.Value?.ToString();
-                }
-                else
-                    return item.Value.ToString();
+                if (conditionPathToken == null)
+                    conditionPathToken = conditionPath.Split("/");
 
+                var rootEl1 = getLocalRoot( rootEl,conditionPathToken);
+
+                foreach (var item in rootEl1.getAllDescentants(conditionPathToken,rootEl1.rootIndex).Where(ii => ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
+                {
+                    var item1 = item;
+                    if (valuePath != "")
+                    {
+                        if (valuePathToken == null)
+                            valuePathToken = valuePath.Split("/");
+                        item1 = getLocalRoot( item1,valuePathToken);
+                        foreach (var item2 in item1.getAllDescentants(valuePathToken,item1.rootIndex))
+                            return item2.Value?.ToString();
+                    }
+                    else
+                        return item.Value.ToString();
+
+                }
+
+            }
+            else
+            {
+                var pathOwn = rootEl.path;
+                var patts1 = AbstrParser.PathBuilder(new string[] { pathOwn, conditionPath });
+
+
+                var patts = AbstrParser.PathBuilder(new string[] { conditionPath, valuePath });
+
+                var rootEl1 = getLocalRoot(patts1, 0, rootEl);
+
+                foreach (var item in rootEl1.getAllDescentants().Where(ii => ii.path == conditionPath && ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
+                {
+                    var item1 = item;
+                    if (valuePath != "")
+                    {
+                        item1 = getLocalRoot(patts, 0, item1);
+                        foreach (var item2 in item1.getAllDescentants().Where(ii => ii.path == valuePath))
+                            return item2.Value?.ToString();
+                    }
+                    else
+                        return item.Value.ToString();
+
+                }
             }
             return "";
         }
@@ -196,6 +291,27 @@ return true;
 
             return item1;
         }
+
+        private AbstrParser.UniEl getLocalRoot( AbstrParser.UniEl item1, string[] patts)
+        {
+            var item = item1;
+            AbstrParser.UniEl itemRet = null;
+            for(int i=Math.Min(item1.rootIndex,patts.Length-1);i>=0;i--)
+            {
+                while (item.rootIndex > i)
+                    item = item.ancestor;
+                if (item.Name != patts[i])
+                    itemRet = item.ancestor;
+//                        return item;
+            }
+            if (itemRet == null)
+                return item;
+            return itemRet;
+        }
+
+
+
+
     }
     public class FilterComparer
     {
@@ -258,7 +374,7 @@ return true;
         public Step[] steps = new Step[] { new Step() };
         static List<Type> getAllRegTypes()
         {
-            return Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ComparerV)) || t.IsSubclassOf(typeof(Receiver)) || t.IsSubclassOf(typeof(Filter)) || t.IsSubclassOf(typeof(Sender)) || t.IsSubclassOf(typeof(OutputValue))).ToList();
+            return Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) || t.IsSubclassOf(typeof(Receiver)) || t.IsSubclassOf(typeof(Filter)) || t.IsSubclassOf(typeof(Sender)) || t.IsSubclassOf(typeof(OutputValue))).ToList();
 
             //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
         }
@@ -276,9 +392,9 @@ return true;
             }
 
         }
-        public void run()
+        public async Task run()
         {
-            steps[0].run();
+            await steps[0].run();
         }
 
         public static Pipeline load(string fileName = @"C:\d\model.yml")
@@ -308,20 +424,26 @@ return true;
     }
     public class Step
     {
-        public void run()
+        public async Task run()
         {
             receiver.owner = this;
             sender.owner = this;
-            receiver.stringReceived += Receiver_stringReceived;
-            receiver.start();
+            receiver.stringReceived = Receiver_stringReceived;
+            await receiver.start();
 
         }
         public string IDStep="Example";
         public string description = "Some comments in this place";
         public bool debugMode = true;
         public Receiver receiver = new PacketBeatReceiver();
-        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
-        public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
+        public class ItemFilter
+        {
+            public Filter filter = new ConditionFilter();
+            public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
+        }
+        public List<ItemFilter> filters = new List<ItemFilter>() { new ItemFilter() };
+/*        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
+        public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
 //        public RecordExtractor transformer;
         public Sender sender=new LongLifeRepositorySender();
         public Step()
@@ -329,7 +451,7 @@ return true;
         }
 
      //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
-        private void Receiver_stringReceived(string input)
+        private async Task Receiver_stringReceived(string input)
         {
             List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
             AbstrParser.UniEl rootElInput = AbstrParser.CreateNode(null, list, "Item");
@@ -343,38 +465,39 @@ return true;
                     if (filters != null && filters.Count > 0)
                     {
                         bool found = false;
-                        foreach (var item in filters.First().filter(list))
+                        foreach (var item in filters/*.First().filter(list)*/)
                         {
-                            FindAndCopy(rootElInput, time1);
+                            foreach(var item1 in  item.filter.filter(list))
+                                await FindAndCopy(rootElInput, time1,item,item1);
                             found = true;
                         }
-                        if (!found && debugMode)
-                            Console.WriteLine("no filtered records");
+/*                        if (!found && debugMode)
+                            Console.WriteLine("no filtered records");*/
 
-                    } else
+                    } /*else
                     {
                         FindAndCopy(rootElInput, time1);
-                    }
+                    }*/
                     //                    repo.Add(list);
                     break;
                 }
-
+            list.Clear();
         }
 
-        private void FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1)
+        private async Task FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el)
         {
             int count = 0;
             var local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
-            foreach (var ff in this.outputFields)
+            foreach (var ff in item.outputFields)
             {
-                ff.addToOutput(rootElInput, ref local_rootOutput);
-                count++;
+                if(ff.addToOutput(rootElInput, ref local_rootOutput))
+                    count++;
             }
             if (debugMode)
                 Console.WriteLine(" transform to output " + count + " items");
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
-            sender.send(local_rootOutput);
+            await sender.send(local_rootOutput);
         }
 
 
@@ -385,7 +508,7 @@ return true;
         public JsonSender()
         {
             var handler = new HttpClientHandler();
-            //handler.MaxConnectionsPerServer = 2;
+            handler.MaxConnectionsPerServer = 256;
             client = new HttpClient(handler);
         }
 
@@ -413,9 +536,9 @@ return true;
         }
 
         public string url = @"https://195.170.67:51200/Rec";
-        public override void send(AbstrParser.UniEl root)
+        public async override Task send(AbstrParser.UniEl root)
         {
-            base.send(root);
+            await base.send(root);
             string str = "{";
             bool first = true;
             foreach (var el in root.childs)
@@ -424,9 +547,12 @@ return true;
                 first = false;
             }
             str += "}";
+
             if (owner.debugMode)
                 Console.WriteLine("Send:" + str);
-
+            DateTime time1 = DateTime.Now;
+            var ans=await internSend(str);
+            Console.WriteLine("-Send:"+ans+" "+(DateTime.Now-time1).TotalMilliseconds+" ms");
         }
     }
     public class FileReceiver : Receiver
@@ -435,7 +561,7 @@ return true;
 
         public string file_name = @"C:\Data\scratch_1.txt";
 
-        public override void start()
+        public async override Task start()
         {
             int ind = 0;
             using (StreamReader sr = new StreamReader(file_name))
@@ -450,7 +576,7 @@ return true;
                         line = line.Substring(0, pos);
                     if (line != "")
                     {
-                        signal(line);
+                        await signal(line);
                     }
                 }
 
@@ -458,63 +584,24 @@ return true;
         }
     }
 
-    public class PacketBeatReceiver1:Receiver
+    public class TestReceiver:Receiver
     {
-        public int port = 15001;
+        public string path;
+        public string pattern="";
 
 
-        string norm(string line)
+
+        public async override Task start()
         {
-            return line;
-            //return line.Replace("\\n", "").Replace("\\", "");
-        }
 
-        public override void start()
-        {
-            string delim = "---------------------------RRRRR----------------------------------";
-
-            var file_name = @"C:\Data\scratch_1.txt";
-            int ind = 0;
-            using (StreamReader sr = new StreamReader(file_name))
+            foreach (var file_name in ((pattern == "") ? new string[] { path } : Directory.GetFiles(path, pattern)))
             {
-                while (!sr.EndOfStream)
+                using (StreamReader sr = new StreamReader(file_name))
                 {
-                    var line = sr.ReadLine();
-                    ind++;
-                    int pos = line.IndexOf(delim);
-                    if (pos >= 0)
-                        line = line.Substring(0, pos);
-                    if (line != "")
-                    {
-                        DateTime time1 = DateTime.Now;
-                        signal(line);
-                        AbstrParser.regEvent("AL", time1);
-                        /*int iBeg = 0;
-                        int iSco = 0;
-                        for (int i = 0; i < line.Length; i++)
-                        {
-                            if (line[i] == '{')
-                                iSco++;
-                            if (line[i] == '}')
-                                iSco--;
-                            if(iSco==0 )
-                            {
-                                var line1 = line.Substring(iBeg, (i - iBeg) + 1);
-                                if(line1.Trim() !="")
-                                    signal(norm(line1));
-                                iBeg = i + 1;
-                            }
+                    var body = sr.ReadToEnd();
+                    await signal(body);
 
-                        }
-                        {
-                            var line1 = line.Substring(iBeg);
-                            if (line1.Trim() != "")
-                                signal(norm(line1));
-                        }*/
-
-                    }
                 }
-
             }
 
         }
