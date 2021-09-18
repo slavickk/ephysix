@@ -24,6 +24,7 @@ namespace ConsoleIntegrityUtility
             try
             {
                 pip = Pipeline.load(args[0]);
+                var suc=pip.SelfTest().GetAwaiter().GetResult();
 
 //                pip = pips[0];
             }  

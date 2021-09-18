@@ -755,6 +755,7 @@ namespace TestJsonRazbor
                 try
                 {
                     var pip = Pipeline.load(openFileDialog2.FileName);
+                    pip.SelfTest();
                     TestReceiver rec;
                     if (checkBoxFromDir.Checked)
                         rec = new TestReceiver() { path = dirPath, pattern = "*.*" };
