@@ -17,6 +17,11 @@ using System.Data.HashFunction.xxHash;
 
 namespace ParserLibrary
 {
+    public interface ISelfTested
+    {
+        Task<(bool,string)> isOK();
+    }
+
     public abstract class Receiver
     {
         [YamlIgnore]
@@ -372,6 +377,13 @@ return true;
     {
         public string pipelineDescription = "Pipeline example";
         public Step[] steps = new Step[] { new Step() };
+
+        public async Task<bool> SelfTest()
+        {
+            var res1=await (this.steps[0].sender as ISelfTested).isOK();
+            Console.WriteLine(res1.Item2 + ".Results:" + (res1.Item1 ? "OK" : "Fail"));
+            return res1.Item1;
+        }
         static List<Type> getAllRegTypes()
         {
             return Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) || t.IsSubclassOf(typeof(Receiver)) || t.IsSubclassOf(typeof(Filter)) || t.IsSubclassOf(typeof(Sender)) || t.IsSubclassOf(typeof(OutputValue))).ToList();
@@ -502,7 +514,7 @@ return true;
 
 
     }
-    public  class JsonSender:Sender
+    public  class JsonSender:Sender,ISelfTested
     {
         HttpClient client;
         public JsonSender()
@@ -553,6 +565,28 @@ return true;
             DateTime time1 = DateTime.Now;
             var ans=await internSend(str);
             Console.WriteLine("-Send:"+ans+" "+(DateTime.Now-time1).TotalMilliseconds+" ms");
+        }
+
+        public async Task<(bool,string)> isOK()
+        {
+            string details;
+            bool isSuccess = true;
+
+            details = "Make http request to " + this.url;
+            try
+            {
+                DateTime time1 = DateTime.Now;
+                var ans = await internSend("{\"stream\":\"CheckLL\"}");
+                Console.WriteLine("-Send:" + ans + " " + (DateTime.Now - time1).TotalMilliseconds + " ms");
+                if (ans == "")
+                    isSuccess = false;
+            }
+            catch(Exception e77)
+            {
+                isSuccess = false;
+            }
+            //            if(ans)
+            return (isSuccess,details);
         }
     }
     public class FileReceiver : Receiver
