@@ -81,7 +81,7 @@ namespace WebApiConsoleUtility
             {
                 if(YamlPath == null)
                 {
-                    Log.Fatal("YAML_PATH environment variable not set.Execution impossible.");
+                    Log.Fatal("YAML_PATH environment variable not set.Execution impossible.Default config file placed at /app/Data/model.yml");
                     return;
                 }
                 if(!File.Exists(YamlPath))
