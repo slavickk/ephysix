@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MaxMind.GeoIP2\MaxMind.GeoIP2.csproj" />
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
   </ItemGroup>
 

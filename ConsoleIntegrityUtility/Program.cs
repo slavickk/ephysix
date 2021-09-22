@@ -1,7 +1,9 @@
 ﻿using System;
 //using System.Reflection;
 using ParserLibrary;
-
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 
 namespace ConsoleIntegrityUtility
 {
@@ -9,17 +11,23 @@ namespace ConsoleIntegrityUtility
     {
         static int Main(string[] args)
         {
-/*            JsonSender sender = new JsonSender() { url = "http://192.168.75.160:25080/api/Streams/LoadStream1" };
-            var answer=sender.internSend("{\"stream\":\"loginEnter\",\"originalTime\":\"2020-12-19T21:06:35.2387735+05:00\",\"login\":\"+79222310645\"}").Result;*/
-/*            var bytes=Convert.FromBase64String("M0RTLzNSSUluZGljYXRvcj0QM0RTL0V4cFRpbWVJbnRlcnZhbD02MBBFeHQvTmV0d29yaz0xMQ==");
+            /*            JsonSender sender = new JsonSender() { url = "http://192.168.75.160:25080/api/Streams/LoadStream1" };
+                        var answer=sender.internSend("{\"stream\":\"loginEnter\",\"originalTime\":\"2020-12-19T21:06:35.2387735+05:00\",\"login\":\"+79222310645\"}").Result;*/
+            /*            var bytes=Convert.FromBase64String("M0RTLzNSSUluZGljYXRvcj0QM0RTL0V4cFRpbWVJbnRlcnZhbD02MBBFeHQvTmV0d29yaz0xMQ==");
 
-            string value = System.Text.Encoding.UTF8.GetString(bytes);*/
-/*            var pip2 = new Pipeline();
-            pip2.Save( @"aa3.yml");*/
-       /*     var tt=typeof(LongLifeRepositorySender).IsSubclassOf(typeof(Sender));
-            var tt1 = typeof(LongLifeRepositorySender).IsAssignableTo(typeof(Sender));
-            // typeof(ComparerForValue).GenericTypeParameters
-            //           typeof(ComparerForValue).IsAssignableTo(typeof(ComparerV));*/
+                        string value = System.Text.Encoding.UTF8.GetString(bytes);*/
+            /*            var pip2 = new Pipeline();
+                        pip2.Save( @"aa3.yml");*/
+            /*     var tt=typeof(LongLifeRepositorySender).IsSubclassOf(typeof(Sender));
+                 var tt1 = typeof(LongLifeRepositorySender).IsAssignableTo(typeof(Sender));
+                 // typeof(ComparerForValue).GenericTypeParameters
+                 //           typeof(ComparerForValue).IsAssignableTo(typeof(ComparerV));*/
+            var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
+
+            Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
             Pipeline pip;
             try
             {

@@ -317,7 +317,7 @@ namespace ParserLibrary
 
     public class IPAddrParser : AbstrParser
     {
-        const string dbPath = @"GeoData\GeoLite2-Country.mmdb";
+        const string dbPath = @"GeoData/GeoLite2-Country.mmdb";
 //        DatabaseReader reader = null;
         DatabaseReader reader = new DatabaseReader(dbPath, FileAccessMode.Memory);
 
@@ -464,7 +464,7 @@ namespace ParserLibrary
             }
             catch (AddressNotFoundException)
             {
-                Console.WriteLine("addr " + line + "not found");
+                Logger.log("addr " + line + "not found", Serilog.Events.LogEventLevel.Error);
                 return false;
             }
             return true;

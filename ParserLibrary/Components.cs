@@ -56,8 +56,8 @@ namespace ParserLibrary
         public Step owner;
         public async virtual Task send(AbstrParser.UniEl root)
         {
-            if (owner.debugMode)
-                Console.WriteLine("send result");
+/*            if (owner.debugMode)
+                Console.WriteLine("send result");*/
 
         }
     }
@@ -381,7 +381,7 @@ return true;
         public async Task<bool> SelfTest()
         {
             var res1=await (this.steps[0].sender as ISelfTested).isOK();
-            Console.WriteLine(res1.Item2 + ".Results:" + (res1.Item1 ? "OK" : "Fail"));
+            Logger.log(res1.Item2 + ".Results:" + (res1.Item1 ? "OK" : "Fail"));
             return res1.Item1;
         }
         static List<Type> getAllRegTypes()
@@ -506,7 +506,7 @@ return true;
                     count++;
             }
             if (debugMode)
-                Console.WriteLine(" transform to output " + count + " items");
+                Logger.log(" transform to output " + count + " items", Serilog.Events.LogEventLevel.Debug);
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
             await sender.send(local_rootOutput);
@@ -560,11 +560,11 @@ return true;
             }
             str += "}";
 
-            if (owner.debugMode)
-                Console.WriteLine("Send:" + str);
+/*            if (owner.debugMode)
+                Console.WriteLine("Send:" + str);*/
             DateTime time1 = DateTime.Now;
             var ans=await internSend(str);
-            Console.WriteLine("-Send:"+ans+" "+(DateTime.Now-time1).TotalMilliseconds+" ms");
+            Logger.log(time1," Send:"+str +" ans:"+ans,"JsonSender");
         }
 
         public async Task<(bool,string)> isOK()
@@ -577,7 +577,7 @@ return true;
             {
                 DateTime time1 = DateTime.Now;
                 var ans = await internSend("{\"stream\":\"CheckLL\"}");
-                Console.WriteLine("-Send:" + ans + " " + (DateTime.Now - time1).TotalMilliseconds + " ms");
+                Logger.log(time1,"-Send:" + ans ,"SelfTest");
                 if (ans == "")
                     isSuccess = false;
             }
