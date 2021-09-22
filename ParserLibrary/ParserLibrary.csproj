@@ -6,14 +6,12 @@
 
   <ItemGroup>
     <PackageReference Include="CS-Script.Core" Version="2.0.0" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="System.Data.HashFunction.xxHash" Version="2.0.0" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
     <PackageReference Include="zlib.net" Version="1.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\MaxMind.GeoIP2\MaxMind.GeoIP2.csproj" />
   </ItemGroup>
 
   <ItemGroup>

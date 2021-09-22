@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleIntegrityUtility", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppTestUtility", "ConsoleAppTestUtility\ConsoleAppTestUtility.csproj", "{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaxMind.GeoIP2", "MaxMind.GeoIP2\MaxMind.GeoIP2.csproj", "{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiConsoleUtility", "WebApiConsoleUtility\WebApiConsoleUtility.csproj", "{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F1B5C67-0C30-4C21-833C-E37EB4BE7D56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

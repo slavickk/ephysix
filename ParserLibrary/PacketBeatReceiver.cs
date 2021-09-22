@@ -47,7 +47,7 @@ namespace ParserLibrary
                 return retValue;
             }
             if(debugMode)
-                Console.WriteLine("add new handler");
+                Logger.log("add new handler", Serilog.Events.LogEventLevel.Debug);
             retValue = new LumberJackHandler(this);
             retValue.clear();
             return retValue;
@@ -55,16 +55,18 @@ namespace ParserLibrary
         private async Task StartListener(int port)
         {
             //            NewServer serv = new NewServer();
+            Logger.log("Listening port " + port + ". Check port availiability.", Serilog.Events.LogEventLevel.Warning);
+
             var tcpListener = TcpListener.Create(port);
             tcpListener.Start();
             for (; ; )
             {
                 if (debugMode)
-                    Console.WriteLine("[Server] waiting for clients on port "+port+"...");
+                    Logger.log("[Server] waiting for clients on port "+port+"...", Serilog.Events.LogEventLevel.Debug);
 //                using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
                 {
                     var tcpClient = await tcpListener.AcceptTcpClientAsync();
-                    Console.WriteLine("accept");
+                    Logger.log("accept", Serilog.Events.LogEventLevel.Debug);
                     Action<object> action =async  (client1) => {
                         LumberJackHandler serv = null;
                         TcpClient client = client1 as TcpClient;
@@ -76,7 +78,7 @@ namespace ParserLibrary
                         }
                         catch (Exception e77)
                         {
-                            Console.WriteLine("[Server] client connection lost" + e77.ToString());
+                            Logger.log("[Server] client connection lost", e77);
                         }
                         finally
                         {
@@ -160,7 +162,7 @@ namespace ParserLibrary
             //    Console.WriteLine(DateTime.Now + " +ack end");
             sr.Flush();
             if(owner.debugMode)
-                Console.WriteLine(DTWM() + "*ack sent*" + sequenceNumber);
+                Logger.log("*ack sent*" + sequenceNumber, Serilog.Events.LogEventLevel.Debug);
             //            File.WriteAllBytes(@"c:\d\answer.bn", ackBytes);
 
 
@@ -206,7 +208,7 @@ namespace ParserLibrary
 
                 if (readBytes <=0) //error
                 {
-                    Console.WriteLine("not all data received "+allData+" "+readBytes);
+                    Logger.log("not all data received "+allData+" "+readBytes, Serilog.Events.LogEventLevel.Error);
                     await sendAck(sw, lastFrameToAck); // We ack the last frame we received then crash the connection
                     return null;
                 }
@@ -258,7 +260,7 @@ namespace ParserLibrary
                     frameReceivedCount = 0; // reset the frame-received-counter
 
                     if (owner.debugMode)
-                        Console.WriteLine(DTWM() + "window size: " + windowSize);
+                        Logger.log("window size: " + windowSize, Serilog.Events.LogEventLevel.Debug);
                     return;
                     //goto start;
                 }
@@ -277,7 +279,7 @@ namespace ParserLibrary
                     Array.Reverse(btsWindowSize);
                     uint compressedSize = BitConverter.ToUInt32(btsWindowSize, 0); // the number of frames before ack.
                     if (owner.debugMode)
-                        Console.WriteLine("compressed wnd size:" + compressedSize);
+                        Logger.log("compressed wnd size:" + compressedSize, Serilog.Events.LogEventLevel.Debug);
                     byte[] inData =await ReadAll(sr, sw, compressedSize);
                     if (inData == null)
                         return;
@@ -309,9 +311,9 @@ namespace ParserLibrary
                             i++;
                             await parseStream(outMemoryStream, sw,tasks);
                         }
-                        var diff = (DateTime.Now - time1).TotalMilliseconds;
+//                        var diff = (DateTime.Now - time1).TotalMilliseconds;
                         if (owner.debugMode)
-                            Console.WriteLine("unpack " + i + " compressed files;"+diff+" ms ");
+                            Logger.log(time1,"unpack " + i + " compressed files","unp", Serilog.Events.LogEventLevel.Debug);
                         //                    Console.WriteLine("return from compressed " + isMemStream);
                         //                      return;
                         //                        outData = outMemoryStream.ToArray();
@@ -398,7 +400,7 @@ namespace ParserLibrary
         {
             DateTime time = DateTime.Now;
             if (owner.debugMode)
-                Console.WriteLine(DTWM() + "[Server] Client has connected");
+                Logger.log("[Server] Client has connected", Serilog.Events.LogEventLevel.Debug);
             clear();
             using (var networkStream = tcpClient.GetStream())
             {
@@ -421,10 +423,10 @@ namespace ParserLibrary
                     if (t.Status == TaskStatus.RanToCompletion)
                         ;// Console.WriteLine("All Requests attempts succeeded.");
                     else if (t.Status == TaskStatus.Faulted)
-                        Console.WriteLine("Requests attempts failed");
+                        Logger.log("Requests attempts failed" , Serilog.Events.LogEventLevel.Error);
                 }
                 if (owner.debugMode)
-                    Console.WriteLine(DTWM() + "end send "+(DateTime.Now-time).TotalMilliseconds+" ms");
+                    Logger.log(time,"end send ", "pkbs", Serilog.Events.LogEventLevel.Information);
             }
         }
     }
