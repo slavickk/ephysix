@@ -64,6 +64,8 @@ namespace WebApiConsoleUtility
                 Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
         .Enrich.FromLogContext()
+        .Enrich.WithProperty("Mashine", System.Environment.MachineName)
+//        .Enrich.With<>
         .WriteTo.Console(new RenderedCompactJsonFormatter())
         .CreateLogger();
             else
@@ -74,6 +76,7 @@ namespace WebApiConsoleUtility
         .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
 
             }
+            
             if (levelInfo != "")
                 Log.Error(levelInfo);
 //            ParserLibrary.Logger.levelSwitch.MinimumLevel = LogEventLevel.Debug;

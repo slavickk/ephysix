@@ -12,6 +12,19 @@ namespace ParserLibrary
     public class Logger
     {
         public static LoggingLevelSwitch levelSwitch;
+        public static void log(string message, LogEventLevel level = LogEventLevel.Information, params object[] propertyValues)
+        {
+            Log.ForContext("ctn", "any").Write(level, message, propertyValues);
+        }
+        public static void log(DateTime prevTime, string message, string context, LogEventLevel level = LogEventLevel.Information, params object[] propertyValues)
+        {
+            Log.ForContext("ctn", context).ForContext("intr", (DateTime.Now - prevTime).TotalMilliseconds.ToString()).Write(level, message,propertyValues);
+        }
+
+        public static void log(string message, LogEventLevel level = LogEventLevel.Information, string context = "any", params object[] propertyValues)
+        {
+            Log.ForContext("ctn", context).Write(level, message, propertyValues);
+        }
 
         public static void log(string message, LogEventLevel level= LogEventLevel.Information, string context="any")
         {
