@@ -461,8 +461,8 @@ return true;
         public Sender sender=new LongLifeRepositorySender();
         public Step()
         {
-            sucMetric = Pipeline.metrics.getMetric("packReceived", false, true, "All packages, sended to utility");
-            errMetric = Pipeline.metrics.getMetric("packReceived", true, false, "All packages, sended to utility");
+            sucMetric = Pipeline.metrics.getMetric("packagesReceived", false, true, "All packages, sended to utility");
+            errMetric = Pipeline.metrics.getMetric("packagesReceived", true, false, "All packages, sended to utility");
         }
 
         Metrics.Metric sucMetric = null;
@@ -602,8 +602,8 @@ return true;
         {
             if (sendToRex == null)
             {
-                sendToRex = Pipeline.metrics.getMetric("SendToRex", false, true, "Transaction to CCFA");
-                sendToRexErr = Pipeline.metrics.getMetric("SendToRex", true, false, "Transaction to CCFA");
+                sendToRex = Pipeline.metrics.getMetric("sendToRex", false, true, "Sended transactions to CCFA");
+                sendToRexErr = Pipeline.metrics.getMetric("sendToRex", true, false, "Sended transactions to CCFA");
             }
         }
 
