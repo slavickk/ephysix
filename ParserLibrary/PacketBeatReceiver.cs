@@ -55,14 +55,14 @@ namespace ParserLibrary
         private async Task StartListener(int port)
         {
             //            NewServer serv = new NewServer();
-            Logger.log("Listening port " + port + ". Check port availiability.", Serilog.Events.LogEventLevel.Warning);
+            Logger.log("Listening port {port} . Check port availiability.", Serilog.Events.LogEventLevel.Warning,"any",port);
 
             var tcpListener = TcpListener.Create(port);
             tcpListener.Start();
             for (; ; )
             {
                 if (debugMode)
-                    Logger.log("[Server] waiting for clients on port "+port+"...", Serilog.Events.LogEventLevel.Debug);
+                    Logger.log("[Server] waiting for clients on port {port} ...", Serilog.Events.LogEventLevel.Debug,"any",port);
 //                using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
                 {
                     var tcpClient = await tcpListener.AcceptTcpClientAsync();
@@ -162,7 +162,7 @@ namespace ParserLibrary
             //    Console.WriteLine(DateTime.Now + " +ack end");
             sr.Flush();
             if(owner.debugMode)
-                Logger.log("*ack sent*" + sequenceNumber, Serilog.Events.LogEventLevel.Debug);
+                Logger.log("*ack sent* {seq_num}", Serilog.Events.LogEventLevel.Debug,"any",sequenceNumber);
             //            File.WriteAllBytes(@"c:\d\answer.bn", ackBytes);
 
 
@@ -208,7 +208,7 @@ namespace ParserLibrary
 
                 if (readBytes <=0) //error
                 {
-                    Logger.log("not all data received "+allData+" "+readBytes, Serilog.Events.LogEventLevel.Error);
+                    Logger.log("not all data received {allData} {read_bytes}", Serilog.Events.LogEventLevel.Error,"any",allData,readBytes);
                     await sendAck(sw, lastFrameToAck); // We ack the last frame we received then crash the connection
                     return null;
                 }
@@ -260,7 +260,7 @@ namespace ParserLibrary
                     frameReceivedCount = 0; // reset the frame-received-counter
 
                     if (owner.debugMode)
-                        Logger.log("window size: " + windowSize, Serilog.Events.LogEventLevel.Debug);
+                        Logger.log("window size: {wnd_size}", Serilog.Events.LogEventLevel.Debug,"any",windowSize);
                     return;
                     //goto start;
                 }
@@ -279,7 +279,7 @@ namespace ParserLibrary
                     Array.Reverse(btsWindowSize);
                     uint compressedSize = BitConverter.ToUInt32(btsWindowSize, 0); // the number of frames before ack.
                     if (owner.debugMode)
-                        Logger.log("compressed wnd size:" + compressedSize, Serilog.Events.LogEventLevel.Debug);
+                        Logger.log("compressed wnd size:{comp_size}" , Serilog.Events.LogEventLevel.Debug,"any", compressedSize);
                     byte[] inData =await ReadAll(sr, sw, compressedSize);
                     if (inData == null)
                         return;
@@ -313,7 +313,7 @@ namespace ParserLibrary
                         }
 //                        var diff = (DateTime.Now - time1).TotalMilliseconds;
                         if (owner.debugMode)
-                            Logger.log(time1,"unpack " + i + " compressed files","unp", Serilog.Events.LogEventLevel.Debug);
+                            Logger.log(time1,"unpack {count} compressed files","unp", Serilog.Events.LogEventLevel.Debug,i);
                         //                    Console.WriteLine("return from compressed " + isMemStream);
                         //                      return;
                         //                        outData = outMemoryStream.ToArray();

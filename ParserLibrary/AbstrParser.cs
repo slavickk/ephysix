@@ -464,7 +464,7 @@ namespace ParserLibrary
             }
             catch (AddressNotFoundException)
             {
-                Logger.log("addr " + line + "not found", Serilog.Events.LogEventLevel.Error);
+                Logger.log("addr {line} not found", Serilog.Events.LogEventLevel.Error,"any",line);
                 return false;
             }
             return true;
