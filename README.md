@@ -9,5 +9,5 @@
 |PORT_NAME|DEFAULT_VALUE|PROTOCOL|HEALTHCHECK|HEALTHCHEK ROUTE|METRICS|METRICS ROUTE|DESCRIPTION|
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 |PACKET_BEAT_PORT|15001|tcp|false|None|false||PACKETBEAT port (if listening PACKETBEAT)|
-|http port|80|http|true|see adress/swagger|true||http port|
-|https port|443|https|true|see adress/swagger|true||https port|
+|http port|80|http|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|http port|
+|https port|443|https|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|https port|
