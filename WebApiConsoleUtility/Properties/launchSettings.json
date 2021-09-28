@@ -32,7 +32,8 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "YAML_PATH": "/app/Data/model.yml"
+        "YAML_PATH": "/app/Data/model.yml",
+        "LOG_LEVEL": "Debug"
       },
       "publishAllPorts": true,
       "useSSL": true,

@@ -53,7 +53,7 @@ namespace WebApiConsoleUtility
             if (LogLevel == null)
                 levelInfo = "LOG_LEVEL variable not set.Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
             else
-            if (!Enum.TryParse(typeof(LogEventLevel), LogLevel, true, out outVal))
+            if (Enum.TryParse(typeof(LogEventLevel), LogLevel, true, out outVal))
                 defLevel = (LogEventLevel)outVal;
             else
                 levelInfo = "LOG_LEVEL variable is not correct ("+LogLevel+").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
