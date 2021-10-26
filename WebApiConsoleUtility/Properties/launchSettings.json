@@ -37,7 +37,7 @@
       },
       "publishAllPorts": true,
       "useSSL": true,
-      "DockerfileRunArguments": "-p 15001:15001"
+      "DockerfileRunArguments": "-p 15001:15001 "
     }
   }
 }

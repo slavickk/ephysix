@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,25 +26,26 @@ namespace WebApiConsoleUtility
         static Pipeline pip;
         public static void Main(string[] args)
         {
-/*            var req = Environment.GetEnvironmentVariable("MAX_CONCURRENT_REQUEST");
-            if (req != null)
-            {
-                MaxConcurrentRequests = Convert.ToInt32(req);
-            }
-            req = Environment.GetEnvironmentVariable("REQUEST_QUEUE_LIMIT");
-            if (req != null)
-            {
-                RequestQueueLimit = Convert.ToInt32(req);
-            }*/
+            /*            var req = Environment.GetEnvironmentVariable("MAX_CONCURRENT_REQUEST");
+                        if (req != null)
+                        {
+                            MaxConcurrentRequests = Convert.ToInt32(req);
+                        }
+                        req = Environment.GetEnvironmentVariable("REQUEST_QUEUE_LIMIT");
+                        if (req != null)
+                        {
+                            RequestQueueLimit = Convert.ToInt32(req);
+                        }*/
 
-/*            RexMain.SetAdditionalLogLevel = (action) => {
-                if (action == 0)
-                    levelSwitch.MinimumLevel = LogEventLevel.Debug;
-                else
-                    levelSwitch.MinimumLevel = LogEventLevel.Warning;
-            };
-            levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);*/
-
+            /*            RexMain.SetAdditionalLogLevel = (action) => {
+                            if (action == 0)
+                                levelSwitch.MinimumLevel = LogEventLevel.Debug;
+                            else
+                                levelSwitch.MinimumLevel = LogEventLevel.Warning;
+                        };
+                        levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);*/
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;     
+            AssemblyLoadContext.Default.Unloading += Default_Unloading;
             string LogPath =Environment.GetEnvironmentVariable("LOG_PATH");
             string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
@@ -133,6 +135,21 @@ namespace WebApiConsoleUtility
             }
 
 
+        }
+
+        private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            Console.WriteLine("aa1");
+            Log.Information("11 Signal detected");
+           
+//            throw new NotImplementedException();
+        }
+
+        private static void Default_Unloading(AssemblyLoadContext obj)
+        {
+            Console.WriteLine("aa2");
+            Log.Information("Signal detected");
+//            throw new NotImplementedException();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

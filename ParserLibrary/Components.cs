@@ -19,7 +19,7 @@ namespace ParserLibrary
 {
     public interface ISelfTested
     {
-        Task<(bool,string)> isOK();
+        Task<(bool,string,Exception)> isOK();
     }
 
     public abstract class Receiver
@@ -382,7 +382,11 @@ return true;
         public async Task<bool> SelfTest()
         {
             var res1=await (this.steps[0].sender as ISelfTested).isOK();
-            Logger.log(  "{Item}.Results:{Res}",  Serilog.Events.LogEventLevel.Information,"any" , res1.Item2.ToString(),(res1.Item1 ? "OK" : "Fail"));
+            if(res1.Item3 == null)
+                Logger.log(  "{Item}.Results:{Res}",  Serilog.Events.LogEventLevel.Information,"any" , res1.Item2.ToString(),(res1.Item1 ? "OK" : "Fail"));
+            else
+                Logger.log("{Item}.Results:{Res}",res1.Item3, Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+
             return res1.Item1;
         }
         static List<Type> getAllRegTypes()
@@ -541,31 +545,65 @@ return true;
             client = new HttpClient(handler);
         }
 
+        public int index = 0;
         public  async Task<string> internSend(string body)
         {
-//            var myContent = JsonConvert.SerializeObject(data);
-           // Затем вам нужно будет создать объект контента для отправки этих данных, я буду использовать объект ByteArrayContent , но вы можете использовать или создать другой тип, если хотите.
+            int kolRetry = 0;
+            int indexDelay = 0;
+        //            var myContent = JsonConvert.SerializeObject(data);
+        // Затем вам нужно будет создать объект контента для отправки этих данных, я буду использовать объект ByteArrayContent , но вы можете использовать или создать другой тип, если хотите.
 
-/*            var buffer = System.Text.Encoding.UTF8.GetBytes(body);
-            var byteContent = new ByteArrayContent(buffer);
-            HttpContent content;
-            content.
-*/
+        /*            var buffer = System.Text.Encoding.UTF8.GetBytes(body);
+                    var byteContent = new ByteArrayContent(buffer);
+                    HttpContent content;
+                    content.
+        */
+        restart:
+            kolRetry++;
+            HttpResponseMessage result = null;
             var stringContent = new StringContent(body, UnicodeEncoding.UTF8, "application/json"); // use MediaTypeNames.Application.Json in Core 3.0+ and Standard 2.1+
+            try
+            {
+                result = await client.PostAsync(urls[index], stringContent);
 
-            var result=await client.PostAsync(url, stringContent);
+            }
+            catch(Exception e63)
+            {
+                if (kolRetry / urls.Length >= timeoutsBetweenRetryInMilli.Length)
+                    throw;
+                Logger.log("Error send", e63, Serilog.Events.LogEventLevel.Error);
+                indexDelay = nextStepCalc(kolRetry, indexDelay);
+                goto restart;
 
-
-            if (result.IsSuccessStatusCode)
+            }
+            if (result== null && result.IsSuccessStatusCode)
             {
                 var response = await result.Content.ReadAsStringAsync();
                 return response;
             }
-            return "";
+            if (kolRetry / urls.Length >= timeoutsBetweenRetryInMilli.Length)
+                return "";
+            indexDelay = nextStepCalc(kolRetry, indexDelay);
+            goto restart;
+
         }
 
-        public string url = @"https://195.170.67:51200/Rec";
-        Metrics.Metric sendToRex = null;
+        private int nextStepCalc(int kolRetry, int indexDelay)
+        {
+            if (++index >= urls.Length)
+                index = 0;
+            if (kolRetry % urls.Length == 0 && indexDelay < timeoutsBetweenRetryInMilli.Length)
+            {
+                Thread.Sleep(timeoutsBetweenRetryInMilli[indexDelay]);
+                indexDelay++;
+            }
+
+            return indexDelay;
+        }
+
+        public string[] urls = { @"https://195.170.67:51200/Rec" };
+        public int[] timeoutsBetweenRetryInMilli = { 100};
+        Metrics.Metric sendToRex = null; 
         Metrics.Metric sendToRexErr = null;
 
         public async override Task send(AbstrParser.UniEl root)
@@ -607,12 +645,12 @@ return true;
             }
         }
 
-        public async Task<(bool,string)> isOK()
+        public async Task<(bool,string,Exception)> isOK()
         {
             string details;
             bool isSuccess = true;
-
-            details = "Make http request to " + this.url;
+            Exception exc = null;
+            details = "Make http request to " + this.urls[0];
             try
             {
                 DateTime time1 = DateTime.Now;
@@ -624,9 +662,10 @@ return true;
             catch(Exception e77)
             {
                 isSuccess = false;
+                exc = e77;
             }
             //            if(ans)
-            return (isSuccess,details);
+            return (isSuccess,details,exc);
         }
     }
     public class FileReceiver : Receiver

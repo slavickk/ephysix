@@ -171,8 +171,10 @@ namespace TestJsonRazbor
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+//            Pipeline
 //            var pip=Pipeline.load(@"C:\Users\User\Documents\model.yml");
             Pipeline pip = new Pipeline();
+            pip.steps.First().sender = new JsonSender();
             pip.Save(@"C:\Users\User\Documents\aa3.yml");
 /*            var pip2 = Pipeline.load();// (@"C:\D\aa1.yml");
             var pip1 = new Pipeline();
@@ -230,8 +232,8 @@ namespace TestJsonRazbor
 
             }
 
-            var aa = AbstrParser.PathBuilder(new string[] { "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name", "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/-Name", "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/String/Model" });
-//            drawFactory = new TreeDrawerFactory(treeView1);
+            var aa = AbstrParser.PathBuilder(new string[] { "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name", "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/-Name", "item/request/body/raw/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/String/Model" });          
+            drawFactory = new TreeDrawerFactory(treeView1);
 
             //            AbstrParser.treeView1 = treeView1;
             //            var file_name = @"C:\Data\All_MBCH.postman_collection.json";
@@ -750,7 +752,44 @@ namespace TestJsonRazbor
 
         private void button3_Click_1(object sender, EventArgs e)
         {
-            if(openFileDialog2.ShowDialog() == DialogResult.OK)
+            int iCycle = 0;
+            using (StreamWriter sw = new StreamWriter(@"C:\Users\User\Documents\forDetect.csv"))
+            {
+                foreach (var fileName in Directory.GetFiles(dirPath))
+                {
+                    Console.WriteLine("exec " + (++iCycle));
+                    using (StreamReader sr = new StreamReader(fileName))
+                    {
+                        list.Clear();
+                        AbstrParser.UniEl rootEl = AbstrParser.CreateNode(null, list, "Item");
+                        var line = sr.ReadToEnd();
+                        if (line != "")
+                        {
+                            foreach (var pars in AbstrParser.availParser)
+                                if (pars.canRazbor(line, rootEl, list))
+                                    break;
+                        }
+
+                        foreach (var it in list)
+                        {
+                            if (it.childs.Count == 0 && it.Value != null)
+                                sw.WriteLine(it.path + ";" + it.Value.ToString().Replace("\n","").Replace("\r", ""));
+
+//                                it.Value
+                        }
+
+                    }
+                }
+            }
+//            this.Text = "founded " + count + "files";
+            return;
+
+
+
+
+
+
+            if (openFileDialog2.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
