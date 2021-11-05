@@ -139,7 +139,7 @@ namespace WebApiConsoleUtility
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-            Console.WriteLine("aa1");
+            //Console.WriteLine("aa1");
             Log.Information("11 Signal detected");
            
 //            throw new NotImplementedException();
@@ -147,7 +147,7 @@ namespace WebApiConsoleUtility
 
         private static void Default_Unloading(AssemblyLoadContext obj)
         {
-            Console.WriteLine("aa2");
+            //Console.WriteLine("aa2");
             Log.Information("Signal detected");
 //            throw new NotImplementedException();
         }
