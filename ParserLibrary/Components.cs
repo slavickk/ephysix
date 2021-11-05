@@ -54,10 +54,11 @@ namespace ParserLibrary
     {
         [YamlIgnore]
         public Step owner;
-        public async virtual Task send(AbstrParser.UniEl root)
+        public async virtual Task<string> send(AbstrParser.UniEl root)
         {
-/*            if (owner.debugMode)
-                Console.WriteLine("send result");*/
+            /*            if (owner.debugMode)
+                            Console.WriteLine("send result");*/
+            return "";
 
         }
     }
@@ -377,8 +378,8 @@ return true;
     {
         public static Metrics metrics = new Metrics();
         public string pipelineDescription = "Pipeline example";
-        public Step[] steps = new Step[] { new Step() };
-
+        public Step[] steps = null;// new Step[] { new Step() };
+        //public AbstrParser.UniEl rootElement = null;
         public async Task<bool> SelfTest()
         {
             var res1=await (this.steps[0].sender as ISelfTested).isOK();
@@ -411,7 +412,7 @@ return true;
         }
         public async Task run()
         {
-            await steps[0].run();
+            await steps.First(ii=>ii.IDPreviousStep=="" && ii.receiver != null).run();
         }
 
         public static Pipeline load(string fileName = @"C:\d\model.yml")
@@ -420,8 +421,10 @@ return true;
             foreach (var type in getAllRegTypes())
                 ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
             var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
-            return deserializer.Deserialize<Pipeline>(File.OpenText(fileName));
-
+            var pip= deserializer.Deserialize<Pipeline>(File.OpenText(fileName));
+            foreach (var step in pip.steps)
+                step.owner = pip;
+            return pip;
         }
 
         public void Save( string fileName = @"C:\d\aa1.yml")
@@ -443,6 +446,7 @@ return true;
     {
         public async Task run()
         {
+
             receiver.owner = this;
             sender.owner = this;
             receiver.stringReceived = Receiver_stringReceived;
@@ -450,9 +454,14 @@ return true;
 
         }
         public string IDStep="Example";
+
+        public string IDPreviousStep="";
+
+
+
         public string description = "Some comments in this place";
         public bool debugMode = true;
-        public Receiver receiver = new PacketBeatReceiver();
+        public Receiver receiver = null;// new PacketBeatReceiver();
         public class ItemFilter
         {
             public Filter filter = new ConditionFilter();
@@ -463,8 +472,10 @@ return true;
         public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
 //        public RecordExtractor transformer;
         public Sender sender=new LongLifeRepositorySender();
-        public Step()
+        public Pipeline owner;
+        public Step(/*Pipeline owner1*/)
         {
+//            owner = owner1;
             sucMetric = Pipeline.metrics.getMetric("packagesReceived", false, true, "All packages, sended to utility");
             errMetric = Pipeline.metrics.getMetric("packagesReceived", true, false, "All packages, sended to utility");
         }
@@ -476,42 +487,49 @@ return true;
         {
 
             DateTime time2 = DateTime.Now;
+            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+            var rootElement = AbstrParser.CreateNode(null, list,  this.IDStep);
+            await FilterInfo(input, time2, list,rootElement);
+            rootElement = null;
+        }
+
+        private async Task FilterInfo(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement)
+        {
             try
             {
-                List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
-                AbstrParser.UniEl rootElInput = AbstrParser.CreateNode(null, list, "Item");
                 //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
                 foreach (var pars in AbstrParser.availParser)
-                    if (pars.canRazbor(input, rootElInput, list))
+                if (pars.canRazbor(input, rootElement, list))
+                {
+                    DateTime time1 = DateTime.Now;
+
+                    //                    var fltr = filters.First().filter(list);
+                    if (filters != null && filters.Count > 0)
                     {
-                        DateTime time1 = DateTime.Now;
-
-                        //                    var fltr = filters.First().filter(list);
-                        if (filters != null && filters.Count > 0)
+                        bool found = false;
+                        foreach (var item in filters/*.First().filter(list)*/)
                         {
-                            bool found = false;
-                            foreach (var item in filters/*.First().filter(list)*/)
-                            {
-                                foreach (var item1 in item.filter.filter(list))
-                                    await FindAndCopy(rootElInput, time1, item, item1);
-                                found = true;
-                            }
-                            /*                        if (!found && debugMode)
-                                                        Console.WriteLine("no filtered records");*/
+                            foreach (var item1 in item.filter.filter(list))
+                                await FindAndCopy(rootElement, time1, item, item1);
+                            found = true;
+                        }
+                        /*                        if (!found && debugMode)
+                                                    Console.WriteLine("no filtered records");*/
 
-                        } /*else
+                    } /*else
                     {
                         FindAndCopy(rootElInput, time1);
                     }*/
-                        //                    repo.Add(list);
-                        break;
-                    }
-                list.Clear();
-                sucMetric.Add(time2);
+                    //                    repo.Add(list);
+                    break;
+                }
+            list.Clear();
+            sucMetric.Add(time2);
             }
-            catch(Exception e77)
+            catch (Exception e77)
             {
                 errMetric.Add(time2);
+                rootElement = null;
                 throw;
             }
         }
@@ -529,7 +547,13 @@ return true;
                 Logger.log(" transform to output {count} items", Serilog.Events.LogEventLevel.Debug,count);
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
-            await sender.send(local_rootOutput);
+            var ans=await sender.send(local_rootOutput);
+            var 
+            foreach(var step in this.owner.steps.Where(ii=>ii.IDPreviousStep==this.IDStep))
+            {
+
+            }
+//            if(this.)
         }
 
 
@@ -602,11 +626,23 @@ return true;
         }
 
         public string[] urls = { @"https://195.170.67:51200/Rec" };
+        public string url
+        {
+            set
+            {
+                urls = new string[] { value };
+                timeoutsBetweenRetryInMilli = new int[] { 100 };
+            }
+            get
+            {
+                return (urls== null || urls.Length ==0)?"":urls[0];
+            }
+        }
         public int[] timeoutsBetweenRetryInMilli = { 100};
         Metrics.Metric sendToRex = null; 
         Metrics.Metric sendToRexErr = null;
 
-        public async override Task send(AbstrParser.UniEl root)
+        public async override Task<string> send(AbstrParser.UniEl root)
         {
             await base.send(root);
             string str = "{";
@@ -627,6 +663,7 @@ return true;
                 Logger.log(time1, " Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, str, ans);
   //              createMetrics();
                 sendToRex.Add(time1);
+                return ans;
             }
             catch (Exception e77)
             {
