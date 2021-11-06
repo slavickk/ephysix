@@ -510,7 +510,7 @@ return true;
                         foreach (var item in filters/*.First().filter(list)*/)
                         {
                             foreach (var item1 in item.filter.filter(list))
-                                await FindAndCopy(rootElement, time1, item, item1);
+                                await FindAndCopy(rootElement, time1, item, item1,list);
                             found = true;
                         }
                         /*                        if (!found && debugMode)
@@ -534,7 +534,7 @@ return true;
             }
         }
 
-        private async Task FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el)
+        private async Task FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el, List<AbstrParser.UniEl> list)
         {
             int count = 0;
             var local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
@@ -548,10 +548,13 @@ return true;
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
             var ans=await sender.send(local_rootOutput);
-            var 
-            foreach(var step in this.owner.steps.Where(ii=>ii.IDPreviousStep==this.IDStep))
-            {
-
+            // bool isSave = false;
+            var step = this.owner.steps.FirstOrDefault(ii => ii.IDPreviousStep == this.IDStep);
+            var newRoot = new AbstrParser.UniEl(rootElInput) { Name = "SendResponse" };
+           
+            if (step != null)
+            { 
+                await step.FilterInfo(ans, time1, list, newRoot);
             }
 //            if(this.)
         }

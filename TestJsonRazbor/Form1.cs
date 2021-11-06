@@ -436,7 +436,7 @@ namespace TestJsonRazbor
                 }
             }
 
-            public async override Task send(AbstrParser.UniEl root)
+            public async override Task<string> send(AbstrParser.UniEl root)
             {
                 if (!noDraw)
                 {
@@ -445,6 +445,7 @@ namespace TestJsonRazbor
                     foreach (var el in root.childs)
                         rootNode.Nodes.Add(el.Name + "\":\"" + el.Value);
                 }
+                return "";
             }
         }
 
