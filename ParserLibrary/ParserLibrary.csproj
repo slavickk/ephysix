@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://gitlab.com/SBPFraud/integration/integration-utility/-/packages/nuget</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

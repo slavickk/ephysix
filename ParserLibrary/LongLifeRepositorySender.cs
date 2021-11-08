@@ -17,6 +17,8 @@ namespace ParserLibrary
         List<Item> list = new List<Item>();
         bool changed = false;
 
+        public override TypeContent typeContent => TypeContent.internal_list;// throw new NotImplementedException();
+
         public async override Task<string> send(AbstrParser.UniEl root)
         {
 

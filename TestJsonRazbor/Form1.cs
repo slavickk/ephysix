@@ -171,6 +171,7 @@ namespace TestJsonRazbor
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            Step.Test();
 //            Pipeline
 //            var pip=Pipeline.load(@"C:\Users\User\Documents\model.yml");
             Pipeline pip = new Pipeline();
@@ -421,6 +422,9 @@ namespace TestJsonRazbor
         {
             TreeView tree;
             public static bool noDraw = false;
+
+            public override TypeContent typeContent => TypeContent.internal_list;// throw new NotImplementedException();
+
             public DemoSender(TreeView  tree1)
             {
                 tree = tree1;
