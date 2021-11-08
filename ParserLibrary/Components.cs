@@ -47,6 +47,12 @@ namespace ParserLibrary
             if(stringReceived != null)
                 await stringReceived(input);
         }
+
+
+
+        public virtual async Task sendResponse(string response)
+        { }
+
         public async virtual Task start()
         { }
     }
@@ -54,6 +60,13 @@ namespace ParserLibrary
     {
         [YamlIgnore]
         public Step owner;
+        public enum TypeContent { internal_list,json};
+       public abstract TypeContent typeContent
+        {
+            get;
+        }
+
+
         public async virtual Task<string> send(AbstrParser.UniEl root)
         {
             /*            if (owner.debugMode)
@@ -444,7 +457,32 @@ return true;
     }
     public class Step
     {
-        public async Task run()
+
+        public static void Test()
+        {
+
+            using (StreamReader sr = new StreamReader(@"C:\Users\Juriy\Downloads\Telegram Desktop\test200.json"))
+            {
+                var input = sr.ReadToEnd();
+                List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+                var rootElement = AbstrParser.CreateNode(null, list, "TT");
+                try
+                {
+                    //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
+                    foreach (var pars in AbstrParser.availParser)
+                        if (pars.canRazbor(input, rootElement, list))
+                        {
+
+                        }
+                }
+                catch
+                {
+
+                }
+                var ll= rootElement.toJSON();
+            }
+        }
+                public async Task run()
         {
 
             receiver.owner = this;
@@ -455,8 +493,10 @@ return true;
         }
         public string IDStep="Example";
 
+
         public string IDPreviousStep="";
 
+        public string IDResponsedReceiverStep = "";
 
 
         public string description = "Some comments in this place";
@@ -547,14 +587,27 @@ return true;
                 Logger.log(" transform to output {count} items", Serilog.Events.LogEventLevel.Debug,count);
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
-            var ans=await sender.send(local_rootOutput);
-            // bool isSave = false;
-            var step = this.owner.steps.FirstOrDefault(ii => ii.IDPreviousStep == this.IDStep);
-            var newRoot = new AbstrParser.UniEl(rootElInput) { Name = "SendResponse" };
-           
-            if (step != null)
-            { 
-                await step.FilterInfo(ans, time1, list, newRoot);
+            if (IDResponsedReceiverStep != "")
+            {
+                var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
+                step.receiver.sendResponse(rootElInput.toJSON());
+
+            }
+            else
+            {
+
+                var ans = await sender.send(local_rootOutput);
+                // bool isSave = false;
+                if (ans != "")
+                {
+                    var step = this.owner.steps.FirstOrDefault(ii => ii.IDPreviousStep == this.IDStep);
+
+                    if (step != null)
+                    {
+                        var newRoot = new AbstrParser.UniEl(rootElInput) { Name = "SendResponse" };
+                        await step.FilterInfo(ans, time1, list, newRoot);
+                    }
+                }
             }
 //            if(this.)
         }
@@ -641,6 +694,9 @@ return true;
                 return (urls== null || urls.Length ==0)?"":urls[0];
             }
         }
+
+        public override TypeContent typeContent => TypeContent.internal_list;//throw new NotImplementedException();
+
         public int[] timeoutsBetweenRetryInMilli = { 100};
         Metrics.Metric sendToRex = null; 
         Metrics.Metric sendToRexErr = null;

@@ -159,6 +159,45 @@ namespace ParserLibrary
                     retValue.AddRange(item.toList());
                 return retValue;
             }
+            public string toJSON()
+            {
+                string tt = "";
+                return ToJson(ref tt);
+                
+//                throw new Exception("not implemented");
+            }
+
+            public string ToJson(ref string val)
+            {
+                if (val != "")
+                    val += "\"" + this.Name + "\":";
+                if (this.childs.Count > 0)
+                {
+                    val += "{";
+
+                    for (int i = 0; i < this.childs.Count; i++)
+                    {
+                        this.childs[i].ToJson(ref val);
+                        if (i != this.childs.Count - 1)
+                            val += ",";
+                    }
+                    val += "}";
+                } else
+                {
+                    if (this.Value != null)
+                    {
+                        if (this.Value.GetType() == typeof(string))
+                            val += "\"" + this.Value.ToString() + "\"";
+                        else
+                            val += this.Value.ToString();
+                    }
+                    else
+                        val += "\"\"";
+
+                }
+                return val;
+            }
+
             public UniEl copy(UniEl newAncestor)
             {
                 var newEl= new UniEl(ancestor) { Name = this.Name, Value = Value };
