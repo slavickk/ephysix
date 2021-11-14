@@ -831,6 +831,11 @@ namespace TestJsonRazbor
                 }
             }
         }
+
+        private void splitContainer5_Panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
     public interface ICalc
     {

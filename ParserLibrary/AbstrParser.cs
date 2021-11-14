@@ -166,20 +166,51 @@ namespace ParserLibrary
                 
 //                throw new Exception("not implemented");
             }
-
-            public string ToJson(ref string val)
+            bool firstElnArray(List<UniEl> arr ,int i)
             {
-                if (val != "")
+                return (i < this.childs.Count - 2 && arr[i].Name == arr[i + 1].Name) && (i == 0 || arr[i].Name != arr[i - 1].Name);
+            }
+            bool lastElInArray(List<UniEl> arr, int i)
+            {
+                return (i >0 &&  arr[i].Name == arr[i - 1].Name) && (i == arr.Count-1 || arr[i].Name != arr[i+ 1].Name);
+            }
+            public string ToJson(ref string val,bool isArr1=false)
+            {
+                if (val != "" && !isArr1)
                     val += "\"" + this.Name + "\":";
+                if(this.Name == "PrimaryBitMap")
+                {
+                    int yy = 0;
+                }
                 if (this.childs.Count > 0)
                 {
                     val += "{";
-
+                    string prevName = "";
+                    bool isArr = false;
                     for (int i = 0; i < this.childs.Count; i++)
                     {
-                        this.childs[i].ToJson(ref val);
-                        if (i != this.childs.Count - 1)
+                        if (firstElnArray(this.childs ,i))
+//                        if(isArr==false && i< this.childs.Count-2 && this.childs[i].Name== this.childs[i+1].Name)
+                        {
+                            isArr = true;
+                            val += "\"" + this.childs[i].Name + "\":[";
+                        }
+                        if (prevName == this.childs[i].Name)
+                        {
+                            isArr = true;
+                        }
+
+                        this.childs[i].ToJson(ref val,isArr);
+                        if (lastElInArray(this.childs, i))
+                        {
+                            isArr = false;
+                            val += "]";
+ /*                           if (i != this.childs.Count - 1 && !(isArr && this.childs[i].Name != this.childs[i + 1].Name))
+                                val += ",";*/
+                        }
+                        if (i != this.childs.Count - 1 && !(isArr  && this.childs[i].Name != this.childs[i + 1].Name))
                             val += ",";
+                        prevName = this.childs[i].Name;
                     }
                     val += "}";
                 } else
@@ -189,7 +220,17 @@ namespace ParserLibrary
                         if (this.Value.GetType() == typeof(string))
                             val += "\"" + this.Value.ToString() + "\"";
                         else
-                            val += this.Value.ToString();
+                        {
+                            if(this.Value != null && this.Value.GetType() == typeof(bool))
+                            {
+                //                int yy = 0;
+                                if ((bool)this.Value)
+                                    val += "true";
+                                else
+                                    val += "false";
+                            } else
+                                val += this.Value.ToString();
+                        }
                     }
                     else
                         val += "\"\"";
@@ -280,6 +321,10 @@ namespace ParserLibrary
             {
                 set
                 {
+                    if(this.Name == "PrimaryBitMap")
+                    {
+                        int yy = 0;
+                    }
                     value1 = value;
                     if (treeNode != null)
                     {
@@ -299,7 +344,8 @@ namespace ParserLibrary
                 }
                 get
                 {
-                    return value1?.ToString();
+//                    return value1?.ToString();
+                    return value1;
                 }
             }
 
@@ -631,7 +677,23 @@ namespace ParserLibrary
             return true;
 
         }
-
+        object GetObject(JsonElement el)
+        {
+            switch (el.ValueKind)
+            {
+                case  JsonValueKind.Number:
+                    return el.GetDouble();
+                    break; // Указывает на окончание блока
+                case JsonValueKind.False:
+                    return false; // Выполнится, если s равно 2
+                    break;
+                case JsonValueKind.True:
+                    return true; // Выполнится, если s равно 3
+                    break;
+                default:
+                    return el.ToString();
+            }
+        }
         private void ExtractJsonFields(JsonElement el, UniEl ancestor, List<UniEl> list)
         {
             if(el.ValueKind == JsonValueKind.Array)
@@ -665,16 +727,24 @@ namespace ParserLibrary
                     {
                         if (value.ValueKind == JsonValueKind.Array)
                         {
+                            if (property.Name == "PrimaryBitMap")
+                            {
+                                int yy = 0;
+                            }
                             foreach (var el1 in value.EnumerateArray())
                             {
-                                UniEl newEl = CreateNode(ancestor, list, name);
-                                if (el1.ValueKind == JsonValueKind.Object)
-                                    ExtractJsonFields(el1, newEl, list);
-                                else
+                                if (el1.ValueKind != JsonValueKind.Undefined)
                                 {
-                                    // HZ
-                                }
+                                    UniEl newEl = CreateNode(ancestor, list, name);
+                                    if (el1.ValueKind == JsonValueKind.Object)
+                                        ExtractJsonFields(el1, newEl, list);
+                                    else
+                                    {
+                                        // HZ
+                                        newEl.Value = GetObject(el1);
 
+                                    }
+                                }
                             }
                         }
                         else
@@ -688,10 +758,10 @@ namespace ParserLibrary
                                 if (pars.canRazbor(value.ToString(), newEl, list))
                                 {
                                     if (includeBodyOnComplexField)
-                                        newEl.Value = value;
+                                        newEl.Value = GetObject(value);
                                     goto ext;
                                 }
-                            newEl.Value = value;
+                           newEl.Value = GetObject(value);
                         ext:;
                             /*                        if (xmlPaths.Contains(newEl.path))
                                                     {
