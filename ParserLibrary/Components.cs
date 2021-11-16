@@ -39,13 +39,13 @@ namespace ParserLibrary
         }
         public delegate  void StringReceived(string input);
         public delegate void BytesReceived(byte[] input);
-        public Func<string,Task> stringReceived;
+        public Func<string,object,Task> stringReceived;
         public async Task signal(string input,object context)
         {
             if (saver != null)
                 saver.save(input);
             if(stringReceived != null)
-                await stringReceived(input);
+                await stringReceived(input,context);
         }
 
 
@@ -198,7 +198,10 @@ return true;
 
         public ConverterOutput converter = null;
 
+        public virtual bool canReturnObject => true;
+        
         public abstract string getValue(AbstrParser.UniEl rootEl);
+        public abstract AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl);
 
         string[] outs = null;
         AbstrParser.UniEl createOutPath(AbstrParser.UniEl outputRoot)
@@ -208,7 +211,7 @@ return true;
                 outs = outputPath.Split("/");
             }
             if (outs == null)
-                return null;
+                return outputRoot;
             var rootEl = outputRoot;
             for(int i=0;i < outs.Length;i++)
             {
@@ -224,18 +227,34 @@ return true;
             // skipped--------------------------- Пока поддерживается только линейная структура записи
        //     if (typeCopy == TypeCopy.Value)
             {
-                var el1 = getValue(inputRoot);
+                var el1 = getNode(inputRoot);
+                if(!this.canReturnObject)
+                {
 
-                if (el1 == "" && onEmptyValueAction == OnEmptyAction.Skip)
+                }
+
+                if (el1 == null  && onEmptyValueAction == OnEmptyAction.Skip && this.canReturnObject)
                     return false;
-                if (converter != null)
-                    el1 = converter.Convert(el1, inputRoot);
                 var el = createOutPath(outputRoot);
                 //                AbstrParser.UniEl el = new AbstrParser.UniEl(outputRoot);
                 //el.Name = outputPath;
                 //                if(el.)
-//                if(el1.)
-                el.Value = el1;
+                //                if(el1.)
+                if (!this.canReturnObject || el1.childs.Count == 0)
+                {
+                    string elV;
+                    if (canReturnObject)
+                        elV = el1.Value.ToString();
+                    else
+                        elV=getValue(inputRoot);
+                    if (converter != null)
+                        elV = converter.Convert(elV, inputRoot);
+                    el.Value = elV;
+                } else
+                {
+                    el1.copy(el);
+//                    el.childs.Add(el1.copy(el));
+                }
             }
          /*   else
             {
@@ -254,9 +273,17 @@ return true;
             return outputPath + ";" + Value;
         }
         public string Value { get; set; }
+
+        public override bool canReturnObject => false;
+
         public override string getValue(AbstrParser.UniEl rootEl)
         {
             return Value;
+        }
+
+        public override AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl)
+        {
+            return null;
         }
     }
 
@@ -274,55 +301,7 @@ return true;
         public string[] valuePathToken = null;
         public override string getValue(AbstrParser.UniEl rootEl)
         {
-            if (ConditionFilter.isNew)
-            {
-                if (conditionPathToken == null)
-                    conditionPathToken = conditionPath.Split("/");
-
-                var rootEl1 = getLocalRoot( rootEl,conditionPathToken);
-
-                foreach (var item in rootEl1.getAllDescentants(conditionPathToken,rootEl1.rootIndex).Where(ii => ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
-                {
-                    var item1 = item;
-                    if (valuePath != "")
-                    {
-                        if (valuePathToken == null)
-                            valuePathToken = valuePath.Split("/");
-                        item1 = getLocalRoot( item1,valuePathToken);
-                        foreach (var item2 in item1.getAllDescentants(valuePathToken,item1.rootIndex))
-                            return item2.Value?.ToString();
-                    }
-                    else
-                        return item.Value.ToString();
-
-                }
-
-            }
-            else
-            {
-                var pathOwn = rootEl.path;
-                var patts1 = AbstrParser.PathBuilder(new string[] { pathOwn, conditionPath });
-
-
-                var patts = AbstrParser.PathBuilder(new string[] { conditionPath, valuePath });
-
-                var rootEl1 = getLocalRoot(patts1, 0, rootEl);
-
-                foreach (var item in rootEl1.getAllDescentants().Where(ii => ii.path == conditionPath && ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
-                {
-                    var item1 = item;
-                    if (valuePath != "")
-                    {
-                        item1 = getLocalRoot(patts, 0, item1);
-                        foreach (var item2 in item1.getAllDescentants().Where(ii => ii.path == valuePath))
-                            return item2.Value?.ToString();
-                    }
-                    else
-                        return item.Value.ToString();
-
-                }
-            }
-            return "";
+            return getNode(rootEl).Value.ToString() ;
         }
         private AbstrParser.UniEl getLocalRoot(string[] patts, int indexF, AbstrParser.UniEl item1)
         {
@@ -355,9 +334,58 @@ return true;
             return itemRet;
         }
 
+        public override AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl)
+        {
+            if (ConditionFilter.isNew)
+            {
+                if (conditionPathToken == null)
+                    conditionPathToken = conditionPath.Split("/");
+
+                var rootEl1 = getLocalRoot(rootEl, conditionPathToken);
+
+                foreach (var item in rootEl1.getAllDescentants(conditionPathToken, rootEl1.rootIndex).Where(ii => ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
+                {
+                    var item1 = item;
+                    if (valuePath != "")
+                    {
+                        if (valuePathToken == null)
+                            valuePathToken = valuePath.Split("/");
+                        item1 = getLocalRoot(item1, valuePathToken);
+                        foreach (var item2 in item1.getAllDescentants(valuePathToken, item1.rootIndex))
+                            return item2;
+                    }
+                    else
+                        return item;
+
+                }
+
+            }
+            else
+            {
+                var pathOwn = rootEl.path;
+                var patts1 = AbstrParser.PathBuilder(new string[] { pathOwn, conditionPath });
 
 
+                var patts = AbstrParser.PathBuilder(new string[] { conditionPath, valuePath });
 
+                var rootEl1 = getLocalRoot(patts1, 0, rootEl);
+
+                foreach (var item in rootEl1.getAllDescentants().Where(ii => ii.path == conditionPath && ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
+                {
+                    var item1 = item;
+                    if (valuePath != "")
+                    {
+                        item1 = getLocalRoot(patts, 0, item1);
+                        foreach (var item2 in item1.getAllDescentants().Where(ii => ii.path == valuePath))
+                            return item2;
+                    }
+                    else
+                        return item;
+
+                }
+            }
+            return null;
+        }
     }
     public class FilterComparer
     {
@@ -563,7 +591,7 @@ return true;
         Metrics.Metric sucMetric = null;
         Metrics.Metric errMetric = null;
         //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
-        private async Task Receiver_stringReceived(string input)
+        private async Task Receiver_stringReceived(string input,object context)
         {
 
             DateTime time2 = DateTime.Now;

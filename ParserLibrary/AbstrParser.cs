@@ -253,9 +253,13 @@ namespace ParserLibrary
 
             public UniEl copy(UniEl newAncestor)
             {
-                var newEl= new UniEl(ancestor) { Name = this.Name, Value = Value };
+                var newEl= new UniEl(newAncestor) { Name = this.Name, Value = Value };
                 foreach (var nod in childs)
-                    newEl.childs.Add(nod.copy(newEl));
+                    nod.copy(newEl);
+//                    newEl.childs.Add(nod.copy(newEl));
+                if (childs.Count == 0)
+                    newEl.value1 = Value;
+
                 return newEl;
             }
 
