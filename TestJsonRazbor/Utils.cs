@@ -33,7 +33,7 @@ namespace TestJsonRazbor
             {
                 (ancestor.treeNode as TreeDrawer).node.Nodes.Add(node);
                 (ancestor.treeNode as TreeDrawer).node.Nodes[^1].Tag = newEl;
-                if (delRoot)
+                if (delRoot && newEl.childs.Count==0)
                     Update(newEl);
             }
 

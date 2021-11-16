@@ -232,7 +232,7 @@ namespace TestJsonRazbor
                 TreeDrawerFactory fac = new TreeDrawerFactory(treeView2,true);
 
                 redrawNode(fac, outRoot, null);
-                if (comboBoxTypeTest.SelectedIndex == 2)
+//                if (comboBoxTypeTest.SelectedIndex == 2)
                     itemFilter.outputFields = oldOutList;
 
                     //                itemFilter.outputFields.Remove(el);
