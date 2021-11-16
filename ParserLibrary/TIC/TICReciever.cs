@@ -16,7 +16,7 @@ namespace ParserLibrary
         private readonly IDisposable pushProperty;
         private int _DummyProtocol1Frame;
 
-        public IPEndPoint endpoint;
+        private IPEndPoint endpoint;
         private DummyProtocol1Frame Frame;
 
         public DummyProtocol1Reciever()
