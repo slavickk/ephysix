@@ -706,13 +706,13 @@ namespace TestJsonRazbor
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if( comboBox1.SelectedIndex == 1)
+            if( comboBox1.SelectedIndex != 0)
             {
-                textBoxFilterValue.Enabled = false;
-                this.tabPage2.Focus();
+                textBoxFilterValue.Visible=label3.Visible = false;
+//                this.tabPage2.Focus();
             } else
             {
-                textBoxFilterValue.Enabled = true;
+                textBoxFilterValue.Visible = label3.Visible = true;
 
             }
         }

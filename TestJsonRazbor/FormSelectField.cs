@@ -15,6 +15,7 @@ namespace TestJsonRazbor
 {
     public partial class FormSelectField : Form
     {
+        public Step.ItemFilter itemFilter = new Step.ItemFilter() { outputFields = new List<OutputValue>() };
         int indexSearch = 0;
         public FormSelectField()
         {
@@ -70,14 +71,14 @@ namespace TestJsonRazbor
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBox1.SelectedIndex == 1)
+            if (comboBox1.SelectedIndex != 0)
             {
-                textBoxFilterValue.Enabled = false;
-//                this.tabPage2.Focus();
+                textBoxFilterValue.Visible = label3.Visible = false;
+                //                this.tabPage2.Focus();
             }
             else
             {
-                textBoxFilterValue.Enabled = true;
+                textBoxFilterValue.Visible = label3.Visible = true;
 
             }
         }
@@ -212,9 +213,45 @@ namespace TestJsonRazbor
 
         private void button7_Click(object sender, EventArgs e)
         {
+            try
+            {
+                var el = fillOutput();
+                //                itemFilter.
 
+                var oldOutList = itemFilter.outputFields;
+                if (comboBoxTypeTest.SelectedIndex == 2)
+                {
+                    itemFilter.outputFields = new List<OutputValue>();
+                    itemFilter.outputFields.Add(el);
+                }
+                        
+//                itemFilter.outputFields.Add(el);
+                AbstrParser.UniEl outRoot;
+                itemFilter.exec(list[0], out outRoot);
+                treeView2.Nodes.Clear();
+                TreeDrawerFactory fac = new TreeDrawerFactory(treeView2,true);
+
+                redrawNode(fac, outRoot, null);
+                if (comboBoxTypeTest.SelectedIndex == 2)
+                    itemFilter.outputFields = oldOutList;
+
+                    //                itemFilter.outputFields.Remove(el);
+                    treeView2.ExpandAll();
+            }
+            catch (Exception e56)
+            {
+                MessageBox.Show(e56.ToString());
+            }
+
+//            listBox1.Items.Contains
         }
 
+        void redrawNode(TreeDrawerFactory fac,AbstrParser.UniEl el, AbstrParser.UniEl ancestor)
+        {
+            fac.Create(el, ancestor);
+            foreach (var ch in el.childs)
+                redrawNode(fac,ch, el);
+        }
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -346,6 +383,11 @@ namespace TestJsonRazbor
         private void FormSelectField_Load(object sender, EventArgs e)
         {
             drawFactory = new TreeDrawerFactory(treeView1);
+            var pip=Pipeline.load();
+            itemFilter=  pip.steps[0].filters[0];
+
+            foreach (var item in itemFilter.outputFields)
+                listBox1.Items.Add(item);
 
         }
 
@@ -358,6 +400,77 @@ namespace TestJsonRazbor
                 Clipboard.SetText(textBox1.Text);
             }
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            fillFilter();
+            try
+            {
+                var res = itemFilter.filter.filter(list);
+                MessageBox.Show("found " + res.ToList().Count + " item");
+            } 
+            catch(Exception e88 )
+            {
+                MessageBox.Show(e88.ToString());
+            }
+        }
+
+
+        public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
+        OutputValue fillOutput()
+        {
+            if (comboBox3.SelectedIndex == 0)
+                return new ConstantValue() { outputPath = textBoxFieldName.Text, Value = textBoxConstant.Text };
+            else
+                return new ExtractFromInputValue() { outputPath = textBoxFieldName.Text, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ""/*((textBoxValueFieldPath.Text == "") ? "" : textBoxValueFieldPath.Text)*/ };
+//            return null;
+        }
+
+
+
+        private void fillFilter()
+        {
+            ComparerV compar;
+            if (comboBox1.SelectedIndex == 0)
+                compar = new ComparerForValue() { value_for_compare = textBoxFilterValue.Text };
+            else
+                compar =new  ComparerAlwaysTrue();
+            itemFilter.filter = new ConditionFilter() { conditionPath = textBoxFilterFieldPath.Text, conditionCalcer = compar };
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            OutputValue val = listBox1.SelectedItem as OutputValue;
+            if(val != null)
+            {
+
+                textBoxFieldName.Text = val.outputPath;
+                if(val is ConstantValue)
+                {
+                    comboBox3.SelectedIndex = 0;
+                    textBoxConstant.Text=(val as ConstantValue).Value;
+                } else
+                {
+                    comboBox3.SelectedIndex = 1;
+                    ExtractFromInputValue val1 = val as ExtractFromInputValue;
+                    textBoxValueFieldSearch.Text = val1.conditionPath;
+                    if (val1.conditionCalcer != null)
+                    {
+                        ComparerForValue cv = val1.conditionCalcer as ComparerForValue;
+                        textBoxFalueFieldSearchValue.Text = cv.value_for_compare;
+                    } else
+                        textBoxFalueFieldSearchValue.Text = "";
+                    if(val1.valuePath != "")
+                    {
+                        checkBox2.Checked = true;
+                        textBoxAddFieldPath.Text = val1.valuePath;
+                    } else
+                        checkBox2.Checked = false;
+                    //                    , conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ""/*((textBoxValueFieldPath.Text == "") ? "" : textBoxValueFieldPath.Text)*/ };
+                }
+
+            }
         }
     }
 }

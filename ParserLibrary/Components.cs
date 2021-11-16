@@ -40,7 +40,7 @@ namespace ParserLibrary
         public delegate  void StringReceived(string input);
         public delegate void BytesReceived(byte[] input);
         public Func<string,Task> stringReceived;
-        public async Task signal(string input)
+        public async Task signal(string input,object context)
         {
             if (saver != null)
                 saver.save(input);
@@ -50,7 +50,7 @@ namespace ParserLibrary
 
 
 
-        public virtual async Task sendResponse(string response)
+        public virtual async Task sendResponse(string response,object context)
         { }
 
         public async virtual Task start()
@@ -199,23 +199,50 @@ return true;
         public ConverterOutput converter = null;
 
         public abstract string getValue(AbstrParser.UniEl rootEl);
+
+        string[] outs = null;
+        AbstrParser.UniEl createOutPath(AbstrParser.UniEl outputRoot)
+        {
+            if(outs==null && outputPath != "")
+            {
+                outs = outputPath.Split("/");
+            }
+            if (outs == null)
+                return null;
+            var rootEl = outputRoot;
+            for(int i=0;i < outs.Length;i++)
+            {
+                var el=rootEl.childs.FirstOrDefault(ii => ii.Name == outs[i]);
+                if (el == null)
+                    el = new AbstrParser.UniEl(rootEl) { Name = outs[i] };
+                rootEl = el;
+            }
+            return rootEl;
+        }
         public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
         {
-            // Пока поддерживается только линейная структура записи
-            if (typeCopy == TypeCopy.Value)
+            // skipped--------------------------- Пока поддерживается только линейная структура записи
+       //     if (typeCopy == TypeCopy.Value)
             {
-                var el1= getValue(inputRoot);
+                var el1 = getValue(inputRoot);
 
                 if (el1 == "" && onEmptyValueAction == OnEmptyAction.Skip)
                     return false;
                 if (converter != null)
                     el1 = converter.Convert(el1, inputRoot);
-                AbstrParser.UniEl el = new AbstrParser.UniEl(outputRoot);
-                el.Name = outputPath;
+                var el = createOutPath(outputRoot);
+                //                AbstrParser.UniEl el = new AbstrParser.UniEl(outputRoot);
+                //el.Name = outputPath;
+                //                if(el.)
+//                if(el1.)
                 el.Value = el1;
             }
-            else
-                outputRoot.childs.Add(inputRoot.copy(outputRoot));
+         /*   else
+            {
+                var el = createOutPath(outputRoot);
+
+                el.childs.Add(inputRoot.copy(outputRoot));
+            }*/
             return true;
         }
     }
@@ -506,8 +533,21 @@ return true;
         {
             public Filter filter = new ConditionFilter();
             public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
-        }
-        public List<ItemFilter> filters = new List<ItemFilter>() { new ItemFilter() };
+            public int exec(AbstrParser.UniEl rootElInput,out AbstrParser.UniEl local_rootOutput)
+            {
+                int count = 0;
+                local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
+
+                foreach (var ff in outputFields)
+                {
+                    if (ff.addToOutput(rootElInput, ref local_rootOutput))
+                        count++;
+                }
+                return count;
+            }
+
+    }
+    public List<ItemFilter> filters = new List<ItemFilter>() { new ItemFilter() };
 /*        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
         public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
 //        public RecordExtractor transformer;
@@ -577,12 +617,13 @@ return true;
         private async Task FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el, List<AbstrParser.UniEl> list)
         {
             int count = 0;
-            var local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
-            foreach (var ff in item.outputFields)
+            AbstrParser.UniEl local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
+            count = item.exec(rootElInput,out local_rootOutput);
+/*            foreach (var ff in item.outputFields)
             {
                 if(ff.addToOutput(rootElInput, ref local_rootOutput))
                     count++;
-            }
+            }*/
             if (debugMode)
                 Logger.log(" transform to output {count} items", Serilog.Events.LogEventLevel.Debug,count);
             var msec = (DateTime.Now - time1).TotalMilliseconds;
@@ -590,7 +631,7 @@ return true;
             if (IDResponsedReceiverStep != "")
             {
                 var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
-                step.receiver.sendResponse(rootElInput.toJSON());
+                await step.receiver.sendResponse(local_rootOutput.toJSON(),null);
 
             }
             else
@@ -785,7 +826,7 @@ return true;
                         line = line.Substring(0, pos);
                     if (line != "")
                     {
-                        await signal(line);
+                        await signal(line,null);
                     }
                 }
 
@@ -808,7 +849,7 @@ return true;
                 using (StreamReader sr = new StreamReader(file_name))
                 {
                     var body = sr.ReadToEnd();
-                    await signal(body);
+                    await signal(body,null);
 
                 }
             }

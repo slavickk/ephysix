@@ -11,20 +11,30 @@ namespace TestJsonRazbor
     public class TreeDrawer : Drawer
     {
         public TreeNode node;
-        public TreeDrawer(TreeView treeView1, ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor)
+        public TreeDrawer(TreeView treeView1, ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor,bool delRoot=false)
         {
             newEl.treeNode = this;// new TreeNode(newEl.Name);
             node = new TreeNode(newEl.Name);
             if (ancestor == null)
             {
-                treeView1.Nodes[0].Nodes.Add(node);
-                treeView1.Nodes[0].Nodes[^1].Tag = newEl;
+                if (delRoot)
+                {
+                    treeView1.Nodes.Add(node);
+                    treeView1.Nodes[^1].Tag = newEl;
+
+                }
+                else
+                {
+                    treeView1.Nodes[0].Nodes.Add(node);
+                    treeView1.Nodes[0].Nodes[^1].Tag = newEl;
+                }
             }
             else
             {
                 (ancestor.treeNode as TreeDrawer).node.Nodes.Add(node);
                 (ancestor.treeNode as TreeDrawer).node.Nodes[^1].Tag = newEl;
-
+                if (delRoot)
+                    Update(newEl);
             }
 
         }
@@ -47,15 +57,18 @@ namespace TestJsonRazbor
     public class TreeDrawerFactory : DrawerFactory
     {
         TreeView tree;
-        public TreeDrawerFactory(TreeView tree1)
+        bool delRoot;
+        public TreeDrawerFactory(TreeView tree1,bool delRoot1=false)
         {
-            AbstrParser.drawerFactory = this;
+            delRoot = delRoot1;
+            if(!delRoot)
+             AbstrParser.drawerFactory = this;
             tree = tree1;
 
         }
         public Drawer Create(ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor)
         {
-            return new TreeDrawer(tree, newEl, ancestor);
+            return new TreeDrawer(tree, newEl, ancestor,delRoot);
         }
     }
 

@@ -34,6 +34,18 @@ namespace ParserLibrary
             return el?.Value.ToString() == value_for_compare;
         }
     }
+    [Serializable]
+    public class ComparerAlwaysTrue : ComparerV
+    {
+        public ComparerAlwaysTrue()
+        {
+        }
+
+        public bool Compare(AbstrParser.UniEl el)
+        {
+            return true;
+        }
+    }
 
     public interface Drawer
     {
