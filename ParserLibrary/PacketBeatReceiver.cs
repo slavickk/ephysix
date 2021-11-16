@@ -363,10 +363,10 @@ namespace ParserLibrary
                     frame.strJson = encoder.GetString(btsAll);
                     if(multiThreadMode)
                         tasks.Add(Task.Run(async () => {
-                            await owner.signal(frame.strJson);
+                            await owner.signal(frame.strJson,null);
                         }) );
                     else
-                        await owner.signal(frame.strJson);
+                        await owner.signal(frame.strJson,null);
                     //                    Console.WriteLine("json:" + frame.strJson.Length);
                     //                    File.WriteAllText(@"C:\d\out\aa_"+(orderFiles++)+"_" + DateTime.Now.Second + DateTime.Now.Millisecond + ".json", frame.strJson);
 
