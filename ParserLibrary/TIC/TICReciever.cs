@@ -16,7 +16,7 @@ namespace ParserLibrary
         private readonly IDisposable pushProperty;
         private int _TICFrame;
 
-        public IPEndPoint endpoint;
+        private IPEndPoint endpoint;
         private TICFrame Frame;
 
         public TICReciever()
