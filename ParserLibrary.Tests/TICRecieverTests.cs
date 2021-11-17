@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ParserLibrary.Tests
 {
-    public class DummyProtocol1Tests
+    public class DummyProtocol1RecieverTests
     {
         int port = 5001;
 
