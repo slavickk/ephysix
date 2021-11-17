@@ -29,6 +29,12 @@ namespace TestJsonRazbor
                 comboBox1.Items.Add(t);
             }
             this.Text = "Configure " + tDefine.Name;
+            if(tObject != null)
+            {
+                comboBox1.SelectedIndex=comboBox1.Items.IndexOf(tObject.GetType());
+                if(comboBox1.SelectedIndex >= 0)
+                    Refresh_tObjectProp();
+            }
         }
 
 
@@ -77,29 +83,35 @@ namespace TestJsonRazbor
              if(comboBox1.SelectedIndex>=0)
             {
                 tObject = Activator.CreateInstance(comboBox1.SelectedItem as Type);
-                foreach (var label in labels)
-                    this.Controls.Remove(label);
-                foreach (var box in textBoxes)
-                    this.Controls.Remove(box);
-                textBoxes.Clear();
-                labels.Clear();
-                fields.Clear();
-                int lastTop = 87;
-                Type t = (Type)comboBox1.Items[comboBox1.SelectedIndex];
-                var props = t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                var flds = t.GetFields();
-                foreach(var fld in flds.Where(ii=>!ii.FieldType.IsClass || ii.FieldType.IsArray))
-                {
-                    if(fld.FieldType != typeof(bool))
-                    {
-                        AddControlGroup(ref lastTop, fld);
-                    }
-                }
-                if (lastTop == 19)
-                    lastTop = 150;
-                this.Size =  new Size(this.Size.Width,lastTop+70);
+                Refresh_tObjectProp();
             }
         }
+
+        private void Refresh_tObjectProp()
+        {
+            foreach (var label in labels)
+                this.Controls.Remove(label);
+            foreach (var box in textBoxes)
+                this.Controls.Remove(box);
+            textBoxes.Clear();
+            labels.Clear();
+            fields.Clear();
+            int lastTop = 87;
+            Type t = (Type)comboBox1.Items[comboBox1.SelectedIndex];
+            var props = t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var flds = t.GetFields();
+            foreach (var fld in flds.Where(ii => !ii.FieldType.IsClass || ii.FieldType.IsArray))
+            {
+                if (fld.FieldType != typeof(bool))
+                {
+                    AddControlGroup(ref lastTop, fld);
+                }
+            }
+            if (lastTop == 19)
+                lastTop = 150;
+            this.Size = new Size(this.Size.Width, lastTop + 70);
+        }
+
         object conv(string text,FieldInfo fld)
         {
 

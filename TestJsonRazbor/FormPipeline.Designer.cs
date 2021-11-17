@@ -96,7 +96,7 @@ namespace TestJsonRazbor
             this.splitContainer1.Panel2.Controls.Add(this.groupBox1);
             this.splitContainer1.Panel2.Controls.Add(this.textBox1);
             this.splitContainer1.Panel2.Controls.Add(this.label1);
-            this.splitContainer1.Size = new System.Drawing.Size(1169, 535);
+            this.splitContainer1.Size = new System.Drawing.Size(1169, 717);
             this.splitContainer1.SplitterDistance = 389;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -110,7 +110,7 @@ namespace TestJsonRazbor
             treeNode1.Text = "Steps";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            this.treeView1.Size = new System.Drawing.Size(389, 535);
+            this.treeView1.Size = new System.Drawing.Size(389, 717);
             this.treeView1.TabIndex = 0;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             this.treeView1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseClick);
@@ -118,6 +118,9 @@ namespace TestJsonRazbor
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.buttonTestReceiver);
             this.groupBox1.Controls.Add(this.button4);
             this.groupBox1.Controls.Add(this.button3);
@@ -131,7 +134,7 @@ namespace TestJsonRazbor
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(12, 67);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(752, 456);
+            this.groupBox1.Size = new System.Drawing.Size(752, 642);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Step detail";
@@ -149,7 +152,8 @@ namespace TestJsonRazbor
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(15, 404);
+            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button4.Location = new System.Drawing.Point(15, 590);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(150, 46);
             this.button4.TabIndex = 9;
@@ -158,7 +162,7 @@ namespace TestJsonRazbor
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(15, 273);
+            this.button3.Location = new System.Drawing.Point(15, 527);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(722, 46);
             this.button3.TabIndex = 8;
@@ -252,7 +256,7 @@ namespace TestJsonRazbor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1169, 535);
+            this.ClientSize = new System.Drawing.Size(1169, 717);
             this.Controls.Add(this.splitContainer1);
             this.Name = "FormPipeline";
             this.Text = "FormPipeline";

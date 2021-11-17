@@ -47,7 +47,7 @@ namespace TestJsonRazbor
         Receiver rec;
         private void button1_Click(object sender, EventArgs e)
         {
-            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Receiver) };
+            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Receiver),tObject=new PacketBeatReceiver() };
             if(frm.ShowDialog() == DialogResult.OK)
             {
                 this.buttonSetupReceiver.Text = "Receiver:" + frm.tObject.GetType().Name;
