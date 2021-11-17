@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleIntegrityUtility", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppTestUtility", "ConsoleAppTestUtility\ConsoleAppTestUtility.csproj", "{9F81FDDE-1A8F-4B8A-BE4C-8C7ED3BAA9CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiConsoleUtility", "WebApiConsoleUtility\WebApiConsoleUtility.csproj", "{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiConsoleUtility", "WebApiConsoleUtility\WebApiConsoleUtility.csproj", "{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
