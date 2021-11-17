@@ -7,6 +7,8 @@ namespace ParserLibrary.TIC.TICFrames
 {
     public class Frame5 : TICFrame
     {
+        public override int FrameNum => 5;
+
         public override async Task<long> DeserializeLength(Stream reader, CancellationToken cancellationToken)
         {
             var bytes = new byte[2];

@@ -11,6 +11,8 @@ namespace ParserLibrary.TIC.TICFrames
 {
     public abstract class TICFrame
     {
+        public abstract int FrameNum { get; }
+
         public abstract Task<long> DeserializeLength(Stream reader, CancellationToken cancellationToken);
         public abstract Task SerializeLength(Stream writer, long length, CancellationToken cancellationToken);
 

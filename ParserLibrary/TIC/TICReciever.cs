@@ -14,8 +14,6 @@ namespace ParserLibrary
     public class TICReciever : Receiver, IDisposable
     {
         private readonly IDisposable pushProperty;
-        private int _TICFrame;
-
         private IPEndPoint endpoint;
         private TICFrame Frame;
 
@@ -27,17 +25,14 @@ namespace ParserLibrary
 
         public int TicFrame
         {
-            get => _TICFrame;
-            set
-            {
-                _TICFrame = value;
-                Frame = TICFrame.GetFrame(_TICFrame);
-            }
+            get => Frame.FrameNum;
+            set { Frame = TICFrame.GetFrame(value); }
         }
 
         public int Port
         {
             set => endpoint = new IPEndPoint(IPAddress.Any, value);
+            get => endpoint.Port;
         }
 
         public void Dispose()
