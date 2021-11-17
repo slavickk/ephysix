@@ -88,7 +88,17 @@ namespace ParserLibrary
                 {
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        var DummyProtocol1MessageJson = await Frame.DeserializeToJson(clientStream, cancellationToken);
+                        string DummyProtocol1MessageJson;
+                        try
+                        {
+                            DummyProtocol1MessageJson = await Frame.DeserializeToJson(clientStream, cancellationToken);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error(e, "Exception in DummyProtocol1");
+                            continue;
+                        }
+
                         await signal(DummyProtocol1MessageJson, clientStream);
                     }
                 }
@@ -101,7 +111,7 @@ namespace ParserLibrary
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, "Exception in DummyProtocol1");
+                    Log.Error(e, "Exception in DummyProtocol1Reciever");
                     throw;
                 }
                 finally
