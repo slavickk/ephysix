@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ParserLibrary.Tests
 {
-    public class TicTests
+    public class TICRecieverTests
     {
         int port = 5001;
 
