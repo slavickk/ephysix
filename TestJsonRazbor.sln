@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppTestUtility", "Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiConsoleUtility", "WebApiConsoleUtility\WebApiConsoleUtility.csproj", "{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserLibrary.Tests", "ParserLibrary.Tests\ParserLibrary.Tests.csproj", "{DD07AA1A-F72A-4787-8C16-99342BB9615D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD07AA1A-F72A-4787-8C16-99342BB9615D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD07AA1A-F72A-4787-8C16-99342BB9615D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD07AA1A-F72A-4787-8C16-99342BB9615D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD07AA1A-F72A-4787-8C16-99342BB9615D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
