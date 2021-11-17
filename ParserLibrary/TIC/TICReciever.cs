@@ -88,7 +88,17 @@ namespace ParserLibrary
                 {
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        var TICMessageJson = await Frame.DeserializeToJson(clientStream, cancellationToken);
+                        string TICMessageJson;
+                        try
+                        {
+                            TICMessageJson = await Frame.DeserializeToJson(clientStream, cancellationToken);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error(e, "Exception in TIC");
+                            continue;
+                        }
+
                         await signal(TICMessageJson, clientStream);
                     }
                 }
@@ -101,7 +111,7 @@ namespace ParserLibrary
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, "Exception in TIC");
+                    Log.Error(e, "Exception in TICReciever");
                     throw;
                 }
                 finally
