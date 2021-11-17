@@ -74,6 +74,13 @@ namespace ParserLibrary
             return "";
 
         }
+        public async virtual Task<string> send(string JsonBody)
+        {
+            /*            if (owner.debugMode)
+                            Console.WriteLine("send result");*/
+            return "";
+
+        }
     }
     public abstract class Filter
     {
