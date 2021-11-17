@@ -37,10 +37,11 @@ namespace TestJsonRazbor
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonTestReceiver = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.buttonSetupReceiver = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.textBox3 = new System.Windows.Forms.TextBox();
@@ -117,10 +118,11 @@ namespace TestJsonRazbor
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.buttonTestReceiver);
             this.groupBox1.Controls.Add(this.button4);
             this.groupBox1.Controls.Add(this.button3);
             this.groupBox1.Controls.Add(this.button2);
-            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.buttonSetupReceiver);
             this.groupBox1.Controls.Add(this.textBox4);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.textBox3);
@@ -133,6 +135,17 @@ namespace TestJsonRazbor
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Step detail";
+            // 
+            // buttonTestReceiver
+            // 
+            this.buttonTestReceiver.Enabled = false;
+            this.buttonTestReceiver.Location = new System.Drawing.Point(587, 154);
+            this.buttonTestReceiver.Name = "buttonTestReceiver";
+            this.buttonTestReceiver.Size = new System.Drawing.Size(150, 46);
+            this.buttonTestReceiver.TabIndex = 10;
+            this.buttonTestReceiver.Text = "Test";
+            this.buttonTestReceiver.UseVisualStyleBackColor = true;
+            this.buttonTestReceiver.Click += new System.EventHandler(this.buttonTestReceiver_Click);
             // 
             // button4
             // 
@@ -161,14 +174,15 @@ namespace TestJsonRazbor
             this.button2.Text = "Filter";
             this.button2.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // buttonSetupReceiver
             // 
-            this.button1.Location = new System.Drawing.Point(15, 154);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(722, 46);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Receiver";
-            this.button1.UseVisualStyleBackColor = true;
+            this.buttonSetupReceiver.Location = new System.Drawing.Point(15, 154);
+            this.buttonSetupReceiver.Name = "buttonSetupReceiver";
+            this.buttonSetupReceiver.Size = new System.Drawing.Size(566, 46);
+            this.buttonSetupReceiver.TabIndex = 6;
+            this.buttonSetupReceiver.Text = "Receiver";
+            this.buttonSetupReceiver.UseVisualStyleBackColor = true;
+            this.buttonSetupReceiver.Click += new System.EventHandler(this.button1_Click);
             // 
             // textBox4
             // 
@@ -270,10 +284,11 @@ namespace TestJsonRazbor
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonSetupReceiver;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buttonTestReceiver;
     }
 }

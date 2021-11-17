@@ -29,10 +29,14 @@ namespace TestJsonRazbor
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Root");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Root");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Root");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Root");
             this.button7 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.buttonDel = new System.Windows.Forms.Button();
+            this.buttonMod = new System.Windows.Forms.Button();
+            this.buttonAdd = new System.Windows.Forms.Button();
+            this.comboBoxTypeTest = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
             this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.button11 = new System.Windows.Forms.Button();
@@ -77,7 +81,7 @@ namespace TestJsonRazbor
             this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
             this.openFileDialog3 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.comboBoxTypeTest = new System.Windows.Forms.ComboBox();
+            this.button3 = new System.Windows.Forms.Button();
             this.groupBox2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -106,6 +110,10 @@ namespace TestJsonRazbor
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.button3);
+            this.groupBox2.Controls.Add(this.buttonDel);
+            this.groupBox2.Controls.Add(this.buttonMod);
+            this.groupBox2.Controls.Add(this.buttonAdd);
             this.groupBox2.Controls.Add(this.comboBoxTypeTest);
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Controls.Add(this.comboBox3);
@@ -124,6 +132,50 @@ namespace TestJsonRazbor
             this.groupBox2.TabIndex = 35;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "OutputValues";
+            // 
+            // buttonDel
+            // 
+            this.buttonDel.Enabled = false;
+            this.buttonDel.Location = new System.Drawing.Point(183, 274);
+            this.buttonDel.Name = "buttonDel";
+            this.buttonDel.Size = new System.Drawing.Size(80, 46);
+            this.buttonDel.TabIndex = 40;
+            this.buttonDel.Text = "del";
+            this.buttonDel.UseVisualStyleBackColor = true;
+            this.buttonDel.Click += new System.EventHandler(this.buttonDel_Click);
+            // 
+            // buttonMod
+            // 
+            this.buttonMod.Enabled = false;
+            this.buttonMod.Location = new System.Drawing.Point(97, 275);
+            this.buttonMod.Name = "buttonMod";
+            this.buttonMod.Size = new System.Drawing.Size(80, 46);
+            this.buttonMod.TabIndex = 39;
+            this.buttonMod.Text = "mod";
+            this.buttonMod.UseVisualStyleBackColor = true;
+            this.buttonMod.Click += new System.EventHandler(this.buttonMod_Click);
+            // 
+            // buttonAdd
+            // 
+            this.buttonAdd.Location = new System.Drawing.Point(11, 274);
+            this.buttonAdd.Name = "buttonAdd";
+            this.buttonAdd.Size = new System.Drawing.Size(80, 46);
+            this.buttonAdd.TabIndex = 38;
+            this.buttonAdd.Text = "add";
+            this.buttonAdd.UseVisualStyleBackColor = true;
+            this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
+            // 
+            // comboBoxTypeTest
+            // 
+            this.comboBoxTypeTest.FormattingEnabled = true;
+            this.comboBoxTypeTest.Items.AddRange(new object[] {
+            "All output+filter",
+            "All output",
+            "Current only"});
+            this.comboBoxTypeTest.Location = new System.Drawing.Point(189, 604);
+            this.comboBoxTypeTest.Name = "comboBoxTypeTest";
+            this.comboBoxTypeTest.Size = new System.Drawing.Size(189, 40);
+            this.comboBoxTypeTest.TabIndex = 37;
             // 
             // label10
             // 
@@ -460,10 +512,10 @@ namespace TestJsonRazbor
             this.treeView1.HideSelection = false;
             this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Name = "treeView1";
-            treeNode1.Name = "Node0";
-            treeNode1.Text = "Root";
+            treeNode3.Name = "Node0";
+            treeNode3.Text = "Root";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1});
+            treeNode3});
             this.treeView1.Size = new System.Drawing.Size(434, 1301);
             this.treeView1.TabIndex = 1;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
@@ -493,10 +545,10 @@ namespace TestJsonRazbor
             this.treeView2.HideSelection = false;
             this.treeView2.Location = new System.Drawing.Point(0, 0);
             this.treeView2.Name = "treeView2";
-            treeNode2.Name = "Node0";
-            treeNode2.Text = "Root";
+            treeNode4.Name = "Node0";
+            treeNode4.Text = "Root";
             this.treeView2.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2});
+            treeNode4});
             this.treeView2.Size = new System.Drawing.Size(315, 1301);
             this.treeView2.TabIndex = 2;
             // 
@@ -573,17 +625,17 @@ namespace TestJsonRazbor
             this.openFileDialog3.FileName = "openFileDialog1";
             this.openFileDialog3.InitialDirectory = "C:\\Users\\User\\Documents\\PacketOut";
             // 
-            // comboBoxTypeTest
+            // button3
             // 
-            this.comboBoxTypeTest.FormattingEnabled = true;
-            this.comboBoxTypeTest.Items.AddRange(new object[] {
-            "All output+filter",
-            "All output",
-            "Current only"});
-            this.comboBoxTypeTest.Location = new System.Drawing.Point(189, 604);
-            this.comboBoxTypeTest.Name = "comboBoxTypeTest";
-            this.comboBoxTypeTest.Size = new System.Drawing.Size(189, 40);
-            this.comboBoxTypeTest.TabIndex = 37;
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button3.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.button3.Location = new System.Drawing.Point(1400, 598);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(229, 46);
+            this.button3.TabIndex = 36;
+            this.button3.Text = "Save filter";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // FormSelectField
             // 
@@ -669,5 +721,9 @@ namespace TestJsonRazbor
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ComboBox comboBoxTypeTest;
+        private System.Windows.Forms.Button buttonDel;
+        private System.Windows.Forms.Button buttonMod;
+        private System.Windows.Forms.Button buttonAdd;
+        private System.Windows.Forms.Button button3;
     }
 }

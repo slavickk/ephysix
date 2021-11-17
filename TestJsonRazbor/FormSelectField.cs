@@ -386,6 +386,21 @@ namespace TestJsonRazbor
             var pip=Pipeline.load();
             itemFilter=  pip.steps[0].filters[0];
 
+
+
+            textBoxFilterFieldPath.Text = (itemFilter.filter as ConditionFilter).conditionPath;
+            if ((itemFilter.filter as ConditionFilter).conditionCalcer is ComparerForValue)
+            {
+                comboBox1.SelectedIndex = 0;
+                textBoxFilterValue.Text = ((itemFilter.filter as ConditionFilter).conditionCalcer as ComparerForValue).value_for_compare;
+            }
+            else
+            {
+                comboBox1.SelectedIndex = 1;
+
+            }
+
+
             foreach (var item in itemFilter.outputFields)
                 listBox1.Items.Add(item);
 
@@ -417,13 +432,14 @@ namespace TestJsonRazbor
         }
 
 
-        public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
+//        public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
         OutputValue fillOutput()
         {
             if (comboBox3.SelectedIndex == 0)
                 return new ConstantValue() { outputPath = textBoxFieldName.Text, Value = textBoxConstant.Text };
             else
-                return new ExtractFromInputValue() { outputPath = textBoxFieldName.Text, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ""/*((textBoxValueFieldPath.Text == "") ? "" : textBoxValueFieldPath.Text)*/ };
+                
+                return new ExtractFromInputValue() { outputPath = textBoxFieldName.Text, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath =(checkBox2.Checked?textBoxAddFieldPath.Text: "") };
 //            return null;
         }
 
@@ -444,7 +460,7 @@ namespace TestJsonRazbor
             OutputValue val = listBox1.SelectedItem as OutputValue;
             if(val != null)
             {
-
+                buttonDel.Enabled = buttonMod.Enabled = true;
                 textBoxFieldName.Text = val.outputPath;
                 if(val is ConstantValue)
                 {
@@ -470,7 +486,39 @@ namespace TestJsonRazbor
                     //                    , conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ""/*((textBoxValueFieldPath.Text == "") ? "" : textBoxValueFieldPath.Text)*/ };
                 }
 
-            }
+            } else
+                buttonDel.Enabled = buttonMod.Enabled = false;
+
+        }
+
+        private void buttonAdd_Click(object sender, EventArgs e)
+        {
+            itemFilter.outputFields.Add(fillOutput());
+            redrawOutput();
+        }
+
+        private void redrawOutput()
+        {
+            listBox1.Items.Clear();
+            foreach (var it in itemFilter.outputFields)
+                listBox1.Items.Add(it);
+        }
+
+        private void buttonMod_Click(object sender, EventArgs e)
+        {
+            itemFilter.outputFields[listBox1.SelectedIndex] = fillOutput();
+            redrawOutput();
+        }
+
+        private void buttonDel_Click(object sender, EventArgs e)
+        {
+            itemFilter.outputFields.RemoveAt(listBox1.SelectedIndex);
+            redrawOutput();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+             fillFilter();
         }
     }
 }

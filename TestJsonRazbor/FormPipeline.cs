@@ -44,5 +44,29 @@ namespace TestJsonRazbor
             selectedNode = e.Node;
             ((TreeView)sender).SelectedNode = e.Node;
         }
+        Receiver rec;
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Receiver) };
+            if(frm.ShowDialog() == DialogResult.OK)
+            {
+                this.buttonSetupReceiver.Text = "Receiver:" + frm.tObject.GetType().Name;
+                buttonTestReceiver.Enabled = true;
+                rec = frm.tObject as Receiver;
+            }
+
+        }
+        async Task proxyRec(string body,object Context)
+        {
+
+        }
+        private void buttonTestReceiver_Click(object sender, EventArgs e)
+        {
+            rec.stringReceived = proxyRec;
+            Task taskA = Task.Run(async () =>
+            {
+                await rec.start();
+            });
+        }
     }
 }
