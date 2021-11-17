@@ -7,6 +7,8 @@ namespace ParserLibrary.DummyProtocol1.DummyProtocol1Frames
 {
     public class Frame6 : DummyProtocol1Frame
     {
+        public override int FrameNum => 6;
+
         public override async Task<long> DeserializeLength(Stream reader, CancellationToken cancellationToken)
         {
             var bytes = new byte[2];

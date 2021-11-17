@@ -14,8 +14,6 @@ namespace ParserLibrary
     public class DummyProtocol1Reciever : Receiver, IDisposable
     {
         private readonly IDisposable pushProperty;
-        private int _DummyProtocol1Frame;
-
         private IPEndPoint endpoint;
         private DummyProtocol1Frame Frame;
 
@@ -27,17 +25,14 @@ namespace ParserLibrary
 
         public int DummyProtocol1Frame
         {
-            get => _DummyProtocol1Frame;
-            set
-            {
-                _DummyProtocol1Frame = value;
-                Frame = DummyProtocol1Frame.GetFrame(_DummyProtocol1Frame);
-            }
+            get => Frame.FrameNum;
+            set { Frame = DummyProtocol1Frame.GetFrame(value); }
         }
 
         public int Port
         {
             set => endpoint = new IPEndPoint(IPAddress.Any, value);
+            get => endpoint.Port;
         }
 
         public void Dispose()

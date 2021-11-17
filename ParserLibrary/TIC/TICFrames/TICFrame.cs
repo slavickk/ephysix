@@ -11,6 +11,8 @@ namespace ParserLibrary.DummyProtocol1.DummyProtocol1Frames
 {
     public abstract class DummyProtocol1Frame
     {
+        public abstract int FrameNum { get; }
+
         public abstract Task<long> DeserializeLength(Stream reader, CancellationToken cancellationToken);
         public abstract Task SerializeLength(Stream writer, long length, CancellationToken cancellationToken);
 
