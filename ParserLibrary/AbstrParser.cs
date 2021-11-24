@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
+
 using System.Xml;
 using System.Text.RegularExpressions;
 using MaxMind.GeoIP2;
@@ -174,7 +175,7 @@ namespace ParserLibrary
             public string toJSON()
             {
                 string tt = "";
-                return ToJson(ref tt);
+                return to_json_internal(ref tt);
                 
 //                throw new Exception("not implemented");
             }
@@ -186,8 +187,15 @@ namespace ParserLibrary
             {
                 return (i >0 &&  arr[i].Name == arr[i - 1].Name) && (i == arr.Count-1 || arr[i].Name != arr[i+ 1].Name);
             }
-            public string ToJson(ref string val,bool isArr1=false)
+
+            string mask(string value)
             {
+                return value.Replace("\"", "\\\"");
+            }
+            public string to_json_internal(ref string val,bool isArr1=false)
+            {
+/*                JsonElement el = new JsonElement() ;
+                el.*/
                 if (val != "" && !isArr1)
                     val += "\"" + this.Name + "\":";
                 if(this.Name == "PrimaryBitMap")
@@ -212,7 +220,7 @@ namespace ParserLibrary
                             isArr = true;
                         }
 
-                        this.childs[i].ToJson(ref val,isArr);
+                        this.childs[i].to_json_internal(ref val,isArr);
                         if (lastElInArray(this.childs, i))
                         {
                             isArr = false;
@@ -230,7 +238,7 @@ namespace ParserLibrary
                     if (this.Value != null)
                     {
                         if (this.Value.GetType() == typeof(string))
-                            val += "\"" + this.Value.ToString() + "\"";
+                            val += "\"" + mask(this.Value.ToString()) + "\"";
                         else
                         {
                             if(this.Value != null && this.Value.GetType() == typeof(bool))
@@ -241,7 +249,7 @@ namespace ParserLibrary
                                 else
                                     val += "false";
                             } else
-                                val += this.Value.ToString();
+                                val += mask(this.Value.ToString());
                         }
                     }
                     else
@@ -669,9 +677,9 @@ namespace ParserLibrary
                 return false;
             if(line1[0] == '[' && line1[^1] == ']')
             {
-
+                /*
                 if (line1.Length > 2 && !(line1[1] == '{' && line1[^2] == '}'))
-                    return false;
+                    return false;*/
             }
             JsonDocument doc;
             DateTime time1 = DateTime.Now;
@@ -721,6 +729,13 @@ namespace ParserLibrary
                 }
             } else
             {
+                if (el.ValueKind == JsonValueKind.String || el.ValueKind == JsonValueKind.Number || el.ValueKind == JsonValueKind.True)
+                {
+//                    UniEl newEl = CreateNode(ancestor, list, "");
+                    ancestor.Value = GetObject(el);
+                    return;
+                }
+                    
                 foreach (var property in el.EnumerateObject())
                 {
                     var type = property.GetType();
