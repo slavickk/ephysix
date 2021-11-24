@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiConsoleUtility", "Web
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserLibrary.Tests", "ParserLibrary.Tests\ParserLibrary.Tests.csproj", "{DD07AA1A-F72A-4787-8C16-99342BB9615D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = DummyProtocol2ConsoleTest, "DummyProtocol2ConsoleTest\DummyProtocol2ConsoleTest.csproj", "{12D07772-2922-4B4B-BC77-F0FC282F759A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{DD07AA1A-F72A-4787-8C16-99342BB9615D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD07AA1A-F72A-4787-8C16-99342BB9615D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD07AA1A-F72A-4787-8C16-99342BB9615D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12D07772-2922-4B4B-BC77-F0FC282F759A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12D07772-2922-4B4B-BC77-F0FC282F759A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12D07772-2922-4B4B-BC77-F0FC282F759A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12D07772-2922-4B4B-BC77-F0FC282F759A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
