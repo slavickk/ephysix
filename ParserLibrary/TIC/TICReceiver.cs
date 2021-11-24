@@ -54,7 +54,7 @@ namespace ParserLibrary
             endpoint = new IPEndPoint(IPAddress.Any, port);
             CancellationToken cancellationToken = CancellationToken.None;
 
-            var taskFactory = new TaskFactory(CancellationToken.None,
+            var taskFactory = new TaskFactory(cancellationToken,
                 TaskCreationOptions.AttachedToParent | TaskCreationOptions.LongRunning,
                 TaskContinuationOptions.None, TaskScheduler.Current);
 
