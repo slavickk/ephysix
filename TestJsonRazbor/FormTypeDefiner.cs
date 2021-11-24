@@ -100,7 +100,7 @@ namespace TestJsonRazbor
             Type t = (Type)comboBox1.Items[comboBox1.SelectedIndex];
             var props = t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             var flds = t.GetFields();
-            foreach (var fld in flds.Where(ii => !ii.FieldType.IsClass || ii.FieldType.IsArray))
+            foreach (var fld in flds.Where(ii => !ii.FieldType.IsClass || ii.FieldType.IsArray || ii.FieldType ==typeof(string)))
             {
                 if (fld.FieldType != typeof(bool))
                 {

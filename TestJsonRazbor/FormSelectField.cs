@@ -16,6 +16,7 @@ namespace TestJsonRazbor
     public partial class FormSelectField : Form
     {
         public Step.ItemFilter itemFilter = new Step.ItemFilter() { outputFields = new List<OutputValue>() };
+        public Step currentStep;
         int indexSearch = 0;
         public FormSelectField()
         {
@@ -213,12 +214,34 @@ namespace TestJsonRazbor
 
         private void button7_Click(object sender, EventArgs e)
         {
+/*            var st = new string[] { "aa", "bb", "cc" };
+            var sb = new StringBuilder();
+            st.ToList().ForEach(s => sb.Append(s + ";"));
+*/
             try
             {
                 var el = fillOutput();
                 //                itemFilter.
 
+                AbstrParser.UniEl outRoot=null;
                 var oldOutList = itemFilter.outputFields;
+                int index=currentStep.converters.IndexOf(itemFilter);
+
+
+                
+                for (int i = 0; i < index; i++)
+                {
+                    var filt = currentStep.converters[i];
+//                    foreach (var filt in currentStep.filters)
+                    {
+                        foreach (var item1 in filt.filter.filter(list))
+
+                            filt.exec(list[0], ref outRoot);
+                    }
+                }
+
+
+
                 if (comboBoxTypeTest.SelectedIndex == 2)
                 {
                     itemFilter.outputFields = new List<OutputValue>();
@@ -226,12 +249,13 @@ namespace TestJsonRazbor
                 }
                         
 //                itemFilter.outputFields.Add(el);
-                AbstrParser.UniEl outRoot;
-                itemFilter.exec(list[0], out outRoot);
+               if(comboBoxTypeTest.SelectedIndex >0 ||   itemFilter.filter.filter(list).Count()  >0)
+                itemFilter.exec(list[0], ref outRoot);
                 treeView2.Nodes.Clear();
                 TreeDrawerFactory fac = new TreeDrawerFactory(treeView2,true);
 
-                redrawNode(fac, outRoot, null);
+                if(outRoot != null)
+                    redrawNode(fac, outRoot, null);
 //                if (comboBoxTypeTest.SelectedIndex == 2)
                     itemFilter.outputFields = oldOutList;
 
@@ -254,7 +278,22 @@ namespace TestJsonRazbor
         }
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if(comboBox2.SelectedIndex == 1)
+            {
+                label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = false;
+                textBoxScript.Visible = true;
+                checkBox2.Visible = false;
+            }
+            else
+            {
+                checkBox2.Visible = true;
+                textBoxScript.Visible = false;
+                if (checkBox2.Checked == false)
+                    label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = false;
+                else
+                    label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = true;
 
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -328,18 +367,32 @@ namespace TestJsonRazbor
             {
                 lastFile = openFileDialog1.FileName;
                 treeView1.Nodes[0].Nodes.Clear();
-                ParseInput(lastFile);
+                ParseInput(lastFile, new string[] { "Item" });
             }
 
 
 
         }
-        private void ParseInput(string file_name)
+        private void ParseInput(string file_name, string[] paths  )
         {
             int ind = 0;
             using (StreamReader sr = new StreamReader(file_name))
             {
-                AbstrParser.UniEl rootEl = AbstrParser.CreateNode(null, list, "Item");
+                AbstrParser.UniEl ancestor = null;
+                AbstrParser.UniEl rootEl= null;
+                if (list.Count > 0)
+                    ancestor = list[0];
+                foreach (var path in paths)
+                {
+                    if (ancestor == null || ancestor.Name != path)
+                    {
+                        if (ancestor != null)
+                            rootEl = ancestor.childs.FirstOrDefault(ii => ii.Name == path);
+                        if (rootEl == null)
+                            rootEl = AbstrParser.CreateNode(ancestor, list, path);
+                        ancestor = rootEl;
+                    }
+                }
                 var line = sr.ReadToEnd();
                 if (line != "")
                 {
@@ -383,9 +436,12 @@ namespace TestJsonRazbor
         private void FormSelectField_Load(object sender, EventArgs e)
         {
             drawFactory = new TreeDrawerFactory(treeView1);
-            var pip=Pipeline.load();
-            itemFilter=  pip.steps[0].filters[0];
-
+            /*            var pip=Pipeline.load();
+                        itemFilter=  pip.steps[0].filters[0];*/
+            var arrs = Enum.GetValues(typeof(ConstantValue.TypeObject));
+            foreach(var ar in arrs)
+                comboBoxTypeConvert.Items.Add(ar);
+            comboBoxTypeConvert.SelectedIndex = 0;
 
 
             textBoxFilterFieldPath.Text = (itemFilter.filter as ConditionFilter).conditionPath;
@@ -403,7 +459,32 @@ namespace TestJsonRazbor
 
             foreach (var item in itemFilter.outputFields)
                 listBox1.Items.Add(item);
+            if(currentStep != null)
+            {
+                bool first = true;
 
+                FillStepDataFile(first,currentStep);
+            }
+        }
+
+        private void FillStepDataFile(bool first,Step currentStep1)
+        {
+            if (currentStep1.receiver != null && currentStep1.receiver.MocFile != null && currentStep1.receiver.MocFile != "")
+            {
+
+                ParseInput(currentStep1.receiver.MocFile, new string[] { currentStep1.IDStep, "Rec" });
+            }
+
+            if (currentStep1.sender!= null && !first && currentStep1.sender.MocFile != null && currentStep1.sender.MocFile != "")
+            {
+                ParseInput(currentStep1.sender.MocFile, new string[] { currentStep1.IDStep, "Send" });
+            }
+            first = false;
+            if(currentStep1.IDPreviousStep != null && currentStep1.IDPreviousStep != "")
+            {
+
+                FillStepDataFile(first, currentStep1.owner.steps.First(ii => ii.IDStep == currentStep1.IDPreviousStep));
+            }
         }
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
@@ -435,12 +516,18 @@ namespace TestJsonRazbor
 //        public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
         OutputValue fillOutput()
         {
+            ConverterOutput converter = null;
+            if (checkBoxHash.Checked)
+                converter = new Hash();
             if (comboBox3.SelectedIndex == 0)
-                return new ConstantValue() { outputPath = textBoxFieldName.Text, Value = textBoxConstant.Text };
+                return new ConstantValue() { converter=converter, outputPath = textBoxFieldName.Text, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject ) comboBoxTypeConvert.SelectedItem)  };
             else
-                
-                return new ExtractFromInputValue() { outputPath = textBoxFieldName.Text, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath =(checkBox2.Checked?textBoxAddFieldPath.Text: "") };
-//            return null;
+                if(comboBox2.SelectedIndex != 1)
+                    return new ExtractFromInputValue() { converter = converter, outputPath = textBoxFieldName.Text, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath =(checkBox2.Checked?textBoxAddFieldPath.Text: "") };
+                else
+                    return new ExtractFromInputValueWithScript() { converter = converter, outputPath = textBoxFieldName.Text, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))) , ScriptBody =textBoxScript.Text };
+
+            //            return null;
         }
 
 
@@ -460,15 +547,23 @@ namespace TestJsonRazbor
             OutputValue val = listBox1.SelectedItem as OutputValue;
             if(val != null)
             {
+                if (val.converter != null)
+                    checkBoxHash.Checked = true;
+                else
+                    checkBoxHash.Checked = false;
+
                 buttonDel.Enabled = buttonMod.Enabled = true;
                 textBoxFieldName.Text = val.outputPath;
                 if(val is ConstantValue)
                 {
                     comboBox3.SelectedIndex = 0;
-                    textBoxConstant.Text=(val as ConstantValue).Value;
+                    textBoxConstant.Text=(val as ConstantValue).Value.ToString();
+                    
                 } else
                 {
                     comboBox3.SelectedIndex = 1;
+
+
                     ExtractFromInputValue val1 = val as ExtractFromInputValue;
                     textBoxValueFieldSearch.Text = val1.conditionPath;
                     if (val1.conditionCalcer != null)
@@ -477,12 +572,23 @@ namespace TestJsonRazbor
                         textBoxFalueFieldSearchValue.Text = cv.value_for_compare;
                     } else
                         textBoxFalueFieldSearchValue.Text = "";
-                    if(val1.valuePath != "")
+
+                    if (val1 is ExtractFromInputValueWithScript)
                     {
-                        checkBox2.Checked = true;
-                        textBoxAddFieldPath.Text = val1.valuePath;
-                    } else
-                        checkBox2.Checked = false;
+                        comboBox2.SelectedIndex = 1;
+                        textBoxScript.Text = (val1 as ExtractFromInputValueWithScript).ScriptBody.Replace("\n\n", "\n").Replace("\n","\r\n");
+                    }
+                    else
+                    {
+                        comboBox2.SelectedIndex = 0;
+                        if (val1.valuePath != "")
+                        {
+                            checkBox2.Checked = true;
+                            textBoxAddFieldPath.Text = val1.valuePath;
+                        }
+                        else
+                            checkBox2.Checked = false;
+                    }
                     //                    , conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ""/*((textBoxValueFieldPath.Text == "") ? "" : textBoxValueFieldPath.Text)*/ };
                 }
 
@@ -493,8 +599,15 @@ namespace TestJsonRazbor
 
         private void buttonAdd_Click(object sender, EventArgs e)
         {
-            itemFilter.outputFields.Add(fillOutput());
-            redrawOutput();
+            try
+            {
+                itemFilter.outputFields.Add(fillOutput());
+                redrawOutput();
+            }
+            catch(Exception e77)
+            {
+                MessageBox.Show(e77.ToString());
+            }
         }
 
         private void redrawOutput()
@@ -506,8 +619,15 @@ namespace TestJsonRazbor
 
         private void buttonMod_Click(object sender, EventArgs e)
         {
-            itemFilter.outputFields[listBox1.SelectedIndex] = fillOutput();
-            redrawOutput();
+            try
+            {
+                itemFilter.outputFields[listBox1.SelectedIndex] = fillOutput();
+                redrawOutput();
+            } 
+            catch(Exception e77)
+            {
+                MessageBox.Show(e77.ToString());
+            }
         }
 
         private void buttonDel_Click(object sender, EventArgs e)
@@ -519,6 +639,24 @@ namespace TestJsonRazbor
         private void button3_Click(object sender, EventArgs e)
         {
              fillFilter();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+           textBoxFieldName.Text = Clipboard.GetText();
+
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            int index = listBox1.SelectedIndex;
+            if(index>0)
+            {
+                var el = itemFilter.outputFields[index];
+                itemFilter.outputFields.Insert(index - 1, el);
+                itemFilter.outputFields.RemoveAt(index + 1);
+                redrawOutput();
+            }
         }
     }
 }

@@ -13,12 +13,12 @@ namespace ParserLibrary.Tests
         [OneTimeSetUp]
         public void Init()
         {
-            var ticReciever = new TICReciever()
+            var ticReciever = new TICReceiver()
             {
-                Port = port, TicFrame = 6
+                port = port, ticFrame = 6
             };
-            ticReciever.stringReceived = (s, o) => ticReciever.sendResponse(s, o);
-            ticReciever.start();
+            ticReciever.stringReceived = (s, o) => ticReciever.sendResponseInternal(s, o);
+            ticReciever.startInternal();
         }
 
         [Test]

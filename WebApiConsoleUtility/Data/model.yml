@@ -4,9 +4,10 @@ steps:
   description: Check registration extract
   receiver: !PacketBeatReceiver
     port: 15001
-  filters:
+    mocFile: C:\D\Out\CheckReg.json
+  converters:
   - filter: !ConditionFilter
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: CheckRegistration
     outputFields:
@@ -15,56 +16,56 @@ steps:
       value: CheckRegistration
     - !ExtractFromInputValue
       outputPath: login
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Login
-      valuePath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
+      valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: clientIP
-      conditionPath: Item/source/ip/Address
+      conditionPath: Step1/Rec/source/ip/Address
     - !ExtractFromInputValue
       outputPath: geoCountryCode2
-      conditionPath: Item/source/ip/IsoCountryCode
+      conditionPath: Step1/Rec/source/ip/IsoCountryCode
     - !ExtractFromInputValue
       outputPath: geoCountryName
-      conditionPath: Item/source/ip/IsoCountryName
+      conditionPath: Step1/Rec/source/ip/IsoCountryName
     - !ExtractFromInputValue
       outputPath: originalTime
-      conditionPath: Item/event/start
+      conditionPath: Step1/Rec/event/start
     - !ExtractFromInputValue
       outputPath: rid
-      conditionPath: Item/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Item/Object/Pid/Field/-Name
+      conditionPath: Step1/Rec/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Step1/Rec/Object/Pid/Field/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Id
-      valuePath: Item/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Item/Object/Pid/Field/#text
+      valuePath: Step1/Rec/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Step1/Rec/Object/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: status
-      conditionPath: Item/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Item/-Name
+      conditionPath: Step1/Rec/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Step1/Rec/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Status
-      valuePath: Item/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Item/String
+      valuePath: Step1/Rec/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Step1/Rec/String
     - !ExtractFromInputValue
       outputPath: latitude
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Latitude
-      valuePath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
+      valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: longitude
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Longitude
-      valuePath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
+      valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: deviceInfo
       converter: !Hash
         sizeInBits: 64
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: DeviceInfo
-      valuePath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/String/Id
+      valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/Params/Param/String/Id
   - filter: !ConditionFilter
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Action/-Name/#text
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Action/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: CheckRegistration
     outputFields:
@@ -73,56 +74,56 @@ steps:
       value: CheckRegistration
     - !ExtractFromInputValue
       outputPath: login
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text      
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text      
       conditionCalcer: !ComparerForValue
         valueForCompare: Login
-      valuePath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
+      valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
     - !ExtractFromInputValue
       outputPath: clientIP
-      conditionPath: Item/source/ip/Address
+      conditionPath: Step1/Rec/source/ip/Address
     - !ExtractFromInputValue
       outputPath: geoCountryCode2
-      conditionPath: Item/source/ip/IsoCountryCode
+      conditionPath: Step1/Rec/source/ip/IsoCountryCode
     - !ExtractFromInputValue
       outputPath: geoCountryName
-      conditionPath: Item/source/ip/IsoCountryName
+      conditionPath: Step1/Rec/source/ip/IsoCountryName
     - !ExtractFromInputValue
       outputPath: originalTime
-      conditionPath: Item/event/start
+      conditionPath: Step1/Rec/event/start
     - !ExtractFromInputValue
       outputPath: rid
-      conditionPath: Item/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Item/o:Object/o:Pid/o:Field/-Name/#text
+      conditionPath: Step1/Rec/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Step1/Rec/o:Object/o:Pid/o:Field/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: Id
-      valuePath: Item/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Item/o:Object/o:Pid/o:Field/#text
+      valuePath: Step1/Rec/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Step1/Rec/o:Object/o:Pid/o:Field/#text
     - !ExtractFromInputValue
       outputPath: status
-      conditionPath: Item/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Item/-Name/#text
+      conditionPath: Step1/Rec/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Step1/Rec/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: Status
-      valuePath: Item/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Item/o:String/#text
+      valuePath: Step1/Rec/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Step1/Rec/o:String/#text
     - !ExtractFromInputValue
       outputPath: latitude
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: Latitude
-      valuePath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
+      valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
     - !ExtractFromInputValue
       outputPath: deviceInfo
       converter: !Hash
         sizeInBits: 64
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Action/mcp:Params/mcp:Param/-Name/#text
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Action/mcp:Params/mcp:Param/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: DeviceInfo
-      valuePath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Action/mcp:Params/mcp:Param/obj:String/#text/Id
+      valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Action/mcp:Params/mcp:Param/obj:String/#text/Id
     - !ExtractFromInputValue
       outputPath: longitude
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: Longitude
-      valuePath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
+      valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
   - filter: !ConditionFilter
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Action/-Name/#text
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Action/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: CheckLogin
     outputFields:
@@ -131,48 +132,48 @@ steps:
       value: CheckLogin
     - !ExtractFromInputValue
       outputPath: login
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text      
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text      
       conditionCalcer: !ComparerForValue
         valueForCompare: Login
-      valuePath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
+      valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
     - !ExtractFromInputValue
       outputPath: clientIP
-      conditionPath: Item/source/ip/Address
+      conditionPath: Step1/Rec/source/ip/Address
     - !ExtractFromInputValue
       outputPath: geoCountryCode2
-      conditionPath: Item/source/ip/IsoCountryCode
+      conditionPath: Step1/Rec/source/ip/IsoCountryCode
     - !ExtractFromInputValue
       outputPath: geoCountryName
-      conditionPath: Item/source/ip/IsoCountryName
+      conditionPath: Step1/Rec/source/ip/IsoCountryName
     - !ExtractFromInputValue
       outputPath: originalTime
-      conditionPath: Item/event/start
+      conditionPath: Step1/Rec/event/start
     - !ExtractFromInputValue
       outputPath: rid
-      conditionPath: Item/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Item/o:Object/o:Pid/o:Field/-Name/#text
+      conditionPath: Step1/Rec/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Step1/Rec/o:Object/o:Pid/o:Field/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: Id
-      valuePath: Item/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Item/o:Object/o:Pid/o:Field/#text
+      valuePath: Step1/Rec/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Step1/Rec/o:Object/o:Pid/o:Field/#text
     - !ExtractFromInputValue
       outputPath: status
-      conditionPath: Item/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Item/o:ArrObject/o:Item/o:Properties/o:Property/-Name/#text
+      conditionPath: Step1/Rec/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Step1/Rec/o:ArrObject/o:Step1/Rec/o:Properties/o:Property/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: Status
-      valuePath: Item/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Item/o:ArrObject/o:Item/o:Properties/o:Property/o:String/#text
+      valuePath: Step1/Rec/http/response/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/m:Invoke/t:ActionRs/t:ActionResult/t:Step1/Rec/o:ArrObject/o:Step1/Rec/o:Properties/o:Property/o:String/#text
     - !ExtractFromInputValue
       outputPath: latitude
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: Latitude
-      valuePath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
+      valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
     - !ExtractFromInputValue
       outputPath: longitude
-      conditionPath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text
+      conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text
       conditionCalcer: !ComparerForValue
         valueForCompare: Longitude
-      valuePath: Item/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
+      valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
   - filter: !ConditionFilter
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: CheckLogin
     outputFields:
@@ -181,48 +182,51 @@ steps:
       value: CheckLogin
     - !ExtractFromInputValue
       outputPath: login
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Login
-      valuePath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
+      valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: clientIP
-      conditionPath: Item/source/ip/Address
+      conditionPath: Step1/Rec/source/ip/Address
     - !ExtractFromInputValue
       outputPath: geoCountryCode2
-      conditionPath: Item/source/ip/IsoCountryCode
+      conditionPath: Step1/Rec/source/ip/IsoCountryCode
     - !ExtractFromInputValue
       outputPath: geoCountryName
-      conditionPath: Item/source/ip/IsoCountryName
+      conditionPath: Step1/Rec/source/ip/IsoCountryName
     - !ExtractFromInputValue
       outputPath: originalTime
-      conditionPath: Item/event/start
+      conditionPath: Step1/Rec/event/start
     - !ExtractFromInputValue
       outputPath: rid
-      conditionPath: Item/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Item/Object/Pid/Field/-Name
+      conditionPath: Step1/Rec/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Step1/Rec/Object/Pid/Field/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Id
-      valuePath: Item/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Item/Object/Pid/Field/#text
+      valuePath: Step1/Rec/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Step1/Rec/Object/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: status
-      conditionPath: Item/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Item/ArrObject/Item/Properties/Property/-Name
+      conditionPath: Step1/Rec/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Step1/Rec/ArrObject/Step1/Rec/Properties/Property/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Status
-      valuePath: Item/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Item/ArrObject/Item/Properties/Property/String
+      valuePath: Step1/Rec/http/response/body/content/Envelope/Body/Invoke/ActionRs/ActionResult/Step1/Rec/ArrObject/Step1/Rec/Properties/Property/String
     - !ExtractFromInputValue
       outputPath: latitude
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Latitude
-      valuePath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
+      valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: longitude
-      conditionPath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
+      conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
       conditionCalcer: !ComparerForValue
         valueForCompare: Longitude
-      valuePath: Item/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
+      valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
   sender: !JsonSender
+      certThumbprint: E77587679318FED87BB040F00D76AB461B962D95
+      timeoutSendInSeconds: 5
       urls:
-      - http://192.168.75.160:25080/api/Streams/LoadStream1
+      - https://51.250.6.169/api/Streams/LoadStream1
+      - https://51.250.10.243/api/Streams/LoadStream1
       timeoutsBetweenRetryInMilli:
       - 100

@@ -8,23 +8,24 @@ namespace ParserLibrary
     {
         private TICFrame Frame;
         private TcpClient? twfaclient;
-        public string TWFAHost;
-        public int TWFAPort;
+        public string twfaHost= "192.168.75.148";
+        public int twfaPort=5553;
         public override TypeContent typeContent => TypeContent.json;
 
 
-        public int TicFrame
-        {
+        public int ticFrame = 6;
+/*        {
             get => Frame.FrameNum;
             set => Frame = TICFrame.GetFrame(value);
-        }
+        }*/
 
         public override async Task<string> send(string JsonBody)
         {
             if (twfaclient is null || !twfaclient.Connected)
             {
+                Frame = TICFrame.GetFrame(ticFrame);
                 twfaclient = new TcpClient();
-                await twfaclient.ConnectAsync(TWFAHost, TWFAPort);
+                await twfaclient.ConnectAsync(twfaHost, twfaPort);
             }
 
             NetworkStream stream = twfaclient.GetStream();

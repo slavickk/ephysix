@@ -8,46 +8,50 @@ using System.Threading.Tasks;
 using ParserLibrary.TIC.TICFrames;
 using Serilog;
 using Serilog.Context;
+using YamlDotNet.Serialization;
 
 namespace ParserLibrary
 {
-    public class TICReciever : Receiver, IDisposable
+    public class TICReceiver : Receiver, IDisposable
     {
         private readonly IDisposable pushProperty;
         private IPEndPoint endpoint;
         private TICFrame Frame;
 
-        public TICReciever()
+        public TICReceiver()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             pushProperty = LogContext.PushProperty("reciever", "TIC");
         }
 
-        public int TicFrame
-        {
-            get => Frame.FrameNum;
-            set { Frame = TICFrame.GetFrame(value); }
-        }
+        public int ticFrame = 5;//; { get; set; }
+/*                {
+                    get => Frame.FrameNum;
+                    set { Frame = TICFrame.GetFrame(value); }
+                }*/
 
-        public int Port
-        {
-            set => endpoint = new IPEndPoint(IPAddress.Any, value);
-            get => endpoint.Port;
-        }
+        //        [YamlMember(Alias = "Port")]
+        public int port=15001;//{ get; set; }
+/*              {
+                  set => endpoint = new IPEndPoint(IPAddress.Any, value);
+                  get => endpoint.Port;
+              }*/
 
         public void Dispose()
         {
             pushProperty.Dispose();
         }
 
-        public override async Task sendResponse(string response, object context)
+        public override async Task sendResponseInternal(string response, object context)
         {
             NetworkStream networkStream = context as NetworkStream;
             await Frame.SerializeFromJson(networkStream, response);
         }
 
-        public override async Task start()
+        public override async Task startInternal()
         {
+            Frame = TICFrame.GetFrame(ticFrame);
+            endpoint = new IPEndPoint(IPAddress.Any, port);
             CancellationToken cancellationToken = CancellationToken.None;
 
             var taskFactory = new TaskFactory(CancellationToken.None,

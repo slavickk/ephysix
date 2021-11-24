@@ -11,12 +11,12 @@ namespace ParserLibrary.Tests
         [OneTimeSetUp]
         public void Init()
         {
-            var ticReciever = new TICReciever()
+            var ticReciever = new TICReceiver()
             {
-                Port = _port, TicFrame = _senderTicFrame
+                port = _port, ticFrame = _senderTicFrame
             };
-            ticReciever.stringReceived = (s, o) => ticReciever.sendResponse(s, o);
-            ticReciever.start();
+            ticReciever.stringReceived = (s, o) => ticReciever.sendResponseInternal(s, o);
+            ticReciever.startInternal();
         }
 
         private int _port = 5000;
@@ -26,9 +26,9 @@ namespace ParserLibrary.Tests
         public async Task SenderTest()
         {
             TICSender sender = new();
-            sender.TicFrame = _senderTicFrame;
-            sender.TWFAHost = "localhost";
-            sender.TWFAPort = _port;
+            sender.ticFrame = _senderTicFrame;
+            sender.twfaHost = "localhost";
+            sender.twfaPort = _port;
 
             byte[] bytes = File.ReadAllBytes("TestData/test200.tic")[2..];
 
