@@ -11,12 +11,12 @@ namespace ParserLibrary.Tests
         [OneTimeSetUp]
         public void Init()
         {
-            var dummyProtocol1Receiver = new DummyProtocol1Reciever()
+            var dummyProtocol1Receiver = new DummyProtocol1Receiver()
             {
-                Port = _port, DummyProtocol1Frame = _senderDummyProtocol1Frame
+                port = _port, dummyProtocol1Frame = _senderDummyProtocol1Frame
             };
-            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponse(s, o);
-            dummyProtocol1Receiver.start();
+            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponseInternal(s, o);
+            dummyProtocol1Receiver.startInternal();
         }
 
         private int _port = 5000;
@@ -26,9 +26,9 @@ namespace ParserLibrary.Tests
         public async Task SenderTest()
         {
             DummyProtocol1Sender sender = new();
-            sender.DummyProtocol1Frame = _senderDummyProtocol1Frame;
-            sender.DummySystem3Host = "localhost";
-            sender.DummySystem3Port = _port;
+            sender.dummyProtocol1Frame = _senderDummyProtocol1Frame;
+            sender.dummySystem3Host = "localhost";
+            sender.dummySystem3Port = _port;
 
             byte[] bytes = File.ReadAllBytes("TestData/test200.dummy1")[2..];
 

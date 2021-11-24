@@ -13,12 +13,12 @@ namespace ParserLibrary.Tests
         [OneTimeSetUp]
         public void Init()
         {
-            var dummyProtocol1Receiver = new DummyProtocol1Reciever()
+            var dummyProtocol1Receiver = new DummyProtocol1Receiver()
             {
-                Port = port, DummyProtocol1Frame = 6
+                port = port, dummyProtocol1Frame = 6
             };
-            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponse(s, o);
-            dummyProtocol1Receiver.start();
+            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponseInternal(s, o);
+            dummyProtocol1Receiver.startInternal();
         }
 
         [Test]

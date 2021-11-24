@@ -13,7 +13,8 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Net.Http;
 using System.Data.HashFunction.xxHash;
-
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace ParserLibrary
 {
@@ -24,6 +25,10 @@ namespace ParserLibrary
 
     public abstract class Receiver
     {
+        [YamlIgnore]
+        public bool MocMode = false;
+        public string MocFile;
+
         [YamlIgnore]
         public bool debugMode = false;
 
@@ -39,6 +44,7 @@ namespace ParserLibrary
         }
         public delegate  void StringReceived(string input);
         public delegate void BytesReceived(byte[] input);
+        [YamlIgnore]
         public Func<string,object,Task> stringReceived;
         public async Task signal(string input,object context)
         {
@@ -49,25 +55,71 @@ namespace ParserLibrary
         }
 
 
+        public async Task sendResponse(string response, object context)
+        {
+            if (!MocMode)
+                await sendResponseInternal(response, context);
+        }
 
-        public virtual async Task sendResponse(string response,object context)
+        public virtual async Task sendResponseInternal(string response,object context)
         { }
 
-        public async virtual Task start()
-        { }
+        public async Task start()
+        {
+            if (MocMode)
+            {
+                string input;
+                using (StreamReader sr = new StreamReader(MocFile))
+                {
+                    input = sr.ReadToEnd();
+                }
+                string hz = "hz";
+                await signal(input,hz);
+            }
+            else
+                await startInternal();
+        }
+
+
+        public async virtual Task startInternal()
+        { 
+        
+        }
     }
     public abstract class Sender
     {
         [YamlIgnore]
+        public bool MocMode = false;
+        public string MocFile;
+
+        [YamlIgnore]
         public Step owner;
         public enum TypeContent { internal_list,json};
-       public abstract TypeContent typeContent
+        [YamlIgnore]
+        public abstract TypeContent typeContent
         {
             get;
         }
-
-
-        public async virtual Task<string> send(AbstrParser.UniEl root)
+        public string IDResponsedReceiverStep = "";
+        public async Task<string> send(AbstrParser.UniEl root)
+        {
+            if(!MocMode)
+            {
+                if (typeContent == TypeContent.internal_list)
+                    return await sendInternal(root);
+                else
+                    return await send(root.toJSON());
+            } else
+            {
+                string ans;
+                using (StreamReader sr = new StreamReader(MocFile))
+                {
+                    ans = sr.ReadToEnd();
+                    return ans;
+                }
+            }
+        }
+        public async virtual Task<string> sendInternal(AbstrParser.UniEl root)
         {
             /*            if (owner.debugMode)
                             Console.WriteLine("send result");*/
@@ -133,6 +185,7 @@ return true;
     public class ConditionFilter : Filter
     {
         public string conditionPath { get; set; }
+        [YamlIgnore]
         public string[] tokens=null;
 
         /*public ConditionFilter()
@@ -204,10 +257,10 @@ return true;
         public OnEmptyAction onEmptyValueAction = OnEmptyAction.Skip;
 
         public ConverterOutput converter = null;
-
+        [YamlIgnore]
         public virtual bool canReturnObject => true;
         
-        public abstract string getValue(AbstrParser.UniEl rootEl);
+        public abstract object getValue(AbstrParser.UniEl rootEl);
         public abstract AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl);
 
         string[] outs = null;
@@ -249,13 +302,13 @@ return true;
                 //                if(el1.)
                 if (!this.canReturnObject || el1.childs.Count == 0)
                 {
-                    string elV;
+                    object elV;
                     if (canReturnObject)
                         elV = el1.Value.ToString();
                     else
                         elV=getValue(inputRoot);
                     if (converter != null)
-                        elV = converter.Convert(elV, inputRoot);
+                        elV = converter.Convert(elV.ToString(), inputRoot);
                     el.Value = elV;
                 } else
                 {
@@ -275,16 +328,39 @@ return true;
 
     public class ConstantValue : OutputValue
     {
+
+        public static object ConvertFromType(string value,TypeObject tObject)
+        {
+            switch (tObject)
+            {
+                case  TypeObject.String:
+                    return value;
+                    break;
+
+                case  TypeObject.Number:
+                    return Convert.ToDouble(value);
+                    break;
+                case TypeObject.Boolean:
+                    return Convert.ToBoolean(value);
+                    break;
+
+            }
+            return value;
+        }
+        public enum TypeObject { String,Number,Boolean};
+        public TypeObject typeConvert = TypeObject.String; 
         public override string ToString()
         {
             return outputPath + ";" + Value;
         }
-        public string Value { get; set; }
+        public object Value { get; set; }
 
         public override bool canReturnObject => false;
 
-        public override string getValue(AbstrParser.UniEl rootEl)
+        public override object getValue(AbstrParser.UniEl rootEl)
         {
+            if(Value.GetType() == typeof(string) &&typeConvert != TypeObject.String)
+                return ConvertFromType( Value.ToString(), typeConvert);
             return Value;
         }
 
@@ -301,14 +377,15 @@ return true;
             return outputPath + "; from " + conditionPath;
         }
         public string conditionPath { get; set; }
-
+        [YamlIgnore]
         public string[] conditionPathToken = null;
         public ComparerV conditionCalcer { get; set; }
         public string valuePath { get; set; } = "";
+        [YamlIgnore]
         public string[] valuePathToken = null;
-        public override string getValue(AbstrParser.UniEl rootEl)
+        public override object getValue(AbstrParser.UniEl rootEl)
         {
-            return getNode(rootEl).Value.ToString() ;
+            return getNode(rootEl).Value ;
         }
         private AbstrParser.UniEl getLocalRoot(string[] patts, int indexF, AbstrParser.UniEl item1)
         {
@@ -341,6 +418,10 @@ return true;
             return itemRet;
         }
 
+        public virtual AbstrParser.UniEl getFinalNode(AbstrParser.UniEl node)
+        {
+            return node;
+        }
         public override AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl)
         {
             if (ConditionFilter.isNew)
@@ -359,10 +440,10 @@ return true;
                             valuePathToken = valuePath.Split("/");
                         item1 = getLocalRoot(item1, valuePathToken);
                         foreach (var item2 in item1.getAllDescentants(valuePathToken, item1.rootIndex))
-                            return item2;
+                            return getFinalNode( item2);
                     }
                     else
-                        return item;
+                        return getFinalNode(item);
 
                 }
 
@@ -384,14 +465,56 @@ return true;
                     {
                         item1 = getLocalRoot(patts, 0, item1);
                         foreach (var item2 in item1.getAllDescentants().Where(ii => ii.path == valuePath))
-                            return item2;
+                            return getFinalNode(item2);
                     }
                     else
-                        return item;
+                        return getFinalNode(item);
 
                 }
             }
             return null;
+        }
+    }
+
+    public class ExtractFromInputValueWithScript: ExtractFromInputValue
+    {
+        MethodDelegate checker = null;
+        string body = @"using System;
+using System.Linq;
+using ParserLibrary;
+AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
+{                                                           
+            var sb = new StringBuilder();
+            el.ancestor.childs.ForEach(s => sb.Append(s.Value));
+            return new AbstrParser.UniEl() { Value = sb};
+}
+";
+        
+/*        AbstrParser.UniEl ConvObject(AbstrParser.UniEl el)
+        {
+            var sb = new StringBuilder();
+            el.ancestor.childs.ForEach(s => sb.Append(s.Value+";"));
+            return new AbstrParser.UniEl() { Value = sb };
+        }*/
+        public string ScriptBody
+        {
+            get
+            {
+                return body;
+            }
+            set
+            {
+                body = value;
+                checker = CSScript.RoslynEvaluator
+                  .CreateDelegate(body);
+
+            }
+        }
+
+        public override AbstrParser.UniEl getFinalNode(AbstrParser.UniEl el)
+        {
+            return checker(el) as AbstrParser.UniEl;
+//            return base.getNode(rootEl);
         }
     }
     public class FilterComparer
@@ -453,7 +576,7 @@ return true;
     {
         public static Metrics metrics = new Metrics();
         public string pipelineDescription = "Pipeline example";
-        public Step[] steps = null;// new Step[] { new Step() };
+        public Step[] steps =new Step[] { };// new Step[] { new Step() };
         //public AbstrParser.UniEl rootElement = null;
         public async Task<bool> SelfTest()
         {
@@ -504,16 +627,30 @@ return true;
 
         public void Save( string fileName = @"C:\d\aa1.yml")
         {
-            var ser = new SerializerBuilder();
-            foreach (var type in getAllRegTypes())
-                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
-            var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+            ISerializer serializer = getSerializer();
             using (StreamWriter sw = new StreamWriter(fileName))
             {
                 serializer.Serialize(sw, this);
             }
 
         }
+
+        private static ISerializer getSerializer()
+        {
+            var ser = new SerializerBuilder();
+            foreach (var type in getAllRegTypes())
+                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+            var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+            return serializer;
+        }
+
+        public void Save(TextWriter stream)
+        {
+            ISerializer serializer = getSerializer();
+            serializer.Serialize(stream, this);
+
+        }
+
 
 
     }
@@ -547,11 +684,19 @@ return true;
                 public async Task run()
         {
 
-            receiver.owner = this;
-            sender.owner = this;
+            if(receiver != null)
+                receiver.owner = this;
+            if(sender != null)
+                sender.owner = this;
             receiver.stringReceived = Receiver_stringReceived;
-            await receiver.start();
-
+            try
+            {
+                await receiver.start();
+            } 
+            catch(Exception e88)
+            {
+ //               MessageBox.Show(e88.ToString());
+            }
         }
         public string IDStep="Example";
 
@@ -562,16 +707,22 @@ return true;
 
 
         public string description = "Some comments in this place";
+        [YamlIgnore]
         public bool debugMode = true;
         public Receiver receiver = null;// new PacketBeatReceiver();
         public class ItemFilter
         {
+            public override string ToString()
+            {
+                return "filter";
+            }
             public Filter filter = new ConditionFilter();
             public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
-            public int exec(AbstrParser.UniEl rootElInput,out AbstrParser.UniEl local_rootOutput)
+            public int exec(AbstrParser.UniEl rootElInput, ref AbstrParser.UniEl local_rootOutput)
             {
                 int count = 0;
-                local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
+                if(local_rootOutput == null)
+                    local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
 
                 foreach (var ff in outputFields)
                 {
@@ -582,11 +733,12 @@ return true;
             }
 
     }
-    public List<ItemFilter> filters = new List<ItemFilter>() { new ItemFilter() };
+    public List<ItemFilter> converters = new List<ItemFilter>() {  };
 /*        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
         public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
 //        public RecordExtractor transformer;
         public Sender sender=new LongLifeRepositorySender();
+        [YamlIgnore]
         public Pipeline owner;
         public Step(/*Pipeline owner1*/)
         {
@@ -598,75 +750,186 @@ return true;
         Metrics.Metric sucMetric = null;
         Metrics.Metric errMetric = null;
         //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
+
+        public class ContextItem
+        {
+            public List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+            public object context;
+        }
         private async Task Receiver_stringReceived(string input,object context)
         {
 
             DateTime time2 = DateTime.Now;
-            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
-            var rootElement = AbstrParser.CreateNode(null, list,  this.IDStep);
-            await FilterInfo(input, time2, list,rootElement);
+            ContextItem contextItem = new ContextItem() { context = context };
+            //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+            var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
+            rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
+            await FilterInfo(input, time2, contextItem, rootElement);
+
+            await checkChilds(contextItem, rootElement);
+
+            contextItem.list.Clear();
+            contextItem = null;
+
             rootElement = null;
         }
 
-        private async Task FilterInfo(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement)
+        private async Task checkChilds(ContextItem contextItem, AbstrParser.UniEl rootElement)
+        {
+
+            foreach(var nextStep in this.owner.steps.Where(ii => ii.IDPreviousStep == this.IDStep))
+            {
+                await nextStep.FilterStep(contextItem, rootElement);
+                await nextStep.checkChilds(contextItem, rootElement);
+            }
+        }
+
+        private async Task<string> FindAndCopy1(AbstrParser.UniEl rootElInput, DateTime time1, ItemFilter item, AbstrParser.UniEl el, List<AbstrParser.UniEl> list)
+        {
+            int count = 0;
+            AbstrParser.UniEl local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
+            count = item.exec(rootElInput, ref local_rootOutput);
+            /*            foreach (var ff in item.outputFields)
+                        {
+                            if(ff.addToOutput(rootElInput, ref local_rootOutput))
+                                count++;
+                        }*/
+            if (debugMode)
+                Logger.log(" transform to output {count} items", Serilog.Events.LogEventLevel.Debug, count);
+            var msec = (DateTime.Now - time1).TotalMilliseconds;
+            AbstrParser.regEvent("FP", time1);
+            if (IDResponsedReceiverStep != "")
+                return "";
+            else
+                return await sender.send(local_rootOutput);
+        }
+
+                public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement)
         {
             try
             {
                 //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
                 foreach (var pars in AbstrParser.availParser)
-                if (pars.canRazbor(input, rootElement, list))
-                {
-                    DateTime time1 = DateTime.Now;
-
-                    //                    var fltr = filters.First().filter(list);
-                    if (filters != null && filters.Count > 0)
+                    if (pars.canRazbor(input, rootElement, list))
                     {
-                        bool found = false;
-                        foreach (var item in filters/*.First().filter(list)*/)
-                        {
-                            foreach (var item1 in item.filter.filter(list))
-                                await FindAndCopy(rootElement, time1, item, item1,list);
-                            found = true;
-                        }
-                        /*                        if (!found && debugMode)
-                                                    Console.WriteLine("no filtered records");*/
+                        DateTime time1 = DateTime.Now;
 
-                    } /*else
+                        //                    var fltr = filters.First().filter(list);
+                        if (converters != null && converters.Count > 0)
+                        {
+                            bool found = false;
+                            foreach (var item in converters/*.First().filter(list)*/)
+                            {
+                                foreach (var item1 in item.filter.filter(list))
+                                {
+                                    var st = await FindAndCopy1(rootElement, time1, item, item1, list);
+                                    if (st != "")
+                                        return st;
+                                }
+                                found = true;
+                            }
+                            /*                        if (!found && debugMode)
+                                                        Console.WriteLine("no filtered records");*/
+
+                        } /*else
                     {
                         FindAndCopy(rootElInput, time1);
                     }*/
-                    //                    repo.Add(list);
-                    break;
-                }
-            list.Clear();
-            sucMetric.Add(time2);
+                        //                    repo.Add(list);
+                        break;
+                    }
+                return "";
             }
             catch (Exception e77)
             {
-                errMetric.Add(time2);
+                throw;
+            }
+        }
+
+        private bool tryParse(string input, ContextItem context, AbstrParser.UniEl rootElement)
+        {
+            foreach (var pars in AbstrParser.availParser)
+                if (pars.canRazbor(input, rootElement, context.list))
+                {
+                    return true;
+                }
+            return false;
+
+        }
+        public async Task FilterInfo(string input, DateTime time2, ContextItem context, AbstrParser.UniEl rootElement)
+        {
+            try
+            {
+                //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
+
+                if(tryParse(input, context, rootElement))
+                    await FilterStep(context, rootElement);
+/*                foreach (var pars in AbstrParser.availParser)
+                if (pars.canRazbor(input, rootElement, context.list))
+                    {
+                        await FilterStep(context, rootElement);
+                        break;
+                    }
+*/
+
+                if (sucMetric != null)
+                    sucMetric.Add(time2);
+            }
+            catch (Exception e77)
+            {
+                if(errMetric != null)
+                    errMetric.Add(time2);
                 rootElement = null;
                 throw;
             }
         }
 
-        private async Task FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el, List<AbstrParser.UniEl> list)
+        private async Task FilterStep(ContextItem context, AbstrParser.UniEl rootElement)
+        {
+            DateTime time1 = DateTime.Now;
+
+            //                    var fltr = filters.First().filter(list);
+            if (converters != null && converters.Count > 0)
+            {
+                AbstrParser.UniEl local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
+                bool found = false;
+                foreach (var item in converters/*.First().filter(list)*/)
+                {
+                    foreach (var item1 in item.filter.filter(context.list))
+                        found=await FindAndCopy(rootElement, time1, item, item1, context,local_rootOutput);
+//                    found = true;
+                }
+                if(found)
+                    await SendToSender(rootElement, context, local_rootOutput);
+
+
+            }
+        }
+
+        private async Task<bool> FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el,ContextItem context, AbstrParser.UniEl local_rootOutput)
         {
             int count = 0;
-            AbstrParser.UniEl local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
-            count = item.exec(rootElInput,out local_rootOutput);
-/*            foreach (var ff in item.outputFields)
-            {
-                if(ff.addToOutput(rootElInput, ref local_rootOutput))
-                    count++;
-            }*/
+            count = item.exec(rootElInput, ref local_rootOutput);
+            /*            foreach (var ff in item.outputFields)
+                        {
+                            if(ff.addToOutput(rootElInput, ref local_rootOutput))
+                                count++;
+                        }*/
             if (debugMode)
-                Logger.log(" transform to output {count} items", Serilog.Events.LogEventLevel.Debug,count);
+                Logger.log(" transform to output {count} items", Serilog.Events.LogEventLevel.Debug, count);
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
+            return true;
+
+            //            if(this.)
+        }
+
+        private async Task SendToSender(AbstrParser.UniEl rootElInput, ContextItem context, AbstrParser.UniEl local_rootOutput)
+        {
             if (IDResponsedReceiverStep != "")
             {
                 var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
-                await step.receiver.sendResponse(local_rootOutput.toJSON(),null);
+                await step.receiver.sendResponseInternal(local_rootOutput.toJSON(), context.context);
 
             }
             else
@@ -676,34 +939,90 @@ return true;
                 // bool isSave = false;
                 if (ans != "")
                 {
-                    var step = this.owner.steps.FirstOrDefault(ii => ii.IDPreviousStep == this.IDStep);
-
-                    if (step != null)
+                    if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
                     {
-                        var newRoot = new AbstrParser.UniEl(rootElInput) { Name = "SendResponse" };
-                        await step.FilterInfo(ans, time1, list, newRoot);
+                        var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = "Send" };
+                        this.tryParse(ans, context, newRoot);
                     }
+                    if (sender.IDResponsedReceiverStep != null && sender.IDResponsedReceiverStep != "")
+                    {
+                        var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == sender.IDResponsedReceiverStep);
+                        await step.receiver.sendResponse(ans, context.context);
+
+                    }
+
+
+                    /*                    if (step != null)
+                                        {
+                                            var newRoot = new AbstrParser.UniEl(rootElInput) { Name = "SendResponse" };
+                                            await step.FilterInfo(ans, time1, list, newRoot);
+                                        }*/
                 }
             }
-//            if(this.)
         }
-
-
     }
     public  class JsonSender:Sender,ISelfTested
     {
+        [YamlIgnore]
         HttpClient client;
+        public string certName = "";
+        public string certPassword = "";
+//        public string certThumbprint= "E77587679318FED87BB040F00D76AB461B962D95";
+        public string certThumbprint = "A77587679318FED87BB040F00D76AB461B962D95";
+        public double timeoutSendInSeconds = 5;
         public JsonSender()
         {
             createMetrics();
-            var handler = new HttpClientHandler();
-            handler.MaxConnectionsPerServer = 256;
-            client = new HttpClient(handler);
+       //     InitClient();
         }
 
+        private void InitClient()
+        {
+            var handler = new HttpClientHandler();
+            handler.MaxConnectionsPerServer = 256;
+            handler.ServerCertificateCustomValidationCallback = ServerCertificateCustomValidation;
+
+            if (certName != "")
+            {
+                X509Certificate2 certificate = new X509Certificate2(certName, certPassword);
+                /*        X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.PersistKeySet |
+                        X509KeyStorageFlags.Exportable);*/
+                handler.ClientCertificates.Add(certificate);
+            }
+            client = new HttpClient(handler);
+            client.Timeout = TimeSpan.FromSeconds(timeoutSendInSeconds);
+        }
+        private bool ServerCertificateCustomValidation(HttpRequestMessage requestMessage, X509Certificate2 certificate, X509Chain chain, SslPolicyErrors sslErrors)
+        {
+            if(certificate.Thumbprint != certThumbprint)
+            {
+                Logger.log("Invalid certificate {Incorrect} , valid thumbprint {valid}.", Serilog.Events.LogEventLevel.Error, "any", certificate.Thumbprint, certThumbprint);
+                return false;
+            }
+            return sslErrors == SslPolicyErrors.None;
+
+            // It is possible inpect the certificate provided by server
+            Console.WriteLine($"Requested URI: {requestMessage.RequestUri}");
+            Console.WriteLine($"Effective date: {certificate.GetEffectiveDateString()}");
+            Console.WriteLine($"Exp date: {certificate.GetExpirationDateString()}");
+            Console.WriteLine($"Issuer: {certificate.Issuer}");
+            Console.WriteLine($"Subject: {certificate.Subject}");
+
+            // Based on the custom logic it is possible to decide whether the client considers certificate valid or not
+            Console.WriteLine($"Errors: {sslErrors}");
+            return sslErrors == SslPolicyErrors.None;
+        }
+        [YamlIgnore]
         public int index = 0;
+
+        bool init = false;
         public  async Task<string> internSend(string body)
         {
+            if(!init)
+            {
+                init = true;
+                InitClient();
+            }
             int kolRetry = 0;
             int indexDelay = 0;
         //            var myContent = JsonConvert.SerializeObject(data);
@@ -732,7 +1051,7 @@ return true;
                 goto restart;
 
             }
-            if (result== null && result.IsSuccessStatusCode)
+            if (result!= null && result.IsSuccessStatusCode)
             {
                 var response = await result.Content.ReadAsStringAsync();
                 return response;
@@ -777,9 +1096,9 @@ return true;
         Metrics.Metric sendToRex = null; 
         Metrics.Metric sendToRexErr = null;
 
-        public async override Task<string> send(AbstrParser.UniEl root)
+        public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
-            await base.send(root);
+            await base.sendInternal(root);
             string str = "{";
             bool first = true;
             foreach (var el in root.childs)
@@ -797,13 +1116,15 @@ return true;
                 var ans = await internSend(str);
                 Logger.log(time1, " Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, str, ans);
   //              createMetrics();
+              if(sendToRex != null)
                 sendToRex.Add(time1);
-                return ans;
+              return ans;
             }
             catch (Exception e77)
             {
 //                createMetrics();
-                sendToRexErr.Add(time1);
+                if(sendToRex!= null)
+                    sendToRexErr.Add(time1);
                 throw;
             }
         }
@@ -846,7 +1167,7 @@ return true;
 
         public string file_name = @"C:\Data\scratch_1.txt";
 
-        public async override Task start()
+        public async override Task startInternal()
         {
             int ind = 0;
             using (StreamReader sr = new StreamReader(file_name))
@@ -876,7 +1197,7 @@ return true;
 
 
 
-        public async override Task start()
+        public async override Task startInternal()
         {
 
             foreach (var file_name in ((pattern == "") ? new string[] { path } : Directory.GetFiles(path, pattern)))

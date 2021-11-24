@@ -8,46 +8,50 @@ using System.Threading.Tasks;
 using ParserLibrary.DummyProtocol1.DummyProtocol1Frames;
 using Serilog;
 using Serilog.Context;
+using YamlDotNet.Serialization;
 
 namespace ParserLibrary
 {
-    public class DummyProtocol1Reciever : Receiver, IDisposable
+    public class DummyProtocol1Receiver : Receiver, IDisposable
     {
         private readonly IDisposable pushProperty;
         private IPEndPoint endpoint;
         private DummyProtocol1Frame Frame;
 
-        public DummyProtocol1Reciever()
+        public DummyProtocol1Receiver()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             pushProperty = LogContext.PushProperty("reciever", "DummyProtocol1");
         }
 
-        public int DummyProtocol1Frame
-        {
-            get => Frame.FrameNum;
-            set { Frame = DummyProtocol1Frame.GetFrame(value); }
-        }
+        public int dummyProtocol1Frame = 5;//; { get; set; }
+/*                {
+                    get => Frame.FrameNum;
+                    set { Frame = DummyProtocol1Frame.GetFrame(value); }
+                }*/
 
-        public int Port
-        {
-            set => endpoint = new IPEndPoint(IPAddress.Any, value);
-            get => endpoint.Port;
-        }
+        //        [YamlMember(Alias = "Port")]
+        public int port=15001;//{ get; set; }
+/*              {
+                  set => endpoint = new IPEndPoint(IPAddress.Any, value);
+                  get => endpoint.Port;
+              }*/
 
         public void Dispose()
         {
             pushProperty.Dispose();
         }
 
-        public override async Task sendResponse(string response, object context)
+        public override async Task sendResponseInternal(string response, object context)
         {
             NetworkStream networkStream = context as NetworkStream;
             await Frame.SerializeFromJson(networkStream, response);
         }
 
-        public override async Task start()
+        public override async Task startInternal()
         {
+            Frame = DummyProtocol1Frame.GetFrame(dummyProtocol1Frame);
+            endpoint = new IPEndPoint(IPAddress.Any, port);
             CancellationToken cancellationToken = CancellationToken.None;
 
             var taskFactory = new TaskFactory(CancellationToken.None,
