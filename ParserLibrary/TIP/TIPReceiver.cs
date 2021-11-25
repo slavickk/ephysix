@@ -43,7 +43,7 @@ namespace ParserLibrary.TIP
             set => _delayTime = value * 1000;
         }
 
-        public override async Task start()
+        public override async Task startInternal()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Directory.CreateDirectory(upload_dir);
