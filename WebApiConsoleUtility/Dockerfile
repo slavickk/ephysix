@@ -11,8 +11,8 @@ WORKDIR /src
 COPY ["WebApiConsoleUtility/WebApiConsoleUtility.csproj", "WebApiConsoleUtility/"]
 RUN dotnet nuget add source "https://gitlab.com/api/v4/groups/13891093/-/packages/nuget/index.json"  \
 -n gitlab \
--u "gitlab+deploy-token-658671" \
--p 9Hg6YtYaNZTpjxw_-4-6\
+-u "gitlab+deploy-token-671968" \
+-p k_hTupnBgXE2TySqX25s\
  --store-password-in-clear-text && dotnet nuget enable source gitlab
 RUN dotnet restore "WebApiConsoleUtility/WebApiConsoleUtility.csproj" 
 COPY . .
