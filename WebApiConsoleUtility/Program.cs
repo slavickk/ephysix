@@ -24,6 +24,7 @@ namespace WebApiConsoleUtility
         //Request queue length limit
         public static int RequestQueueLimit = -1;
         static Pipeline pip;
+        static bool IgnoreAll = true;
         public static void Main(string[] args)
         {
             /*            var req = Environment.GetEnvironmentVariable("MAX_CONCURRENT_REQUEST");
@@ -52,16 +53,18 @@ namespace WebApiConsoleUtility
             LogEventLevel defLevel = LogEventLevel.Debug;
             object outVal;
             string levelInfo = "";
-            if (LogLevel == null)
-                levelInfo = "LOG_LEVEL variable not set.Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
-            else
-            if (Enum.TryParse(typeof(LogEventLevel), LogLevel, true, out outVal))
-                defLevel = (LogEventLevel)outVal;
-            else
-                levelInfo = "LOG_LEVEL variable is not correct ("+LogLevel+").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
+            if (!IgnoreAll)
+            {
+                if (LogLevel == null)
+                    levelInfo = "LOG_LEVEL variable not set.Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
+                else
+                if (Enum.TryParse(typeof(LogEventLevel), LogLevel, true, out outVal))
+                    defLevel = (LogEventLevel)outVal;
+                else
+                    levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
 
-            ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
-
+                ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
+            }
             if (LogPath == null )
                 Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
@@ -78,60 +81,68 @@ namespace WebApiConsoleUtility
         .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
 
             }
-            
-            if (levelInfo != "")
-                Log.Error(levelInfo);
-//            ParserLibrary.Logger.levelSwitch.MinimumLevel = LogEventLevel.Debug;
-            try
+
+            if (!IgnoreAll)
             {
-                if(YamlPath == null)
+                if (levelInfo != "")
+                    Log.Error(levelInfo);
+                //            ParserLibrary.Logger.levelSwitch.MinimumLevel = LogEventLevel.Debug;
+                try
                 {
-                    Log.Fatal("YAML_PATH environment variable not set.Set default config file placed at /app/Data/model.yml (saved in container)");
-                    YamlPath = "/app/Data/model.yml";
+                    if (YamlPath == null)
+                    {
+                        Log.Fatal("YAML_PATH environment variable not set.Set default config file placed at /app/Data/model.yml (saved in container)");
+                        YamlPath = "/app/Data/model.yml";
+                    }
+                    if (!File.Exists(YamlPath))
+                    {
+                        var cc = Directory.GetFiles("/app/Data", "*.*");
+                        Log.Fatal(YamlPath + "not accessible.");
+                        var dir = Directory.GetCurrentDirectory();
+                        var dirs1 = Directory.GetDirectories(dir);
+                        return;
+
+                    }
+                    Log.Information("... Parsing " + YamlPath);
+                    pip = Pipeline.load(YamlPath);
+                    Log.Information("Parsing done.Making self test.");
+                    var suc = pip.SelfTest().GetAwaiter().GetResult();
+                    if (suc)
+                    {
+                        Log.Information("Self test OK. Run pipeline.");
+                        Action action = async () => { await pip.run(); };
+                        new TaskFactory().StartNew(action, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default).ContinueWith((runner) => { Log.Information("Pipeline execution stopped.Terminating application..."); System.Diagnostics.Process.GetCurrentProcess().Kill(); });
+                    }
+                    else
+                    {
+                        Log.Fatal("Self test failed. Terminate execution.");
+                        return;
+
+                    }
+
+
+                    Log.Information("Starting Integrity Utility web host ");
+                    if (LogPath == null)
+                        Log.Information("Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
+                    else
+                        Log.Information("Logging to " + LogPath + ".");
+                    CreateHostBuilder(args).Build().Run();
+
                 }
-                if(!File.Exists(YamlPath))
+                catch (Exception ex)
                 {
-                    var cc = Directory.GetFiles("/app/Data", "*.*");
-                    Log.Fatal(YamlPath +"not accessible.");
-                    var dir = Directory.GetCurrentDirectory();
-                    var dirs1=Directory.GetDirectories(dir);
+                    Log.Fatal(ex, "Integrity Utility Host terminated unexpectedly");
                     return;
-
                 }
-                Log.Information("... Parsing " + YamlPath);
-                pip = Pipeline.load(YamlPath);
-                Log.Information("Parsing done.Making self test.");
-                var suc = pip.SelfTest().GetAwaiter().GetResult();
-                if (suc)
+                finally
                 {
-                    Log.Information("Self test OK. Run pipeline.");
-                    Action action = async () => { await pip.run(); };
-                    new TaskFactory().StartNew(action, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default).ContinueWith((runner) => { Log.Information("Pipeline execution stopped.Terminating application..."); System.Diagnostics.Process.GetCurrentProcess().Kill(); });
+                    Log.CloseAndFlush();
                 }
-                else
-                {
-                    Log.Fatal("Self test failed. Terminate execution.");
-                    return;
-
-                }
-
-
+            } else
+            {
                 Log.Information("Starting Integrity Utility web host ");
-                if(LogPath == null)
-                    Log.Information("Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
-                else
-                    Log.Information("Logging to "+LogPath+".");
                 CreateHostBuilder(args).Build().Run();
 
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Integrity Utility Host terminated unexpectedly");
-                return;
-            }
-            finally
-            {
-                Log.CloseAndFlush();
             }
 
 

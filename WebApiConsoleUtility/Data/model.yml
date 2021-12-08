@@ -13,7 +13,7 @@ steps:
     outputFields:
     - !ConstantValue
       outputPath: stream
-      value: CheckRegistration
+      value: checkRegistration
     - !ExtractFromInputValue
       outputPath: login
       conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
@@ -71,7 +71,7 @@ steps:
     outputFields:
     - !ConstantValue
       outputPath: stream
-      value: CheckRegistration
+      value: checkRegistration
     - !ExtractFromInputValue
       outputPath: login
       conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text      
@@ -129,7 +129,7 @@ steps:
     outputFields:
     - !ConstantValue
       outputPath: stream
-      value: CheckLogin
+      value: checkLogin
     - !ExtractFromInputValue
       outputPath: login
       conditionPath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/-Name/#text      
@@ -179,7 +179,7 @@ steps:
     outputFields:
     - !ConstantValue
       outputPath: stream
-      value: CheckLogin
+      value: checkLogin
     - !ExtractFromInputValue
       outputPath: login
       conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/-Name
