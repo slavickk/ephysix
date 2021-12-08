@@ -64,21 +64,32 @@ namespace WebApiConsoleUtility
                     levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
 
                 ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
-            }
-            if (LogPath == null )
-                Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
-        .Enrich.FromLogContext()
-        .Enrich.WithProperty("Mashine", System.Environment.MachineName)
-//        .Enrich.With<>
-        .WriteTo.Console(new RenderedCompactJsonFormatter())
-        .CreateLogger();
-            else
+
+                if (LogPath == null)
+                    Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("Mashine", System.Environment.MachineName)
+            //        .Enrich.With<>
+            .WriteTo.Console(new RenderedCompactJsonFormatter())
+            .CreateLogger();
+                else
+                {
+                    Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
+            .Enrich.FromLogContext()
+            .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
+
+                }
+            } else
             {
                 Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
+                .MinimumLevel.ControlledBy(new LoggingLevelSwitch())
         .Enrich.FromLogContext()
-        .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
+        .Enrich.WithProperty("Mashine", System.Environment.MachineName)
+        //        .Enrich.With<>
+        .WriteTo.Console(new RenderedCompactJsonFormatter())
+        .CreateLogger();
 
             }
 
