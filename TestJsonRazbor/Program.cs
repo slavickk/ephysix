@@ -20,7 +20,7 @@ namespace TestJsonRazbor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             //            Application.Run(new FormTypeDefiner() { tDefine = typeof(Sender) }/*FormPipeline()*/);
-            Application.Run(new Form3());
+//            Application.Run(new Form3());
             Application.Run(new FormPipeline());
 //            Application.Run(new FormSelectField());
         }

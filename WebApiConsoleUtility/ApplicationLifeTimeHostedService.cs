@@ -12,11 +12,11 @@ namespace WebApiConsoleUtility
 {
     public class ApplicationLifetimeHostedService : IHostedService
     {
-        private readonly IApplicationLifetime _appLifetime;
+        private readonly IHostApplicationLifetime _appLifetime;
         private readonly ILogger<ApplicationLifetimeHostedService> _logger;
 
         public ApplicationLifetimeHostedService(
-            IApplicationLifetime appLifetime,
+            IHostApplicationLifetime appLifetime,
             ILogger<ApplicationLifetimeHostedService> logger)
         {
             _appLifetime = appLifetime;
@@ -25,6 +25,7 @@ namespace WebApiConsoleUtility
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+//            _appLifetime.
             _appLifetime.ApplicationStarted.Register(OnStarted);
             _appLifetime.ApplicationStopping.Register(OnStopping);
             _appLifetime.ApplicationStopped.Register(OnStopped);

@@ -5,6 +5,9 @@ steps:
   receiver: !PacketBeatReceiver
     port: 15001
     mocFile: C:\D\Out\CheckReg.json
+    saver:
+        path: /log
+
   converters:
   - filter: !ConditionFilter
       conditionPath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Action/-Name
@@ -223,10 +226,12 @@ steps:
         valueForCompare: Longitude
       valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
   sender: !JsonSender
-      certThumbprint: E77587679318FED87BB040F00D76AB461B962D95
+      certThumbprints: 
+      - E77587679318FED87BB040F00D76AB461B962D95
+      - 10B46EBA0BE906FE46060FADC0BE5A76CEB2B386
       timeoutSendInSeconds: 5
       urls:
-      - https://51.250.6.169/api/Streams/LoadStream1
-      - https://51.250.10.243/api/Streams/LoadStream1
+      - https://192.168.1.31:443/api/Streams/LoadStream1
+      - https://192.168.1.11:443/api/Streams/LoadStream1
       timeoutsBetweenRetryInMilli:
       - 100

@@ -24,7 +24,7 @@ namespace WebApiConsoleUtility
         //Request queue length limit
         public static int RequestQueueLimit = -1;
         static Pipeline pip;
-        static bool IgnoreAll = true;
+        static bool IgnoreAll = false;
         public static void Main(string[] args)
         {
             /*            var req = Environment.GetEnvironmentVariable("MAX_CONCURRENT_REQUEST");
@@ -116,6 +116,24 @@ namespace WebApiConsoleUtility
                     }
                     Log.Information("... Parsing " + YamlPath);
                     pip = Pipeline.load(YamlPath);
+                    var recForSaver = pip.steps.FirstOrDefault(ii => ii.receiver != null && ii.receiver.saver != null);
+                    if (recForSaver != null)
+                    {
+                        if (!Directory.Exists(recForSaver.receiver.saver.path))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(recForSaver.receiver.saver.path);
+                            }
+                            catch (Exception e67)
+                            {
+                                Log.Fatal(e67, "can't create replay directory");
+                                return;
+                            }
+                        }
+                    }
+
+
                     Log.Information("Parsing done.Making self test.");
                     var suc = pip.SelfTest().GetAwaiter().GetResult();
                     if (suc)
@@ -130,7 +148,6 @@ namespace WebApiConsoleUtility
                         return;
 
                     }
-
 
                     Log.Information("Starting Integrity Utility web host ");
                     if (LogPath == null)
