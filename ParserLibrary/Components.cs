@@ -968,7 +968,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public string certName = "";
         public string certPassword = "";
 //        public string certThumbprint= "E77587679318FED87BB040F00D76AB461B962D95";
-        public string certThumbprint = "A77587679318FED87BB040F00D76AB461B962D95";
+        public List<string> certThumbprints = new List<string> { "A77587679318FED87BB040F00D76AB461B962D95" };
         public double timeoutSendInSeconds = 5;
         public JsonSender()
         {
@@ -994,11 +994,12 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         }
         private bool ServerCertificateCustomValidation(HttpRequestMessage requestMessage, X509Certificate2 certificate, X509Chain chain, SslPolicyErrors sslErrors)
         {
-            if(certificate.Thumbprint != certThumbprint)
+            if(!certThumbprints.Contains(certificate.Thumbprint))
             {
-                Logger.log("Invalid certificate {Incorrect} , valid thumbprint {valid}.", Serilog.Events.LogEventLevel.Error, "any", certificate.Thumbprint, certThumbprint);
+                Logger.log("Invalid certificate {Incorrect} , valid thumbprint {valid}.", Serilog.Events.LogEventLevel.Error, "any", certificate.Thumbprint, certThumbprints);
                 return false;
             }
+            return true;
             return sslErrors == SslPolicyErrors.None;
 
             // It is possible inpect the certificate provided by server
@@ -1147,7 +1148,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             try
             {
                 DateTime time1 = DateTime.Now;
-                var ans = await internSend("{\"stream\":\"CheckLL\"}");
+                var ans = await internSend("{\"stream\":\"checkTest\",\"originalTime\":\"2021-12-18T02:05:04.500Z\"}"); 
                 Logger.log(time1,"-Send:{ans}" ,"SelfTest",Serilog.Events.LogEventLevel.Information,ans);
                 if (ans == "")
                     isSuccess = false;
