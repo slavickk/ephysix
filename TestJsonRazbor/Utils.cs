@@ -11,10 +11,14 @@ namespace TestJsonRazbor
     public class TreeDrawer : Drawer
     {
         public TreeNode node;
-        public TreeDrawer(TreeView treeView1, ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor,bool delRoot=false)
+        public TreeDrawer(TreeView treeView1, ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor,bool delRoot=false,bool isPale=false)
         {
             newEl.treeNode = this;// new TreeNode(newEl.Name);
             node = new TreeNode(newEl.Name);
+            if(isPale)
+                node.ForeColor = System.Drawing.Color.Gray;
+            else
+            node.ForeColor = System.Drawing.Color.Black;
             if (ancestor == null)
             {
                 if (delRoot)
@@ -58,6 +62,9 @@ namespace TestJsonRazbor
     {
         TreeView tree;
         bool delRoot;
+
+        public bool isPale = false;
+
         public TreeDrawerFactory(TreeView tree1,bool delRoot1=false)
         {
             delRoot = delRoot1;
@@ -68,7 +75,7 @@ namespace TestJsonRazbor
         }
         public Drawer Create(ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor)
         {
-            return new TreeDrawer(tree, newEl, ancestor,delRoot);
+            return new TreeDrawer(tree, newEl, ancestor,delRoot,isPale);
         }
     }
 

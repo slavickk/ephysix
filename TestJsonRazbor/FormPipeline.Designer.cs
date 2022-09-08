@@ -36,10 +36,13 @@ namespace TestJsonRazbor
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addStepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeStepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.button1 = new System.Windows.Forms.Button();
-            this.buttonYaml = new System.Windows.Forms.Button();
+            this.buttonOpen = new System.Windows.Forms.Button();
+            this.buttonNew = new System.Windows.Forms.Button();
             this.buttonSavePipeline = new System.Windows.Forms.Button();
+            this.buttonYaml = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button2 = new System.Windows.Forms.Button();
             this.buttonDown = new System.Windows.Forms.Button();
             this.buttonUp = new System.Windows.Forms.Button();
             this.buttonSenderMoc = new System.Windows.Forms.Button();
@@ -65,6 +68,7 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.button3 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -86,14 +90,17 @@ namespace TestJsonRazbor
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.button1);
-            this.splitContainer1.Panel2.Controls.Add(this.buttonYaml);
+            this.splitContainer1.Panel2.Controls.Add(this.buttonOpen);
+            this.splitContainer1.Panel2.Controls.Add(this.buttonNew);
             this.splitContainer1.Panel2.Controls.Add(this.buttonSavePipeline);
+            this.splitContainer1.Panel2.Controls.Add(this.buttonYaml);
+            this.splitContainer1.Panel2.Controls.Add(this.button1);
             this.splitContainer1.Panel2.Controls.Add(this.groupBox1);
             this.splitContainer1.Panel2.Controls.Add(this.textBoxPipelineDescription);
             this.splitContainer1.Panel2.Controls.Add(this.label1);
-            this.splitContainer1.Size = new System.Drawing.Size(1169, 717);
-            this.splitContainer1.SplitterDistance = 389;
+            this.splitContainer1.Panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer1_Panel2_Paint);
+            this.splitContainer1.Size = new System.Drawing.Size(1079, 672);
+            this.splitContainer1.SplitterDistance = 359;
             this.splitContainer1.TabIndex = 0;
             // 
             // treeView1
@@ -106,7 +113,7 @@ namespace TestJsonRazbor
             treeNode1.Text = "Steps";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            this.treeView1.Size = new System.Drawing.Size(389, 717);
+            this.treeView1.Size = new System.Drawing.Size(359, 672);
             this.treeView1.TabIndex = 0;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             this.treeView1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseClick);
@@ -119,57 +126,80 @@ namespace TestJsonRazbor
             this.addStepToolStripMenuItem,
             this.removeStepToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(227, 80);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(206, 76);
             // 
             // addStepToolStripMenuItem
             // 
             this.addStepToolStripMenuItem.Name = "addStepToolStripMenuItem";
-            this.addStepToolStripMenuItem.Size = new System.Drawing.Size(226, 38);
+            this.addStepToolStripMenuItem.Size = new System.Drawing.Size(205, 36);
             this.addStepToolStripMenuItem.Text = "Add step";
             this.addStepToolStripMenuItem.Click += new System.EventHandler(this.AddNode);
             // 
             // removeStepToolStripMenuItem
             // 
             this.removeStepToolStripMenuItem.Name = "removeStepToolStripMenuItem";
-            this.removeStepToolStripMenuItem.Size = new System.Drawing.Size(226, 38);
+            this.removeStepToolStripMenuItem.Size = new System.Drawing.Size(205, 36);
             this.removeStepToolStripMenuItem.Text = "Remove step";
+            // 
+            // buttonOpen
+            // 
+            this.buttonOpen.Location = new System.Drawing.Point(315, 38);
+            this.buttonOpen.Name = "buttonOpen";
+            this.buttonOpen.Size = new System.Drawing.Size(82, 43);
+            this.buttonOpen.TabIndex = 33;
+            this.buttonOpen.Text = "Open";
+            this.buttonOpen.UseVisualStyleBackColor = true;
+            this.buttonOpen.Click += new System.EventHandler(this.buttonOpen_Click);
+            // 
+            // buttonNew
+            // 
+            this.buttonNew.Location = new System.Drawing.Point(212, 38);
+            this.buttonNew.Name = "buttonNew";
+            this.buttonNew.Size = new System.Drawing.Size(86, 43);
+            this.buttonNew.TabIndex = 6;
+            this.buttonNew.Text = "New";
+            this.buttonNew.UseVisualStyleBackColor = true;
+            this.buttonNew.Click += new System.EventHandler(this.buttonNew_Click);
+            // 
+            // buttonSavePipeline
+            // 
+            this.buttonSavePipeline.Location = new System.Drawing.Point(391, 38);
+            this.buttonSavePipeline.Name = "buttonSavePipeline";
+            this.buttonSavePipeline.Size = new System.Drawing.Size(74, 43);
+            this.buttonSavePipeline.TabIndex = 33;
+            this.buttonSavePipeline.Text = "Save";
+            this.buttonSavePipeline.UseVisualStyleBackColor = true;
+            this.buttonSavePipeline.Click += new System.EventHandler(this.buttonSavePipeline_Click);
+            // 
+            // buttonYaml
+            // 
+            this.buttonYaml.Location = new System.Drawing.Point(471, 38);
+            this.buttonYaml.Name = "buttonYaml";
+            this.buttonYaml.Size = new System.Drawing.Size(68, 43);
+            this.buttonYaml.TabIndex = 4;
+            this.buttonYaml.Text = "Yaml";
+            this.buttonYaml.UseVisualStyleBackColor = true;
+            this.buttonYaml.Click += new System.EventHandler(this.buttonYaml_Click);
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(647, 40);
+            this.button1.Location = new System.Drawing.Point(556, 38);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(117, 46);
+            this.button1.Size = new System.Drawing.Size(61, 43);
             this.button1.TabIndex = 5;
             this.button1.Text = "Test";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click_2);
-            // 
-            // buttonYaml
-            // 
-            this.buttonYaml.Location = new System.Drawing.Point(444, 40);
-            this.buttonYaml.Name = "buttonYaml";
-            this.buttonYaml.Size = new System.Drawing.Size(197, 46);
-            this.buttonYaml.TabIndex = 4;
-            this.buttonYaml.Text = "Yaml";
-            this.buttonYaml.UseVisualStyleBackColor = true;
-            // 
-            // buttonSavePipeline
-            // 
-            this.buttonSavePipeline.Location = new System.Drawing.Point(244, 40);
-            this.buttonSavePipeline.Name = "buttonSavePipeline";
-            this.buttonSavePipeline.Size = new System.Drawing.Size(194, 46);
-            this.buttonSavePipeline.TabIndex = 3;
-            this.buttonSavePipeline.Text = "Save pipeline";
-            this.buttonSavePipeline.UseVisualStyleBackColor = true;
-            this.buttonSavePipeline.Click += new System.EventHandler(this.buttonSavePipeline_Click);
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.buttonDown);
+            this.groupBox1.Controls.Add(this.button3);
+            this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.buttonUp);
+            this.groupBox1.Controls.Add(this.buttonDown);
             this.groupBox1.Controls.Add(this.buttonSenderMoc);
             this.groupBox1.Controls.Add(this.buttonReceiverMoc);
             this.groupBox1.Controls.Add(this.label5);
@@ -185,21 +215,31 @@ namespace TestJsonRazbor
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.textBoxIDStep);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(12, 67);
+            this.groupBox1.Location = new System.Drawing.Point(11, 63);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(752, 642);
+            this.groupBox1.Size = new System.Drawing.Size(694, 602);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Step detail";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(547, 144);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(115, 43);
+            this.button2.TabIndex = 33;
+            this.button2.Text = "Moc Text";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // buttonDown
             // 
             this.buttonDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonDown.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.buttonDown.Location = new System.Drawing.Point(707, 298);
+            this.buttonDown.Location = new System.Drawing.Point(653, 279);
             this.buttonDown.Name = "buttonDown";
-            this.buttonDown.Size = new System.Drawing.Size(42, 46);
+            this.buttonDown.Size = new System.Drawing.Size(39, 43);
             this.buttonDown.TabIndex = 32;
             this.buttonDown.Text = "V";
             this.buttonDown.UseVisualStyleBackColor = true;
@@ -207,9 +247,9 @@ namespace TestJsonRazbor
             // buttonUp
             // 
             this.buttonUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonUp.Location = new System.Drawing.Point(707, 246);
+            this.buttonUp.Location = new System.Drawing.Point(653, 231);
             this.buttonUp.Name = "buttonUp";
-            this.buttonUp.Size = new System.Drawing.Size(41, 46);
+            this.buttonUp.Size = new System.Drawing.Size(38, 43);
             this.buttonUp.TabIndex = 31;
             this.buttonUp.Text = "^";
             this.buttonUp.UseVisualStyleBackColor = true;
@@ -218,9 +258,9 @@ namespace TestJsonRazbor
             // buttonSenderMoc
             // 
             this.buttonSenderMoc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonSenderMoc.Location = new System.Drawing.Point(604, 527);
+            this.buttonSenderMoc.Location = new System.Drawing.Point(558, 494);
             this.buttonSenderMoc.Name = "buttonSenderMoc";
-            this.buttonSenderMoc.Size = new System.Drawing.Size(97, 46);
+            this.buttonSenderMoc.Size = new System.Drawing.Size(90, 43);
             this.buttonSenderMoc.TabIndex = 15;
             this.buttonSenderMoc.Text = "Moc";
             this.buttonSenderMoc.UseVisualStyleBackColor = true;
@@ -228,20 +268,20 @@ namespace TestJsonRazbor
             // 
             // buttonReceiverMoc
             // 
-            this.buttonReceiverMoc.Location = new System.Drawing.Point(604, 154);
+            this.buttonReceiverMoc.Location = new System.Drawing.Point(435, 144);
             this.buttonReceiverMoc.Name = "buttonReceiverMoc";
-            this.buttonReceiverMoc.Size = new System.Drawing.Size(97, 46);
+            this.buttonReceiverMoc.Size = new System.Drawing.Size(107, 43);
             this.buttonReceiverMoc.TabIndex = 14;
-            this.buttonReceiverMoc.Text = "Moc";
+            this.buttonReceiverMoc.Text = "Moc File";
             this.buttonReceiverMoc.UseVisualStyleBackColor = true;
             this.buttonReceiverMoc.Click += new System.EventHandler(this.buttonReceiverMoc_Click);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(17, 207);
+            this.label5.Location = new System.Drawing.Point(16, 194);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(77, 32);
+            this.label5.Size = new System.Drawing.Size(67, 30);
             this.label5.TabIndex = 13;
             this.label5.Text = "Filters";
             // 
@@ -252,10 +292,10 @@ namespace TestJsonRazbor
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox1.ContextMenuStrip = this.contextMenuStripFilters;
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 32;
-            this.listBox1.Location = new System.Drawing.Point(15, 246);
+            this.listBox1.ItemHeight = 30;
+            this.listBox1.Location = new System.Drawing.Point(14, 231);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(686, 260);
+            this.listBox1.Size = new System.Drawing.Size(634, 244);
             this.listBox1.TabIndex = 12;
             this.listBox1.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
             // 
@@ -266,19 +306,19 @@ namespace TestJsonRazbor
             this.addFilterToolStripMenuItem,
             this.removeFilterToolStripMenuItem});
             this.contextMenuStripFilters.Name = "contextMenuStripFilters";
-            this.contextMenuStripFilters.Size = new System.Drawing.Size(231, 80);
+            this.contextMenuStripFilters.Size = new System.Drawing.Size(209, 76);
             // 
             // addFilterToolStripMenuItem
             // 
             this.addFilterToolStripMenuItem.Name = "addFilterToolStripMenuItem";
-            this.addFilterToolStripMenuItem.Size = new System.Drawing.Size(230, 38);
+            this.addFilterToolStripMenuItem.Size = new System.Drawing.Size(208, 36);
             this.addFilterToolStripMenuItem.Text = "Add filter";
             this.addFilterToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem3_Click);
             // 
             // removeFilterToolStripMenuItem
             // 
             this.removeFilterToolStripMenuItem.Name = "removeFilterToolStripMenuItem";
-            this.removeFilterToolStripMenuItem.Size = new System.Drawing.Size(230, 38);
+            this.removeFilterToolStripMenuItem.Size = new System.Drawing.Size(208, 36);
             this.removeFilterToolStripMenuItem.Text = "Remove filter";
             this.removeFilterToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem4_Click);
             // 
@@ -286,9 +326,9 @@ namespace TestJsonRazbor
             // 
             this.buttonTestServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonTestServer.Enabled = false;
-            this.buttonTestServer.Location = new System.Drawing.Point(448, 527);
+            this.buttonTestServer.Location = new System.Drawing.Point(414, 494);
             this.buttonTestServer.Name = "buttonTestServer";
-            this.buttonTestServer.Size = new System.Drawing.Size(150, 46);
+            this.buttonTestServer.Size = new System.Drawing.Size(138, 43);
             this.buttonTestServer.TabIndex = 11;
             this.buttonTestServer.Text = "Test";
             this.buttonTestServer.UseVisualStyleBackColor = true;
@@ -297,9 +337,9 @@ namespace TestJsonRazbor
             // buttonTestReceiver
             // 
             this.buttonTestReceiver.Enabled = false;
-            this.buttonTestReceiver.Location = new System.Drawing.Point(448, 154);
+            this.buttonTestReceiver.Location = new System.Drawing.Point(354, 144);
             this.buttonTestReceiver.Name = "buttonTestReceiver";
-            this.buttonTestReceiver.Size = new System.Drawing.Size(150, 46);
+            this.buttonTestReceiver.Size = new System.Drawing.Size(75, 43);
             this.buttonTestReceiver.TabIndex = 10;
             this.buttonTestReceiver.Text = "Test";
             this.buttonTestReceiver.UseVisualStyleBackColor = true;
@@ -308,9 +348,9 @@ namespace TestJsonRazbor
             // button4
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button4.Location = new System.Drawing.Point(15, 590);
+            this.button4.Location = new System.Drawing.Point(14, 553);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(150, 46);
+            this.button4.Size = new System.Drawing.Size(138, 43);
             this.button4.TabIndex = 9;
             this.button4.Text = "Save";
             this.button4.UseVisualStyleBackColor = true;
@@ -319,9 +359,9 @@ namespace TestJsonRazbor
             // buttonSetupSender
             // 
             this.buttonSetupSender.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonSetupSender.Location = new System.Drawing.Point(15, 527);
+            this.buttonSetupSender.Location = new System.Drawing.Point(14, 494);
             this.buttonSetupSender.Name = "buttonSetupSender";
-            this.buttonSetupSender.Size = new System.Drawing.Size(427, 46);
+            this.buttonSetupSender.Size = new System.Drawing.Size(394, 43);
             this.buttonSetupSender.TabIndex = 8;
             this.buttonSetupSender.Text = "Sender";
             this.buttonSetupSender.UseVisualStyleBackColor = true;
@@ -329,9 +369,9 @@ namespace TestJsonRazbor
             // 
             // buttonSetupReceiver
             // 
-            this.buttonSetupReceiver.Location = new System.Drawing.Point(15, 154);
+            this.buttonSetupReceiver.Location = new System.Drawing.Point(14, 144);
             this.buttonSetupReceiver.Name = "buttonSetupReceiver";
-            this.buttonSetupReceiver.Size = new System.Drawing.Size(427, 46);
+            this.buttonSetupReceiver.Size = new System.Drawing.Size(335, 43);
             this.buttonSetupReceiver.TabIndex = 6;
             this.buttonSetupReceiver.Text = "Receiver";
             this.buttonSetupReceiver.UseVisualStyleBackColor = true;
@@ -341,49 +381,49 @@ namespace TestJsonRazbor
             // 
             this.textBoxStepDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxStepDescription.Location = new System.Drawing.Point(178, 92);
+            this.textBoxStepDescription.Location = new System.Drawing.Point(164, 86);
             this.textBoxStepDescription.Name = "textBoxStepDescription";
-            this.textBoxStepDescription.Size = new System.Drawing.Size(559, 39);
+            this.textBoxStepDescription.Size = new System.Drawing.Size(516, 35);
             this.textBoxStepDescription.TabIndex = 5;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(7, 92);
+            this.label4.Location = new System.Drawing.Point(6, 86);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(132, 32);
+            this.label4.Size = new System.Drawing.Size(115, 30);
             this.label4.TabIndex = 4;
             this.label4.Text = "description";
             // 
             // textBoxIDPrevStep
             // 
-            this.textBoxIDPrevStep.Location = new System.Drawing.Point(409, 29);
+            this.textBoxIDPrevStep.Location = new System.Drawing.Point(378, 27);
             this.textBoxIDPrevStep.Name = "textBoxIDPrevStep";
-            this.textBoxIDPrevStep.Size = new System.Drawing.Size(139, 39);
+            this.textBoxIDPrevStep.Size = new System.Drawing.Size(129, 35);
             this.textBoxIDPrevStep.TabIndex = 3;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(249, 32);
+            this.label3.Location = new System.Drawing.Point(230, 30);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(129, 32);
+            this.label3.Size = new System.Drawing.Size(115, 30);
             this.label3.TabIndex = 2;
             this.label3.Text = "IDAncestor";
             // 
             // textBoxIDStep
             // 
-            this.textBoxIDStep.Location = new System.Drawing.Point(64, 32);
+            this.textBoxIDStep.Location = new System.Drawing.Point(59, 30);
             this.textBoxIDStep.Name = "textBoxIDStep";
-            this.textBoxIDStep.Size = new System.Drawing.Size(139, 39);
+            this.textBoxIDStep.Size = new System.Drawing.Size(129, 35);
             this.textBoxIDStep.TabIndex = 1;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 35);
+            this.label2.Location = new System.Drawing.Point(6, 33);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(37, 32);
+            this.label2.Size = new System.Drawing.Size(34, 30);
             this.label2.TabIndex = 0;
             this.label2.Text = "ID";
             // 
@@ -391,17 +431,18 @@ namespace TestJsonRazbor
             // 
             this.textBoxPipelineDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxPipelineDescription.Location = new System.Drawing.Point(242, 0);
+            this.textBoxPipelineDescription.Location = new System.Drawing.Point(223, 0);
             this.textBoxPipelineDescription.Name = "textBoxPipelineDescription";
-            this.textBoxPipelineDescription.Size = new System.Drawing.Size(507, 39);
+            this.textBoxPipelineDescription.Size = new System.Drawing.Size(468, 35);
             this.textBoxPipelineDescription.TabIndex = 1;
+            this.textBoxPipelineDescription.TextChanged += new System.EventHandler(this.textBoxPipelineDescription_TextChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 0);
+            this.label1.Location = new System.Drawing.Point(11, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(224, 32);
+            this.label1.Size = new System.Drawing.Size(194, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "Pipeline description";
             // 
@@ -419,11 +460,21 @@ namespace TestJsonRazbor
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(549, 567);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(131, 40);
+            this.button3.TabIndex = 34;
+            this.button3.Text = "button3";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            // 
             // FormPipeline
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 30F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1169, 717);
+            this.ClientSize = new System.Drawing.Size(1079, 672);
             this.Controls.Add(this.splitContainer1);
             this.Name = "FormPipeline";
             this.Text = "FormPipeline";
@@ -481,5 +532,9 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button buttonUp;
         private System.Windows.Forms.Button buttonDown;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonOpen;
+        private System.Windows.Forms.Button buttonNew;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
     }
 }

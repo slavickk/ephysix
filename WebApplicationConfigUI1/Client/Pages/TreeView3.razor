@@ -1,0 +1,131 @@
+﻿@page "/treeview3"
+@using WebApplicationConfigUI1.Shared
+@inject HttpClient Http
+@inject StateContainer StateContainer
+@using System.Text.Json;
+@if (root == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<table style="width:100%">
+    <tr><td><table style="width:100%"><tr><td><input type="text" @bind-value="@SearchValue" class="form-control form-rounded" placeholder="Search..." style="border-radius:6px;width:100%"/></td><td><input @bind="@SinceFirst" type="checkbox" id="scales" name="scales" /></td><td><button @onclick="@Search" style="border-radius:6px;width=100%">Search</button></td></tr></table></td></tr>
+    <tr><td><div class="treeview-colorful w-20 border border-secondary mx-4 my-4"  style="100%">
+  <TreeViewItem item=@root></TreeViewItem>
+  </div>
+</td></tr>
+    </table>
+}
+
+@code {
+    bool SinceFirst = true;
+    string SearchValue = String.Empty;
+    int indexSearch = 0;
+    void Search()
+    {
+   /*     int a = 1;
+        var b = a switch
+        {
+            1 => "a is 1",
+            2 => "a is 2",
+            _ => "a is not 1 or 2"
+        };*/
+        if (SinceFirst)
+            indexSearch = 0;
+        found();
+        SinceFirst = false;
+        InvokeAsync(StateHasChanged);  
+
+    }
+
+    void ClearExpand(TreeViewItemInternal item)
+    {
+        foreach(var item1 in item.childNodes)
+        {
+            item1.IsExpanded = false;
+            item1.IsSelected = false;
+            ClearExpand(item1);
+        }
+    }
+
+
+    void found()
+    {
+        int index = 0;
+        ClearExpand(root);
+        //        root.IsExpanded = true;
+        //            foreach (var node1 in treeView1.Nodes)
+        {
+            var s = searchInTree(root, SearchValue, indexSearch, ref index);
+            if (s != null)
+            {
+                s.IsSelected = true;
+                var s1 = s;
+                s1.IsExpanded = true;
+                while (s1.Parent != null && s1.Parent.Parent != null)
+                {
+                    s1 = s1.Parent;
+                    if(s1 != null)
+                        s1.IsExpanded = true;
+                }
+                root.IsExpanded = true;
+                indexSearch = index;
+                InvokeAsync(StateHasChanged);  
+                return;
+            }
+        }
+        root.IsExpanded = false;
+
+    }
+
+    TreeViewItemInternal searchInTree(TreeViewItemInternal node, string searhedText, int indexSearch, ref int index)
+    {
+        index++;
+        if (node.Title.Contains(searhedText) || (node.Value != null && node.Value.Contains(searhedText) ))
+            if (index > indexSearch)
+                return node;
+        foreach (var node1 in node.childNodes)
+        {
+            index++;
+            var s = searchInTree(node1, searhedText, indexSearch, ref index);
+            if (s != null)
+                return s;
+        }
+        return null;
+    }
+
+    void SetParent(TreeViewItemInternal item)
+    {
+        foreach(var item1 in item.childNodes)
+        {
+            item1.Parent = item;
+            SetParent(item1);
+        }
+    }
+
+    TreeViewItemInternal root;
+    protected override async Task OnInitializedAsync()
+    {
+        var step = StateContainer.Property.steps[0];
+        try
+        {
+            //root = await Http.GetFromJsonAsync<TreeViewItemInternal>($"Config/GetTreeView?{step.receiver.MocFile}");
+            var ans=await Http.GetAsync($"Config/GetTreeView?{step.receiver.MocFile}");
+            if(ans.IsSuccessStatusCode)
+            {
+                var st=await ans.Content.ReadAsStringAsync();
+                root=JsonSerializer.Deserialize<TreeViewItemInternal>(st);
+                SetParent(root);
+            }
+        }
+        catch(Exception e88)
+        {
+            root = null;
+        }
+        var tt = root.Title;
+        /*        TreeViewInternal intern = new TreeViewInternal(Http);
+  
+        root =await intern.ParseInput(step.receiver.MocFile, new string[] { step.IDStep, "Rec" });// new TreeViewItemInternal() { IsExpanded = true, Title = "Main", childs = new List<TreeViewItemInternal>() { new TreeViewItemInternal() { IsExpanded = false, Title = "Child", childs = new List<TreeViewItemInternal>() { new TreeViewItemInternal() { Title = "GrandChilds" } } } } };*/
+    }
+    }

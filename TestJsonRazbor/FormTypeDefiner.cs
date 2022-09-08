@@ -22,16 +22,32 @@ namespace TestJsonRazbor
             InitializeComponent();
         }
 
+        public class TypeDefiner
+        {
+            public Type tTypeDef;
+            public TypeDefiner(Type t)
+            {
+                tTypeDef = t;
+            }
+            public override string ToString()
+            {
+                var attr = tTypeDef.GetCustomAttribute(typeof(AnnotationAttribute)) as AnnotationAttribute;
+                return tTypeDef.ToString() + ((attr != null)?$"({attr.Description})":"") ;
+            }
+        }
+
         private void FormTypeDefiner_Load(object sender, EventArgs e)
         {
             foreach(var t in Assembly.GetAssembly(typeof(Pipeline)).GetTypes().Where(ii => ii.IsAssignableTo(tDefine) && !ii.IsAbstract))
             {
-                comboBox1.Items.Add(t);
+                comboBox1.Items.Add(new TypeDefiner(t));
             }
             this.Text = "Configure " + tDefine.Name;
             if(tObject != null)
             {
-                comboBox1.SelectedIndex=comboBox1.Items.IndexOf(tObject.GetType());
+                object[] objs = new object[comboBox1.Items.Count];
+                comboBox1.Items.CopyTo(objs, 0);
+                comboBox1.SelectedIndex=objs.IndexWhere(a=>((a as TypeDefiner).tTypeDef==tObject.GetType()));
                 if(comboBox1.SelectedIndex >= 0)
                     Refresh_tObjectProp();
             }
@@ -41,6 +57,12 @@ namespace TestJsonRazbor
         List<System.Windows.Forms.Label> labels = new List<Label>();
         List<System.Windows.Forms.TextBox> textBoxes = new List<TextBox>();
        // List<Button> buttons = new List<Button>();
+       /*public class ComponentItem
+        {
+            public FieldInfo fld;
+            public PropertyInfo prop;
+        }*/
+
         List<FieldInfo> fields = new List<FieldInfo>();
 
         void AddControlGroup(ref int lastTop,FieldInfo fld)
@@ -80,12 +102,14 @@ namespace TestJsonRazbor
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-             if(comboBox1.SelectedIndex>=0)
+             if(comboBox1.SelectedIndex>=0  )
             {
-                tObject = Activator.CreateInstance(comboBox1.SelectedItem as Type);
+                if(tObject.GetType() != (comboBox1.SelectedItem as TypeDefiner).tTypeDef)
+                tObject = Activator.CreateInstance((comboBox1.SelectedItem as TypeDefiner).tTypeDef);
                 Refresh_tObjectProp();
             }
         }
+        Type currentType=null;
 
         private void Refresh_tObjectProp()
         {
@@ -97,7 +121,8 @@ namespace TestJsonRazbor
             labels.Clear();
             fields.Clear();
             int lastTop = 87;
-            Type t = (Type)comboBox1.Items[comboBox1.SelectedIndex];
+            Type t = ((TypeDefiner)comboBox1.Items[comboBox1.SelectedIndex]).tTypeDef;
+            currentType = t;
             var props = t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             var flds = t.GetFields();
             foreach (var fld in flds.Where(ii => !ii.FieldType.IsClass || ii.FieldType.IsArray || ii.FieldType ==typeof(string)))
@@ -110,6 +135,10 @@ namespace TestJsonRazbor
             if (lastTop == 19)
                 lastTop = 150;
             this.Size = new Size(this.Size.Width, lastTop + 70);
+            if(GetTypeOfForm(currentType) != null)
+                button2.Visible = true;
+            else
+                button2.Visible = false;
         }
 
         object conv(string text,FieldInfo fld)
@@ -134,6 +163,31 @@ namespace TestJsonRazbor
                 } else
                     fields[i].SetValue(tObject, conv(textBoxes[i].Text, fields[i]));
             }
+        }
+        private Type GetTypeOfForm(Type t)
+        {
+            return Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t1 => t1.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute)) > 0 && t1.GetConstructor(new Type[] { t }) != null);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var type_frm = GetTypeOfForm(currentType);
+
+            if (type_frm != null)
+            {
+
+//                string key = (tObject as Sender).externalKey; 
+                Form frm = Activator.CreateInstance(type_frm, new object[] { tObject as Sender }) as Form;
+
+//                (frm as SenderDataExchanger).setContent((tObject as Sender).getTemplate(key));
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+/*                    var ss = (frm as SenderDataExchanger).getContent();
+                    (tObject as Sender).setTemplate(key, ss);*/
+
+                }
+            }
+
         }
     }
 }

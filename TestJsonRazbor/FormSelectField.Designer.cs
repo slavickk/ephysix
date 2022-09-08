@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace TestJsonRazbor
 {
     partial class FormSelectField
@@ -33,6 +35,11 @@ namespace TestJsonRazbor
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Root");
             this.button7 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.checkBoxIsUniq = new System.Windows.Forms.CheckBox();
+            this.radioButtonCrypto = new System.Windows.Forms.RadioButton();
+            this.radioButtonSimple = new System.Windows.Forms.RadioButton();
+            this.radioButtonNoHash = new System.Windows.Forms.RadioButton();
+            this.comboBoxTypeAlias = new System.Windows.Forms.ComboBox();
             this.checkBoxHash = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -61,15 +68,15 @@ namespace TestJsonRazbor
             this.label9 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.textBoxConstant = new System.Windows.Forms.TextBox();
+            this.comboBoxTypeConvert = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.textBoxTemplate = new System.Windows.Forms.TextBox();
+            this.buttonSelectTemplate = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.button2 = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.textBoxFilterValue = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBoxFilterFieldPath = new System.Windows.Forms.TextBox();
-            this.button12 = new System.Windows.Forms.Button();
-            this.label8 = new System.Windows.Forms.Label();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -84,11 +91,12 @@ namespace TestJsonRazbor
             this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
             this.openFileDialog3 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.comboBoxTypeConvert = new System.Windows.Forms.ComboBox();
             this.groupBox2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.tabControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -101,9 +109,9 @@ namespace TestJsonRazbor
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(8, 898);
+            this.button7.Location = new System.Drawing.Point(7, 842);
             this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(150, 46);
+            this.button7.Size = new System.Drawing.Size(138, 43);
             this.button7.TabIndex = 36;
             this.button7.Text = "Test";
             this.button7.UseVisualStyleBackColor = true;
@@ -113,6 +121,11 @@ namespace TestJsonRazbor
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.checkBoxIsUniq);
+            this.groupBox2.Controls.Add(this.radioButtonCrypto);
+            this.groupBox2.Controls.Add(this.radioButtonSimple);
+            this.groupBox2.Controls.Add(this.radioButtonNoHash);
+            this.groupBox2.Controls.Add(this.comboBoxTypeAlias);
             this.groupBox2.Controls.Add(this.checkBoxHash);
             this.groupBox2.Controls.Add(this.button5);
             this.groupBox2.Controls.Add(this.button3);
@@ -128,28 +141,81 @@ namespace TestJsonRazbor
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.panel3);
             this.groupBox2.Controls.Add(this.panel4);
-            this.groupBox2.Location = new System.Drawing.Point(16, 238);
+            this.groupBox2.Controls.Add(this.panel1);
+            this.groupBox2.Location = new System.Drawing.Point(15, 223);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1644, 959);
+            this.groupBox2.Size = new System.Drawing.Size(1518, 899);
             this.groupBox2.TabIndex = 35;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "OutputValues";
             // 
+            // checkBoxIsUniq
+            // 
+            this.checkBoxIsUniq.AutoSize = true;
+            this.checkBoxIsUniq.Location = new System.Drawing.Point(841, 52);
+            this.checkBoxIsUniq.Name = "checkBoxIsUniq";
+            this.checkBoxIsUniq.Size = new System.Drawing.Size(82, 34);
+            this.checkBoxIsUniq.TabIndex = 47;
+            this.checkBoxIsUniq.Text = "Uniq";
+            this.checkBoxIsUniq.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonCrypto
+            // 
+            this.radioButtonCrypto.AutoSize = true;
+            this.radioButtonCrypto.Location = new System.Drawing.Point(1129, 72);
+            this.radioButtonCrypto.Name = "radioButtonCrypto";
+            this.radioButtonCrypto.Size = new System.Drawing.Size(99, 34);
+            this.radioButtonCrypto.TabIndex = 46;
+            this.radioButtonCrypto.Text = "Crypto";
+            this.radioButtonCrypto.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonSimple
+            // 
+            this.radioButtonSimple.AutoSize = true;
+            this.radioButtonSimple.Location = new System.Drawing.Point(1128, 42);
+            this.radioButtonSimple.Name = "radioButtonSimple";
+            this.radioButtonSimple.Size = new System.Drawing.Size(100, 34);
+            this.radioButtonSimple.TabIndex = 45;
+            this.radioButtonSimple.Text = "Simple";
+            this.radioButtonSimple.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonNoHash
+            // 
+            this.radioButtonNoHash.AutoSize = true;
+            this.radioButtonNoHash.Checked = true;
+            this.radioButtonNoHash.Location = new System.Drawing.Point(1128, 13);
+            this.radioButtonNoHash.Name = "radioButtonNoHash";
+            this.radioButtonNoHash.Size = new System.Drawing.Size(113, 34);
+            this.radioButtonNoHash.TabIndex = 44;
+            this.radioButtonNoHash.TabStop = true;
+            this.radioButtonNoHash.Text = "NoHash";
+            this.radioButtonNoHash.UseVisualStyleBackColor = true;
+            // 
+            // comboBoxTypeAlias
+            // 
+            this.comboBoxTypeAlias.FormattingEnabled = true;
+            this.comboBoxTypeAlias.Location = new System.Drawing.Point(1237, 49);
+            this.comboBoxTypeAlias.Name = "comboBoxTypeAlias";
+            this.comboBoxTypeAlias.Size = new System.Drawing.Size(268, 38);
+            this.comboBoxTypeAlias.TabIndex = 43;
+            this.comboBoxTypeAlias.SelectedIndexChanged += new System.EventHandler(this.comboBoxTypeAlias_SelectedIndexChanged);
+            // 
             // checkBoxHash
             // 
             this.checkBoxHash.AutoSize = true;
-            this.checkBoxHash.Location = new System.Drawing.Point(1290, 57);
+            this.checkBoxHash.Location = new System.Drawing.Point(1402, 18);
             this.checkBoxHash.Name = "checkBoxHash";
-            this.checkBoxHash.Size = new System.Drawing.Size(126, 36);
+            this.checkBoxHash.Size = new System.Drawing.Size(109, 34);
             this.checkBoxHash.TabIndex = 42;
             this.checkBoxHash.Text = "Hashed";
             this.checkBoxHash.UseVisualStyleBackColor = true;
+            this.checkBoxHash.CheckedChanged += new System.EventHandler(this.checkBoxHash_CheckedChanged);
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(223, 49);
+            this.button5.Location = new System.Drawing.Point(206, 46);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(84, 46);
+            this.button5.Size = new System.Drawing.Size(78, 43);
             this.button5.TabIndex = 41;
             this.button5.Text = "paste";
             this.button5.UseVisualStyleBackColor = true;
@@ -159,9 +225,9 @@ namespace TestJsonRazbor
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.button3.Location = new System.Drawing.Point(1397, 892);
+            this.button3.Location = new System.Drawing.Point(1290, 836);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(229, 46);
+            this.button3.Size = new System.Drawing.Size(211, 43);
             this.button3.TabIndex = 36;
             this.button3.Text = "Save filter";
             this.button3.UseVisualStyleBackColor = true;
@@ -170,9 +236,9 @@ namespace TestJsonRazbor
             // buttonDel
             // 
             this.buttonDel.Enabled = false;
-            this.buttonDel.Location = new System.Drawing.Point(180, 568);
+            this.buttonDel.Location = new System.Drawing.Point(166, 532);
             this.buttonDel.Name = "buttonDel";
-            this.buttonDel.Size = new System.Drawing.Size(80, 46);
+            this.buttonDel.Size = new System.Drawing.Size(74, 43);
             this.buttonDel.TabIndex = 40;
             this.buttonDel.Text = "del";
             this.buttonDel.UseVisualStyleBackColor = true;
@@ -181,9 +247,9 @@ namespace TestJsonRazbor
             // buttonMod
             // 
             this.buttonMod.Enabled = false;
-            this.buttonMod.Location = new System.Drawing.Point(94, 569);
+            this.buttonMod.Location = new System.Drawing.Point(87, 533);
             this.buttonMod.Name = "buttonMod";
-            this.buttonMod.Size = new System.Drawing.Size(80, 46);
+            this.buttonMod.Size = new System.Drawing.Size(74, 43);
             this.buttonMod.TabIndex = 39;
             this.buttonMod.Text = "mod";
             this.buttonMod.UseVisualStyleBackColor = true;
@@ -191,9 +257,9 @@ namespace TestJsonRazbor
             // 
             // buttonAdd
             // 
-            this.buttonAdd.Location = new System.Drawing.Point(8, 568);
+            this.buttonAdd.Location = new System.Drawing.Point(7, 532);
             this.buttonAdd.Name = "buttonAdd";
-            this.buttonAdd.Size = new System.Drawing.Size(80, 46);
+            this.buttonAdd.Size = new System.Drawing.Size(74, 43);
             this.buttonAdd.TabIndex = 38;
             this.buttonAdd.Text = "add";
             this.buttonAdd.UseVisualStyleBackColor = true;
@@ -206,17 +272,17 @@ namespace TestJsonRazbor
             "All output+filter",
             "All output",
             "Current only"});
-            this.comboBoxTypeTest.Location = new System.Drawing.Point(186, 898);
+            this.comboBoxTypeTest.Location = new System.Drawing.Point(172, 842);
             this.comboBoxTypeTest.Name = "comboBoxTypeTest";
-            this.comboBoxTypeTest.Size = new System.Drawing.Size(189, 40);
+            this.comboBoxTypeTest.Size = new System.Drawing.Size(175, 38);
             this.comboBoxTypeTest.TabIndex = 37;
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(1055, 56);
+            this.label10.Location = new System.Drawing.Point(921, 54);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(65, 32);
+            this.label10.Size = new System.Drawing.Size(56, 30);
             this.label10.TabIndex = 33;
             this.label10.Text = "Type";
             // 
@@ -225,10 +291,11 @@ namespace TestJsonRazbor
             this.comboBox3.FormattingEnabled = true;
             this.comboBox3.Items.AddRange(new object[] {
             "constant",
-            "select"});
-            this.comboBox3.Location = new System.Drawing.Point(1122, 53);
+            "select",
+            "template"});
+            this.comboBox3.Location = new System.Drawing.Point(981, 52);
             this.comboBox3.Name = "comboBox3";
-            this.comboBox3.Size = new System.Drawing.Size(148, 40);
+            this.comboBox3.Size = new System.Drawing.Size(137, 38);
             this.comboBox3.TabIndex = 14;
             this.comboBox3.SelectedIndexChanged += new System.EventHandler(this.comboBox3_SelectedIndexChanged);
             // 
@@ -237,26 +304,27 @@ namespace TestJsonRazbor
             this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 32;
-            this.listBox1.Location = new System.Drawing.Point(8, 620);
+            this.listBox1.ItemHeight = 30;
+            this.listBox1.Location = new System.Drawing.Point(7, 581);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(1618, 260);
+            this.listBox1.Size = new System.Drawing.Size(1494, 244);
             this.listBox1.TabIndex = 29;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // textBoxFieldName
             // 
-            this.textBoxFieldName.Location = new System.Drawing.Point(317, 53);
+            this.textBoxFieldName.Location = new System.Drawing.Point(293, 50);
             this.textBoxFieldName.Name = "textBoxFieldName";
-            this.textBoxFieldName.Size = new System.Drawing.Size(731, 39);
+            this.textBoxFieldName.Size = new System.Drawing.Size(537, 35);
             this.textBoxFieldName.TabIndex = 21;
+            this.textBoxFieldName.TextChanged += new System.EventHandler(this.textBoxFieldName_TextChanged);
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 52);
+            this.label4.Location = new System.Drawing.Point(12, 49);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(204, 32);
+            this.label4.Size = new System.Drawing.Size(178, 30);
             this.label4.TabIndex = 19;
             this.label4.Text = "Output field path:";
             // 
@@ -277,9 +345,9 @@ namespace TestJsonRazbor
             this.panel3.Controls.Add(this.button13);
             this.panel3.Controls.Add(this.checkBox2);
             this.panel3.Controls.Add(this.label9);
-            this.panel3.Location = new System.Drawing.Point(11, 111);
+            this.panel3.Location = new System.Drawing.Point(10, 104);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(1619, 452);
+            this.panel3.Size = new System.Drawing.Size(1494, 424);
             this.panel3.TabIndex = 34;
             this.panel3.Visible = false;
             // 
@@ -287,9 +355,9 @@ namespace TestJsonRazbor
             // 
             this.buttonDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonDown.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.buttonDown.Location = new System.Drawing.Point(1556, 167);
+            this.buttonDown.Location = new System.Drawing.Point(1436, 157);
             this.buttonDown.Name = "buttonDown";
-            this.buttonDown.Size = new System.Drawing.Size(42, 46);
+            this.buttonDown.Size = new System.Drawing.Size(39, 43);
             this.buttonDown.TabIndex = 31;
             this.buttonDown.Text = "V";
             this.buttonDown.UseVisualStyleBackColor = true;
@@ -297,9 +365,9 @@ namespace TestJsonRazbor
             // buttonUp
             // 
             this.buttonUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonUp.Location = new System.Drawing.Point(1557, 115);
+            this.buttonUp.Location = new System.Drawing.Point(1437, 108);
             this.buttonUp.Name = "buttonUp";
-            this.buttonUp.Size = new System.Drawing.Size(41, 46);
+            this.buttonUp.Size = new System.Drawing.Size(38, 43);
             this.buttonUp.TabIndex = 30;
             this.buttonUp.Text = "^";
             this.buttonUp.UseVisualStyleBackColor = true;
@@ -310,26 +378,26 @@ namespace TestJsonRazbor
             this.textBoxScript.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxScript.Location = new System.Drawing.Point(11, 116);
+            this.textBoxScript.Location = new System.Drawing.Point(10, 109);
             this.textBoxScript.Multiline = true;
             this.textBoxScript.Name = "textBoxScript";
             this.textBoxScript.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxScript.Size = new System.Drawing.Size(1542, 318);
+            this.textBoxScript.Size = new System.Drawing.Size(1424, 298);
             this.textBoxScript.TabIndex = 29;
             this.textBoxScript.Visible = false;
             // 
             // textBoxValueFieldSearch
             // 
-            this.textBoxValueFieldSearch.Location = new System.Drawing.Point(271, 19);
+            this.textBoxValueFieldSearch.Location = new System.Drawing.Point(250, 18);
             this.textBoxValueFieldSearch.Name = "textBoxValueFieldSearch";
-            this.textBoxValueFieldSearch.Size = new System.Drawing.Size(766, 39);
+            this.textBoxValueFieldSearch.Size = new System.Drawing.Size(707, 35);
             this.textBoxValueFieldSearch.TabIndex = 18;
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(189, 18);
+            this.button4.Location = new System.Drawing.Point(174, 17);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(84, 46);
+            this.button4.Size = new System.Drawing.Size(78, 43);
             this.button4.TabIndex = 22;
             this.button4.Text = "paste";
             this.button4.UseVisualStyleBackColor = true;
@@ -341,50 +409,50 @@ namespace TestJsonRazbor
             this.comboBox2.Items.AddRange(new object[] {
             "value",
             "script"});
-            this.comboBox2.Location = new System.Drawing.Point(861, 68);
+            this.comboBox2.Location = new System.Drawing.Point(795, 64);
             this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(264, 40);
+            this.comboBox2.Size = new System.Drawing.Size(244, 38);
             this.comboBox2.TabIndex = 14;
             this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(5, 18);
+            this.label6.Location = new System.Drawing.Point(5, 17);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(184, 32);
+            this.label6.Size = new System.Drawing.Size(161, 30);
             this.label6.TabIndex = 20;
             this.label6.Text = "Input field path:";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(8, 64);
+            this.label5.Location = new System.Drawing.Point(7, 60);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(164, 32);
+            this.label5.Size = new System.Drawing.Size(144, 30);
             this.label5.TabIndex = 23;
             this.label5.Text = "Searched text:";
             // 
             // textBoxFalueFieldSearchValue
             // 
-            this.textBoxFalueFieldSearchValue.Location = new System.Drawing.Point(273, 61);
+            this.textBoxFalueFieldSearchValue.Location = new System.Drawing.Point(252, 57);
             this.textBoxFalueFieldSearchValue.Name = "textBoxFalueFieldSearchValue";
-            this.textBoxFalueFieldSearchValue.Size = new System.Drawing.Size(202, 39);
+            this.textBoxFalueFieldSearchValue.Size = new System.Drawing.Size(187, 35);
             this.textBoxFalueFieldSearchValue.TabIndex = 24;
             // 
             // textBoxAddFieldPath
             // 
-            this.textBoxAddFieldPath.Location = new System.Drawing.Point(275, 116);
+            this.textBoxAddFieldPath.Location = new System.Drawing.Point(254, 109);
             this.textBoxAddFieldPath.Name = "textBoxAddFieldPath";
-            this.textBoxAddFieldPath.Size = new System.Drawing.Size(766, 39);
+            this.textBoxAddFieldPath.Size = new System.Drawing.Size(707, 35);
             this.textBoxAddFieldPath.TabIndex = 26;
             this.textBoxAddFieldPath.Visible = false;
             // 
             // button13
             // 
-            this.button13.Location = new System.Drawing.Point(185, 114);
+            this.button13.Location = new System.Drawing.Point(171, 107);
             this.button13.Name = "button13";
-            this.button13.Size = new System.Drawing.Size(84, 46);
+            this.button13.Size = new System.Drawing.Size(78, 43);
             this.button13.TabIndex = 28;
             this.button13.Text = "paste";
             this.button13.UseVisualStyleBackColor = true;
@@ -394,9 +462,9 @@ namespace TestJsonRazbor
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(501, 64);
+            this.checkBox2.Location = new System.Drawing.Point(462, 60);
             this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(326, 36);
+            this.checkBox2.Size = new System.Drawing.Size(280, 34);
             this.checkBox2.TabIndex = 25;
             this.checkBox2.Text = "get another field for value";
             this.checkBox2.UseVisualStyleBackColor = true;
@@ -405,9 +473,9 @@ namespace TestJsonRazbor
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(11, 117);
+            this.label9.Location = new System.Drawing.Point(10, 110);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(178, 32);
+            this.label9.Size = new System.Drawing.Size(156, 30);
             this.label9.TabIndex = 27;
             this.label9.Text = "Add field path :";
             this.label9.Visible = false;
@@ -418,114 +486,114 @@ namespace TestJsonRazbor
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel4.Controls.Add(this.textBoxConstant);
             this.panel4.Controls.Add(this.comboBoxTypeConvert);
-
             this.panel4.Controls.Add(this.label11);
-            this.panel4.Location = new System.Drawing.Point(11, 111);
+            this.panel4.Location = new System.Drawing.Point(10, 104);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(1618, 157);
+            this.panel4.Size = new System.Drawing.Size(1494, 147);
             this.panel4.TabIndex = 29;
             this.panel4.Visible = false;
             // 
             // textBoxConstant
             // 
-            this.textBoxConstant.Location = new System.Drawing.Point(275, 15);
+            this.textBoxConstant.Location = new System.Drawing.Point(254, 14);
             this.textBoxConstant.Name = "textBoxConstant";
-            this.textBoxConstant.Size = new System.Drawing.Size(200, 39);
+            this.textBoxConstant.Size = new System.Drawing.Size(185, 35);
             this.textBoxConstant.TabIndex = 1;
+            // 
+            // comboBoxTypeConvert
+            // 
+            this.comboBoxTypeConvert.FormattingEnabled = true;
+            this.comboBoxTypeConvert.Location = new System.Drawing.Point(1227, 22);
+            this.comboBoxTypeConvert.Name = "comboBoxTypeConvert";
+            this.comboBoxTypeConvert.Size = new System.Drawing.Size(224, 38);
+            this.comboBoxTypeConvert.TabIndex = 32;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(23, 18);
+            this.label11.Location = new System.Drawing.Point(21, 17);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(173, 32);
+            this.label11.Size = new System.Drawing.Size(151, 30);
             this.label11.TabIndex = 0;
             this.label11.Text = "Constant value";
+            // 
+            // panel1
+            // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.textBoxTemplate);
+            this.panel1.Controls.Add(this.buttonSelectTemplate);
+            this.panel1.Location = new System.Drawing.Point(10, 104);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1496, 424);
+            this.panel1.TabIndex = 32;
+            this.panel1.Visible = false;
+            // 
+            // textBoxTemplate
+            // 
+            this.textBoxTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxTemplate.Location = new System.Drawing.Point(2, 49);
+            this.textBoxTemplate.Multiline = true;
+            this.textBoxTemplate.Name = "textBoxTemplate";
+            this.textBoxTemplate.Size = new System.Drawing.Size(1492, 372);
+            this.textBoxTemplate.TabIndex = 1;
+            // 
+            // buttonSelectTemplate
+            // 
+            this.buttonSelectTemplate.Location = new System.Drawing.Point(0, 0);
+            this.buttonSelectTemplate.Name = "buttonSelectTemplate";
+            this.buttonSelectTemplate.Size = new System.Drawing.Size(190, 43);
+            this.buttonSelectTemplate.TabIndex = 0;
+            this.buttonSelectTemplate.Text = "Select Template";
+            this.buttonSelectTemplate.UseVisualStyleBackColor = true;
+            this.buttonSelectTemplate.Click += new System.EventHandler(this.buttonSelectTemplate_Click);
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.button2);
-            this.groupBox1.Controls.Add(this.comboBox1);
-            this.groupBox1.Controls.Add(this.textBoxFilterValue);
-            this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.textBoxFilterFieldPath);
-            this.groupBox1.Controls.Add(this.button12);
-            this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Location = new System.Drawing.Point(16, 13);
+            this.groupBox1.Controls.Add(this.tabControl1);
+            this.groupBox1.Location = new System.Drawing.Point(15, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1644, 187);
+            this.groupBox1.Size = new System.Drawing.Size(1518, 218);
             this.groupBox1.TabIndex = 34;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Filter";
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(16, 135);
+            this.button2.Location = new System.Drawing.Point(120, 0);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(150, 46);
+            this.button2.Size = new System.Drawing.Size(138, 35);
             this.button2.TabIndex = 14;
             this.button2.Text = "Test";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // comboBox1
+            // tabControl1
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
-            "value",
-            "path only",
-            "script"});
-            this.comboBox1.Location = new System.Drawing.Point(503, 91);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(264, 40);
-            this.comboBox1.TabIndex = 13;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.tabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(3, 31);
+            this.tabControl1.Multiline = true;
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(1512, 184);
+            this.tabControl1.TabIndex = 15;
+            this.tabControl1.Visible = false;
             // 
-            // textBoxFilterValue
+            // tabPage1
             // 
-            this.textBoxFilterValue.Location = new System.Drawing.Point(282, 91);
-            this.textBoxFilterValue.Name = "textBoxFilterValue";
-            this.textBoxFilterValue.Size = new System.Drawing.Size(191, 39);
-            this.textBoxFilterValue.TabIndex = 12;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 91);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(164, 32);
-            this.label3.TabIndex = 11;
-            this.label3.Text = "Searched text:";
-            // 
-            // textBoxFilterFieldPath
-            // 
-            this.textBoxFilterFieldPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxFilterFieldPath.Location = new System.Drawing.Point(282, 46);
-            this.textBoxFilterFieldPath.Name = "textBoxFilterFieldPath";
-            this.textBoxFilterFieldPath.Size = new System.Drawing.Size(1347, 39);
-            this.textBoxFilterFieldPath.TabIndex = 10;
-            // 
-            // button12
-            // 
-            this.button12.Location = new System.Drawing.Point(189, 38);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(85, 46);
-            this.button12.TabIndex = 9;
-            this.button12.Text = "paste";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(11, 45);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(172, 32);
-            this.label8.TabIndex = 8;
-            this.label8.Text = "Select on field:";
+            this.tabPage1.Location = new System.Drawing.Point(4, 4);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(1504, 141);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // splitContainer1
             // 
@@ -533,7 +601,7 @@ namespace TestJsonRazbor
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.splitContainer1.Cursor = System.Windows.Forms.Cursors.VSplit;
-            this.splitContainer1.Location = new System.Drawing.Point(5, 52);
+            this.splitContainer1.Location = new System.Drawing.Point(5, 49);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -543,8 +611,8 @@ namespace TestJsonRazbor
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(2420, 1301);
-            this.splitContainer1.SplitterDistance = 434;
+            this.splitContainer1.Size = new System.Drawing.Size(2234, 1220);
+            this.splitContainer1.SplitterDistance = 400;
             this.splitContainer1.TabIndex = 38;
             // 
             // treeView1
@@ -557,9 +625,11 @@ namespace TestJsonRazbor
             treeNode1.Text = "Root";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            this.treeView1.Size = new System.Drawing.Size(434, 1301);
+            this.treeView1.Size = new System.Drawing.Size(400, 1220);
             this.treeView1.TabIndex = 1;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
+            this.treeView1.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseDoubleClick);
+            this.treeView1.DoubleClick += new System.EventHandler(this.treeView1_DoubleClick);
             // 
             // splitContainer2
             // 
@@ -576,8 +646,8 @@ namespace TestJsonRazbor
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.treeView2);
-            this.splitContainer2.Size = new System.Drawing.Size(1982, 1301);
-            this.splitContainer2.SplitterDistance = 1663;
+            this.splitContainer2.Size = new System.Drawing.Size(1830, 1220);
+            this.splitContainer2.SplitterDistance = 1535;
             this.splitContainer2.TabIndex = 0;
             // 
             // treeView2
@@ -590,15 +660,15 @@ namespace TestJsonRazbor
             treeNode2.Text = "Root";
             this.treeView2.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode2});
-            this.treeView2.Size = new System.Drawing.Size(315, 1301);
+            this.treeView2.Size = new System.Drawing.Size(291, 1220);
             this.treeView2.TabIndex = 2;
             this.treeView2.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(653, 0);
+            this.button8.Location = new System.Drawing.Point(603, 0);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(150, 46);
+            this.button8.Size = new System.Drawing.Size(138, 43);
             this.button8.TabIndex = 27;
             this.button8.Text = "Save";
             this.button8.UseVisualStyleBackColor = true;
@@ -606,9 +676,9 @@ namespace TestJsonRazbor
             // 
             // button9
             // 
-            this.button9.Location = new System.Drawing.Point(497, 0);
+            this.button9.Location = new System.Drawing.Point(459, 0);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(150, 46);
+            this.button9.Size = new System.Drawing.Size(138, 43);
             this.button9.TabIndex = 28;
             this.button9.Text = "Load";
             this.button9.UseVisualStyleBackColor = true;
@@ -618,17 +688,17 @@ namespace TestJsonRazbor
             // 
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(809, 7);
+            this.textBox1.Location = new System.Drawing.Point(747, 7);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(1613, 39);
+            this.textBox1.Size = new System.Drawing.Size(1489, 35);
             this.textBox1.TabIndex = 26;
             // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(328, 1);
+            this.checkBox1.Location = new System.Drawing.Point(303, 1);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(165, 36);
+            this.checkBox1.Size = new System.Drawing.Size(141, 34);
             this.checkBox1.TabIndex = 25;
             this.checkBox1.Text = "from begin";
             this.checkBox1.UseVisualStyleBackColor = true;
@@ -636,9 +706,9 @@ namespace TestJsonRazbor
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(214, 0);
+            this.button1.Location = new System.Drawing.Point(198, 0);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(108, 46);
+            this.button1.Size = new System.Drawing.Size(100, 43);
             this.button1.TabIndex = 24;
             this.button1.Text = "Search";
             this.button1.UseVisualStyleBackColor = true;
@@ -648,7 +718,7 @@ namespace TestJsonRazbor
             // 
             this.textBoxSearch.Location = new System.Drawing.Point(5, 0);
             this.textBoxSearch.Name = "textBoxSearch";
-            this.textBoxSearch.Size = new System.Drawing.Size(200, 39);
+            this.textBoxSearch.Size = new System.Drawing.Size(185, 35);
             this.textBoxSearch.TabIndex = 23;
             // 
             // openFileDialog1
@@ -667,19 +737,11 @@ namespace TestJsonRazbor
             this.openFileDialog3.FileName = "openFileDialog1";
             this.openFileDialog3.InitialDirectory = "C:\\Users\\User\\Documents\\PacketOut";
             // 
-            // comboBoxTypeConvert
-            // 
-            this.comboBoxTypeConvert.FormattingEnabled = true;
-            this.comboBoxTypeConvert.Location = new System.Drawing.Point(1329, 24);
-            this.comboBoxTypeConvert.Name = "comboBoxTypeConvert";
-            this.comboBoxTypeConvert.Size = new System.Drawing.Size(242, 40);
-            this.comboBoxTypeConvert.TabIndex = 32;
-            // 
             // FormSelectField
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 30F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2434, 1359);
+            this.ClientSize = new System.Drawing.Size(2247, 1274);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button8);
@@ -696,8 +758,10 @@ namespace TestJsonRazbor
             this.panel3.PerformLayout();
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.tabControl1.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -734,12 +798,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.TextBox textBoxConstant;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.TextBox textBoxFilterValue;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBoxFilterFieldPath;
-        private System.Windows.Forms.Button button12;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.TreeView treeView1;
@@ -766,5 +824,15 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button buttonDown;
         private System.Windows.Forms.Button buttonUp;
         private System.Windows.Forms.ComboBox comboBoxTypeConvert;
+        private System.Windows.Forms.ComboBox comboBoxTypeAlias;
+        private System.Windows.Forms.RadioButton radioButtonCrypto;
+        private System.Windows.Forms.RadioButton radioButtonSimple;
+        private System.Windows.Forms.RadioButton radioButtonNoHash;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.TextBox textBoxTemplate;
+        private System.Windows.Forms.Button buttonSelectTemplate;
+        private System.Windows.Forms.CheckBox checkBoxIsUniq;
     }
 }

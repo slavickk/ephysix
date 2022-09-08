@@ -1,0 +1,56 @@
+﻿@page "/steps"
+@using WebApplicationConfigUI1.Shared
+@inject HttpClient Http
+@inject StateContainer StateContainer
+@implements IDisposable
+@inject NavigationManager NavigationManager
+<h1>Pipeline steps</h1>
+
+<p>Step on .</p>
+
+@if (StateContainer.Property == null)
+{
+    <p><em>Pipeline not set. Select  yaml file...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID step</th>
+                <th>detail</th>
+                <th>ID previous step</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var step in StateContainer.Property.steps)
+            {
+                <tr>
+                    <td>@step.IDStep</td>
+                    <td>@step.description</td>
+                    <td>@step.IDPreviousStep</td>
+                    <td><button @onclick="@StartDial" >Load</button> </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    //    private WeatherForecast[] forecasts;
+    protected override async Task OnInitializedAsync()
+    {
+        StateContainer.OnChange += StateHasChanged;
+        //        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+    }
+
+    void StartDial()
+    {
+                        NavigationManager.NavigateTo("typedefiner",false);
+    }
+    public void Dispose()
+    {
+        StateContainer.OnChange -= StateHasChanged;
+    }
+}

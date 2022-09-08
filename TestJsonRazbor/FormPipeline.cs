@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+//using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 using ParserLibrary;
 
 namespace TestJsonRazbor
@@ -22,7 +26,7 @@ namespace TestJsonRazbor
         private void AddNode(object sender, EventArgs e)
         {
             var stepName = "Step_" + pip.steps.Length;
-            var newStep = new Step() { owner=pip, IDStep = stepName, IDPreviousStep = (selectedNode == null?"": (selectedNode.Tag as Step).IDStep) };
+            var newStep = new Step() { owner=pip, IDStep = stepName, IDPreviousStep = ((selectedNode == null?"": (selectedNode.Tag as Step)?.IDStep)??"") };
             List<Step> steps = pip.steps.ToList();
             steps.Add(newStep);
             pip.steps = steps.ToArray();
@@ -74,12 +78,62 @@ namespace TestJsonRazbor
         }
 
         Pipeline pip;
+        string pipelinePath="";
+        string fileNameStorageContext = "lastPipeline.inf";
+        void saveStorageContext(string fileName)
+        {
+            using(StreamWriter sw = new StreamWriter(fileNameStorageContext))
+            {
+                sw.WriteLine(fileName);
+                this.Text = fileName;
+            }
+        }
+
+        void dd()
+        {
+            var targetDirectory = @"C:\\dd";
+            List<string> ll = new List<string>();
+            foreach(var file in Directory.GetFiles(targetDirectory).OrderBy(ii=> File.GetLastWriteTime(ii)))
+            {
+                ll.Add(file+" "+File.GetLastWriteTime(file).ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK"));
+            }
+        }
+
         private void FormPipeline_Load(object sender, EventArgs e)
         {
-            /*var pip1 = new Pipeline() { steps = new Step[] { new Step() { receiver = new TICReceiver() { Port = 4001 } } } };
-            pip1.Save(@"c:\d\a2.yml");*/
-            pip =  Pipeline.load(@"C:\D\Out\s3.yml");
+         //   dd();
+            if (File.Exists(fileNameStorageContext))
+            {
+                string fileName = "";
+                using(StreamReader sr = new StreamReader(fileNameStorageContext))
+                {
+                    fileName=sr.ReadLine();
+                }
+                this.Text = fileName;
+                LoadYaml(fileName);
+            }
+            else
+            {
+                pip = new Pipeline();
+                this.Text = (pipelinePath == "") ? "new Pipeline" : pipelinePath;
+            }
+        }
+
+        private void LoadYaml(string fileName)
+        {
+            using (StreamReader sr = new StreamReader(fileName))
+            {
+                //                pipelinePath = sr.ReadToEnd();
+                pip = Pipeline.load(fileName);
+                RefreshPipeline();
+
+            }
+        }
+
+        private void RefreshPipeline()
+        {
             treeView1.Nodes.Clear();
+            listBox1.Items.Clear();
             textBoxPipelineDescription.Text = pip.pipelineDescription;
 
 
@@ -90,8 +144,6 @@ namespace TestJsonRazbor
                 selectedNode = treeView1.Nodes[0];
             else
                 selectedNode = null;
-
-
         }
 
         private void FillStep(Pipeline pip, string prevStep,TreeNodeCollection col)
@@ -112,7 +164,7 @@ namespace TestJsonRazbor
         Receiver rec;
         private void button1_Click(object sender, EventArgs e)
         {
-            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Receiver),tObject=new PacketBeatReceiver() };
+            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Receiver),tObject= (currentStep.receiver== null)?new PacketBeatReceiver(): currentStep.receiver };
             if(frm.ShowDialog() == DialogResult.OK)
             {
                 SetReceiverObject(frm.tObject);
@@ -156,7 +208,7 @@ namespace TestJsonRazbor
         Sender sender1;
         private void button3_Click(object sender, EventArgs e)
         {
-            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject = new TICSender() };
+            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject =((currentStep.sender== null)? new TICSender(): currentStep.sender) };
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 SetSenderObject(frm.tObject);
@@ -179,12 +231,16 @@ namespace TestJsonRazbor
         private void buttonTestServer_Click(object sender, EventArgs e)
         {
             bool withoutFilter = true;
-            if (currentStep != null && rec.MocFile != "" && withoutFilter== false)
+            if (currentStep != null && (rec.MocFile != ""||(rec.MocBody??"") != "" )&& withoutFilter== false)
             {
                 Task taskA = Task.Run(async () =>
                 {
 
                     string input;
+                    if ((rec.MocBody ?? "") != "" )
+                    { 
+                        input = rec.MocBody;    
+                    } else
                     using (StreamReader sr = new StreamReader(rec.MocFile))
                     {
                         input = sr.ReadToEnd();
@@ -273,7 +329,10 @@ namespace TestJsonRazbor
             try
             {
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
                     pip.Save(saveFileDialog1.FileName);
+                    saveStorageContext(saveFileDialog1.FileName);
+                }
             }
             catch(Exception e77)
             {
@@ -284,7 +343,10 @@ namespace TestJsonRazbor
         private void buttonReceiverMoc_Click(object sender, EventArgs e)
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
                 currentStep.receiver.MocFile = openFileDialog1.FileName;
+                currentStep.receiver.MocBody = "";
+            }
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -315,6 +377,85 @@ namespace TestJsonRazbor
         private void button4_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void textBoxPipelineDescription_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void splitContainer1_Panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void buttonYaml_Click(object sender, EventArgs e)
+        {
+            var sw= new StringWriter();
+            pip.Save(sw);
+            sw.Flush();
+            new FormYamlCode(sw.ToString()).ShowDialog();
+//            MessageBox.Show(sw.ToString());
+            sw.Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var frm = new FormYamlCode(currentStep.receiver.MocBody,"Set Moc");
+            if(frm.ShowDialog() == DialogResult.OK)
+            {
+                currentStep.receiver.MocBody=frm.Body;
+            }
+        }
+
+        private void buttonOpen_Click(object sender, EventArgs e)
+        {
+            if(openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                LoadYaml(openFileDialog1.FileName);
+                saveStorageContext(openFileDialog1.FileName);
+            }
+        }
+
+        private void buttonNew_Click(object sender, EventArgs e)
+        {
+            pip = new Pipeline();
+            this.Text = "new Pipeline";
+            RefreshPipeline();
+        }
+
+        private async  void button3_Click_1(object sender, EventArgs e)
+        {
+            PostgresSender.Test();
+            (new FormDMNView(null) {  xml=""}).ShowDialog();
+            return;
+            dynamic employee = new ExpandoObject();
+            ((IDictionary<String, Object>)employee).Add("Age", 19);
+            Console.WriteLine(employee.Age);
+//            await DMNExecutorSender.execDmn(null);
+
+
+
+            //            DMNExecutorSender.execDmn("");
+            return;
+             string json =@"
+    {
+        ""Name"": ""Squid Game"",
+        ""Genre"": ""Thriller"",
+        ""Rating"": {
+            ""Imdb"": 8.1,
+            ""Rotten Tomatoes"": 0.94
+        },
+        ""Year"": 2021,
+        ""Stars"": [""Lee Jung-jae"", ""Park Hae-soo""],
+        ""Language"": ""Korean"",
+        ""Budget"": ""$21.4 million""
+    }";
+            //            dynamic d = JObject.Parse(json);
+
+            var data = JsonConvert.DeserializeObject<dynamic>(json)!;
+            var genre = data.Genre;
+            var imdb = data.Rating.Imdb;
         }
     }
 }

@@ -4,6 +4,8 @@ using ParserLibrary;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 
 namespace ConsoleIntegrityUtility
 {
@@ -11,6 +13,12 @@ namespace ConsoleIntegrityUtility
     {
         static int Main(string[] args)
         {
+            IConfiguration Configuration = new ConfigurationBuilder()
+   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+   .AddEnvironmentVariables()
+   .AddCommandLine(args)
+   .Build();
+
             /*            JsonSender sender = new JsonSender() { url = "http://192.168.75.160:25080/api/Streams/LoadStream1" };
                         var answer=sender.internSend("{\"stream\":\"loginEnter\",\"originalTime\":\"2020-12-19T21:06:35.2387735+05:00\",\"login\":\"+79222310645\"}").Result;*/
             /*            var bytes=Convert.FromBase64String("M0RTLzNSSUluZGljYXRvcj0QM0RTL0V4cFRpbWVJbnRlcnZhbD02MBBFeHQvTmV0d29yaz0xMQ==");
@@ -27,7 +35,7 @@ namespace ConsoleIntegrityUtility
             Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
-
+//Configuration[]
             Pipeline pip;
             try
             {

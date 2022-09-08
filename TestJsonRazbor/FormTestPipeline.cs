@@ -84,6 +84,17 @@ namespace TestJsonRazbor
             {
 
                 await pip.run();
+
+                if(pip.lastExecutedEl!= null)
+                {
+                    var ex=pip.lastExecutedEl;
+                    while (ex.ancestor != null)
+                        ex = ex.ancestor;
+                    foreach (var step in pip.steps)
+                        if (step.receiver != null)
+                            step.receiver.MocBody = ex.toJSON();
+                }
+                MessageBox.Show("Execution ended!");
             });
         }
 

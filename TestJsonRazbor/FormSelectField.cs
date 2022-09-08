@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,21 +73,21 @@ namespace TestJsonRazbor
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBox1.SelectedIndex != 0)
+            if (indexTab(). comboBoxTypeCompare.SelectedIndex != 0)
             {
-                textBoxFilterValue.Visible = label3.Visible = false;
+                indexTab().textBoxFilterValue.Visible = indexTab().label3.Visible = false;
                 //                this.tabPage2.Focus();
             }
             else
             {
-                textBoxFilterValue.Visible = label3.Visible = true;
+                indexTab().textBoxFilterValue.Visible = indexTab().label3.Visible = true;
 
             }
         }
 
         private void button12_Click(object sender, EventArgs e)
         {
-            textBoxFilterFieldPath.Text = Clipboard.GetText();
+            indexTab().textBoxFilterFieldPath.Text = Clipboard.GetText();
         }
 
         private void button13_Click(object sender, EventArgs e)
@@ -96,18 +97,42 @@ namespace TestJsonRazbor
 
         private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBox3.SelectedIndex == 0)
+            switch (comboBox3.SelectedIndex)
             {
-                panel3.Visible = false;
-                panel4.Visible = true;
-            }
-            else
-            {
-                panel3.Visible = true;
-                panel4.Visible = false;
+                case 0:
+                    panel1.Visible = false;
+                    panel3.Visible = false;
+                    panel4.Visible = true;
+                    break;
+                case 1:
+                    panel1.Visible = false;
+                    panel3.Visible = true;
+                    panel4.Visible = false;
+                    break;
+                case 2:
+                    panel1.Visible = true;
+                    panel3.Visible = false;
+                    panel4.Visible = false;
 
+                    var type_frm = GetTypeOfForm();
+                    
+                    if (type_frm != null)
+                    {
+                        buttonSelectTemplate.Text = "Configure";
+                    }
+
+                    // Ищем  форму , которая обрабатывает Sendera
+
+                    break;
+                default:
+                    break;
             }
 
+        }
+
+        private Type GetTypeOfForm()
+        {
+            return Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute) /*&& ii.ConstructorArguments[0].ArgumentType == currentStep.sender.GetType()*/) > 0);
         }
 
         private void comboBoxFoundedFiles_SelectedIndexChanged(object sender, EventArgs e)
@@ -229,7 +254,7 @@ namespace TestJsonRazbor
 
 
                 
-                for (int i = 0; i < index; i++)
+                for (int i = 0; i <= index; i++)
                 {
                     var filt = currentStep.converters[i];
 //                    foreach (var filt in currentStep.filters)
@@ -365,18 +390,30 @@ namespace TestJsonRazbor
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
+                list.Clear();
                 lastFile = openFileDialog1.FileName;
                 treeView1.Nodes[0].Nodes.Clear();
-                ParseInput(lastFile, new string[] { "Item" });
+                ParseInput(ReadFile(lastFile), new string[] { "Item" });
             }
 
 
 
         }
-        private void ParseInput(string file_name, string[] paths  )
+
+        string ReadFile(string file_name)
+        {
+            if (!File.Exists(file_name))
+                return "";
+            using (StreamReader sr = new StreamReader(file_name))
+            {
+                return sr.ReadToEnd();
+
+            }
+        }
+            private void ParseInput(string line , string[] paths  )
         {
             int ind = 0;
-            using (StreamReader sr = new StreamReader(file_name))
+//            using (StreamReader sr = new StreamReader(file_name))
             {
                 AbstrParser.UniEl ancestor = null;
                 AbstrParser.UniEl rootEl= null;
@@ -393,7 +430,7 @@ namespace TestJsonRazbor
                         ancestor = rootEl;
                     }
                 }
-                var line = sr.ReadToEnd();
+  //              var line = sr.ReadToEnd();
                 if (line != "")
                 {
                     foreach (var pars in AbstrParser.availParser)
@@ -433,51 +470,152 @@ namespace TestJsonRazbor
             //            stream.Close();
         }
 
+
+        List<UserControlCondition> ctrlConditions= new List<UserControlCondition>();
+        AndOrFilter.Action mainAction;
+
         private void FormSelectField_Load(object sender, EventArgs e)
         {
+//            userControlCondition1.action += UserControlCondition1_action;
+
             drawFactory = new TreeDrawerFactory(treeView1);
             /*            var pip=Pipeline.load();
                         itemFilter=  pip.steps[0].filters[0];*/
             var arrs = Enum.GetValues(typeof(ConstantValue.TypeObject));
-            foreach(var ar in arrs)
+            foreach (var ar in arrs)
                 comboBoxTypeConvert.Items.Add(ar);
             comboBoxTypeConvert.SelectedIndex = 0;
-
-
-            textBoxFilterFieldPath.Text = (itemFilter.filter as ConditionFilter).conditionPath;
-            if ((itemFilter.filter as ConditionFilter).conditionCalcer is ComparerForValue)
+            bool one = true;
+            if (itemFilter.filter is ConditionFilter)
             {
-                comboBox1.SelectedIndex = 0;
-                textBoxFilterValue.Text = ((itemFilter.filter as ConditionFilter).conditionCalcer as ComparerForValue).value_for_compare;
-            }
-            else
+                UserControlCondition ctrl = new UserControlCondition(false);
+                ctrlConditions.Add(ctrl);
+                FillCtrl(ctrl, true, AndOrFilter.Action.OR, itemFilter.filter as ConditionFilter);
+            } else
             {
-                comboBox1.SelectedIndex = 1;
+                var filt = itemFilter.filter as AndOrFilter;
+                mainAction = filt.action;
+                foreach(var filt2 in filt.filters)
+                {
+                    UserControlCondition ctrl = new UserControlCondition(true);
+                    ctrlConditions.Add(ctrl);
+                    FillCtrl(ctrl, false, AndOrFilter.Action.AND,filt2 as ConditionFilter);
 
+                }
             }
-
 
             foreach (var item in itemFilter.outputFields)
                 listBox1.Items.Add(item);
-            if(currentStep != null)
+            if (currentStep != null)
             {
                 bool first = true;
 
-                FillStepDataFile(first,currentStep);
+                FillStepDataFile(first, currentStep);
+            }
+            foreach (var item in Assembly.GetAssembly(typeof(AliasProducer)).GetTypes().Where(t => t.IsAssignableTo(typeof(AliasProducer)) && !t.IsAbstract))
+                comboBoxTypeAlias.Items.Add(item);
+            if (1 == 1)
+            {
+               var ex = currentStep.sender.getTemplate("");
+                if (ex != "")
+                {
+
+                    treeView2.Nodes.Clear();
+                    TreeDrawerFactory fac = new TreeDrawerFactory(treeView2, true);
+                    fac.isPale = true;
+                    redrawNode(fac, AbstrParser.ParseString(ex), null);
+                    treeView2.ExpandAll();
+                }
+            }
+        }
+
+        private void FillCtrl(UserControlCondition condCtrl,bool alone, AndOrFilter.Action action,ConditionFilter flt= null)
+        {
+            condCtrl.Location = new System.Drawing.Point(3, 3);
+            condCtrl.Name = "userControlCondition1";
+            condCtrl.Size = new System.Drawing.Size(1616, 135);
+            condCtrl.TabIndex = 0;
+
+            condCtrl.action += UserControlCondition1_action;
+            condCtrl.Dock = DockStyle.Fill;
+            condCtrl.mainAction = mainAction;
+            if(!alone && !tabControl1.Visible)
+            {
+                while (this.tabControl1.TabPages.Count > 0)
+                    this.tabControl1.TabPages.RemoveAt(0);
+                if (ctrlConditions.First() != condCtrl)
+                {
+                    ctrlConditions.First().CanDel = true;
+                    ctrlConditions.First().mainAction = mainAction;
+                    this.groupBox1.Controls.Remove(ctrlConditions.First());
+                    this.tabControl1.TabPages.Add(new TabPage() { Text = Enum.GetName(typeof(AndOrFilter.Action), action) });
+                    tabControl1.TabPages[tabControl1.TabPages.Count - 1].Controls.Add(ctrlConditions.First());
+                }
+            }
+            if (alone)
+            {
+//                panel3.Controls.Remove(tabControl1);
+                tabControl1.Visible = false;
+                this.groupBox1.Controls.Add(condCtrl);
+            }
+            else
+            {
+                tabControl1.Visible = true;
+                this.tabControl1.TabPages.Add(new TabPage() { Text = Enum.GetName(typeof(AndOrFilter.Action), action) });
+                tabControl1.TabPages[tabControl1.TabPages.Count - 1].Controls.Add(condCtrl);
+            }
+
+            if (flt != null)
+            {
+                condCtrl.textBoxFilterFieldPath.Text = flt.conditionPath;
+                if (flt.conditionCalcer is ComparerForValue)
+                {
+                    condCtrl.comboBoxTypeCompare.SelectedIndex = 0;
+                    condCtrl.textBoxFilterValue.Text = (flt.conditionCalcer as ComparerForValue).value_for_compare;
+                }
+                else
+                {
+                    condCtrl.comboBoxTypeCompare.SelectedIndex = 1;
+
+                }
+            }
+//            condCtrl.ResumeLayout(false);
+
+        }
+
+        private void UserControlCondition1_action(AndOrFilter.Action action)
+        {
+            if (action == AndOrFilter.Action.OR || action == AndOrFilter.Action.AND)
+            {
+                if (ctrlConditions.Count == 1)
+                    mainAction = action;
+                UserControlCondition condCtrl = new UserControlCondition(true);
+                ctrlConditions.Add(condCtrl);
+                FillCtrl(condCtrl, false, action);
+                tabControl1.SelectedIndex=tabControl1.TabPages.Count - 1;
+/*                tabControl1.TabPages.Add(new TabPage() { Text = Enum.GetName(typeof(UserControlCondition.Action), action) });
+                UserControlCondition cntr = new UserControlCondition(true);
+                cntr.Dock = DockStyle.Fill;
+                tabControl1.TabPages[tabControl1.TabPages.Count - 1].Controls.Add(cntr);*/
+            }
+            if(action == AndOrFilter.Action.DEL)
+            {
+                ctrlConditions.Remove(ctrlConditions[tabControl1.SelectedIndex]);
+                tabControl1.TabPages.Remove(tabControl1.SelectedTab);
             }
         }
 
         private void FillStepDataFile(bool first,Step currentStep1)
         {
-            if (currentStep1.receiver != null && currentStep1.receiver.MocFile != null && currentStep1.receiver.MocFile != "")
+            if (currentStep1.receiver != null && (currentStep1.receiver.MocFile != null || (currentStep1.receiver.MocBody ?? "") != ""))
             {
 
-                ParseInput(currentStep1.receiver.MocFile, new string[] { currentStep1.IDStep, "Rec" });
+                ParseInput(((currentStep1.receiver.MocBody??"")!= "")? currentStep1.receiver.MocBody:ReadFile(currentStep1.receiver.MocFile), new string[] { currentStep1.IDStep, "Rec" });
             }
 
-            if (currentStep1.sender!= null && !first && currentStep1.sender.MocFile != null && currentStep1.sender.MocFile != "")
+            if (currentStep1.sender!= null && !first && (currentStep1.sender.MocFile != null || (currentStep1.sender.MocBody ?? "") != ""))
             {
-                ParseInput(currentStep1.sender.MocFile, new string[] { currentStep1.IDStep, "Send" });
+                ParseInput(((currentStep1.sender.MocBody ?? "") != "") ? currentStep1.sender.MocBody : ReadFile(currentStep1.sender.MocFile), new string[] { currentStep1.IDStep, "Send" });
             }
             first = false;
             if(currentStep1.IDPreviousStep != null && currentStep1.IDPreviousStep != "")
@@ -517,50 +655,137 @@ namespace TestJsonRazbor
         OutputValue fillOutput()
         {
             ConverterOutput converter = null;
-            if (checkBoxHash.Checked)
-                converter = new Hash();
-            if (comboBox3.SelectedIndex == 0)
-                return new ConstantValue() { converter=converter, outputPath = textBoxFieldName.Text, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject ) comboBoxTypeConvert.SelectedItem)  };
-            else
-                if(comboBox2.SelectedIndex != 1)
-                    return new ExtractFromInputValue() { converter = converter, outputPath = textBoxFieldName.Text, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath =(checkBox2.Checked?textBoxAddFieldPath.Text: "") };
-                else
-                    return new ExtractFromInputValueWithScript() { converter = converter, outputPath = textBoxFieldName.Text, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))) , ScriptBody =textBoxScript.Text };
+//            if (checkBoxHash.Checked)
+             if(radioButtonSimple.Checked)
+            {
 
-            //            return null;
+                converter = new HashOutput() { hashConverter = new Hasher(), aliasProducer = Activator.CreateInstance(comboBoxTypeAlias.SelectedItem as Type) as AliasProducer };
+            }
+            if (radioButtonCrypto.Checked)
+            {
+
+                converter = new HashOutput() { hashConverter = new CryptoHash(), aliasProducer = Activator.CreateInstance(comboBoxTypeAlias.SelectedItem as Type) as AliasProducer };
+            }
+            switch (comboBox3.SelectedIndex)
+            {
+                case 0:
+                    return new ConstantValue() { converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
+                case 1:
+                    if (comboBox2.SelectedIndex != 1)
+                        return new ExtractFromInputValue() { converter = converter, outputPath = textBoxFieldName.Text,isUniqOutputPath=checkBoxIsUniq.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
+                    else
+                        return new ExtractFromInputValueWithScript() { converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
+                case 2:
+                    return new TemplateOutputValue() { converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody=textBoxTemplate.Text };  
+                    break;
+                default:
+                    break;
+            }
+                        return null;
         }
 
-
+        UserControlCondition indexTab()
+        {
+            if(ctrlConditions.Count==1)
+                return ctrlConditions[0];
+            return ctrlConditions[tabControl1.SelectedIndex];
+        }
 
         private void fillFilter()
         {
-            ComparerV compar;
-            if (comboBox1.SelectedIndex == 0)
-                compar = new ComparerForValue() { value_for_compare = textBoxFilterValue.Text };
+           // ComparerV compar;
+            if (ctrlConditions.Count == 1)
+            {
+                var ctrl = indexTab();
+                itemFilter.filter  = FillElementaryFilter(ctrl);
+            }
             else
-                compar =new  ComparerAlwaysTrue();
-            itemFilter.filter = new ConditionFilter() { conditionPath = textBoxFilterFieldPath.Text, conditionCalcer = compar };
+            {
+                var flt  = new AndOrFilter();
+                itemFilter.filter = flt;
+                flt.action = mainAction;
+                List<Filter> filters= new List<Filter>();
+                foreach (var ctrl in ctrlConditions)
+                {
+                    filters.Add(FillElementaryFilter(ctrl));
+                }
+                flt.filters = filters.ToArray();
+            }
+        }
+
+        private Filter FillElementaryFilter(UserControlCondition ctrl)
+        {
+            ComparerV compar;
+            if (ctrl.comboBoxTypeCompare.SelectedIndex == 0)
+                compar = new ComparerForValue() { value_for_compare = ctrl.textBoxFilterValue.Text, isNegative = ctrl.checkBoxNegative.Checked };
+            else
+            if (ctrl.comboBoxTypeCompare.SelectedIndex == 3)
+            {
+                string[] values = new string[ctrl.comboBoxListValues.Items.Count];
+                for(int i = 0; i < values.Length; i++)
+                    values[i] = ctrl.comboBoxListValues.Items[i].ToString();   
+                compar = new ComparerForValueList() { values_for_compare = values, isNegative = ctrl.checkBoxNegative.Checked };
+            }
+            else
+                compar = new ComparerAlwaysTrue();
+            return new ConditionFilter() { conditionPath = ctrl.textBoxFilterFieldPath.Text, conditionCalcer = compar };
+//            return compar;
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             OutputValue val = listBox1.SelectedItem as OutputValue;
-            if(val != null)
+            radioButtonNoHash.Checked = true;
+            comboBoxTypeAlias.SelectedIndex = -1;
+            if (val != null)
             {
                 if (val.converter != null)
+                { 
+                   if(val.converter.GetType().IsAssignableTo(typeof(HashOutput)))
+                    {
+                        var conv =val.converter as HashOutput;  
+                        if(conv.hashConverter.GetType() == typeof(Hasher))
+                            radioButtonSimple.Checked = true;
+                        else
+                            radioButtonCrypto.Checked = true;
+                        if (conv.aliasProducer != null)
+                        {
+                            for (int i = 0; i < comboBoxTypeAlias.Items.Count; i++)
+                            {
+                                if ((comboBoxTypeAlias.Items[i] as Type).Name == conv.aliasProducer.GetType().Name)
+                                {
+                                    comboBoxTypeAlias.SelectedIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+//                        comboBoxTypeAlias.SelectedItem = conv.hashConverter.GetType();
+                    }
                     checkBoxHash.Checked = true;
+                }
+//                    checkBoxHash.Checked = true;
                 else
+/*                    radioButtonNoHash.Checked = true;*/
                     checkBoxHash.Checked = false;
 
                 buttonDel.Enabled = buttonMod.Enabled = true;
                 textBoxFieldName.Text = val.outputPath;
+                checkBoxIsUniq.Checked = val.isUniqOutputPath;
                 if(val is ConstantValue)
                 {
                     comboBox3.SelectedIndex = 0;
                     textBoxConstant.Text=(val as ConstantValue).Value.ToString();
                     
                 } else
+                if (val is TemplateOutputValue)
                 {
+                    comboBox3.SelectedIndex = 2;
+                    textBoxTemplate.Text=(val as TemplateOutputValue).templateBody;
+
+                }
+                else
+                {
+
                     comboBox3.SelectedIndex = 1;
 
 
@@ -613,7 +838,7 @@ namespace TestJsonRazbor
         private void redrawOutput()
         {
             listBox1.Items.Clear();
-            foreach (var it in itemFilter.outputFields)
+            foreach (var it in itemFilter.outputFields.Where(ii=>ii !=null))
                 listBox1.Items.Add(it);
         }
 
@@ -657,6 +882,82 @@ namespace TestJsonRazbor
                 itemFilter.outputFields.RemoveAt(index + 1);
                 redrawOutput();
             }
+        }
+
+        private void checkBoxHash_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxFilterFieldPath_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxFilterValue_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void treeView1_DoubleClick(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void treeView1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if(e.Node.Nodes.Count==0)
+            {
+                Clipboard.SetText(e.Node.Text);
+            }
+        }
+
+        private void buttonSelectTemplate_Click(object sender, EventArgs e)
+        {
+            var type_frm = GetTypeOfForm();
+
+            if (type_frm != null)
+            {
+
+                Form frm = Activator.CreateInstance(type_frm, new object[] { currentStep.sender as Sender }) as Form;
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    var ss=(frm as SenderDataExchanger).getContent();
+                    currentStep.sender.setTemplate("asd", ss);
+
+                }
+            }
+            else
+            {
+
+                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    using (StreamReader sr = new StreamReader(openFileDialog1.FileName))
+                    {
+                        textBoxTemplate.Text = sr.ReadToEnd();
+                    }
+                }
+            }
+        }
+
+        private void textBoxFieldName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBoxTypeAlias_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

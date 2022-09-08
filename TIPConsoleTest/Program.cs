@@ -12,7 +12,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
 TIPReceiver tipReciever = new()
-    {WorkDir = "/home/ilya/Documents/projects/integration-utility/TIPConsoleTest/Test", DelayTime = 10};
+    {WorkDir = @"C:\TestTip"/* "/home/ilya/Documents/projects/integration-utility/TIPConsoleTest/Test"*/, DelayTime = 10};
 string json_directory = Path.Combine(tipReciever.WorkDir, "json");
 Directory.CreateDirectory(json_directory);
 tipReciever.stringReceived = async (s, o) =>

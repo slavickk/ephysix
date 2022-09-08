@@ -1,0 +1,56 @@
+﻿@using WebApplicationConfigUI1.Shared
+ <ul class="treeview-colorful-list mb-3">
+    <li class="treeview-colorful-items">
+      <a class="treeview-colorful-items-header">
+          @if(item.childNodes.Count >0)
+          {
+                @if (!item.IsExpanded)
+                {
+        <i class="fas fa-plus-circle" @onclick="@clickExpand"></i>
+                } else
+                {
+        <i class="fas fa-angle-right rotate"  @onclick="@clickExpand"></i>
+                }
+          }
+            <span style=@("color:"+(item.IsSelected?"red":"black"))>
+            @if(item.childNodes.Count== 0 && item.Value != null && item.Value !="")
+            {
+                <i class="far fa-address-book ic-w mr-1"></i>
+                }
+                else
+            {
+                    <i class="far fa-folder-open ic-w mx-1"></i>
+            }
+            @item.Title
+            </span>
+        @if(item.IsExpanded)
+            {
+                @foreach(var it1 in item.childNodes)
+                {
+                    <TreeViewItem item=@it1></TreeViewItem>
+                }
+            }
+            </a>
+            @if(item.childNodes.Count== 0 && item.Value != null && item.Value !="")
+            {
+ <ul class="treeview-colorful-list mb-3">
+    <li class="treeview-colorful-items">
+            <span style=@("color:"+(item.IsSelected?"red":"black"))>
+                    <i class="far fa-comment ic-w mr-1"></i>@item.Value</span>
+                </li>
+                </ul>
+            }
+      </li>
+      </ul>
+ 
+
+@code {
+//            <span style=@("color:"+(item.IsSelected?"red":"black"))">
+    [Parameter]
+    public TreeViewItemInternal item { get; set; }
+    void clickExpand()
+    {
+        item.IsExpanded = !item.IsExpanded;
+        StateHasChanged();
+    }
+}

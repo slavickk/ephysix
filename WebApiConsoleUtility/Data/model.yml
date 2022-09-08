@@ -25,13 +25,13 @@ steps:
       valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: clientIP
-      conditionPath: Step1/Rec/source/ip/Address
+      conditionPath: Step1/Rec/network/forwarded_ip/Address
     - !ExtractFromInputValue
       outputPath: geoCountryCode2
-      conditionPath: Step1/Rec/source/ip/IsoCountryCode
+      conditionPath: Step1/Rec/network/forwarded_ip/IsoCountryCode
     - !ExtractFromInputValue
       outputPath: geoCountryName
-      conditionPath: Step1/Rec/source/ip/IsoCountryName
+      conditionPath: Step1/Rec/network/forwarded_ip/IsoCountryName
     - !ExtractFromInputValue
       outputPath: originalTime
       conditionPath: Step1/Rec/event/start
@@ -83,13 +83,13 @@ steps:
       valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
     - !ExtractFromInputValue
       outputPath: clientIP
-      conditionPath: Step1/Rec/source/ip/Address
+      conditionPath: Step1/Rec/network/forwarded_ip/Address
     - !ExtractFromInputValue
       outputPath: geoCountryCode2
-      conditionPath: Step1/Rec/source/ip/IsoCountryCode
+      conditionPath: Step1/Rec/network/forwarded_ip/IsoCountryCode
     - !ExtractFromInputValue
       outputPath: geoCountryName
-      conditionPath: Step1/Rec/source/ip/IsoCountryName
+      conditionPath: Step1/Rec/network/forwarded_ip/IsoCountryName
     - !ExtractFromInputValue
       outputPath: originalTime
       conditionPath: Step1/Rec/event/start
@@ -141,13 +141,13 @@ steps:
       valuePath: Step1/Rec/http/request/body/content/SOAP-ENV:Envelope/SOAP-ENV:Body/mcpw:Invoke/mcp:ActionRq/mcp:Context/mcp:Pid/obj:Field/#text
     - !ExtractFromInputValue
       outputPath: clientIP
-      conditionPath: Step1/Rec/source/ip/Address
+      conditionPath: Step1/Rec/network/forwarded_ip/Address
     - !ExtractFromInputValue
       outputPath: geoCountryCode2
-      conditionPath: Step1/Rec/source/ip/IsoCountryCode
+      conditionPath: Step1/Rec/network/forwarded_ip/IsoCountryCode
     - !ExtractFromInputValue
       outputPath: geoCountryName
-      conditionPath: Step1/Rec/source/ip/IsoCountryName
+      conditionPath: Step1/Rec/network/forwarded_ip/IsoCountryName
     - !ExtractFromInputValue
       outputPath: originalTime
       conditionPath: Step1/Rec/event/start
@@ -191,13 +191,13 @@ steps:
       valuePath: Step1/Rec/http/request/body/content/Envelope/Body/Invoke/ActionRq/Context/Pid/Field/#text
     - !ExtractFromInputValue
       outputPath: clientIP
-      conditionPath: Step1/Rec/source/ip/Address
+      conditionPath: Step1/Rec/network/forwarded_ip/Address
     - !ExtractFromInputValue
       outputPath: geoCountryCode2
-      conditionPath: Step1/Rec/source/ip/IsoCountryCode
+      conditionPath: Step1/Rec/network/forwarded_ip/IsoCountryCode
     - !ExtractFromInputValue
       outputPath: geoCountryName
-      conditionPath: Step1/Rec/source/ip/IsoCountryName
+      conditionPath: Step1/Rec/network/forwarded_ip/IsoCountryName
     - !ExtractFromInputValue
       outputPath: originalTime
       conditionPath: Step1/Rec/event/start
@@ -231,7 +231,7 @@ steps:
       - 10B46EBA0BE906FE46060FADC0BE5A76CEB2B386
       timeoutSendInSeconds: 5
       urls:
-      - https://192.168.1.31:443/api/Streams/LoadStream1
       - https://192.168.1.11:443/api/Streams/LoadStream1
+      - https://192.168.1.31:443/api/Streams/LoadStream1
       timeoutsBetweenRetryInMilli:
       - 100

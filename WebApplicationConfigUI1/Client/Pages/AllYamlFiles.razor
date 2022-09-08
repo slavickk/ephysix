@@ -1,0 +1,81 @@
+﻿@page "/all_yaml_files"
+@using WebApplicationConfigUI1.Shared
+@inject StateContainer StateContainer
+@using ParserLibrary;
+@inject HttpClient Http
+@inject NavigationManager NavigationManager;
+
+<h1>All yaml files</h1>
+
+<p>Get all config files from the server.</p>
+
+@if (configs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Descr</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var conf in configs)
+            {
+                <tr>
+                    <td>@conf.Date.ToShortDateString()</td>
+                    <td>@conf.Name</td>
+                    <td>  <button @onclick="@(async () => await getPipeline(conf.full_path))" >Load</button> </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+                <NavLink class="nav-link" href="steps">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> steps
+            </NavLink>
+
+}
+
+@code {
+    //                    <td>  <a @onclick="" href="pipeline?yaml=@conf.Name">Start counter at 10.</a> </td>
+    private YamlFiles[] configs;
+
+//    public static Pipeline mainPipeline;
+
+    async Task  getPipeline(string fileName)
+    {
+        try
+        {
+            var resp = await Http.GetAsync($"Config/GetFileBody?path={fileName}");
+            if(resp.IsSuccessStatusCode)
+            {
+                var str = await resp.Content.ReadAsStringAsync();
+                 StateContainer.Property=Pipeline.loadFromString(str);
+/*                 NavigationContext
+                 NavLink*/
+                NavigationManager.NavigateTo("steps",false);
+            }
+        }
+        catch(Exception e77)
+        {
+            Console.WriteLine(e77.ToString());
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try {
+            configs = await Http.GetFromJsonAsync<YamlFiles[]>("Config/Files");
+        } 
+        catch(Exception e77)
+        {
+            Console.WriteLine(e77.ToString());
+        }
+    }
+
+}

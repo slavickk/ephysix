@@ -1,0 +1,161 @@
+﻿@page "/typedefiner"
+@using ParserLibrary;
+@using System.Reflection;
+<!-- Button trigger modal -->
+<button type="button" style="width:100%" class="btn btn-primary" data-toggle="modal" data-target=@("#exampleModalLong"+Id) @onclick="SetOnClick">
+  @Caption
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id=@("exampleModalLong"+Id) tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">@Caption</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <select class="form-control selectpicker"  @onchange="changeSelect" >
+<option>--select--</option>
+   @foreach(var t in Assembly.GetAssembly(typeof(Pipeline)).GetTypes().Where(ii => ii.IsAssignableTo(typeDefine) && !ii.IsAbstract))
+            {
+                <option value="@t.Name">@t.Name</option> 
+            }
+</select>
+@if(selectedType!=null)
+                {
+                <table>
+                    <tr> <th>Property</th><th>Value</th></tr>
+            @foreach (var item in arrayFld)
+            {
+
+                                        <tr><td>@item.Name</td><td><input type="text" value="@item.Value" @onchange="@(e => InputEnter(e, arrayFld.IndexOf(item)))" /></td></tr>
+            }
+            </table>
+
+                }
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" @onclick="SaveChanges" data-dismiss="modal">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public Type typeDefine { get; set; }
+    Type selectedType = null;
+    [Parameter]
+    public object setObject  { get; set; }
+    string selectedValue;
+    List<Item> arrayFld = new List<Item>();
+    List<Item> setArray()
+    {
+        arrayFld.Clear();
+        foreach (var fld in selectedType.GetFields().Where(ii => (!ii.FieldType.IsClass || ii.FieldType.IsArray || ii.FieldType ==typeof(string)) && ii.FieldType != typeof(bool)))
+        {
+
+            foreach (var item in getFld(fld))
+                arrayFld.Add(item);
+        }
+        return arrayFld;
+    }
+    void SetOnClick(MouseEventArgs e)
+    {
+        StateHasChanged();
+    }
+    void InputEnter(ChangeEventArgs e,int index)
+    {
+        arrayFld[index].Value = e.Value.ToString();
+    }
+
+    protected override void OnInitialized()
+    {
+    //    setObject= new ParserLibrary.JsonSender();
+    }
+    public class Item
+    {
+        public string Name;
+        public string Value;
+        public FieldInfo field;
+        public int index;
+    }
+    IEnumerable<Item> getFld(FieldInfo fld)
+    {
+        if (fld.FieldType != typeof(bool))
+        {
+            int iCount = 1;
+            if (fld.FieldType.IsArray)
+                iCount = (fld.GetValue(setObject) as Array).Length;
+            for(int i=0; i < iCount;i++)
+            {
+                yield return new Item() { Name=fld.Name, Value=getFldValue(fld,i), field=fld, index=i};
+                // <tr><td>fld.Name</td><td><input type="text" value="@getFldValue(fld)"/></td></tr>
+            }
+        }
+    }
+    string getFldValue(FieldInfo fld,int i)
+    {
+        return fld.FieldType.IsArray?((fld.GetValue(setObject) as Array).GetValue(i) .ToString()):(fld.GetValue(setObject)?.ToString());
+    }
+    void changeSelect(ChangeEventArgs e)
+    {
+        selectedValue = e.Value.ToString();
+        selectedType = Assembly.GetAssembly(typeof(Pipeline)).GetType($"ParserLibrary.{selectedValue}");
+        setArray();
+        InvokeAsync(StateHasChanged);  
+    }
+     object conv(string text,FieldInfo fld)
+        {
+
+            if (fld.FieldType == typeof(double) || fld.FieldType == typeof(double[]))
+                return Convert.ToDouble(text);
+            if (fld.FieldType == typeof(int) || fld.FieldType == typeof(int[]))
+                return Convert.ToInt32(text);
+            return text;
+        }
+    void SaveChanges()
+    {
+        foreach(var item in arrayFld )
+        {
+                if (item.field.FieldType.IsArray)
+                {
+                    // Stub
+                    (item.field.GetValue(setObject) as Array).SetValue(conv(item.Value, item.field), 0) ;
+//                    fields[i].SetValue(tObject, conv(textBoxes[i].Text, fields[i]));
+                } else
+                    item.field.SetValue(setObject, conv(item.Value, item.field));
+
+        }
+    }
+                        /*
+ @if(selectedType!=null)
+                {
+                <table>
+                    <tr> <th>Property</th><th>Value</th></tr>
+            @foreach (var fld in selectedType.GetFields().Where(ii => (!ii.FieldType.IsClass || ii.FieldType.IsArray || ii.FieldType ==typeof(string)) && ii.FieldType != typeof(bool)))
+            {
+
+                @foreach(var item in getFld())
+                {
+                                        <tr><td>@item.Name</td><td><input type="text" value="@item.Value"/></td></tr>
+
+                }
+
+            }
+            </table>
+
+                }
+
+ * 
+ */
+}

@@ -1,0 +1,26 @@
+﻿@page "/onestep"
+@using ParserLibrary;
+@inject StateContainer StateContainer
+
+<h3>OneStep</h3>
+<table>
+    <tr><td><TypeDefiner typeDefine="@typeof(Sender)" setObject="@currentStep.sender" Caption="Sender"  Id="ID_1"/></td></tr>
+        @foreach(var item in currentStep.converters)
+            {
+    <tr><td>
+                @item.filter.GetType().Name
+        </td></tr>
+            }
+    <tr><td><TypeDefiner typeDefine="@typeof(Receiver)" setObject="@currentStep.receiver"  Caption="Receiver"Id="ID_2"/></td></tr>
+    </table>
+
+
+@code {
+    [Parameter]
+    public Step currentStep { get; set; } 
+    protected override async Task OnInitializedAsync()
+    {
+        currentStep= StateContainer.Property.steps[0];
+    }
+
+}
