@@ -1,4 +1,4 @@
-# Integration utility for DummySystem1
+# Integration tools
 # ENVIRONMENTS
 |ENV_NAME|DEFAULT_VALUE|POSSIBLE VALUES|IS NECESSARY|DEPENDENT VARIABLES|DESCRIPTION|
 | ------ | ------ | ------ | ------ | ------ | ------ |
