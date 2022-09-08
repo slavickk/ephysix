@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CamundaInterface", "Camunda
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppIUCamunda", "ConsoleAppIUCamunda\ConsoleAppIUCamunda.csproj", "{B47690D9-B414-4721-9FEE-68F198E1BBB9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DMN_lib", "..\..\..\ygasnikov\source\repos\ConsoleApp3\DMN_lib\DMN_lib.csproj", "{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DMN_lib", "DMN_lib\DMN_lib.csproj", "{AF7E512A-4FCB-4016-A2ED-A9DD9761668D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,10 +83,10 @@ Global
 		{B47690D9-B414-4721-9FEE-68F198E1BBB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B47690D9-B414-4721-9FEE-68F198E1BBB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B47690D9-B414-4721-9FEE-68F198E1BBB9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF7E512A-4FCB-4016-A2ED-A9DD9761668D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF7E512A-4FCB-4016-A2ED-A9DD9761668D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF7E512A-4FCB-4016-A2ED-A9DD9761668D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF7E512A-4FCB-4016-A2ED-A9DD9761668D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
