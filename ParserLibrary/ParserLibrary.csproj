@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\ygasnikov\source\repos\ConsoleApp3\DMN_lib\DMN_lib.csproj" />
+    <ProjectReference Include="..\DMN_lib\DMN_lib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
