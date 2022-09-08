@@ -5,70 +5,29 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog;
-using Serilog.Context;
 using DummyProtocol3;
 
 namespace ParserLibrary.DummyProtocol2
 {
-    /// <summary>
-    /// Receiver for DummyProtocol2 files
-    /// </summary>
-    public class DummyProtocol2Receiver : Receiver, IDisposable
+    public class DummyProtocol2Receiver : Receiver
     {
+        /// <summary>
+        /// Delay before parse in seconds
+        /// </summary>
         private int _delayTime = 1000;
 
         private string error_dir;
-        private IDisposable logContext;
         private string processed_dir;
         private string upload_dir;
         private FileSystemWatcher watcher;
         private string workdir;
 
-        static DummyProtocol2Receiver()
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        }
-
-        public DummyProtocol2Receiver()
-        {
-            logContext = LogContext.PushProperty("receiver", "DummyProtocol2");
-        }
-
-        /// <summary>
-        /// Work dir for DummyProtocol2. 
-        /// </summary>
-        /// <remarks>
-        /// <list type="bullet|number|table">
-        /// <listheader>
-        /// <term>Directory</term>
-        /// <description>description</description>
-        /// </listheader>
-        /// <item>
-        /// <term>upload</term>
-        /// <description> DummyProtocol2 watching this directory and load new files to system</description>
-        /// </item>
-        /// <item>
-        /// <term>processed</term>
-        /// <description> Dir for processed files</description>
-        /// </item>
-        /// <item>
-        /// <term>error</term>
-        /// <description> Folder for files and records that have errors</description>
-        /// </item>
-        /// </list>
-        /// </remarks>
-        /// <exception cref="DirectoryNotFoundException"></exception>
         public string WorkDir
         {
             get => workdir;
             set
             {
                 workdir = value;
-                if (!Directory.Exists(value))
-                {
-                    throw new DirectoryNotFoundException($"Directory {value} not found!");
-                }
-
                 upload_dir = Path.Combine(value, "upload");
                 processed_dir = Path.Combine(value, "processed");
                 error_dir = Path.Combine(value, "error");
@@ -84,62 +43,29 @@ namespace ParserLibrary.DummyProtocol2
             set => _delayTime = value * 1000;
         }
 
-        public void Dispose()
-        {
-            logContext.Dispose();
-        }
-
-        /// <summary>
-        /// Start watcher
-        /// </summary>
         public override async Task startInternal()
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Directory.CreateDirectory(upload_dir);
             Log.Information("Directory for upload: {dir}", upload_dir);
             Directory.CreateDirectory(processed_dir);
-            Log.Information("Directory for processed: {dir}", processed_dir);
+            Log.Information("Directory for processed: {dir}", upload_dir);
             Directory.CreateDirectory(error_dir);
-            Log.Information("Directory for error: {dir}", error_dir);
+            Log.Information("Directory for error: {dir}", upload_dir);
             watcher = new FileSystemWatcher(upload_dir);
-            watcher.IncludeSubdirectories = false;
-            // watcher.NotifyFilter = NotifyFilters.FileName;
             watcher.Created += WatcherOnCreated;
             watcher.EnableRaisingEvents = true;
             Log.Information("Start watching: {dir}", upload_dir);
-            foreach(var file in Directory.GetFiles(upload_dir))
-            {
-                Log.Information($"Found file {file}");
-                await ParseDummyProtocol2file(Path.GetFileName(file));
-                Log.Information($"File processed {file}");
-
-            }
         }
 
         private async void WatcherOnCreated(object sender, FileSystemEventArgs e)
         {
-            using (LogContext.PushProperty("FileName", e.Name))
+            FileAttributes attributes = File.GetAttributes(e.FullPath);
+            if (attributes.HasFlag(FileAttributes.Normal))
             {
-                Log.Debug("Rised create event");
-                await Task.Delay(_delayTime);
-                if (ValidateFile(e.FullPath))
-                {
-                    Log.Information("Find file");
-                    await ParseDummyProtocol2file(e.Name);
-                    Log.Information("File processed");
-                }
+                Log.Information("Find file {FileName}.", e.Name);
+                await ParseDummyProtocol2file(e.Name);
             }
-        }
-
-        private static bool ValidateFile(string fullPath)
-        {
-            if (!File.Exists(fullPath))
-            {
-                return false;
-            }
-
-            return (File.GetAttributes(fullPath) &
-                    (FileAttributes.Device | FileAttributes.Directory | FileAttributes.Hidden |
-                     FileAttributes.System | FileAttributes.Temporary)) == 0;
         }
 
         /// <summary>
@@ -149,28 +75,24 @@ namespace ParserLibrary.DummyProtocol2
         /// <param name="fileName"></param>
         private async Task ParseDummyProtocol2file(string fileName)
         {
-            string newFileName = $"{DateTime.UtcNow.ToString("yyyyMMddTHHmmss")}_{fileName}";
             string upload_file = Path.Combine(upload_dir, fileName);
-            string error_file = Path.Combine(error_dir, newFileName);
-            string processed_file = Path.Combine(processed_dir, newFileName);
 
+            string error_file = Path.Combine(error_dir, fileName + '_' + DateTime.UtcNow.ToString("O"));
             try
             {
+                await Task.Delay(_delayTime);
                 using (FileStream fileStream = File.OpenRead(upload_file))
                 {
-                    Log.Debug("Open file at {path}", upload_file);
                     List<byte> buffer = new();
                     int b;
-
-                    #region Parse header
-
+                    // Parse header
                     do
                     {
                         b = fileStream.ReadByte();
                         if (b == -1)
                         {
                             fileStream.Close();
-                            Log.Error("Not DummyProtocol2 message");
+                            Log.Error("Not DummyProtocol2 message: {FileName}", fileName);
                             File.Move(upload_file,
                                 error_file);
                             return;
@@ -195,39 +117,27 @@ namespace ParserLibrary.DummyProtocol2
                             "ansi" => Encoding.Default,
                             "cp866" => Encoding.GetEncoding(866),
                             "cp1251" => Encoding.GetEncoding(1251),
-                            "utf8" => Encoding.UTF8,
-                            _ => throw new NotSupportedException($"Encoding: {header["Encoding"]}")
+                            "utf8" => Encoding.UTF8
                         };
                     }
                     catch (Exception e)
                     {
-                        fileStream.Close();
-                        Log.Error(e, "Error in file");
+                        Log.Error(e, "File: {FileName}", fileName);
                         File.Move(upload_file,
                             error_file);
                         return;
                     }
 
-                    #endregion Parse header
-
-
-                    #region Parse messages
-
+                    // Parse messages
                     buffer.Clear();
-                    int recieved_rows = 0;
-                    int send_rows = 0;
-                    int error_rows = 0;
-
+                    int i = 0;
                     do
                     {
                         b = fileStream.ReadByte();
                         if (b == -1)
                         {
-                            fileStream.Close();
                             File.Move(upload_file,
-                                processed_file);
-                            Log.Information("Rows recieved: {recieved_rows}, send: {send_rows}, error: {error_rows}",
-                                recieved_rows, send_rows, error_rows);
+                                Path.Combine(processed_dir, fileName + '_' + DateTime.UtcNow.ToString("O")));
                             break;
                         }
 
@@ -235,21 +145,17 @@ namespace ParserLibrary.DummyProtocol2
                         {
                             try
                             {
-                                recieved_rows++;
-                                var send = new DummyProtocol3Message();
+                                i++;
                                 DummyProtocol3Message message = new DummyProtocol3Message(encoding.GetString(buffer.ToArray()));
-                                send["header"] = header;
-                                send["message"] = message;
-                                await signal(JsonSerializer.Serialize(send), fileName);
-                                send_rows++;
+                                message["header"] = header;
+                                await signal(JsonSerializer.Serialize(message), fileName);
                                 buffer.Clear();
                                 continue;
                             }
                             catch (Exception e)
                             {
-                                error_rows++;
-                                Log.Error(e, "Error in file message: {MessageNum}",
-                                    recieved_rows);
+                                Log.Error(e, "Error in file: {FileName}, message {MessageNum}",
+                                    upload_file, i);
                                 using (var errorfile =
                                     new FileStream(error_file,
                                         FileMode.Append))
@@ -265,14 +171,36 @@ namespace ParserLibrary.DummyProtocol2
                     } while (true);
                 }
 
-                #endregion
+                Log.Information("File processed: {FileName}", fileName);
             }
             catch (Exception e)
             {
-                Log.Error(e, "Not available");
+                Log.Error("Not available: {FileName}", fileName);
                 File.Move(upload_file,
                     error_file);
             }
+        }
+
+        private async Task<bool> IsFileAvailable(string fileName)
+        {
+            foreach (int time in new[] {300, 90000, 600000})
+            {
+                try
+                {
+                    FileStream fileStream = File.Open(Path.Combine(upload_dir, fileName), FileMode.Open,
+                        FileAccess.ReadWrite, FileShare.None);
+
+                    fileStream.Close();
+                    return true;
+                }
+                catch (IOException e)
+                {
+                    Log.Warning("Wait {time} ms. Not available: {FileName}", time, fileName);
+                    await Task.Delay(time);
+                }
+            }
+
+            return false;
         }
     }
 }

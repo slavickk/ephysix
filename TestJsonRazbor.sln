@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31424.327
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestJsonRazbor", "TestJsonRazbor\TestJsonRazbor.csproj", "{6A4FB636-033D-4F28-BC83-B331C3F63EC7}"
 EndProject
@@ -13,9 +13,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppTestUtility", "Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiConsoleUtility", "WebApiConsoleUtility\WebApiConsoleUtility.csproj", "{0FFC7300-24FB-4739-9AD0-BE458EF6B04B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserLibrary.Tests", "ParserLibrary.Tests\ParserLibrary.Tests.csproj", "{DD07AA1A-F72A-4787-8C16-99342BB9615D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParserLibrary.Tests", "ParserLibrary.Tests\ParserLibrary.Tests.csproj", "{DD07AA1A-F72A-4787-8C16-99342BB9615D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = DummyProtocol2ConsoleTest, "DummyProtocol2ConsoleTest\DummyProtocol2ConsoleTest.csproj", "{12D07772-2922-4B4B-BC77-F0FC282F759A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = DummyProtocol2ConsoleTest, "DummyProtocol2ConsoleTest\DummyProtocol2ConsoleTest.csproj", "{12D07772-2922-4B4B-BC77-F0FC282F759A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplicationConfigUI1.Server", "WebApplicationConfigUI1\Server\WebApplicationConfigUI1.Server.csproj", "{8982D114-E766-47AD-95AC-340677F58457}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplicationConfigUI1.Client", "WebApplicationConfigUI1\Client\WebApplicationConfigUI1.Client.csproj", "{0AFEF43E-AFCD-49FA-816F-D1DD3EE0D16F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplicationConfigUI1.Shared", "WebApplicationConfigUI1\Shared\WebApplicationConfigUI1.Shared.csproj", "{898750A0-913D-4FE5-A87A-7288BA066564}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CamundaInterface", "CamundaInterface\CamundaInterface.csproj", "{DFD8F14C-DE89-4930-A441-2DD75EB41BF4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppIUCamunda", "ConsoleAppIUCamunda\ConsoleAppIUCamunda.csproj", "{B47690D9-B414-4721-9FEE-68F198E1BBB9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DMN_lib", "..\..\..\ygasnikov\source\repos\ConsoleApp3\DMN_lib\DMN_lib.csproj", "{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +63,30 @@ Global
 		{12D07772-2922-4B4B-BC77-F0FC282F759A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12D07772-2922-4B4B-BC77-F0FC282F759A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12D07772-2922-4B4B-BC77-F0FC282F759A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8982D114-E766-47AD-95AC-340677F58457}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8982D114-E766-47AD-95AC-340677F58457}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8982D114-E766-47AD-95AC-340677F58457}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8982D114-E766-47AD-95AC-340677F58457}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AFEF43E-AFCD-49FA-816F-D1DD3EE0D16F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AFEF43E-AFCD-49FA-816F-D1DD3EE0D16F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AFEF43E-AFCD-49FA-816F-D1DD3EE0D16F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AFEF43E-AFCD-49FA-816F-D1DD3EE0D16F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{898750A0-913D-4FE5-A87A-7288BA066564}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{898750A0-913D-4FE5-A87A-7288BA066564}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{898750A0-913D-4FE5-A87A-7288BA066564}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{898750A0-913D-4FE5-A87A-7288BA066564}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFD8F14C-DE89-4930-A441-2DD75EB41BF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFD8F14C-DE89-4930-A441-2DD75EB41BF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFD8F14C-DE89-4930-A441-2DD75EB41BF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFD8F14C-DE89-4930-A441-2DD75EB41BF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B47690D9-B414-4721-9FEE-68F198E1BBB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B47690D9-B414-4721-9FEE-68F198E1BBB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B47690D9-B414-4721-9FEE-68F198E1BBB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B47690D9-B414-4721-9FEE-68F198E1BBB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79CBCE5B-2D89-42B2-8456-F56CC9F58E7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

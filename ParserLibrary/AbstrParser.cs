@@ -20,6 +20,8 @@ namespace ParserLibrary
     [Serializable]
     public class ComparerForValue : ComparerV
     {
+        public bool isNegative = false;
+
         [JsonInclude]
         public string value_for_compare { get; set; }
         public ComparerForValue(string val)
@@ -32,9 +34,31 @@ namespace ParserLibrary
 
         public bool Compare(AbstrParser.UniEl el)
         {
-            return el?.Value.ToString() == value_for_compare;
+            return isNegative? (el?.Value.ToString() != value_for_compare) : (el?.Value.ToString() == value_for_compare);
         }
     }
+
+    public class ComparerForValueList : ComparerV
+    {
+        public bool isNegative = false;
+
+        [JsonInclude]
+        public string[] values_for_compare { get; set; }
+        public ComparerForValueList(string[] val)
+        {
+            values_for_compare = val;
+        }
+        public ComparerForValueList()
+        {
+        }
+
+        public bool Compare(AbstrParser.UniEl el)
+        {
+            return isNegative ? (!values_for_compare.Contains(el?.Value.ToString())) : (values_for_compare.Contains(el?.Value.ToString()));
+        }
+    }
+
+
     [Serializable]
     public class ComparerAlwaysTrue : ComparerV
     {
@@ -59,6 +83,25 @@ namespace ParserLibrary
     }
     public abstract class AbstrParser
     {
+        public static AbstrParser.UniEl ParseString(string templ)
+        {
+            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+            var rootElement = AbstrParser.CreateNode(null, list, "Root");
+            try
+            {
+                //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
+                foreach (var pars in AbstrParser.availParser)
+                    if (pars.canRazbor(templ, rootElement, list))
+                    {
+
+                    }
+            }
+            catch
+            {
+
+            }
+            return rootElement;
+        }
         public static string RetVal()
         {
             return "111";
