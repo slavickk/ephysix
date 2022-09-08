@@ -15,6 +15,9 @@ using System.Net.Http;
 using System.Data.HashFunction.xxHash;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using System.Text.Json;
+using System.Security.Cryptography;
+using Npgsql;
 
 namespace ParserLibrary
 {
@@ -28,6 +31,7 @@ namespace ParserLibrary
         [YamlIgnore]
         public bool MocMode = false;
         public string MocFile;
+        public string MocBody;
 
         [YamlIgnore]
         public bool debugMode = false;
@@ -86,11 +90,54 @@ namespace ParserLibrary
         
         }
     }
+
+    public interface SenderDataExchanger
+    {
+        string getContent();
+        void setContent(string content);
+    }
+
+    public class AnnotationAttribute:Attribute
+    {
+        public string Description
+        {
+            get
+            {
+                return description;
+            }
+        }
+        string description;
+        public AnnotationAttribute(string description)
+        {
+            this.description = description;
+        }
+    }
+
+
     public abstract class Sender
     {
+
+
+        public virtual  string getExample()
+        {
+            return "";
+        }
+
+        public virtual string getTemplate(string key)
+        {
+            return "";
+        }
+
+        public virtual void setTemplate(string key,string body)
+        {
+        }
+
+
+
         [YamlIgnore]
         public bool MocMode = false;
         public string MocFile;
+        public string MocBody="";
 
         [YamlIgnore]
         public Step owner;
@@ -111,6 +158,8 @@ namespace ParserLibrary
                     return await send(root.toJSON());
             } else
             {
+                if ((MocBody??"") != "")
+                    return MocBody;
                 string ans;
                 using (StreamReader sr = new StreamReader(MocFile))
                 {
@@ -137,6 +186,31 @@ namespace ParserLibrary
     public abstract class Filter
     {
         public abstract IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list);
+    }
+
+    public class AndOrFilter : Filter
+    {
+        public enum Action { OR, AND, DEL };
+        public Action action { get; set; } = Action.AND;
+        public Filter[] filters = new Filter[] { new ConditionFilter() };
+        public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list)
+        {
+            //            List<AbstrParser.UniEl> answers = new List<AbstrParser.UniEl>();
+            IEnumerable<AbstrParser.UniEl> answer = Enumerable.Empty<AbstrParser.UniEl>();
+            foreach (var filt in filters)
+            {
+                var ans = filt.filter(list);
+                if (ans.Count() != 0)
+                {                   
+                    answer = ans;
+                } else
+                {
+                    if (action == Action.AND)
+                        return Enumerable.Empty<AbstrParser.UniEl>();
+                }
+            }
+            return answer;
+        }
     }
 
     public class ScriptCompaper : ComparerV
@@ -212,21 +286,104 @@ return true;
 
     public abstract class ConverterOutput
     {
-        public abstract string Convert(string value, AbstrParser.UniEl el);
+        public abstract AbstrParser.UniEl Convert(string value, AbstrParser.UniEl input_el, AbstrParser.UniEl output_el);
     }
-    public class CryptoHash : ConverterOutput
+
+    public abstract class AliasProducer
     {
-        public int SizeInBits = 64;
-        public override string Convert(string value, AbstrParser.UniEl el)
+
+        public abstract string getAlias(string originalValue);
+    }
+
+    public class AliasPhone : AliasProducer
+    {
+        public override string getAlias(string originalValue)
         {
-            throw new NotImplementedException();
+            if (originalValue.Length > 3)
+                return $"{originalValue.Substring(0, 2)}*{originalValue.Substring(originalValue.Length-3)}";
+            return "*";
         }
     }
-    public class Hash : ConverterOutput
+    public class AliasPan : AliasProducer
+    {
+        public override string getAlias(string originalValue)
+        {
+            if (originalValue.Length >= 16)
+                return $"{originalValue.Substring(0, 4)}***{originalValue.Substring(originalValue.Length - 3)}";
+            return "*";
+        }
+    }
+    public class AliasFIO : AliasProducer
+    {
+        public override string getAlias(string originalValue)
+        {
+            var tt =originalValue.Split(' ');
+            return tt.Select(query => query.Substring(0,1)).Aggregate((a, b) => a + " " + b+"."); ;
+        }
+    }
+
+    public class HashOutput:ConverterOutput
+    {
+        public AliasProducer aliasProducer { get; set; }
+        public HashConverter hashConverter { get; set; }
+        public class OutItem
+        {
+            public string hash { get; set; }
+            public string alias { get; set; }
+        }
+        public override AbstrParser.UniEl Convert(string value, AbstrParser.UniEl input_el, AbstrParser.UniEl output_el)
+        {
+            if (aliasProducer == null)
+            {
+                output_el.Value= hashConverter.hash(value);
+                return output_el;
+            }
+            else
+            {
+                var el1=new AbstrParser.UniEl(output_el) {  Name="h",Value= hashConverter.hash(value) };
+                var el2 = new AbstrParser.UniEl(output_el) { Name = "a", Value = aliasProducer.getAlias(value) };
+                return output_el;
+            }
+//            return JsonSerializer.Serialize<OutItem>(new OutItem() { alias = aliasProducer.getAlias(value), hash = hashConverter.hash(value) });   
+        }
+
+    }
+
+    public class Hash:HashOutput
+    {
+        public int SizeInBits = 64;
+        public Hash()
+        {
+            hashConverter = new Hasher();
+        }
+    }
+
+    public abstract class HashConverter
+    {
+        public abstract string hash(string value);
+
+    }
+    public class CryptoHash : HashConverter
+    {
+        static public string  pwd = "QWE123";
+        public override string hash(string value)
+        {
+            var data = Encoding.UTF8.GetBytes(pwd + value);
+//            string sHash;
+            using (SHA256 shaM = new SHA256Managed())
+            {
+                byte[] hash = shaM.ComputeHash(data);
+                return Convert.ToBase64String(hash);
+//                Console.WriteLine(sHash);
+            }
+  //          throw new NotImplementedException();
+        }
+    }
+    public class Hasher : HashConverter
     {
         public int SizeInBits = 64;
         bool init = false;
-        public Hash()
+        public Hasher()
         {
 
         }
@@ -240,7 +397,7 @@ return true;
             }
 
         }
-        public override string Convert(string value, AbstrParser.UniEl el)
+        public override string hash(string value)
         {
             Init();
             return instance.ComputeHash(Encoding.ASCII.GetBytes(value)).AsHexString();
@@ -251,6 +408,7 @@ return true;
     public abstract class OutputValue
     {
         public string outputPath;
+        public bool isUniqOutputPath = true;
         public enum TypeCopy { Value, Structure };
         public TypeCopy typeCopy = TypeCopy.Value;
         public enum OnEmptyAction { Skip, FillEmpty };
@@ -264,7 +422,7 @@ return true;
         public abstract AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl);
 
         string[] outs = null;
-        AbstrParser.UniEl createOutPath(AbstrParser.UniEl outputRoot)
+        protected virtual AbstrParser.UniEl createOutPath(AbstrParser.UniEl outputRoot)
         {
             if(outs==null && outputPath != "")
             {
@@ -275,8 +433,8 @@ return true;
             var rootEl = outputRoot;
             for(int i=0;i < outs.Length;i++)
             {
-                var el=rootEl.childs.FirstOrDefault(ii => ii.Name == outs[i]);
-                if (el == null)
+                var el=rootEl.childs.LastOrDefault(ii => ii.Name == outs[i]);
+                if (el == null || ( !isUniqOutputPath &&   i== outs.Length-1))
                     el = new AbstrParser.UniEl(rootEl) { Name = outs[i] };
                 rootEl = el;
             }
@@ -307,9 +465,13 @@ return true;
                         elV = el1.Value.ToString();
                     else
                         elV=getValue(inputRoot);
-                    if (converter != null)
-                        elV = converter.Convert(elV.ToString(), inputRoot);
-                    el.Value = elV;
+                    if (elV != null)
+                    {
+                        if (converter != null)
+                            el = converter.Convert(elV.ToString(), inputRoot, el);
+                        else
+                            el.Value = elV;
+                    }
                 } else
                 {
                     el1.copy(el);
@@ -324,6 +486,118 @@ return true;
             }*/
             return true;
         }
+    }
+
+    public class GUIAttribute:Attribute
+    {
+        Type settingsType;
+        public GUIAttribute(Type setType)
+        {
+            settingsType = setType;
+        }
+    }
+    public class TemplateSenderOutputValue : OutputValue
+    {
+        string templ;
+        AbstrParser.UniEl rootElement;
+        public string templateBody
+        {
+            get
+            {
+                return ownerSender.getTemplate(key);
+            }
+            set
+            {
+                ownerSender.setTemplate(key,value);
+                SetTemplate(value);
+
+            }
+        }
+
+        private void SetTemplate(string value)
+        {
+            templ = value;
+           rootElement= AbstrParser.ParseString(templ);
+        }
+
+      
+
+        Sender ownerSender;
+        string key;
+        public TemplateSenderOutputValue(Sender sender,string key1)
+        {
+            key = key1;
+            ownerSender = sender;
+        }
+
+        public override bool canReturnObject => false;
+        public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+        {
+            foreach (var el in rootElement.childs)
+                el.copy(outputRoot);
+            return true;
+            //            return base.addToOutput(inputRoot, ref outputRoot);
+        }
+        public override object getValue(AbstrParser.UniEl rootEl)
+        {
+            return null;
+        }
+
+        public override AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl)
+        {
+            return null;
+        }
+
+    }
+    public class TemplateOutputValue:OutputValue
+    {
+        string templ;
+        AbstrParser.UniEl rootElement ;
+        public string templateBody
+        {
+            get
+            {
+                return templ;
+            }
+            set
+            {
+                templ=value;
+                List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+                rootElement = AbstrParser.CreateNode(null, list, "TT");
+                try
+                {
+                    //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
+                    foreach (var pars in AbstrParser.availParser)
+                        if (pars.canRazbor(templ, rootElement, list))
+                        {
+
+                        }
+                }
+                catch
+                {
+
+                }
+
+            }
+        }
+        public override bool canReturnObject => false;
+        public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+        {
+            foreach( var el in rootElement.childs)
+              el.copy(outputRoot);
+            return true;
+//            return base.addToOutput(inputRoot, ref outputRoot);
+        }
+        public override object getValue(AbstrParser.UniEl rootEl)
+        {
+            return null;
+        }
+
+        public override AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl)
+        {
+            return null;
+        }
+
     }
 
     public class ConstantValue : OutputValue
@@ -574,9 +848,12 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
     public class Pipeline
     {
+        public AbstrParser.UniEl lastExecutedEl = null;
         public static Metrics metrics = new Metrics();
+
+        public string hashWord { get; set; } = "QWE123";
         public string pipelineDescription = "Pipeline example";
-        public Step[] steps =new Step[] { };// new Step[] { new Step() };
+        public Step[] steps { get; set; } = new Step[] { };// new Step[] { new Step() };
         //public AbstrParser.UniEl rootElement = null;
         public async Task<bool> SelfTest()
         {
@@ -590,7 +867,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         }
         static List<Type> getAllRegTypes()
         {
-            return Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) || t.IsSubclassOf(typeof(Receiver)) || t.IsSubclassOf(typeof(Filter)) || t.IsSubclassOf(typeof(Sender)) || t.IsSubclassOf(typeof(OutputValue))).ToList();
+            return Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) || t.IsSubclassOf(typeof(Receiver)) || t.IsSubclassOf(typeof(Filter)) || t.IsSubclassOf(typeof(Sender)) || t.IsSubclassOf(typeof(OutputValue)) || t.IsAssignableTo(typeof(AliasProducer)) || t.IsAssignableTo(typeof(HashConverter))).ToList();
 
             //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
         }
@@ -610,6 +887,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         }
         public async Task run()
         {
+            CryptoHash.pwd = this.hashWord;
             await steps.First(ii=>ii.IDPreviousStep=="" && ii.receiver != null).run();
         }
 
@@ -620,6 +898,17 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
             var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
             var pip= deserializer.Deserialize<Pipeline>(File.OpenText(fileName));
+            foreach (var step in pip.steps)
+                step.owner = pip;
+            return pip;
+        }
+        public static Pipeline loadFromString(string content)
+        {
+            var ser = new DeserializerBuilder();
+            foreach (var type in getAllRegTypes())
+                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+            var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+            var pip = deserializer.Deserialize<Pipeline>(content);
             foreach (var step in pip.steps)
                 step.owner = pip;
             return pip;
@@ -698,26 +987,27 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
  //               MessageBox.Show(e88.ToString());
             }
         }
-        public string IDStep="Example";
+        public string IDStep { get; set; } = "Example";
 
 
-        public string IDPreviousStep="";
+        public string IDPreviousStep { get; set; } = "";
 
-        public string IDResponsedReceiverStep = "";
+        public string IDResponsedReceiverStep { get; set; } = "";
 
 
-        public string description = "Some comments in this place";
+        public string description { get; set; } = "Some comments in this place";
         [YamlIgnore]
-        public bool debugMode = true;
-        public Receiver receiver = null;// new PacketBeatReceiver();
+        public bool debugMode { get; set; } = true;
+        public Receiver receiver { get; set; } = null;// new PacketBeatReceiver();
         public class ItemFilter
         {
+            public string Name { get; set; } = "example";
             public override string ToString()
             {
-                return "filter";
+                return $"filter:{Name}";
             }
-            public Filter filter = new ConditionFilter();
-            public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
+            public Filter filter { get; set; } = new ConditionFilter();
+            public List<OutputValue> outputFields { get; set; } = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
             public int exec(AbstrParser.UniEl rootElInput, ref AbstrParser.UniEl local_rootOutput)
             {
                 int count = 0;
@@ -733,13 +1023,13 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             }
 
     }
-    public List<ItemFilter> converters = new List<ItemFilter>() {  };
+    public List<ItemFilter> converters { get; set; } = new List<ItemFilter>() {  };
 /*        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
         public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
 //        public RecordExtractor transformer;
-        public Sender sender=new LongLifeRepositorySender();
+        public Sender sender { get; set; } = new LongLifeRepositorySender();
         [YamlIgnore]
-        public Pipeline owner;
+        public Pipeline owner { get; set; }
         public Step(/*Pipeline owner1*/)
         {
 //            owner = owner1;
@@ -756,6 +1046,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             public List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
             public object context;
         }
+        
         private async Task Receiver_stringReceived(string input,object context)
         {
 
@@ -764,6 +1055,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
             var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
             rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
+            owner.lastExecutedEl = rootElement;
             await FilterInfo(input, time2, contextItem, rootElement);
 
             await checkChilds(contextItem, rootElement);
@@ -899,8 +1191,15 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                         found=await FindAndCopy(rootElement, time1, item, item1, context,local_rootOutput);
 //                    found = true;
                 }
-                if(found)
+                if (found)
+                {
+                    if(rootElement?.ancestor?.Name != this.IDStep )
+                    {
+                        var root = CheckAndFillNode(rootElement, IDStep, true);// new AbstrParser.UniEl(rootElement.ancestor) { Name = IDStep };
+                        rootElement = CheckAndFillNode(root,"Rec");
+                    }
                     await SendToSender(rootElement, context, local_rootOutput);
+                }
 
 
             }
@@ -909,7 +1208,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         private async Task<bool> FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el,ContextItem context, AbstrParser.UniEl local_rootOutput)
         {
             int count = 0;
-            count = item.exec(rootElInput, ref local_rootOutput);
+            count = item.exec(el/*rootElInput*/, ref local_rootOutput);
             /*            foreach (var ff in item.outputFields)
                         {
                             if(ff.addToOutput(rootElInput, ref local_rootOutput))
@@ -923,9 +1222,11 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
             //            if(this.)
         }
-
+        public int recordSendCount = 0;
         private async Task SendToSender(AbstrParser.UniEl rootElInput, ContextItem context, AbstrParser.UniEl local_rootOutput)
         {
+            // Save sender context
+            //rootElInput.
             if (IDResponsedReceiverStep != "")
             {
                 var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
@@ -934,21 +1235,30 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             }
             else
             {
-
+                var sendNode =CheckAndFillNode(rootElInput,"Send",true);
+                var toNode = CheckAndFillNode(sendNode, "To");
+                toNode.childs.AddRange(local_rootOutput.childs);
                 var ans = await sender.send(local_rootOutput);
+                recordSendCount++;
                 // bool isSave = false;
                 if (ans != "")
                 {
-                    if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
-                    {
-                        var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = "Send" };
-                        this.tryParse(ans, context, newRoot);
-                    }
                     if (sender.IDResponsedReceiverStep != null && sender.IDResponsedReceiverStep != "")
                     {
                         var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == sender.IDResponsedReceiverStep);
                         await step.receiver.sendResponse(ans, context.context);
 
+                    }
+                    // Swap the statements
+                    if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
+                    {
+//                        tryParse(ans, context, CheckAndFillNode(sendNode, "From"));
+                        var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep).IDStep };
+                        newRoot = new AbstrParser.UniEl(newRoot) { Name = "Rec" };
+
+
+
+                        this.tryParse(ans, context, newRoot);
                     }
 
 
@@ -960,7 +1270,17 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 }
             }
         }
+
+        private static AbstrParser.UniEl CheckAndFillNode(AbstrParser.UniEl rootElInput,string Name,bool getAncestor =false)
+        {
+            AbstrParser.UniEl contextNode = (getAncestor?(rootElInput.ancestor): rootElInput).childs.FirstOrDefault(ii => ii.Name == Name);
+            if (contextNode == null)
+                contextNode = new AbstrParser.UniEl((getAncestor ? (rootElInput.ancestor) : rootElInput)) { Name = Name};
+            return contextNode;
+        }
     }
+
+
     public  class JsonSender:Sender,ISelfTested
     {
         [YamlIgnore]
@@ -994,7 +1314,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         }
         private bool ServerCertificateCustomValidation(HttpRequestMessage requestMessage, X509Certificate2 certificate, X509Chain chain, SslPolicyErrors sslErrors)
         {
-            if(!certThumbprints.Contains(certificate.Thumbprint))
+            if(certThumbprints.Count >0 && !certThumbprints.Contains(certificate.Thumbprint))
             {
                 Logger.log("Invalid certificate {Incorrect} , valid thumbprint {valid}.", Serilog.Events.LogEventLevel.Error, "any", certificate.Thumbprint, certThumbprints);
                 return false;
@@ -1096,18 +1416,27 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public int[] timeoutsBetweenRetryInMilli = { 100};
         Metrics.Metric sendToRex = null; 
         Metrics.Metric sendToRexErr = null;
-
+        string getVal(AbstrParser.UniEl el)
+        {
+            if(el.childs.Count ==0)
+            return $"\"{el.Value}\"";
+            else
+            {
+                return "{"+String.Join(",",el.childs.Select(ii=>$"\"{ii.Name}\":\"{ii.Value}\""))+"}";
+            }
+        }
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
             await base.sendInternal(root);
             string str = "{";
             bool first = true;
-            foreach (var el in root.childs)
+            str = "{" + String.Join(",", root.childs.Select(ii => $"\"{ii.Name}\":{getVal(ii)}")) + "}";
+/*            foreach (var el in root.childs)
             {
-                str += ((first?"":",")+"\"" + el.Name + "\":\"" + el.Value + "\"");
+                str += ((first?"":",")+"\"" + el.Name + "\":" + getVal(el );
                 first = false;
             }
-            str += "}";
+            str += "}";*/
 
 /*            if (owner.debugMode)
                 Console.WriteLine("Send:" + str);*/
@@ -1162,6 +1491,109 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             return (isSuccess,details,exc);
         }
     }
+
+    public class StreamSender:JsonSender
+    {
+        public string streamName  = "checkRegistration5";
+        public async override Task<string> sendInternal(AbstrParser.UniEl root)
+        {
+            if(root.childs.Count(ii=>ii.Name =="stream")==0)
+                root.childs.Add(new AbstrParser.UniEl() {  Name="stream", Value=streamName});
+            return await base.sendInternal(root);
+        }
+
+        public class Stream
+        {
+            public class Field
+            {
+                public string Name { get; set; } = "";
+                public string Type { get; set; }
+                public string Detail { get; set; }
+                public bool Hash { get; set; }
+                public long? linkedColumn { get; set; }
+            }
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public List<Field> fields { get; set; } = new List<Field>();
+        }
+        Dictionary<string, Stream> streams = new Dictionary<string, Stream>();  
+
+
+        public string db_connection_string = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;";
+        public override string getTemplate(string key)
+        {
+            return formJson(getStream(streamName));
+        }
+
+        public Stream getStream(string key)
+        {
+            Stream stream;
+            if (streams.TryGetValue(key, out stream))
+                return (stream);
+            //                return JsonSerializer.Serialize<IEnumerable<string>>(stream.fields.Select(ii=>"\"ii.Name)); 
+            stream = new Stream();
+            stream.Name = "";
+            var conn = new NpgsqlConnection(db_connection_string);
+            conn.Open();
+            using (var cmd = new NpgsqlCommand(@"select n.nodeid,n.name,a.val,np.name,'String',ap.val from md_node n
+inner join md_node_attr_val a  
+on ( a.nodeid=n.nodeid and attrid=22)
+inner join md_arc l on (l.fromid=n.nodeid and l.isdeleted=false)
+inner join md_node np on (l.toid=np.nodeid and np.isdeleted=false)
+inner join md_node_attr_val ap on ( ap.nodeid=np.nodeid and ap.attrid=22)
+where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
+", conn))
+            {
+                cmd.Parameters.AddWithValue("@name", key);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (stream.Name == "")
+                        {
+                            stream.Name = reader.GetString(1);
+                            stream.Description = reader.GetString(2);
+                        }
+                        stream.fields.Add(new Stream.Field() { Name = reader.GetString(3), Type = reader.GetString(4), Detail = reader.GetString(5) });
+                    }
+                }
+            }
+
+            conn.Close();
+            if(stream.Name =="")
+            {
+                stream.Name = key;
+                stream.fields.Add(new Stream.Field() { Name = "stream", Detail = "Name of stream", Type = "String" });
+                stream.fields.Add(new Stream.Field() { Name = "originalTime", Detail = "Time of stream", Type = "DateTime" });
+            }
+            streams.TryAdd(key, stream);
+            return (stream);
+        }
+
+        private static string formJson(Stream stream)
+        {
+            return "{" + string.Join<string>(",", stream.fields.Select(ii => $"\"{ii.Name}\":\"{((ii.Name=="stream")?stream.Name:"")}\"")) + "}";
+        }
+
+        public override void setTemplate(string key, string body)
+        {
+//            setStream(body);
+
+            base.setTemplate(key, body);
+        }
+
+        public void setStream(string body)
+        {
+            var conn = new NpgsqlConnection(db_connection_string);
+            conn.Open();
+            using (var cmd = new NpgsqlCommand(@"select * from md.md_add_stream_description(@json)",conn))
+            {
+                cmd.Parameters.AddWithValue("@json", NpgsqlTypes.NpgsqlDbType.Json, body);
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
+
     public class FileReceiver : Receiver
     {
         string delim = "---------------------------RRRRR----------------------------------";
