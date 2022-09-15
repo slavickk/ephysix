@@ -15,6 +15,7 @@ namespace ParserLibrary
         public static void log(string message, LogEventLevel level = LogEventLevel.Information, params object[] propertyValues)
         {
             Log.ForContext("ctn", "any").Write(level, message, propertyValues);
+           
         }
         public static void log(DateTime prevTime, string message, string context, LogEventLevel level = LogEventLevel.Information, params object[] propertyValues)
         {

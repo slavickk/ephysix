@@ -83,6 +83,24 @@ namespace ParserLibrary
     }
     public abstract class AbstrParser
     {
+        public static AbstrParser.UniEl getLocalRoot(AbstrParser.UniEl item1, string[] patts)
+        {
+            var item = item1;
+            AbstrParser.UniEl itemRet = null;
+            for (int i = Math.Min(item1.rootIndex, patts.Length - 1); i >= 0; i--)
+            {
+                while (item.rootIndex > i)
+                    item = item.ancestor;
+                if (!AbstrParser.isEqual(item.Name, patts[i]))
+                    itemRet = item.ancestor;
+                //                        return item;
+            }
+            if (itemRet == null)
+                return item1;//changed 10.09.22
+            return itemRet;
+        }
+
+
         public static AbstrParser.UniEl ParseString(string templ)
         {
             List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
@@ -194,6 +212,14 @@ namespace ParserLibrary
             list.Add(newEl);
             return newEl;
         }
+        public static bool isEqual(string Name, string pattern)
+        {
+            if(pattern=="*")
+            {
+                int yy = 0;
+            }
+            return pattern == "*" || Name == pattern;
+        }
 
         public class UniEl
         {
@@ -224,7 +250,7 @@ namespace ParserLibrary
             }
             bool firstElnArray(List<UniEl> arr ,int i)
             {
-                return (i < this.childs.Count - 2 && arr[i].Name == arr[i + 1].Name) && (i == 0 || arr[i].Name != arr[i - 1].Name);
+                return (i < this.childs.Count - 1 && arr[i].Name == arr[i + 1].Name) && (i == 0 || arr[i].Name != arr[i - 1].Name);
             }
             bool lastElInArray(List<UniEl> arr, int i)
             {
@@ -252,6 +278,10 @@ namespace ParserLibrary
                     bool isArr = false;
                     for (int i = 0; i < this.childs.Count; i++)
                     {
+                 /*       if(i==10)
+                        {
+                            int yy = 0;
+                        }*/
                         if (firstElnArray(this.childs ,i))
 //                        if(isArr==false && i< this.childs.Count-2 && this.childs[i].Name== this.childs[i+1].Name)
                         {
@@ -316,7 +346,7 @@ namespace ParserLibrary
 
             public IEnumerable<UniEl> getAllDescentants(string[] path,int index)
             {
-                if (this.Name == path[index])
+                if (isEqual(this.Name ,path[index]))
                 {
                     if (index == path.Length - 1)
                         yield return this;
