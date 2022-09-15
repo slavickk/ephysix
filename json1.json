@@ -1,1 +1,200 @@
-{"Root": { "TableName": "", "field": {"Name": "","Type": "","Value": ""}}}
+{
+  "Rec": {
+    "threeDSCompInd": "U",
+    "threeDSRequestorAuthenticationInd": "01",
+    "threeDSRequestorID": "220412****0101",
+    "threeDSRequestorName": "YooMoney",
+    "threeDSRequestorURL": "https://yoomoney.ru",
+    "threeDSServerRefNumber": "3DS_LOA_SER_TCTS_020100_00093",
+    "threeDSServerOperatorID": "220412****0101",
+    "threeDSServerTransID": "ca230277-5e0f-40c5-a62a-bed9cd****5a41",
+    "threeDSServerURL": "https://mirmpi.yoomoney.ru/v1/Orders/ResultsRequest",
+    "acquirerBIN": "220412",
+    "acquirerMerchantID": "100000****0009",
+    "addrMatch": "Y",
+    "browserAcceptHeader": "text/html",
+    "browserIP": {
+      "Address": "127.0.0.1",
+      "TypeAddress": "local"
+    },
+    "browserJavaEnabled": true,
+    "browserLanguage": "ru-RU",
+    "browserColorDepth": "24",
+    "browserScreenHeight": "1080",
+    "browserScreenWidth": "1920",
+    "browserTZ": "180",
+    "browserUserAgent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.3",
+    "cardExpiryDate": "2207",
+    "acctNumber": "220056****9529",
+    "cardholderName": "YooMoney",
+    "dsReferenceNumber": "3DS_LOA_DIS_NPCS_020200_00409",
+    "dsTransID": "5867cc70-4ffe-4209-8b20-8711b9****5cf1",
+    "dsURL": "https://ds1.mirconnect.ru:9443/ds/DServer",
+    "mcc": "6538",
+    "merchantCountryCode": "643",
+    "merchantName": "YooMoney",
+    "messageExtension": {
+      "criticalityIndicator": false,
+      "data": { "destCardNum": "510621****8338" },
+      "id": "A00000****5802",
+      "name": "p2pRecipientData"
+    },
+    "notificationURL": "https://paymentcard.yoomoney.ru:443/3ds/challenge/415/Hzsuyx3miYwpEUmwRnkIqQi8IroZ..001.202207",
+    "purchaseAmount": "13000",
+    "purchaseCurrency": "643",
+    "purchaseExponent": "2",
+    "purchaseDate": "202207****0049",
+    "transType": "01",
+    "messageType": "AReq",
+    "messageVersion": "2.1.0",
+    "messageCategory": "01",
+    "deviceChannel": "02"
+  },
+  "Send": {
+    "To": {
+      "dsTransID": "5867cc70-4ffe-4209-8b20-8711b9****5cf1",
+      "stream": "EComAReq"
+    }
+  },
+  "Step_1": {
+    "Rec": {
+      "ItemList": [
+        {
+          "rule": {
+            "name": "Rule1",
+            "severity": -1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule2",
+            "severity": 1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule3",
+            "severity": -1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule4",
+            "severity": 1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule5",
+            "severity": -1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule6",
+            "severity": 1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule7",
+            "severity": -1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule8",
+            "severity": 1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule9",
+            "severity": -1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        },
+        {
+          "rule": {
+            "name": "Rule10",
+            "severity": 1
+          },
+          "retValue": "True",
+          "addInfo": ""
+        }
+      ]
+    },
+    "Send": {
+      "To": {
+        "InputParameters": [
+          {
+            "RuleID": "Rule1",
+            "Severity": "-1"
+          },
+          {
+            "RuleID": "Rule2",
+            "Severity": "1"
+          },
+          {
+            "RuleID": "Rule3",
+            "Severity": "-1"
+          },
+          {
+            "RuleID": "Rule4",
+            "Severity": "1"
+          },
+          {
+            "RuleID": "Rule5",
+            "Severity": "-1"
+          },
+          {
+            "RuleID": "Rule6",
+            "Severity": "1"
+          },
+          {
+            "RuleID": "Rule7",
+            "Severity": "-1"
+          },
+          {
+            "RuleID": "Rule8",
+            "Severity": "1"
+          },
+          {
+            "RuleID": "Rule9",
+            "Severity": "-1"
+          },
+          {
+            "RuleID": "Rule10",
+            "Severity": "1"
+          }
+        ],
+        "InputRecordFields": {
+          "Key": "dsTransID",
+          "Value": "5867cc70-4ffe-4209-8b20-8711b9****5cf1"
+        },
+        {
+          "Key": "stream",
+          "Value": "EComAReq"
+        },
+        ]
+      }
+    }
+  }
+}

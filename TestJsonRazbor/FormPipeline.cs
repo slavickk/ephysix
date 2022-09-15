@@ -48,6 +48,7 @@ namespace TestJsonRazbor
             {
                 textBoxIDStep.Text = currentStep.IDStep;
                 textBoxIDPrevStep.Text = currentStep.IDPreviousStep;
+                textBoxResponceStep.Text = currentStep.IDResponsedReceiverStep;
                 if (currentStep.IDPreviousStep == "")
                     buttonSetupReceiver.Enabled = true;
                 else
@@ -371,11 +372,16 @@ namespace TestJsonRazbor
 
         private void button1_Click_2(object sender, EventArgs e)
         {
-            (new FormTestPipeline() { pip = pip }).ShowDialog();
+            (new FormTestPipeline() { pip = pip }).Show();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
+            currentStep.IDStep=textBoxIDStep.Text;
+            currentStep.IDPreviousStep=textBoxIDPrevStep.Text;
+            currentStep.IDResponsedReceiverStep=textBoxResponceStep.Text ;
+            currentStep.description=textBoxStepDescription.Text  ;
+            treeView1.Refresh();
 
         }
 

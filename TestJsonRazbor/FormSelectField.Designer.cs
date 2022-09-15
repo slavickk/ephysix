@@ -31,6 +31,7 @@ namespace TestJsonRazbor
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Root");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Root");
             this.button7 = new System.Windows.Forms.Button();
@@ -53,6 +54,8 @@ namespace TestJsonRazbor
             this.textBoxFieldName = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.checkBoxNameOnly = new System.Windows.Forms.CheckBox();
+            this.checkBoxCopyChildOnly = new System.Windows.Forms.CheckBox();
             this.buttonDown = new System.Windows.Forms.Button();
             this.buttonUp = new System.Windows.Forms.Button();
             this.textBoxScript = new System.Windows.Forms.TextBox();
@@ -91,6 +94,9 @@ namespace TestJsonRazbor
             this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
             this.openFileDialog3 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.textBoxNameFilter = new System.Windows.Forms.TextBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.checkBoxReturnFirstField = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -332,6 +338,9 @@ namespace TestJsonRazbor
             // 
             this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel3.Controls.Add(this.checkBoxReturnFirstField);
+            this.panel3.Controls.Add(this.checkBoxNameOnly);
+            this.panel3.Controls.Add(this.checkBoxCopyChildOnly);
             this.panel3.Controls.Add(this.buttonDown);
             this.panel3.Controls.Add(this.buttonUp);
             this.panel3.Controls.Add(this.textBoxScript);
@@ -350,6 +359,26 @@ namespace TestJsonRazbor
             this.panel3.Size = new System.Drawing.Size(1494, 424);
             this.panel3.TabIndex = 34;
             this.panel3.Visible = false;
+            // 
+            // checkBoxNameOnly
+            // 
+            this.checkBoxNameOnly.AutoSize = true;
+            this.checkBoxNameOnly.Location = new System.Drawing.Point(988, 19);
+            this.checkBoxNameOnly.Name = "checkBoxNameOnly";
+            this.checkBoxNameOnly.Size = new System.Drawing.Size(133, 34);
+            this.checkBoxNameOnly.TabIndex = 33;
+            this.checkBoxNameOnly.Text = "Get Name";
+            this.checkBoxNameOnly.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxCopyChildOnly
+            // 
+            this.checkBoxCopyChildOnly.AutoSize = true;
+            this.checkBoxCopyChildOnly.Location = new System.Drawing.Point(1123, 20);
+            this.checkBoxCopyChildOnly.Name = "checkBoxCopyChildOnly";
+            this.checkBoxCopyChildOnly.Size = new System.Drawing.Size(181, 34);
+            this.checkBoxCopyChildOnly.TabIndex = 32;
+            this.checkBoxCopyChildOnly.Text = "Copy child only";
+            this.checkBoxCopyChildOnly.UseVisualStyleBackColor = true;
             // 
             // buttonDown
             // 
@@ -688,10 +717,11 @@ namespace TestJsonRazbor
             // 
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(747, 7);
+            this.textBox1.Location = new System.Drawing.Point(1314, 7);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(1489, 35);
+            this.textBox1.Size = new System.Drawing.Size(922, 35);
             this.textBox1.TabIndex = 26;
+            this.textBox1.Visible = false;
             // 
             // checkBox1
             // 
@@ -737,11 +767,33 @@ namespace TestJsonRazbor
             this.openFileDialog3.FileName = "openFileDialog1";
             this.openFileDialog3.InitialDirectory = "C:\\Users\\User\\Documents\\PacketOut";
             // 
+            // textBoxNameFilter
+            // 
+            this.textBoxNameFilter.Location = new System.Drawing.Point(766, 7);
+            this.textBoxNameFilter.Name = "textBoxNameFilter";
+            this.textBoxNameFilter.Size = new System.Drawing.Size(292, 35);
+            this.textBoxNameFilter.TabIndex = 39;
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.ForeColor = System.Drawing.Color.LavenderBlush;
+            // 
+            // checkBoxReturnFirstField
+            // 
+            this.checkBoxReturnFirstField.AutoSize = true;
+            this.checkBoxReturnFirstField.Location = new System.Drawing.Point(1313, 22);
+            this.checkBoxReturnFirstField.Name = "checkBoxReturnFirstField";
+            this.checkBoxReturnFirstField.Size = new System.Drawing.Size(176, 34);
+            this.checkBoxReturnFirstField.TabIndex = 34;
+            this.checkBoxReturnFirstField.Text = "returnFirstField";
+            this.checkBoxReturnFirstField.UseVisualStyleBackColor = true;
+            // 
             // FormSelectField
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 30F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2247, 1274);
+            this.Controls.Add(this.textBoxNameFilter);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button8);
@@ -834,5 +886,10 @@ namespace TestJsonRazbor
         private System.Windows.Forms.TextBox textBoxTemplate;
         private System.Windows.Forms.Button buttonSelectTemplate;
         private System.Windows.Forms.CheckBox checkBoxIsUniq;
+        private System.Windows.Forms.CheckBox checkBoxCopyChildOnly;
+        private System.Windows.Forms.CheckBox checkBoxNameOnly;
+        private System.Windows.Forms.TextBox textBoxNameFilter;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.CheckBox checkBoxReturnFirstField;
     }
 }

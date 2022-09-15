@@ -22,6 +22,7 @@ namespace ParserLibrary
         {
             public string RuleID;
             public int Severity;
+            public string Result;
             public bool retValue=true;
         }
         public class RecordField
@@ -40,15 +41,47 @@ namespace ParserLibrary
             public string Name;
             public object Value;
         }
-        protected virtual List<ItemInputVar> PrepareData(AbstrParser.UniEl root)
+        List<ItemInputVar> dict = new List< ItemInputVar>();
+
+
+        void getList(string Name)
         {
 
-            return new List<ItemInputVar>() { new ItemInputVar() { Name = "SignalledRules", Value = new SignalledRule[] { new SignalledRule() { RuleID = "REX_TRAN_001", Severity = 1 }
+        }
+        protected virtual List<ItemInputVar> PrepareData(AbstrParser.UniEl root)
+        {
+            dict.Clear();
+            if (dict.Count == 0)
+            {
+                dict.Add(new ItemInputVar() { Name = "SignalledRules", Value = new List<SignalledRule>() });
+                dict.Add(new ItemInputVar() { Name = "InputRecord", Value = new List<RecordField>()  });
+            }
+            foreach (var item in root.childs)
+            {
+                var it = dict.FirstOrDefault(ii => ii.Name == item.Name switch
+                {
+                    "InputParameters" => "SignalledRules",
+                    "InputRecordFields" => "InputRecord",
+                    _ => "none"
+                });
+                if (it != null)
+                {
+                    if (it.Name == "SignalledRules")
+                        (it.Value as List<SignalledRule>).Add(new SignalledRule() { retValue = true, RuleID = item.childs.First(ii => ii.Name == "RuleID").Value.ToString(), Severity = Convert.ToInt32(item.childs.First(ii => ii.Name == "Severity").Value),  Result = item.childs.First(ii => ii.Name == "Result").Value.ToString() });
+                    if (it.Name == "InputRecord")
+                        (it.Value as List<RecordField>).Add(new RecordField() { Key = item.childs.First(ii => ii.Name == "Key").Value.ToString(), Value = item.childs.First(ii => ii.Name == "Value").Value.ToString() });
+
+
+                }
+            }
+
+                return dict;
+/*            return new List<ItemInputVar>() { new ItemInputVar() { Name = "SignalledRules", Value = new SignalledRule[] { new SignalledRule() { RuleID = "REX_TRAN_001", Severity = 1 }
 , new SignalledRule() { RuleID = "REX_TRAN_002", Severity = 1 }
 , new SignalledRule() { RuleID = "REX_TRAN_003", Severity = 1 } } }
             , new ItemInputVar() { Name = "InputRecord", Value = new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" }, new RecordField() { Key = "PAN", Value = "454********623" }, new RecordField() { Key = "PhoneNumber", Value = "+7922****45" }, new RecordField() { Key = "Amount", Value = "900" } } }
 
-            };
+            };*/
         }
 
 
@@ -107,6 +140,7 @@ new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" }
             }
             catch (Exception ex)
             {
+                Logger.log("Error DMN:{exc}", Serilog.Events.LogEventLevel.Error, ex);
 /*                exc = ex;
                 if (ctx != null)
                     dmn_variables = ctx.Variables.ToArray();
@@ -154,7 +188,10 @@ new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" }
         DateTime timeFinish;
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
+
             return await execDmn(root);
+//            return ans.ToString();
+
         }
 
 

@@ -35,10 +35,13 @@ namespace TestJsonRazbor
             }
             else
             {
-                (ancestor.treeNode as TreeDrawer).node.Nodes.Add(node);
-                (ancestor.treeNode as TreeDrawer).node.Nodes[^1].Tag = newEl;
-                if (delRoot && newEl.childs.Count==0)
-                    Update(newEl);
+                if (ancestor.treeNode != null)
+                {
+                    (ancestor.treeNode as TreeDrawer).node.Nodes.Add(node);
+                    (ancestor.treeNode as TreeDrawer).node.Nodes[^1].Tag = newEl;
+                    if (delRoot && newEl.childs.Count == 0)
+                        Update(newEl);
+                }
             }
 
         }

@@ -27,11 +27,11 @@ namespace TestJsonRazbor
                 if (value == AndOrFilter.Action.OR)
                 {
                     button1.Enabled = true;
-                    button2.Enabled = false;
+                    button2.Enabled = true;// false;
                 }
                 else
                 {
-                    button1.Enabled = false;
+                    button1.Enabled = true;// false;
                     button2.Enabled = true;
                 }
             }

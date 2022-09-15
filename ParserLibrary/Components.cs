@@ -66,7 +66,10 @@ namespace ParserLibrary
         }
 
         public virtual async Task sendResponseInternal(string response,object context)
-        { }
+        {
+            if(debugMode)
+                Logger.log("Responcer do nothing, mocMode^{MocMode}!!!", Serilog.Events.LogEventLevel.Debug,MocMode);
+        }
 
         public async Task start()
         {
@@ -117,7 +120,10 @@ namespace ParserLibrary
     public abstract class Sender
     {
 
-
+        public override string ToString()
+        {
+            return $"Sender:{this.GetType().Name}";
+        }
         public virtual  string getExample()
         {
             return "";
@@ -147,26 +153,34 @@ namespace ParserLibrary
         {
             get;
         }
-        public string IDResponsedReceiverStep = "";
+      //  public string IDResponsedReceiverStep = "";
         public async Task<string> send(AbstrParser.UniEl root)
         {
-            if(!MocMode)
+            DateTime time1 = DateTime.Now;
+            string ans;
+            if (!MocMode)
             {
                 if (typeContent == TypeContent.internal_list)
-                    return await sendInternal(root);
+                    ans= await sendInternal(root);
                 else
-                    return await send(root.toJSON());
+                    ans = await send(root.toJSON());
             } else
             {
-                if ((MocBody??"") != "")
-                    return MocBody;
-                string ans;
-                using (StreamReader sr = new StreamReader(MocFile))
+                if ((MocBody ?? "") != "")
+                    ans = MocBody;
+                else
                 {
-                    ans = sr.ReadToEnd();
-                    return ans;
+                   // string ans;
+                    using (StreamReader sr = new StreamReader(MocFile))
+                    {
+                        ans = sr.ReadToEnd();
+                 //       return ans;
+                    }
                 }
             }
+            if(owner.debugMode)
+                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(), ans);
+            return ans;
         }
         public async virtual Task<string> sendInternal(AbstrParser.UniEl root)
         {
@@ -185,7 +199,7 @@ namespace ParserLibrary
     }
     public abstract class Filter
     {
-        public abstract IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list);
+        public abstract IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list,ref AbstrParser.UniEl rootElement);
     }
 
     public class AndOrFilter : Filter
@@ -193,23 +207,59 @@ namespace ParserLibrary
         public enum Action { OR, AND, DEL };
         public Action action { get; set; } = Action.AND;
         public Filter[] filters = new Filter[] { new ConditionFilter() };
-        public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list)
+
+        //public bool isRelativePathFind = true;
+
+
+        IEnumerable<AbstrParser.UniEl> filterForFilterAnd(List<AbstrParser.UniEl> list,int index,AbstrParser.UniEl el)
         {
+            AbstrParser.UniEl rootEl = el;
+            foreach (var it in filters[index].filter(list, ref rootEl))
+                if (index >= filters.Length - 1)
+                    yield return it;
+                else
+                    foreach(var it1 in  filterForFilterAnd(list, index + 1, it))
+                        yield return it1;
+        }
+
+        public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list,ref AbstrParser.UniEl rootElement)
+        {
+            return filt(list);
             //            List<AbstrParser.UniEl> answers = new List<AbstrParser.UniEl>();
-            IEnumerable<AbstrParser.UniEl> answer = Enumerable.Empty<AbstrParser.UniEl>();
-            foreach (var filt in filters)
+          /*  if (action == Action.OR)
             {
-                var ans = filt.filter(list);
-                if (ans.Count() != 0)
-                {                   
-                    answer = ans;
-                } else
+                foreach (var flt in filters)
                 {
-                    if (action == Action.AND)
-                        return Enumerable.Empty<AbstrParser.UniEl>();
+                    AbstrParser.UniEl rEl = null;
+                    foreach (var res in flt.filter(list, ref rEl))
+                        yield return res;
+
                 }
             }
-            return answer;
+            else
+                foreach(var res in  filterForFilterAnd(list, 0, null))
+                    yield return res;
+
+            */
+        }
+        IEnumerable<AbstrParser.UniEl> filt(List<AbstrParser.UniEl> list)
+        {
+            //            List<AbstrParser.UniEl> answers = new List<AbstrParser.UniEl>();
+            if (action == Action.OR)
+            {
+                foreach (var flt in filters)
+                {
+                    AbstrParser.UniEl rEl = null;
+                    foreach (var res in flt.filter(list, ref rEl))
+                        yield return res;
+
+                }
+            }
+            else
+                foreach (var res in filterForFilterAnd(list, 0, null))
+                    yield return res;
+
+
         }
     }
 
@@ -271,13 +321,24 @@ return true;
         //       [JsonInclude]
         public ComparerV conditionCalcer { get; set; } = new ScriptCompaper();
         public static bool isNew = true;
-        public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list)
+        public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list, ref AbstrParser.UniEl rootElement )
         {
             if (isNew)
             {
                 if (tokens == null)
                     tokens = conditionPath.Split("/");
-                return list[0].getAllDescentants(tokens,0).Where(ii =>  conditionCalcer.Compare(ii));
+                int index = 0;
+                if (rootElement == null)
+                {
+                    rootElement = list[0];
+                    index = 0;
+                }
+                else
+                {
+                    rootElement = AbstrParser.getLocalRoot(rootElement, tokens);
+                    index = rootElement.rootIndex;
+                }
+                return rootElement.getAllDescentants(tokens,index).Where(ii =>  conditionCalcer.Compare(ii));
             }
             else
             return list.Where(ii => ii.path == conditionPath && conditionCalcer.Compare(ii));
@@ -420,6 +481,7 @@ return true;
         
         public abstract object getValue(AbstrParser.UniEl rootEl);
         public abstract AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl);
+        public abstract IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl);
 
         string[] outs = null;
         protected virtual AbstrParser.UniEl createOutPath(AbstrParser.UniEl outputRoot)
@@ -440,18 +502,24 @@ return true;
             }
             return rootEl;
         }
+
+        public bool getNodeNameOnly = false;
+        public bool returnOnlyFirstRow = true;
+
         public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
         {
             // skipped--------------------------- Пока поддерживается только линейная структура записи
-       //     if (typeCopy == TypeCopy.Value)
+            //     if (typeCopy == TypeCopy.Value)
+            bool found = false;
+            foreach (var el1 in getNodes(inputRoot))
             {
-                var el1 = getNode(inputRoot);
-                if(!this.canReturnObject)
+                found = true;
+                if (!this.canReturnObject)
                 {
 
                 }
 
-                if (el1 == null  && onEmptyValueAction == OnEmptyAction.Skip && this.canReturnObject)
+                if (el1 == null && onEmptyValueAction == OnEmptyAction.Skip && this.canReturnObject)
                     return false;
                 var el = createOutPath(outputRoot);
                 //                AbstrParser.UniEl el = new AbstrParser.UniEl(outputRoot);
@@ -461,10 +529,15 @@ return true;
                 if (!this.canReturnObject || el1.childs.Count == 0)
                 {
                     object elV;
-                    if (canReturnObject)
-                        elV = el1.Value.ToString();
+                    if (getNodeNameOnly && el1 != null)
+                        elV = el1.Name;
                     else
-                        elV=getValue(inputRoot);
+                    {
+                        if (canReturnObject)
+                            elV = el1.Value.ToString();
+                        else
+                            elV = getValue(inputRoot);
+                    }
                     if (elV != null)
                     {
                         if (converter != null)
@@ -472,19 +545,28 @@ return true;
                         else
                             el.Value = elV;
                     }
-                } else
-                {
-                    el1.copy(el);
-//                    el.childs.Add(el1.copy(el));
                 }
-            }
-         /*   else
-            {
-                var el = createOutPath(outputRoot);
+                else
+                {
+                    CopyNode(el1, el);
+                    //                    el.childs.Add(el1.copy(el));
+                }
 
-                el.childs.Add(inputRoot.copy(outputRoot));
-            }*/
-            return true;
+                /*   else
+                   {
+                       var el = createOutPath(outputRoot);
+
+                       el.childs.Add(inputRoot.copy(outputRoot));
+                   }*/
+                if (returnOnlyFirstRow)
+                    return true;
+            }
+            return found;
+        }
+
+        protected virtual void CopyNode(AbstrParser.UniEl el1, AbstrParser.UniEl el)
+        {
+            el1.copy(el);
         }
     }
 
@@ -547,6 +629,10 @@ return true;
         {
             return null;
         }
+        public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl)
+        {
+            return new AbstrParser.UniEl[] { null };
+        }
 
     }
     public class TemplateOutputValue:OutputValue
@@ -591,6 +677,10 @@ return true;
         public override object getValue(AbstrParser.UniEl rootEl)
         {
             return null;
+        }
+        public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl)
+        {
+            return new AbstrParser.UniEl[] { null };
         }
 
         public override AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl)
@@ -637,19 +727,37 @@ return true;
                 return ConvertFromType( Value.ToString(), typeConvert);
             return Value;
         }
-
         public override AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl)
         {
             return null;
+        }
+
+        public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl)
+        {
+            return new AbstrParser.UniEl[] { null };
         }
     }
 
     public class ExtractFromInputValue : OutputValue
     {
+
+        protected override void CopyNode(AbstrParser.UniEl el1, AbstrParser.UniEl el)
+        {
+            if(this.copyChildsOnly)
+            {
+                foreach (var it in el1.childs)
+                    base.CopyNode(it, el);
+            }
+            else
+            base.CopyNode(el1, el);
+        }
         public override string ToString()
         {
             return outputPath + "; from " + conditionPath;
         }
+        public bool copyChildsOnly = false;
+
+
         public string conditionPath { get; set; }
         [YamlIgnore]
         public string[] conditionPathToken = null;
@@ -665,7 +773,7 @@ return true;
         {
             var nodes = patts[indexF].Split("/");
             var index = nodes.Length - 1;
-            while (index >= 0 && item1.Name == nodes[index])
+            while (index >= 0 && AbstrParser.isEqual(item1.Name ,nodes[index]))
             {
                 item1 = item1.ancestor;
                 index--;
@@ -675,27 +783,37 @@ return true;
             return item1;
         }
 
-        private AbstrParser.UniEl getLocalRoot( AbstrParser.UniEl item1, string[] patts)
-        {
-            var item = item1;
-            AbstrParser.UniEl itemRet = null;
-            for(int i=Math.Min(item1.rootIndex,patts.Length-1);i>=0;i--)
-            {
-                while (item.rootIndex > i)
-                    item = item.ancestor;
-                if (item.Name != patts[i])
-                    itemRet = item.ancestor;
-//                        return item;
-            }
-            if (itemRet == null)
-                return item;
-            return itemRet;
-        }
 
         public virtual AbstrParser.UniEl getFinalNode(AbstrParser.UniEl node)
         {
             return node;
         }
+
+        public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl)
+        {
+            if (conditionPathToken == null)
+                conditionPathToken = conditionPath.Split("/");
+
+            var rootEl1 = AbstrParser.getLocalRoot(rootEl, conditionPathToken);
+
+            foreach (var item in rootEl1.getAllDescentants(conditionPathToken, rootEl1.rootIndex).Where(ii => ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
+            {
+                var item1 = item;
+                if (valuePath != "")
+                {
+                    if (valuePathToken == null)
+                        valuePathToken = valuePath.Split("/");
+                    item1 = AbstrParser.getLocalRoot(item1, valuePathToken);
+                    foreach (var item2 in item1.getAllDescentants(valuePathToken, item1.rootIndex))
+                        yield return getFinalNode(item2);
+                }
+                else
+                    yield return getFinalNode(item);
+
+            }
+
+        }
+
         public override AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl)
         {
             if (ConditionFilter.isNew)
@@ -703,7 +821,7 @@ return true;
                 if (conditionPathToken == null)
                     conditionPathToken = conditionPath.Split("/");
 
-                var rootEl1 = getLocalRoot(rootEl, conditionPathToken);
+                var rootEl1 = AbstrParser.getLocalRoot(rootEl, conditionPathToken);
 
                 foreach (var item in rootEl1.getAllDescentants(conditionPathToken, rootEl1.rootIndex).Where(ii => ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
                 {
@@ -712,7 +830,7 @@ return true;
                     {
                         if (valuePathToken == null)
                             valuePathToken = valuePath.Split("/");
-                        item1 = getLocalRoot(item1, valuePathToken);
+                        item1 = AbstrParser.getLocalRoot(item1, valuePathToken);
                         foreach (var item2 in item1.getAllDescentants(valuePathToken, item1.rootIndex))
                             return getFinalNode( item2);
                     }
@@ -848,11 +966,14 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
     public class Pipeline
     {
+        [YamlIgnore]
         public AbstrParser.UniEl lastExecutedEl = null;
         public static Metrics metrics = new Metrics();
 
         public string hashWord { get; set; } = "QWE123";
         public string pipelineDescription = "Pipeline example";
+        [YamlIgnore]
+        public string tempMocData ="";
         public Step[] steps { get; set; } = new Step[] { };// new Step[] { new Step() };
         //public AbstrParser.UniEl rootElement = null;
         public async Task<bool> SelfTest()
@@ -888,6 +1009,15 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public async Task run()
         {
             CryptoHash.pwd = this.hashWord;
+            foreach (var step in steps)
+            {
+                if (step.receiver != null)
+                    step.receiver.owner = step;
+                if (step.sender != null)
+                    step.sender.owner = step;
+
+            }
+//            step.owner = this;
             await steps.First(ii=>ii.IDPreviousStep=="" && ii.receiver != null).run();
         }
 
@@ -1001,6 +1131,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public Receiver receiver { get; set; } = null;// new PacketBeatReceiver();
         public class ItemFilter
         {
+
             public string Name { get; set; } = "example";
             public override string ToString()
             {
@@ -1075,7 +1206,10 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 await nextStep.checkChilds(contextItem, rootElement);
             }
         }
-
+        public override string ToString()
+        {
+            return $"Step:{this.IDStep}";
+        }
         private async Task<string> FindAndCopy1(AbstrParser.UniEl rootElInput, DateTime time1, ItemFilter item, AbstrParser.UniEl el, List<AbstrParser.UniEl> list)
         {
             int count = 0;
@@ -1087,7 +1221,10 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                                 count++;
                         }*/
             if (debugMode)
-                Logger.log(" transform to output {count} items", Serilog.Events.LogEventLevel.Debug, count);
+            {
+               
+                Logger.log("{this} {filter} transform to output {count} items", Serilog.Events.LogEventLevel.Debug,this,item, count);
+            }
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
             if (IDResponsedReceiverStep != "")
@@ -1112,7 +1249,8 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                             bool found = false;
                             foreach (var item in converters/*.First().filter(list)*/)
                             {
-                                foreach (var item1 in item.filter.filter(list))
+                                AbstrParser.UniEl rEl = null;
+                                foreach (var item1 in item.filter.filter(list,ref rEl))
                                 {
                                     var st = await FindAndCopy1(rootElement, time1, item, item1, list);
                                     if (st != "")
@@ -1187,7 +1325,12 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 bool found = false;
                 foreach (var item in converters/*.First().filter(list)*/)
                 {
-                    foreach (var item1 in item.filter.filter(context.list))
+                    AbstrParser.UniEl rEl = null;
+                    if(this.IDStep =="Step_3")
+                    {
+                        int y = 0;
+                    }
+                    foreach (var item1 in item.filter.filter(context.list,ref rEl))
                         found=await FindAndCopy(rootElement, time1, item, item1, context,local_rootOutput);
 //                    found = true;
                 }
@@ -1215,7 +1358,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                                 count++;
                         }*/
             if (debugMode)
-                Logger.log(" transform to output {count} items", Serilog.Events.LogEventLevel.Debug, count);
+                Logger.log("{this} {filter} transform to output  added {count} items, filt:{l} out:{out}", Serilog.Events.LogEventLevel.Debug,this,item, count,el.toJSON(),local_rootOutput.toJSON());
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
             return true;
@@ -1229,26 +1372,38 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             //rootElInput.
             if (IDResponsedReceiverStep != "")
             {
+
                 var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
-                await step.receiver.sendResponseInternal(local_rootOutput.toJSON(), context.context);
+                var content = local_rootOutput.toJSON();
+                if (debugMode)
+                    Logger.log("Send answer {content} to {step} ", Serilog.Events.LogEventLevel.Debug,"any",content, step);
+                await step.receiver.sendResponseInternal(content, context.context);
 
             }
             else
             {
                 var sendNode =CheckAndFillNode(rootElInput,"Send",true);
                 var toNode = CheckAndFillNode(sendNode, "To");
-                toNode.childs.AddRange(local_rootOutput.childs);
                 var ans = await sender.send(local_rootOutput);
+                foreach (var node in local_rootOutput.childs)
+                {
+                    node.ancestor = toNode;
+          //          toNode.childs.Add(node);
+                }
                 recordSendCount++;
                 // bool isSave = false;
                 if (ans != "")
                 {
-                    if (sender.IDResponsedReceiverStep != null && sender.IDResponsedReceiverStep != "")
+               /*     var send1 = sender as ResponseSender;
+                    if (send1 != null)
                     {
-                        var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == sender.IDResponsedReceiverStep);
-                        await step.receiver.sendResponse(ans, context.context);
+                        if (sender.IDResponsedReceiverStep != null && sender.IDResponsedReceiverStep != "")
+                        {
+                            var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == sender.IDResponsedReceiverStep);
+                            await step.receiver.sendResponse(ans, context.context);
 
-                    }
+                        }
+                    }*/
                     // Swap the statements
                     if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
                     {
@@ -1425,6 +1580,8 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 return "{"+String.Join(",",el.childs.Select(ii=>$"\"{ii.Name}\":\"{ii.Value}\""))+"}";
             }
         }
+
+
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
             await base.sendInternal(root);
@@ -1444,7 +1601,8 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             try
             {
                 var ans = await internSend(str);
-                Logger.log(time1, " Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, str, ans);
+                
+//                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information,this, str, ans);
   //              createMetrics();
               if(sendToRex != null)
                 sendToRex.Add(time1);
@@ -1478,7 +1636,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             {
                 DateTime time1 = DateTime.Now;
                 var ans = await internSend("{\"stream\":\"checkTest\",\"originalTime\":\"2021-12-18T02:05:04.500Z\"}"); 
-                Logger.log(time1,"-Send:{ans}" ,"SelfTest",Serilog.Events.LogEventLevel.Information,ans);
+                Logger.log(time1,"{Sender}-Send:{ans}" ,"SelfTest",Serilog.Events.LogEventLevel.Information,this,ans);
                 if (ans == "")
                     isSuccess = false;
             }
@@ -1490,6 +1648,14 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             //            if(ans)
             return (isSuccess,details,exc);
         }
+    }
+
+    [Annotation("Пустой Sender")]
+    public class NullSender:Sender
+    {
+        public override TypeContent typeContent => TypeContent.internal_list;
+     //   public string IDResponsedReceiverStep = "";
+
     }
 
     public class StreamSender:JsonSender

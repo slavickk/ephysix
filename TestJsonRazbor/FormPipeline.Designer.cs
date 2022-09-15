@@ -42,9 +42,12 @@ namespace TestJsonRazbor
             this.buttonYaml = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBoxResponceStep = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.buttonDown = new System.Windows.Forms.Button();
             this.buttonUp = new System.Windows.Forms.Button();
+            this.buttonDown = new System.Windows.Forms.Button();
             this.buttonSenderMoc = new System.Windows.Forms.Button();
             this.buttonReceiverMoc = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
@@ -68,7 +71,6 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.button3 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -196,6 +198,8 @@ namespace TestJsonRazbor
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.textBoxResponceStep);
+            this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.button3);
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.buttonUp);
@@ -223,6 +227,33 @@ namespace TestJsonRazbor
             this.groupBox1.Text = "Step detail";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
+            // textBoxResponceStep
+            // 
+            this.textBoxResponceStep.Location = new System.Drawing.Point(558, 24);
+            this.textBoxResponceStep.Name = "textBoxResponceStep";
+            this.textBoxResponceStep.Size = new System.Drawing.Size(129, 35);
+            this.textBoxResponceStep.TabIndex = 36;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(443, 27);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(97, 30);
+            this.label6.TabIndex = 35;
+            this.label6.Text = "RespStep";
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(549, 567);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(131, 40);
+            this.button3.TabIndex = 34;
+            this.button3.Text = "button3";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Visible = false;
+            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            // 
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(547, 144);
@@ -232,17 +263,6 @@ namespace TestJsonRazbor
             this.button2.Text = "Moc Text";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // buttonDown
-            // 
-            this.buttonDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonDown.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.buttonDown.Location = new System.Drawing.Point(653, 279);
-            this.buttonDown.Name = "buttonDown";
-            this.buttonDown.Size = new System.Drawing.Size(39, 43);
-            this.buttonDown.TabIndex = 32;
-            this.buttonDown.Text = "V";
-            this.buttonDown.UseVisualStyleBackColor = true;
             // 
             // buttonUp
             // 
@@ -254,6 +274,17 @@ namespace TestJsonRazbor
             this.buttonUp.Text = "^";
             this.buttonUp.UseVisualStyleBackColor = true;
             this.buttonUp.Click += new System.EventHandler(this.buttonUp_Click);
+            // 
+            // buttonDown
+            // 
+            this.buttonDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonDown.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.buttonDown.Location = new System.Drawing.Point(653, 279);
+            this.buttonDown.Name = "buttonDown";
+            this.buttonDown.Size = new System.Drawing.Size(39, 43);
+            this.buttonDown.TabIndex = 32;
+            this.buttonDown.Text = "V";
+            this.buttonDown.UseVisualStyleBackColor = true;
             // 
             // buttonSenderMoc
             // 
@@ -350,9 +381,9 @@ namespace TestJsonRazbor
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button4.Location = new System.Drawing.Point(14, 553);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(138, 43);
+            this.button4.Size = new System.Drawing.Size(394, 43);
             this.button4.TabIndex = 9;
-            this.button4.Text = "Save";
+            this.button4.Text = "Save step";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
@@ -397,7 +428,7 @@ namespace TestJsonRazbor
             // 
             // textBoxIDPrevStep
             // 
-            this.textBoxIDPrevStep.Location = new System.Drawing.Point(378, 27);
+            this.textBoxIDPrevStep.Location = new System.Drawing.Point(309, 27);
             this.textBoxIDPrevStep.Name = "textBoxIDPrevStep";
             this.textBoxIDPrevStep.Size = new System.Drawing.Size(129, 35);
             this.textBoxIDPrevStep.TabIndex = 3;
@@ -405,7 +436,7 @@ namespace TestJsonRazbor
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(230, 30);
+            this.label3.Location = new System.Drawing.Point(194, 30);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(115, 30);
             this.label3.TabIndex = 2;
@@ -459,16 +490,6 @@ namespace TestJsonRazbor
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(549, 567);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(131, 40);
-            this.button3.TabIndex = 34;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click_1);
             // 
             // FormPipeline
             // 
@@ -536,5 +557,7 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button buttonNew;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.TextBox textBoxResponceStep;
+        private System.Windows.Forms.Label label6;
     }
 }
