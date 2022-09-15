@@ -108,11 +108,12 @@ namespace ParserLibrary
             }
             return "";
         }
+
         private AbstrParser.UniEl getLocalRoot(string[] patts, int indexF, AbstrParser.UniEl item1)
         {
             var nodes = patts[indexF].Split("/");
             var index = nodes.Length - 1;
-            while (index >= 0 && item1.Name == nodes[index])
+            while (index >= 0 &&AbstrParser. isEqual(item1.Name ,nodes[index]))
             {
                 item1 = item1.ancestor;
                 index--;
