@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CCFAProtocols" Version="0.1.0" />
     <PackageReference Include="CS-Script.Core" Version="2.0.0" />
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
