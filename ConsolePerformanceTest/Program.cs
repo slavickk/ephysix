@@ -1,54 +1,41 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using ParserLibrary;
-using Serilog;
-using Serilog.Core;
-using Serilog.Events;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Text;
+using System.Net.Http;
+using System;
+using static ConsolePerformanceTest.Sender;
+using System.Threading.Tasks;
+using ConsolePerformanceTest;
 
-namespace ConsolePerformanceTest
+Console.WriteLine("Hello, World!");
+int allCount = 100000;
+int packetSize = 1000;
+int tick = 10000;
+var tasksSend = new List<System.Threading.Tasks.Task<ResponseFromRex>>();
+int execCount = 0;
+DateTime time1 = DateTime.Now;
+HttpClient httpClient = new HttpClient();
+Uri url = new Uri("http://localhost:8080");
+string request;
+using (StreamReader sr = new StreamReader(@"C:\D\a.json"))
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello, World!");
-            var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
-
-            Log.Logger = new LoggerConfiguration()
-            .WriteTo.Console()
-            .CreateLogger();
-            //Configuration[]
-            Pipeline pip;
-            try
-            {
-                pip = Pipeline.load(args[0]);
-                pip.steps[0].receiver.MocMode= true;
-                pip.debugMode = false;
-                // var suc = pip.SelfTest().GetAwaiter().GetResult();
-
-                //                pip = pips[0];
-            }
-            catch (Exception e77)
-            {
-                Console.WriteLine("Error:" + e77.Message);
-                return;
-            }
-            int cycle = 1000;
-            DateTime time = DateTime.Now;
-            for (int i = 0; i < cycle; i++)
-            {
-                DateTime time1 = DateTime.Now;
-                pip.run().GetAwaiter().GetResult();
-                if(i==0)        
-                    Console.WriteLine($"{i}:{(DateTime.Now-time).TotalMilliseconds}");
-            }
-            Console.WriteLine($"{cycle}:{(DateTime.Now-time).TotalMilliseconds} to send:{StreamSender.Interval.TotalMilliseconds}");
-
-        }
-    }
-
+    request = sr.ReadToEnd();
 }
+DateTime timeLast = DateTime.Now;
+while (allCount > execCount)
+{
+    tasksSend.Clear();
+    for (int i = 0; i < packetSize; i++)
+        tasksSend.Add(Sender.SendToRexx(httpClient, url, request));
+    var ans = await System.Threading.Tasks.Task.WhenAll(tasksSend);
+    execCount+=packetSize;
+    if (execCount % tick == 0)
+    {
+        DateTime time2 = DateTime.Now;  
+        Console.WriteLine($"{(int)(tick/(time2-timeLast).TotalSeconds)} tot:{execCount}");
+        timeLast=DateTime.Now;
+    }
+}
+var totalMS = (DateTime.Now - time1).TotalMilliseconds;
+Console.WriteLine($"ended{totalMS} ");// count_unsucces{ans.Count(ii=>ii.resp!= null && ii.resp.StatusCode != System.Net.HttpStatusCode.OK)} skipped {ans.Count(ii => ii.resp == null)}");
+//Console.WriteLine($"ended{totalMS} count_unsucces{ans.Count(ii => ii.resp != null && ii.resp.StatusCode != System.Net.HttpStatusCode.OK)} skipped {ans.Count(ii => ii.resp == null)}");
 
+//Task.Run(() => { });
