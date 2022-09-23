@@ -28,6 +28,11 @@ namespace ParserLibrary
 
     public abstract class Receiver
     {
+        public virtual void Init(Pipeline owner)
+        {
+
+        }
+
         [YamlIgnore]
         public bool MocMode = false;
         public string MocFile;
@@ -43,15 +48,27 @@ namespace ParserLibrary
         {
             set
             {
+                owner_internal = value;
                 debugMode = value.debugMode;
             }
+            get
+            {
+                return owner_internal; 
+            }
         }
+        [YamlIgnore]
+        Step owner_internal;
+
         public delegate  void StringReceived(string input);
         public delegate void BytesReceived(byte[] input);
         [YamlIgnore]
         public Func<string,object,Task> stringReceived;
         public async Task signal(string input,object context)
         {
+            if(debugMode)
+            {
+                Logger.log("Receive step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, input);
+            }
             if (saver != null)
                 saver.save(input);
             if(stringReceived != null)
@@ -119,6 +136,10 @@ namespace ParserLibrary
 
     public abstract class Sender
     {
+        public virtual void Init(Pipeline owner)
+        {
+
+        }
 
         public override string ToString()
         {
@@ -975,6 +996,21 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         [YamlIgnore]
         public string tempMocData ="";
         public Step[] steps { get; set; } = new Step[] { };// new Step[] { new Step() };
+        public bool debugMode
+        {
+            set
+            {
+                foreach (Step step in steps)
+                {
+                    step.debugMode = value;
+                    if(step.receiver!= null)
+                        step.receiver.debugMode = value;
+                    /*if (step.sender != null)
+                        step.sender.debugMode = value;*/
+                }
+            }
+        }
+
         //public AbstrParser.UniEl rootElement = null;
         public async Task<bool> SelfTest()
         {
@@ -1114,6 +1150,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             } 
             catch(Exception e88)
             {
+                throw;
  //               MessageBox.Show(e88.ToString());
             }
         }
@@ -1161,15 +1198,22 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public Sender sender { get; set; } = new LongLifeRepositorySender();
         [YamlIgnore]
         public Pipeline owner { get; set; }
+
+        public void Init(Pipeline owner)
+        {
+            this.owner=owner;
+            this.sender?.Init(owner);
+            this.receiver?.Init(owner);
+        }
         public Step(/*Pipeline owner1*/)
         {
 //            owner = owner1;
-            sucMetric = Pipeline.metrics.getMetric("packagesReceived", false, true, "All packages, sended to utility");
-            errMetric = Pipeline.metrics.getMetric("packagesReceived", true, false, "All packages, sended to utility");
+          /*  sucMetric = Pipeline.metrics.getMetric("packagesReceived", false, true, "All packages, sended to utility");
+            errMetric = Pipeline.metrics.getMetric("packagesReceived", true, false, "All packages, sended to utility");*/
         }
 
-        Metrics.Metric sucMetric = null;
-        Metrics.Metric errMetric = null;
+       static Metrics.MetricCount sucMetric = new Metrics.MetricCount("packagesReceivedSuccess", "All packages, sended to utility");
+        static Metrics.MetricCount errMetric = new Metrics.MetricCount("packagesReceivedUnsuccess", "All packages, sended to utility with error");
         //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
 
         public class ContextItem
@@ -1492,12 +1536,19 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public int index = 0;
 
         bool init = false;
+        object syncro = new object();
         public  async Task<string> internSend(string body)
         {
             if(!init)
             {
-                init = true;
-                InitClient();
+                lock (syncro)
+                {
+                    if (!init)
+                    {
+                        InitClient();
+                        init = true;
+                    }
+                }
             }
             int kolRetry = 0;
             int indexDelay = 0;
@@ -1569,8 +1620,9 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public override TypeContent typeContent => TypeContent.internal_list;//throw new NotImplementedException();
 
         public int[] timeoutsBetweenRetryInMilli = { 100};
-        Metrics.Metric sendToRex = null; 
-        Metrics.Metric sendToRexErr = null;
+        static Metrics.MetricCount sendToRex = new Metrics.MetricCount("sendToRexSuc",  "Sended transactions to DummySystem1 time exec"); 
+        static Metrics.MetricCount sendToRexErr = new Metrics.MetricCount("sendToRexErr", "Sended transactions to DummySystem1 with error");
+        //static Metrics.MetricCount metricExecRex = new Metrics.MetricCount("RexTimeExecution", "Rex time execution");
         string getVal(AbstrParser.UniEl el)
         {
             if(el.childs.Count ==0)
@@ -1619,11 +1671,11 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
         private void createMetrics()
         {
-            if (sendToRex == null)
+           /* if (sendToRex == null)
             {
                 sendToRex = Pipeline.metrics.getMetric("sendToRex", false, true, "Sended transactions to DummySystem1");
                 sendToRexErr = Pipeline.metrics.getMetric("sendToRex", true, false, "Sended transactions to DummySystem1");
-            }
+            }*/
         }
 
         public async Task<(bool,string,Exception)> isOK()
@@ -1660,12 +1712,23 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
     public class StreamSender:JsonSender
     {
+        public static TimeSpan Interval; 
         public string streamName  = "checkRegistration5";
+        public static long countOpenRexRequest = 0;
+
+        public static Metrics.MetricCount metricStreamConcurrent = new Metrics.MetricCount("StreamConcurrCount", "Some time concurrent count");
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
+            metricStreamConcurrent.Increment();
+            Interlocked.Increment(ref countOpenRexRequest);
             if(root.childs.Count(ii=>ii.Name =="stream")==0)
                 root.childs.Add(new AbstrParser.UniEl() {  Name="stream", Value=streamName});
-            return await base.sendInternal(root);
+            DateTime time1=DateTime.Now;
+            var ret= await base.sendInternal(root);
+            Interval+=(DateTime.Now-time1); 
+            Interlocked.Decrement(ref countOpenRexRequest);
+            metricStreamConcurrent.Decrement();
+            return ret;
         }
 
         public class Stream

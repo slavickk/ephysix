@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ConsolePerformanceTest": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\D\\Out\\MainPipeline.yml "
+    }
+  }
+}
