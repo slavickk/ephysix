@@ -46,14 +46,20 @@ namespace ParserLibrary
             {
                 item.answer = response;
                 item.semaphore.Release();
+                if (item.semaphore.CurrentCount == 0)
+                {
+                    int ii = 0;
+                    item.semaphore.Release();
+                }
+
             }
-           // return base.sendResponseInternal(response, context);
+            // return base.sendResponseInternal(response, context);
         }
 
         public async Task signal1(string body,SyncroItem semaphoreItem)
         {
             await signal(body, semaphoreItem);
-            if (semaphoreItem.semaphore.CurrentCount > 0)
+            if (semaphoreItem.semaphore.CurrentCount == 0)
             {
                 if (debugMode)
                 {
@@ -79,8 +85,9 @@ namespace ParserLibrary
 
             public static long CountExecuted = 0;
             public static long CountOpened = 0;
-            static Metrics.MetricCount metricCountOpened = new Metrics.MetricCount("HTTPOpenConnectCount", "opened http connection at same time ");
-            static Metrics.MetricCount metricCountExecuted = new Metrics.MetricCount("HTTPExecutedConnections", "All http executed connection's ");
+            public static Metrics.MetricCount metricCountOpened = new Metrics.MetricCount("HTTPOpenConnectCount", "opened http connection at same time ");
+            public static Metrics.MetricCount metricCountExecuted = new Metrics.MetricCount("HTTPExecutedConnections", "All http executed connection's ");
+            public static Metrics.MetricCount metricTimeExecuted = new Metrics.MetricCount("HTTPExecutedTime", "All http executed connection's time");
             public async Task<string> GetMetrics()
             {
                 return Metrics.metric.getPrometeusMetric();
@@ -112,6 +119,7 @@ namespace ParserLibrary
                 }
                 Interlocked.Increment(ref CountOpened);
                 metricCountOpened.Increment();
+                DateTime time1=DateTime.Now;
                 HTTPReceiver.SyncroItem item = new SyncroItem();
                 using (var stream = new StreamReader(httpContext.Request.Body, Encoding.UTF8))
                 {
@@ -131,7 +139,7 @@ namespace ParserLibrary
                 await SetResponseContent(httpContext, item.answer);
                 metricCountOpened.Decrement();
                 Interlocked.Decrement(ref CountOpened);
-
+                metricTimeExecuted.Add(time1);
                 //return base.ReceiveRequest(httpContext);
             }
         }

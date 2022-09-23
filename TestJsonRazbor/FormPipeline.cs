@@ -103,6 +103,7 @@ namespace TestJsonRazbor
         private void FormPipeline_Load(object sender, EventArgs e)
         {
             string json_body;
+            /*
             using (StreamReader sr = new StreamReader(@"C:\Users\ygasnikov\source\repos\swagger-to-html-standalone-master\example\swagger.json"))
             {
                 json_body = sr.ReadToEnd();
@@ -112,6 +113,7 @@ namespace TestJsonRazbor
                 sw.Write(HTTPReceiver.GetSwaggerHtmlBody(json_body));
 
             }
+            */
             //   dd();
             if (File.Exists(fileNameStorageContext))
             {

@@ -134,6 +134,11 @@ namespace TestJsonRazbor
         }
         CancellationTokenSource Canceller = new CancellationTokenSource() ;
         Task taskA = null;
+
+        double lastPerfValue=0;
+        int lastPerfCount = 0;
+        DateTime lastPerfTime=DateTime.Now;
+
         private void button1_Click(object sender, EventArgs e)
         {
             timer1.Enabled = true;
@@ -142,12 +147,14 @@ namespace TestJsonRazbor
                 Canceller.Cancel();
             }
             while (taskA != null) Thread.Sleep(100);
-
-          /*  cancellationToken.IsCancellationRequested = true;
-            if(cancellationToken.CanBeCanceled)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-            }*/
+            lastPerfTime = DateTime.Now;
+            lastPerfCount = HTTPReceiver.KestrelServer.metricCountExecuted.getCount();
+            lastPerfValue = HTTPReceiver.KestrelServer.metricTimeExecuted.sum;
+            /*  cancellationToken.IsCancellationRequested = true;
+              if(cancellationToken.CanBeCanceled)
+              {
+                  cancellationToken.ThrowIfCancellationRequested();
+              }*/
             logTextBox.Text = "";
             pip.debugMode = checkBoxDebug.Checked;
             taskA = Task.Run(async () =>
@@ -215,9 +222,16 @@ namespace TestJsonRazbor
             }
 
         }
-
+        TimeSpan periodMeasure = new TimeSpan(0, 0, 10);
         private void timer1_Tick(object sender, EventArgs e)
         {
+            if (DateTime.Now - lastPerfTime >= periodMeasure)
+            {
+                lastPerfTime = DateTime.Now;
+                lastPerfCount = HTTPReceiver.KestrelServer.metricCountExecuted.getCount();
+                lastPerfValue = HTTPReceiver.KestrelServer.metricTimeExecuted.sum;
+            }
+
             labelRexRequest.Text = $"Opened rex:{StreamSender.countOpenRexRequest}";
 
             labelCount.Text = $"Executed:{HTTPReceiver.KestrelServer.CountExecuted}";

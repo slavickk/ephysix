@@ -352,7 +352,7 @@ namespace ParserLibrary
             //            public bool noAverage;
             public bool isSuccess;
             int count = 0;
-            double sum = 0;
+            public double sum = 0;
             public void Increment()
             {
                 Interlocked.Increment(ref count);
