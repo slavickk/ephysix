@@ -108,6 +108,7 @@ namespace Kestrel
             var serverOptions = new KestrelServerOptions();
             serverOptions.ListenAnyIP(port);
             serverOptions.Limits.MaxConcurrentConnections=maxConnectionLimits;
+          //  serverOptions.C
 
             var transportOptions = new SocketTransportOptions();
             var loggerFactory = new NullLoggerFactory();
@@ -117,7 +118,7 @@ namespace Kestrel
 
             using var server = new KestrelServer(
                 new OptionsWrapper<KestrelServerOptions>(serverOptions), transportFactory, loggerFactory);
-
+           // server.Options.
             await server.StartAsync(new KestrelApplication(loggerFactory,this), CancellationToken.None);
             await Task.Delay(Timeout.Infinite);
         }
