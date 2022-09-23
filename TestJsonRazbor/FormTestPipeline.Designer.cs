@@ -47,6 +47,7 @@ namespace TestJsonRazbor
             this.labelCount = new System.Windows.Forms.Label();
             this.labelOpened = new System.Windows.Forms.Label();
             this.labelRexRequest = new System.Windows.Forms.Label();
+            this.labelPerf = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // columnHeader1
@@ -214,11 +215,21 @@ namespace TestJsonRazbor
             this.labelRexRequest.TabIndex = 11;
             this.labelRexRequest.Text = "                     ";
             // 
+            // labelPerf
+            // 
+            this.labelPerf.AutoSize = true;
+            this.labelPerf.Location = new System.Drawing.Point(216, 133);
+            this.labelPerf.Name = "labelPerf";
+            this.labelPerf.Size = new System.Drawing.Size(70, 15);
+            this.labelPerf.TabIndex = 12;
+            this.labelPerf.Text = "                     ";
+            // 
             // FormTestPipeline
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(489, 300);
+            this.Controls.Add(this.labelPerf);
             this.Controls.Add(this.labelRexRequest);
             this.Controls.Add(this.labelOpened);
             this.Controls.Add(this.labelCount);
@@ -259,5 +270,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Label labelCount;
         private System.Windows.Forms.Label labelOpened;
         private System.Windows.Forms.Label labelRexRequest;
+        private System.Windows.Forms.Label labelPerf;
     }
 }

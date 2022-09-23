@@ -227,6 +227,8 @@ namespace TestJsonRazbor
         {
             if (DateTime.Now - lastPerfTime >= periodMeasure)
             {
+                if (HTTPReceiver.KestrelServer.metricCountExecuted.getCount() - lastPerfCount > 0)
+                    labelPerf.Text = $"{(int)(1000.0/((HTTPReceiver.KestrelServer.metricTimeExecuted.sum - lastPerfValue) / (HTTPReceiver.KestrelServer.metricCountExecuted.getCount() - lastPerfCount)))} in sec";
                 lastPerfTime = DateTime.Now;
                 lastPerfCount = HTTPReceiver.KestrelServer.metricCountExecuted.getCount();
                 lastPerfValue = HTTPReceiver.KestrelServer.metricTimeExecuted.sum;
