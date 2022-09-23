@@ -45,10 +45,12 @@ namespace ParserLibrary
             if (item != null)
             {
                 item.answer = response;
-                item.semaphore.Release();
+                Interlocked.Increment(ref item.srabot);
+                var semaphoreCount = item.semaphore.Release();
                 if (item.semaphore.CurrentCount == 0)
                 {
                     int ii = 0;
+                    Interlocked.Increment(ref item.srabot);
                     item.semaphore.Release();
                 }
 
@@ -71,6 +73,8 @@ namespace ParserLibrary
         }
         public class SyncroItem
         {
+            public int srabot = 0;
+            public int unwait = 0;
             public string answer="";
             public SemaphoreSlim semaphore= new SemaphoreSlim(0);
         }
@@ -127,6 +131,8 @@ namespace ParserLibrary
                     owner.signal1(str,item);
                 }
                 await item.semaphore.WaitAsync();
+                Interlocked.Increment(ref item.unwait);
+
                 if (owner.debugMode)
                 {
                     Logger.log("Answer to client step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner.owner, item.answer);
