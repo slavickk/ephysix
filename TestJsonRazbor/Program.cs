@@ -21,7 +21,7 @@ namespace TestJsonRazbor
             Application.SetCompatibleTextRenderingDefault(false);
             //            Application.Run(new FormTypeDefiner() { tDefine = typeof(Sender) }/*FormPipeline()*/);
             //            Application.Run(new Form3());
-            TIPRecieverTests.Init();
+           // TIPRecieverTests.Init();
             Application.Run(new FormPipeline());
 //            Application.Run(new FormSelectField());
         }

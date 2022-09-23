@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ParserLibrary;
@@ -13,6 +14,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Json;
+using Logger = ParserLibrary.Logger;
 
 namespace TestJsonRazbor
 {
@@ -75,6 +77,8 @@ namespace TestJsonRazbor
                 return this.basedOn.GetFormat(formatType);
             }
         }
+
+
         private void FormTestPipeline_Load(object sender, EventArgs e)
         {
             foreach (Step step in pip.steps)
@@ -128,19 +132,45 @@ namespace TestJsonRazbor
             }
 
         }
-
+        CancellationTokenSource Canceller = new CancellationTokenSource() ;
+        Task taskA = null;
         private void button1_Click(object sender, EventArgs e)
         {
+            timer1.Enabled = true;
+            if(taskA!= null)
+            {
+                Canceller.Cancel();
+            }
+            while (taskA != null) Thread.Sleep(100);
+
+          /*  cancellationToken.IsCancellationRequested = true;
+            if(cancellationToken.CanBeCanceled)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }*/
             logTextBox.Text = "";
-            Task taskA = Task.Run(async () =>
+            pip.debugMode = checkBoxDebug.Checked;
+            taskA = Task.Run(async () =>
             {
                 try
                 {
-                    await pip.run();
+                        // specify this thread's Abort() as the cancel delegate
+                        using (Canceller.Token.Register(Thread.CurrentThread.Abort))
+                        {
+                            await pip.run();
+                        }
+//                    await pip.run();
                 }
-                catch(Exception e77)
+                catch (ThreadAbortException)
                 {
-                    MessageBox.Show(e77.ToString());
+                    Logger.log("execution cancelled on request", LogEventLevel.Error, "any");
+                    taskA = null;
+                    //return false;
+                }
+                catch (Exception e77)
+                {
+                    Logger.log("execution terminated on error {err}",LogEventLevel.Error,"any",e77.ToString());
+                   // MessageBox.Show(e77.ToString());
                 }
 
                 if(pip.lastExecutedEl!= null)
@@ -157,8 +187,8 @@ namespace TestJsonRazbor
                         if (step.receiver != null)
                             step.receiver.MocBody = ex.toJSON();*/
                 }
-                MessageBox.Show("Execution ended!");
-            });
+                Logger.log("Execution ended!");
+            },Canceller.Token);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -184,6 +214,14 @@ namespace TestJsonRazbor
                 }
             }
 
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            labelRexRequest.Text = $"Opened rex:{StreamSender.countOpenRexRequest}";
+
+            labelCount.Text = $"Executed:{HTTPReceiver.KestrelServer.CountExecuted}";
+            labelOpened.Text = $"Open:{HTTPReceiver.KestrelServer.CountOpened}";
         }
     }
 }

@@ -10,13 +10,20 @@ using net.adamec.lib.common.dmn.engine.engine.decisions;
 using net.adamec.lib.common.dmn.engine.engine.definition;
 using net.adamec.lib.common.dmn.engine.engine.execution.context;
 using net.adamec.lib.common.dmn.engine.parser;
-
+using System.Collections.Concurrent;
 
 namespace ParserLibrary
 {
     public class DMNExecutorSender : Sender
     {
-       static  List<net.adamec.lib.common.dmn.engine.parser.dto.DmnModel.Script> listScripts;
+        public int countPrewarmingIntances = 4;
+        public override void Init(Pipeline owner)
+        {
+            for (int i = 0; i < countPrewarmingIntances; i++)
+                contexts.Add(getDMN(XML));
+//            base.Init(owner);
+        }
+        static  List<net.adamec.lib.common.dmn.engine.parser.dto.DmnModel.Script> listScripts;
         //string[] allVariables = new string[] { };
         public class SignalledRule
         {
@@ -41,8 +48,7 @@ namespace ParserLibrary
             public string Name;
             public object Value;
         }
-        List<ItemInputVar> dict = new List< ItemInputVar>();
-
+       
 
         void getList(string Name)
         {
@@ -50,7 +56,7 @@ namespace ParserLibrary
         }
         protected virtual List<ItemInputVar> PrepareData(AbstrParser.UniEl root)
         {
-            dict.Clear();
+            List<ItemInputVar> dict = new List<ItemInputVar>();
             if (dict.Count == 0)
             {
                 dict.Add(new ItemInputVar() { Name = "SignalledRules", Value = new List<SignalledRule>() });
@@ -90,45 +96,48 @@ namespace ParserLibrary
             XML = xml;
         }
         public string XML;
+
+        ConcurrentBag<DmnExecutionContext> contexts = new ConcurrentBag<DmnExecutionContext>();
         async Task<string> execDmn(AbstrParser.UniEl root)
         {
-/*            using(StreamReader sr= new StreamReader(@"C:\Camunda\DMNSummator.xml"))
-            {
-                XML= sr.ReadToEnd();    
-            }*/
-/*            object[] inputObjects = new object[]
-    {
-    new SignalledRule[] {new SignalledRule() { RuleID = "REX_TRAN_001",  Severity=1 }
-,new SignalledRule() { RuleID = "REX_TRAN_002",  Severity=1 }
-,new SignalledRule() { RuleID = "REX_TRAN_003",  Severity=1 } },
-new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" },new RecordField() { Key = "PAN", Value = "454********623" },  new RecordField() { Key = "PhoneNumber", Value = "+7922****45" } , new RecordField() { Key =  "Amount", Value="900"} }
-    };*/
-/*            object[] arr1 = new object[3];
-            for (int i = 0; i < 3; i++)
-            {
-                dynamic employee = new ExpandoObject();
-                ((IDictionary<String, Object>)employee).Add("RuleID", $"REX_TRAN_{i}");
-                ((IDictionary<String, Object>)employee).Add("Severity", 1);
-                arr1[i] = employee;
-            }
-            object[] arr2 = new object[2];
-            {
-                dynamic employee = new ExpandoObject();
-                ((IDictionary<String, Object>)employee).Add("Key", "PAN");
-                ((IDictionary<String, Object>)employee).Add("Value", "454323");
-                arr2[0] = employee;
-            }
-            {
-                dynamic employee = new ExpandoObject();
-                ((IDictionary<String, Object>)employee).Add("Key", "Amount");
-                ((IDictionary<String, Object>)employee).Add("Value", 200);
-                arr2[1] = employee;
-            }
-            object[] inputObjects = new object[] { arr1, arr2 };
-*/
+            /*            using(StreamReader sr= new StreamReader(@"C:\Camunda\DMNSummator.xml"))
+                        {
+                            XML= sr.ReadToEnd();    
+                        }*/
+            /*            object[] inputObjects = new object[]
+                {
+                new SignalledRule[] {new SignalledRule() { RuleID = "REX_TRAN_001",  Severity=1 }
+            ,new SignalledRule() { RuleID = "REX_TRAN_002",  Severity=1 }
+            ,new SignalledRule() { RuleID = "REX_TRAN_003",  Severity=1 } },
+            new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" },new RecordField() { Key = "PAN", Value = "454********623" },  new RecordField() { Key = "PhoneNumber", Value = "+7922****45" } , new RecordField() { Key =  "Amount", Value="900"} }
+                };*/
+            /*            object[] arr1 = new object[3];
+                        for (int i = 0; i < 3; i++)
+                        {
+                            dynamic employee = new ExpandoObject();
+                            ((IDictionary<String, Object>)employee).Add("RuleID", $"REX_TRAN_{i}");
+                            ((IDictionary<String, Object>)employee).Add("Severity", 1);
+                            arr1[i] = employee;
+                        }
+                        object[] arr2 = new object[2];
+                        {
+                            dynamic employee = new ExpandoObject();
+                            ((IDictionary<String, Object>)employee).Add("Key", "PAN");
+                            ((IDictionary<String, Object>)employee).Add("Value", "454323");
+                            arr2[0] = employee;
+                        }
+                        {
+                            dynamic employee = new ExpandoObject();
+                            ((IDictionary<String, Object>)employee).Add("Key", "Amount");
+                            ((IDictionary<String, Object>)employee).Add("Value", 200);
+                            arr2[1] = employee;
+                        }
+                        object[] inputObjects = new object[] { arr1, arr2 };
+            */
+            DmnExecutionContext ctx=null;
             try
             {
-                if(ctx== null)
+                if(!contexts.TryTake(out ctx))
                     ctx = getDMN(XML);
                 List<IDmnDecision> executedDecision = new List<IDmnDecision>();
 
@@ -140,6 +149,8 @@ new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" }
             }
             catch (Exception ex)
             {
+                if(ctx!= null)  
+                    contexts.Add(ctx);
                 Logger.log("Error DMN:{exc}", Serilog.Events.LogEventLevel.Error, ex);
 /*                exc = ex;
                 if (ctx != null)
@@ -153,13 +164,14 @@ new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" }
             }
 
             var dmn_variables = ctx.Variables.Where(ii=>ii.Value.Type != null).Select(ii=>new ItemVar() { Name = ii.Value.Name, Value = ii.Value.Value }).ToArray();
+            contexts.Add(ctx);
 
             return JsonSerializer.Serialize<ItemVar[]>(dmn_variables);
 
 //            StateHasChanged();
 //            return true;
         }
-        DmnExecutionContext ctx;
+       // DmnExecutionContext ctx;
 
         private static DmnExecutionContext getDMN(string XML)
         {

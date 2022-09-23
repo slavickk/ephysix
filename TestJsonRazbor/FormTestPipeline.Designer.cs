@@ -29,6 +29,7 @@ namespace TestJsonRazbor
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
@@ -41,6 +42,11 @@ namespace TestJsonRazbor
             this.button3 = new System.Windows.Forms.Button();
             this.checkBoxSetMoc = new System.Windows.Forms.CheckBox();
             this.logTextBox = new System.Windows.Forms.TextBox();
+            this.checkBoxDebug = new System.Windows.Forms.CheckBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.labelCount = new System.Windows.Forms.Label();
+            this.labelOpened = new System.Windows.Forms.Label();
+            this.labelRexRequest = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // columnHeader1
@@ -67,10 +73,11 @@ namespace TestJsonRazbor
             this.columnHeader2,
             this.columnHeader3});
             this.listView1.FullRowSelect = true;
-            this.listView1.Location = new System.Drawing.Point(3, 11);
+            this.listView1.Location = new System.Drawing.Point(2, 6);
+            this.listView1.Margin = new System.Windows.Forms.Padding(2);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(826, 187);
+            this.listView1.Size = new System.Drawing.Size(483, 96);
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -79,9 +86,10 @@ namespace TestJsonRazbor
             // checkBoxMockReceiver
             // 
             this.checkBoxMockReceiver.AutoSize = true;
-            this.checkBoxMockReceiver.Location = new System.Drawing.Point(3, 207);
+            this.checkBoxMockReceiver.Location = new System.Drawing.Point(2, 104);
+            this.checkBoxMockReceiver.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxMockReceiver.Name = "checkBoxMockReceiver";
-            this.checkBoxMockReceiver.Size = new System.Drawing.Size(158, 34);
+            this.checkBoxMockReceiver.Size = new System.Drawing.Size(94, 19);
             this.checkBoxMockReceiver.TabIndex = 1;
             this.checkBoxMockReceiver.Text = "Moc receiver";
             this.checkBoxMockReceiver.UseVisualStyleBackColor = true;
@@ -90,9 +98,10 @@ namespace TestJsonRazbor
             // checkBoxSender
             // 
             this.checkBoxSender.AutoSize = true;
-            this.checkBoxSender.Location = new System.Drawing.Point(3, 247);
+            this.checkBoxSender.Location = new System.Drawing.Point(2, 124);
+            this.checkBoxSender.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxSender.Name = "checkBoxSender";
-            this.checkBoxSender.Size = new System.Drawing.Size(148, 34);
+            this.checkBoxSender.Size = new System.Drawing.Size(88, 19);
             this.checkBoxSender.TabIndex = 2;
             this.checkBoxSender.Text = "Moc sender";
             this.checkBoxSender.UseVisualStyleBackColor = true;
@@ -100,9 +109,10 @@ namespace TestJsonRazbor
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(3, 300);
+            this.button1.Location = new System.Drawing.Point(2, 150);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(138, 43);
+            this.button1.Size = new System.Drawing.Size(80, 22);
             this.button1.TabIndex = 3;
             this.button1.Text = "Test";
             this.button1.UseVisualStyleBackColor = true;
@@ -114,9 +124,10 @@ namespace TestJsonRazbor
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(178, 204);
+            this.button2.Location = new System.Drawing.Point(104, 102);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(138, 43);
+            this.button2.Size = new System.Drawing.Size(80, 22);
             this.button2.TabIndex = 4;
             this.button2.Text = "Moc file";
             this.button2.UseVisualStyleBackColor = true;
@@ -124,9 +135,10 @@ namespace TestJsonRazbor
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(178, 247);
+            this.button3.Location = new System.Drawing.Point(104, 124);
+            this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(138, 43);
+            this.button3.Size = new System.Drawing.Size(80, 22);
             this.button3.TabIndex = 5;
             this.button3.Text = "Moc file";
             this.button3.UseVisualStyleBackColor = true;
@@ -135,9 +147,10 @@ namespace TestJsonRazbor
             // checkBoxSetMoc
             // 
             this.checkBoxSetMoc.AutoSize = true;
-            this.checkBoxSetMoc.Location = new System.Drawing.Point(179, 300);
+            this.checkBoxSetMoc.Location = new System.Drawing.Point(104, 150);
+            this.checkBoxSetMoc.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxSetMoc.Name = "checkBoxSetMoc";
-            this.checkBoxSetMoc.Size = new System.Drawing.Size(206, 34);
+            this.checkBoxSetMoc.Size = new System.Drawing.Size(120, 19);
             this.checkBoxSetMoc.TabIndex = 6;
             this.checkBoxSetMoc.Text = "Set results as moc";
             this.checkBoxSetMoc.UseVisualStyleBackColor = true;
@@ -149,18 +162,67 @@ namespace TestJsonRazbor
             this.logTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.logTextBox.Location = new System.Drawing.Point(3, 349);
+            this.logTextBox.Location = new System.Drawing.Point(2, 174);
+            this.logTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.logTextBox.Multiline = true;
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logTextBox.Size = new System.Drawing.Size(837, 247);
+            this.logTextBox.Size = new System.Drawing.Size(490, 126);
             this.logTextBox.TabIndex = 7;
+            // 
+            // checkBoxDebug
+            // 
+            this.checkBoxDebug.AutoSize = true;
+            this.checkBoxDebug.Checked = true;
+            this.checkBoxDebug.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxDebug.Location = new System.Drawing.Point(216, 105);
+            this.checkBoxDebug.Name = "checkBoxDebug";
+            this.checkBoxDebug.Size = new System.Drawing.Size(95, 19);
+            this.checkBoxDebug.TabIndex = 8;
+            this.checkBoxDebug.Text = "Debug Mode";
+            this.checkBoxDebug.UseVisualStyleBackColor = true;
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // labelCount
+            // 
+            this.labelCount.AutoSize = true;
+            this.labelCount.Location = new System.Drawing.Point(382, 150);
+            this.labelCount.Name = "labelCount";
+            this.labelCount.Size = new System.Drawing.Size(70, 15);
+            this.labelCount.TabIndex = 9;
+            this.labelCount.Text = "                     ";
+            // 
+            // labelOpened
+            // 
+            this.labelOpened.AutoSize = true;
+            this.labelOpened.Location = new System.Drawing.Point(382, 128);
+            this.labelOpened.Name = "labelOpened";
+            this.labelOpened.Size = new System.Drawing.Size(70, 15);
+            this.labelOpened.TabIndex = 10;
+            this.labelOpened.Text = "                     ";
+            // 
+            // labelRexRequest
+            // 
+            this.labelRexRequest.AutoSize = true;
+            this.labelRexRequest.Location = new System.Drawing.Point(382, 105);
+            this.labelRexRequest.Name = "labelRexRequest";
+            this.labelRexRequest.Size = new System.Drawing.Size(70, 15);
+            this.labelRexRequest.TabIndex = 11;
+            this.labelRexRequest.Text = "                     ";
             // 
             // FormTestPipeline
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 30F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(839, 599);
+            this.ClientSize = new System.Drawing.Size(489, 300);
+            this.Controls.Add(this.labelRexRequest);
+            this.Controls.Add(this.labelOpened);
+            this.Controls.Add(this.labelCount);
+            this.Controls.Add(this.checkBoxDebug);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.checkBoxSetMoc);
             this.Controls.Add(this.button3);
@@ -169,6 +231,7 @@ namespace TestJsonRazbor
             this.Controls.Add(this.checkBoxSender);
             this.Controls.Add(this.checkBoxMockReceiver);
             this.Controls.Add(this.listView1);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "FormTestPipeline";
             this.Text = "FormTestPipeline";
             this.Load += new System.EventHandler(this.FormTestPipeline_Load);
@@ -191,5 +254,10 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.CheckBox checkBoxSetMoc;
         private System.Windows.Forms.TextBox logTextBox;
+        private System.Windows.Forms.CheckBox checkBoxDebug;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label labelCount;
+        private System.Windows.Forms.Label labelOpened;
+        private System.Windows.Forms.Label labelRexRequest;
     }
 }
