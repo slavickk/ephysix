@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <VersionPrefix>0.3.3</VersionPrefix>
+        <Title>UAMP</Title>
+        <Authors>Ilya Ogolikhin</Authors>
+        <Description>Parser for UAMP protocol</Description>
+        <Copyright>2021</Copyright>
+        <RepositoryUrl>https://gitlab.com/SBPFraud/integration/uamp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <NeutralLanguage>en</NeutralLanguage>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0"/>
+    </ItemGroup>
+
+</Project>
