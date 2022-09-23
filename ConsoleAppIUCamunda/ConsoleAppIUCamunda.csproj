@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CamundaInterface\CamundaInterface.csproj" />
+    <ProjectReference Include="..\CCFAProtocols\CCFAProtocols.csproj" />
   </ItemGroup>
 
 </Project>
