@@ -15,6 +15,7 @@ using System.Text;
 using Kestrel;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Microsoft.VisualStudio.Threading;
 //using Microsoft.
 
 namespace ParserLibrary
@@ -46,13 +47,13 @@ namespace ParserLibrary
             {
                 item.answer = response;
                 Interlocked.Increment(ref item.srabot);
-                var semaphoreCount = item.semaphore.Release();
-                if (item.semaphore.CurrentCount == 0)
+                item.semaphore.Set();//.Release();
+                /*if (item.semaphore.CurrentCount == 0)
                 {
                     int ii = 0;
                     Interlocked.Increment(ref item.srabot);
                     item.semaphore.Release();
-                }
+                }*/
 
             }
             // return base.sendResponseInternal(response, context);
@@ -61,14 +62,15 @@ namespace ParserLibrary
         public async Task signal1(string body,SyncroItem semaphoreItem)
         {
             await signal(body, semaphoreItem);
-            if (semaphoreItem.semaphore.CurrentCount == 0)
+           // semaphoreItem.semaphore.
+            if (semaphoreItem.srabot==0)
             {
                 if (debugMode)
                 {
                     Logger.log("Answer without response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, "-");
 
                 }
-                semaphoreItem.semaphore.Release();
+                semaphoreItem.semaphore.Set();
             }
         }
         public class SyncroItem
@@ -76,7 +78,7 @@ namespace ParserLibrary
             public int srabot = 0;
             public int unwait = 0;
             public string answer="";
-            public SemaphoreSlim semaphore= new SemaphoreSlim(0);
+            public AsyncAutoResetEvent semaphore = new AsyncAutoResetEvent();
         }
         public class KestrelServer: Kestrel.KestrelServerImplement
         {
@@ -128,8 +130,12 @@ namespace ParserLibrary
                 using (var stream = new StreamReader(httpContext.Request.Body, Encoding.UTF8))
                 {
                     string str = await stream.ReadToEndAsync();
+                    if (owner.debugMode)
+                        Logger.log("Stream reading:{o} ", Serilog.Events.LogEventLevel.Debug, "any", Thread.CurrentThread.ManagedThreadId);
+
                     owner.signal1(str,item);
                 }
+
                 await item.semaphore.WaitAsync();
                 Interlocked.Increment(ref item.unwait);
 

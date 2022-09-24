@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using ConsolePerformanceTest;
 
 Console.WriteLine("Hello, World!");
-int allCount = 100000;
-int packetSize = 1000;
+int allCount = 1;
+int packetSize = 1;
 int tick = 10000;
 var tasksSend = new List<System.Threading.Tasks.Task<ResponseFromRex>>();
 int execCount = 0;

@@ -67,7 +67,7 @@ namespace ParserLibrary
         {
             if(debugMode)
             {
-                Logger.log("Receive step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, input);
+                Logger.log("Receive step:{o} {input} {thr}", Serilog.Events.LogEventLevel.Debug, "any", owner, input,Thread.CurrentThread.ManagedThreadId);
             }
             if (saver != null)
                 saver.save(input);
@@ -1402,7 +1402,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                             if(ff.addToOutput(rootElInput, ref local_rootOutput))
                                 count++;
                         }*/
-            if (debugMode)
+            if (debugMode )
                 Logger.log("{this} {filter} transform to output  added {count} items, filt:{l} out:{out}", Serilog.Events.LogEventLevel.Debug,this,item, count,el.toJSON(),local_rootOutput.toJSON());
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
@@ -1452,13 +1452,14 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                     // Swap the statements
                     if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
                     {
+                        var nextStep = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep);
 //                        tryParse(ans, context, CheckAndFillNode(sendNode, "From"));
-                        var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep).IDStep };
+                        var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = nextStep.IDStep };
                         newRoot = new AbstrParser.UniEl(newRoot) { Name = "Rec" };
 
 
 
-                        this.tryParse(ans, context, newRoot);
+                        nextStep.tryParse(ans, context, newRoot);
                     }
 
 
