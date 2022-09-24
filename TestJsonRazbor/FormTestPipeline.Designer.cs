@@ -48,6 +48,7 @@ namespace TestJsonRazbor
             this.labelOpened = new System.Windows.Forms.Label();
             this.labelRexRequest = new System.Windows.Forms.Label();
             this.labelPerf = new System.Windows.Forms.Label();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // columnHeader1
@@ -163,13 +164,14 @@ namespace TestJsonRazbor
             this.logTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.logTextBox.Location = new System.Drawing.Point(2, 174);
+            this.logTextBox.Location = new System.Drawing.Point(359, 24);
             this.logTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.logTextBox.Multiline = true;
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logTextBox.Size = new System.Drawing.Size(490, 126);
+            this.logTextBox.Size = new System.Drawing.Size(80, 124);
             this.logTextBox.TabIndex = 7;
+            this.logTextBox.Visible = false;
             // 
             // checkBoxDebug
             // 
@@ -224,11 +226,24 @@ namespace TestJsonRazbor
             this.labelPerf.TabIndex = 12;
             this.labelPerf.Text = "                     ";
             // 
+            // listBox1
+            // 
+            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 15;
+            this.listBox1.Location = new System.Drawing.Point(2, 177);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(490, 124);
+            this.listBox1.TabIndex = 13;
+            // 
             // FormTestPipeline
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(489, 300);
+            this.Controls.Add(this.listBox1);
             this.Controls.Add(this.labelPerf);
             this.Controls.Add(this.labelRexRequest);
             this.Controls.Add(this.labelOpened);
@@ -271,5 +286,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Label labelOpened;
         private System.Windows.Forms.Label labelRexRequest;
         private System.Windows.Forms.Label labelPerf;
+        private System.Windows.Forms.ListBox listBox1;
     }
 }
