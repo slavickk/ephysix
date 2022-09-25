@@ -139,7 +139,7 @@ namespace ParserLibrary
         }
         public static List<ItemChrono> chronos = new List<ItemChrono>();
         public static void regEvent(string patt,DateTime time)
-        {
+        {/*
             var milli = (DateTime.Now - time).TotalMilliseconds;
             var item = chronos.FirstOrDefault(ii => ii.patt == patt);
             if(item == null)
@@ -147,7 +147,7 @@ namespace ParserLibrary
                 item = new ItemChrono() { patt = patt };
                 chronos.Add(item);
             }
-            item.intervals.Add(milli);
+            item.intervals.Add(milli);*/
         }
 
         public static bool includeBodyOnComplexField = false;

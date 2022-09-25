@@ -352,7 +352,7 @@ namespace ParserLibrary
             public override string ToString()
             {
                 if(isPerf)
-                    return $"{this.Name}:{this.sum/this.count}";
+                    return $"{this.count}:{this.Name}:{this.sum/this.count}";
                 return $"{this.Name}:{this.count}";
             }
 
@@ -393,6 +393,11 @@ namespace ParserLibrary
                 Interlocked.Increment(ref count);
                 Add(ref sum, value);
                 //sum += value;
+            }
+
+            public void setCount(int value)
+            {
+                count = value;
             }
             override public void Add(double value)
             {

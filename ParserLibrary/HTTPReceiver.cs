@@ -92,6 +92,7 @@ namespace ParserLibrary
             public static long CountExecuted = 0;
             public static long CountOpened = 0;
             public static Metrics.MetricCount metricCountOpened = new Metrics.MetricCount("HTTPOpenConnectCount", "opened http connection at same time ");
+            public static Metrics.MetricCount metricErrors = new Metrics.MetricCount("HTTPErrorCount", "Error http request ");
             public static Metrics.MetricCount metricCountExecuted = new Metrics.MetricCount("HTTPExecutedConnections", "All http executed connection's ");
             public static Metrics.MetricCount metricTimeExecuted = new Metrics.MetricCount("HTTPExecutedTime", "All http executed connection's time");
             public async Task<string> GetMetrics()
@@ -126,17 +127,38 @@ namespace ParserLibrary
                 Interlocked.Increment(ref CountOpened);
                 metricCountOpened.Increment();
                 DateTime time1=DateTime.Now;
+                bool iError = false;
                 HTTPReceiver.SyncroItem item = new SyncroItem();
                 using (var stream = new StreamReader(httpContext.Request.Body, Encoding.UTF8))
                 {
                     string str = await stream.ReadToEndAsync();
                     if (owner.debugMode)
                         Logger.log("Stream reading:{o} ", Serilog.Events.LogEventLevel.Debug, "any", Thread.CurrentThread.ManagedThreadId);
-
-                    owner.signal1(str,item);
+                    try
+                    {
+                        owner.signal1(str, item).ContinueWith(antecedent =>
+                        {
+                            iError = true;
+                            metricCountOpened.Decrement();
+                            metricErrors.Increment();
+                            httpContext.Response.StatusCode = 404;
+                            item.semaphore.Set();
+                           // Console.WriteLine($"Error {antecedent}!");
+                            //Console.WriteLine($"And how are you this fine {antecedent.Result}?");
+                        },TaskContinuationOptions.OnlyOnFaulted);
+                    }
+                    catch(Exception e77)
+                    {
+                        metricCountOpened.Decrement();
+                        metricErrors.Increment();
+                        httpContext.Response.StatusCode = 404;
+                        return;
+                    }
                 }
 
                 await item.semaphore.WaitAsync();
+                if (iError)
+                    return;
                 Interlocked.Increment(ref item.unwait);
 
                 if (owner.debugMode)
