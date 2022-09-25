@@ -235,7 +235,9 @@ namespace TestJsonRazbor
                 lastPerfCount = HTTPReceiver.KestrelServer.metricCountExecuted.getCount();
                 lastPerfValue = HTTPReceiver.KestrelServer.metricTimeExecuted.sum;
             }
-
+            listBox2.Items.Clear();
+            foreach(var metric in Metrics.metric.allMetrics)
+            listBox2.Items.Add(metric);
             labelRexRequest.Text = $"Opened rex:{StreamSender.countOpenRexRequest}";
 
             labelCount.Text = $"Executed:{HTTPReceiver.KestrelServer.CountExecuted}";

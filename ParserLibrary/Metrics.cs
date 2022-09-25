@@ -349,6 +349,13 @@ namespace ParserLibrary
 
         public class MetricCount : Metric
         {
+            public override string ToString()
+            {
+                if(isPerf)
+                    return $"{this.Name}:{this.sum/this.count}";
+                return $"{this.Name}:{this.count}";
+            }
+
             //            public bool noAverage;
             public bool isSuccess;
             int count = 0;
@@ -372,12 +379,15 @@ namespace ParserLibrary
             public override Type typeMetric => Type.count;
             public void Add(DateTime time)
             {
+                
+                isPerf = true;
                 Interlocked.Increment(ref count);
                 Add(ref sum, (DateTime.Now - time).TotalMilliseconds);
 
              /*   count++;
                 sum += (DateTime.Now - time).TotalMilliseconds;*/
             }
+            public bool isPerf = false;
             public void Add(DateTime time, long value)
             {
                 Interlocked.Increment(ref count);

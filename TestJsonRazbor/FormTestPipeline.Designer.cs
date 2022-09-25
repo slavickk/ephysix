@@ -49,6 +49,12 @@ namespace TestJsonRazbor
             this.labelRexRequest = new System.Windows.Forms.Label();
             this.labelPerf = new System.Windows.Forms.Label();
             this.listBox1 = new System.Windows.Forms.ListBox();
+            this.listBox2 = new System.Windows.Forms.ListBox();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // columnHeader1
@@ -75,11 +81,11 @@ namespace TestJsonRazbor
             this.columnHeader2,
             this.columnHeader3});
             this.listView1.FullRowSelect = true;
-            this.listView1.Location = new System.Drawing.Point(2, 6);
+            this.listView1.Location = new System.Drawing.Point(2, 2);
             this.listView1.Margin = new System.Windows.Forms.Padding(2);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(483, 96);
+            this.listView1.Size = new System.Drawing.Size(493, 96);
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -88,7 +94,7 @@ namespace TestJsonRazbor
             // checkBoxMockReceiver
             // 
             this.checkBoxMockReceiver.AutoSize = true;
-            this.checkBoxMockReceiver.Location = new System.Drawing.Point(2, 104);
+            this.checkBoxMockReceiver.Location = new System.Drawing.Point(2, 100);
             this.checkBoxMockReceiver.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxMockReceiver.Name = "checkBoxMockReceiver";
             this.checkBoxMockReceiver.Size = new System.Drawing.Size(94, 19);
@@ -100,7 +106,7 @@ namespace TestJsonRazbor
             // checkBoxSender
             // 
             this.checkBoxSender.AutoSize = true;
-            this.checkBoxSender.Location = new System.Drawing.Point(2, 124);
+            this.checkBoxSender.Location = new System.Drawing.Point(2, 120);
             this.checkBoxSender.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxSender.Name = "checkBoxSender";
             this.checkBoxSender.Size = new System.Drawing.Size(88, 19);
@@ -111,7 +117,7 @@ namespace TestJsonRazbor
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(2, 150);
+            this.button1.Location = new System.Drawing.Point(2, 146);
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(80, 22);
@@ -126,7 +132,7 @@ namespace TestJsonRazbor
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(104, 102);
+            this.button2.Location = new System.Drawing.Point(104, 98);
             this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(80, 22);
@@ -137,7 +143,7 @@ namespace TestJsonRazbor
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(104, 124);
+            this.button3.Location = new System.Drawing.Point(104, 120);
             this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(80, 22);
@@ -149,7 +155,7 @@ namespace TestJsonRazbor
             // checkBoxSetMoc
             // 
             this.checkBoxSetMoc.AutoSize = true;
-            this.checkBoxSetMoc.Location = new System.Drawing.Point(104, 150);
+            this.checkBoxSetMoc.Location = new System.Drawing.Point(104, 146);
             this.checkBoxSetMoc.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxSetMoc.Name = "checkBoxSetMoc";
             this.checkBoxSetMoc.Size = new System.Drawing.Size(120, 19);
@@ -164,12 +170,12 @@ namespace TestJsonRazbor
             this.logTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.logTextBox.Location = new System.Drawing.Point(359, 24);
+            this.logTextBox.Location = new System.Drawing.Point(104, 2);
             this.logTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.logTextBox.Multiline = true;
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logTextBox.Size = new System.Drawing.Size(80, 124);
+            this.logTextBox.Size = new System.Drawing.Size(327, 51);
             this.logTextBox.TabIndex = 7;
             this.logTextBox.Visible = false;
             // 
@@ -178,7 +184,7 @@ namespace TestJsonRazbor
             this.checkBoxDebug.AutoSize = true;
             this.checkBoxDebug.Checked = true;
             this.checkBoxDebug.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxDebug.Location = new System.Drawing.Point(216, 105);
+            this.checkBoxDebug.Location = new System.Drawing.Point(190, 101);
             this.checkBoxDebug.Name = "checkBoxDebug";
             this.checkBoxDebug.Size = new System.Drawing.Size(95, 19);
             this.checkBoxDebug.TabIndex = 8;
@@ -220,7 +226,7 @@ namespace TestJsonRazbor
             // labelPerf
             // 
             this.labelPerf.AutoSize = true;
-            this.labelPerf.Location = new System.Drawing.Point(216, 133);
+            this.labelPerf.Location = new System.Drawing.Point(216, 129);
             this.labelPerf.Name = "labelPerf";
             this.labelPerf.Size = new System.Drawing.Size(70, 15);
             this.labelPerf.TabIndex = 12;
@@ -233,34 +239,66 @@ namespace TestJsonRazbor
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox1.FormattingEnabled = true;
             this.listBox1.ItemHeight = 15;
-            this.listBox1.Location = new System.Drawing.Point(2, 177);
+            this.listBox1.Location = new System.Drawing.Point(2, 173);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(490, 124);
+            this.listBox1.Size = new System.Drawing.Size(493, 124);
             this.listBox1.TabIndex = 13;
+            // 
+            // listBox2
+            // 
+            this.listBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBox2.FormattingEnabled = true;
+            this.listBox2.ItemHeight = 15;
+            this.listBox2.Location = new System.Drawing.Point(0, 0);
+            this.listBox2.Name = "listBox2";
+            this.listBox2.Size = new System.Drawing.Size(132, 300);
+            this.listBox2.TabIndex = 14;
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.listView1);
+            this.splitContainer1.Panel1.Controls.Add(this.listBox1);
+            this.splitContainer1.Panel1.Controls.Add(this.checkBoxMockReceiver);
+            this.splitContainer1.Panel1.Controls.Add(this.labelPerf);
+            this.splitContainer1.Panel1.Controls.Add(this.logTextBox);
+            this.splitContainer1.Panel1.Controls.Add(this.checkBoxSender);
+            this.splitContainer1.Panel1.Controls.Add(this.button1);
+            this.splitContainer1.Panel1.Controls.Add(this.button2);
+            this.splitContainer1.Panel1.Controls.Add(this.button3);
+            this.splitContainer1.Panel1.Controls.Add(this.checkBoxDebug);
+            this.splitContainer1.Panel1.Controls.Add(this.checkBoxSetMoc);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.listBox2);
+            this.splitContainer1.Size = new System.Drawing.Size(634, 300);
+            this.splitContainer1.SplitterDistance = 498;
+            this.splitContainer1.TabIndex = 15;
             // 
             // FormTestPipeline
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(489, 300);
-            this.Controls.Add(this.listBox1);
-            this.Controls.Add(this.labelPerf);
-            this.Controls.Add(this.labelRexRequest);
-            this.Controls.Add(this.labelOpened);
-            this.Controls.Add(this.labelCount);
-            this.Controls.Add(this.checkBoxDebug);
-            this.Controls.Add(this.logTextBox);
-            this.Controls.Add(this.checkBoxSetMoc);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.checkBoxSender);
-            this.Controls.Add(this.checkBoxMockReceiver);
-            this.Controls.Add(this.listView1);
+            this.ClientSize = new System.Drawing.Size(634, 300);
+            this.Controls.Add(this.splitContainer1);
+            this.splitContainer1.Panel1.Controls.Add(this.labelRexRequest);
+            this.splitContainer1.Panel1.Controls.Add(this.labelOpened);
+            this.splitContainer1.Panel1.Controls.Add(this.labelCount);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "FormTestPipeline";
             this.Text = "FormTestPipeline";
             this.Load += new System.EventHandler(this.FormTestPipeline_Load);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -287,5 +325,7 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Label labelRexRequest;
         private System.Windows.Forms.Label labelPerf;
         private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ListBox listBox2;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }
