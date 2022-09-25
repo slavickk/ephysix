@@ -17,13 +17,16 @@ namespace ParserLibrary
     public class DMNExecutorSender : Sender
     {
         public int countPrewarmingIntances = 4;
+        public static Metrics.MetricCount metricPerformance = new Metrics.MetricCount("DMNTime", "DMN time performance");
+        public static Metrics.MetricCount metricCount = new Metrics.MetricCount("DMNOpenCount", "DMN open exec counter");
+        public static Metrics.MetricCount metricContexts = new Metrics.MetricCount("DMNCountContexts", "DMN context counter");
         public override void Init(Pipeline owner)
         {
             for (int i = 0; i < countPrewarmingIntances; i++)
                 contexts.Add(getDMN(XML));
 //            base.Init(owner);
         }
-        static  List<net.adamec.lib.common.dmn.engine.parser.dto.DmnModel.Script> listScripts;
+       // static  List<net.adamec.lib.common.dmn.engine.parser.dto.DmnModel.Script> listScripts;
         //string[] allVariables = new string[] { };
         public class SignalledRule
         {
@@ -178,7 +181,7 @@ namespace ParserLibrary
             DmnExecutionContext ctx;
             var def = DmnParser.ParseString(XML, DmnParser.DmnVersionEnum.V1_3);
             //       allVariables = await formListVariables();
-            listScripts = def.extensionElements.Script;
+          //  listScripts = def.extensionElements.Script;
             var definition = DmnDefinitionFactory.CreateDmnDefinition(def);
 
             ctx = DmnExecutionContextFactory.CreateExecutionContext(definition);
@@ -200,8 +203,13 @@ namespace ParserLibrary
         DateTime timeFinish;
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
-
-            return await execDmn(root);
+            metricCount.Increment();
+            DateTime time1= DateTime.Now;
+            var res= await execDmn(root);
+            metricCount.Decrement();
+            metricPerformance.Add(time1);
+            metricContexts.Add(contexts.Count);
+            return res;
 //            return ans.ToString();
 
         }
