@@ -1052,6 +1052,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                     step.receiver.owner = step;
                 if (step.sender != null)
                     step.sender.owner = step;
+                step.Init(this);
 
             }
 //            step.owner = this;
@@ -1349,11 +1350,13 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
                 if (sucMetric != null)
                     sucMetric.Add(time2);
+               // throw new Exception("aaa");
             }
             catch (Exception e77)
             {
                 if(errMetric != null)
                     errMetric.Add(time2);
+                Logger.log(e77.ToString(), Serilog.Events.LogEventLevel.Error);
                 rootElement = null;
                 throw;
             }
