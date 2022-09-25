@@ -208,7 +208,7 @@ namespace ParserLibrary
             var res= await execDmn(root);
             metricCount.Decrement();
             metricPerformance.Add(time1);
-            metricContexts.Add(contexts.Count);
+            metricContexts.setCount(contexts.Count);
             return res;
 //            return ans.ToString();
 
