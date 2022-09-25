@@ -1719,6 +1719,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public static long countOpenRexRequest = 0;
 
         public static Metrics.MetricCount metricStreamConcurrent = new Metrics.MetricCount("StreamConcurrCount", "Some time concurrent count");
+        public static Metrics.MetricCount metricPerformanceStreams = new Metrics.MetricCount("StreamTime", "Stream peformance time");
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
             metricStreamConcurrent.Increment();
@@ -1730,6 +1731,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             Interval+=(DateTime.Now-time1); 
             Interlocked.Decrement(ref countOpenRexRequest);
             metricStreamConcurrent.Decrement();
+            metricPerformanceStreams.Add(time1);
             return ret;
         }
 
