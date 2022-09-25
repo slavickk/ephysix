@@ -31,7 +31,7 @@ namespace ParserLibrary
         }
         public override async Task startInternal()
         {
-            await server.Start(port);
+            await server.Start(port,1000);
            // return base.startInternal();
         }
         //namespace Kestrel;
