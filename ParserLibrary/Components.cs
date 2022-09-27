@@ -81,6 +81,11 @@ namespace ParserLibrary
 
         public async Task sendResponse(string response, object context)
         {
+            if (debugMode)
+                Logger.log("Send answer {content} to {step} ", Serilog.Events.LogEventLevel.Debug, "any", response, owner);
+            if (saver != null)
+                saver.save(response);
+
             if (!MocMode)
                 await sendResponseInternal(response, context);
         }
@@ -1288,7 +1293,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             public List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
             public object context;
         }
-        
+        public bool isBridge = false;
         private async Task Receiver_stringReceived(string input,object context)
         {
 
@@ -1298,9 +1303,17 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
             rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
             owner.lastExecutedEl = rootElement;
-            await FilterInfo(input, time2, contextItem, rootElement);
+            if (!isBridge)
+            {
+                await FilterInfo(input, time2, contextItem, rootElement);
 
-            await checkChilds(contextItem, rootElement);
+                await checkChilds(contextItem, rootElement);
+            }
+            else
+            {
+                var ans =await sender?.send(input);
+                await receiver.sendResponse(ans,context);
+            }
 
             contextItem.list.Clear();
             contextItem = null;
@@ -1488,9 +1501,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
                 var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
                 var content = local_rootOutput.toJSON();
-                if (debugMode)
-                    Logger.log("Send answer {content} to {step} ", Serilog.Events.LogEventLevel.Debug,"any",content, step);
-                await step.receiver.sendResponseInternal(content, context.context);
+                await step.receiver.sendResponse(content, context.context);
 
             }
             else

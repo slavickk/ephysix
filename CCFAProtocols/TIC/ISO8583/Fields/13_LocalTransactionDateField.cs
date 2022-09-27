@@ -14,6 +14,12 @@ namespace CCFAProtocols.TIC.ISO8583.Fields
             if (isomessage.CheckBitExist(FieldNumber))
             {
                 char[] DateChars = reader.ReadChars(4);
+                if (DateChars[0] == '0' && DateChars[1] == '0' && DateChars[2] == '0' && DateChars[3] == '0')
+                {
+                    isomessage.LocalTransactionDate = null;
+                    return;
+                }
+
                 isomessage.LocalTransactionDate =
                     DateTime.ParseExact(DateChars, "MMdd", CultureInfo.InvariantCulture);
             }
