@@ -48,6 +48,7 @@ namespace TestJsonRazbor
             {
                 textBoxIDStep.Text = currentStep.IDStep;
                 textBoxIDPrevStep.Text = currentStep.IDPreviousStep;
+                checkBox1.Checked = currentStep.isBridge;
                 textBoxResponceStep.Text = currentStep.IDResponsedReceiverStep;
                 if (currentStep.IDPreviousStep == "")
                     buttonSetupReceiver.Enabled = true;
@@ -392,6 +393,7 @@ namespace TestJsonRazbor
         {
             currentStep.IDStep=textBoxIDStep.Text;
             currentStep.IDPreviousStep=textBoxIDPrevStep.Text;
+            currentStep.isBridge = checkBox1.Checked;
             currentStep.IDResponsedReceiverStep=textBoxResponceStep.Text ;
             currentStep.description=textBoxStepDescription.Text  ;
             treeView1.Refresh();
@@ -475,6 +477,11 @@ namespace TestJsonRazbor
             var data = JsonConvert.DeserializeObject<dynamic>(json)!;
             var genre = data.Genre;
             var imdb = data.Rating.Imdb;
+        }
+
+        private void textBoxIDPrevStep_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
