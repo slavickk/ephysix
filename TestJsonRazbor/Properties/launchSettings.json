@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TestJsonRazbor": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "SECRET_WORD": "aaa"
+      }
+    }
+  }
+}

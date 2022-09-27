@@ -100,8 +100,9 @@ namespace TestJsonRazbor
             }
         }
 
-        private void FormPipeline_Load(object sender, EventArgs e)
+        private async void FormPipeline_Load(object sender, EventArgs e)
         {
+         //   await Pipeline.GetContentFromGit("https://github.com/tk42/swagger-to-html-standalone/blob/master/README.md"/*"https://github.com/slavickk/projectx/blob/dev/.gitlab-ci.yml"*/);
             string json_body;
             /*
             using (StreamReader sr = new StreamReader(@"C:\Users\ygasnikov\source\repos\swagger-to-html-standalone-master\example\swagger.json"))
