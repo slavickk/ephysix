@@ -177,7 +177,9 @@ namespace ParserLibrary
         {
             get;
         }
-      //  public string IDResponsedReceiverStep = "";
+        //  public string IDResponsedReceiverStep = "";
+        string MocContent = "";
+        object syncro= new object();
         public async Task<string> send(AbstrParser.UniEl root)
         {
             DateTime time1 = DateTime.Now;
@@ -190,17 +192,28 @@ namespace ParserLibrary
                     ans = await send(root.toJSON());
             } else
             {
-                await Task.Delay(10);
+               // await Task.Delay(10);
                 if ((MocBody ?? "") != "")
                     ans = MocBody;
                 else
                 {
-                   // string ans;
-                    using (StreamReader sr = new StreamReader(MocFile))
+                    if (MocContent == "")
                     {
-                        ans = sr.ReadToEnd();
-                 //       return ans;
+                        lock (syncro)
+                        {
+                            if (MocContent == "")
+                            {
+
+                                // string ans;
+                                using (StreamReader sr = new StreamReader(MocFile))
+                                {
+                                    MocContent = sr.ReadToEnd();
+                                    //       return ans;
+                                }
+                            }
+                        }
                     }
+                    ans = MocContent;
                 }
             }
             if(owner.debugMode)
