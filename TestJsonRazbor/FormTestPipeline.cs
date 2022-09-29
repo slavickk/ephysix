@@ -111,7 +111,7 @@ namespace TestJsonRazbor
         {
 
             var log = ((LogEventArgs)e).Log;
-            listBox1.Items.Insert(0, $"{log.Timestamp.DateTime.ToString("HH:mm:ss")}: {log.RenderMessage()}\r\n{this.logTextBox.Text}");
+            listBox1.Items.Insert(0, $"{log.Timestamp.DateTime.ToString("HH:mm:ss")}:{log.RenderMessage()} {((log.Exception != null)?$"Exc:{log.Exception}":"")} \r\n{this.logTextBox.Text}");
             //this.logTextBox.Text = $"{log.Timestamp.DateTime.ToString("HH:mm:ss")}: {log.RenderMessage()}\r\n{this.logTextBox.Text}";
         }
         private void checkBoxMockReceiver_CheckedChanged(object sender, EventArgs e)

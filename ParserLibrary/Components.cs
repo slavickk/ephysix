@@ -1311,8 +1311,16 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             }
             else
             {
-                var ans =await sender?.send(input);
-                await receiver.sendResponse(ans,context);
+                try
+                {
+                    var ans = await sender?.send(input);
+                    await receiver.sendResponse(ans, context);
+                } 
+                catch(Exception e66)
+                {
+                    Logger.log($"On send error{e66.ToString()}", Serilog.Events.LogEventLevel.Error);
+                    throw;
+                }
             }
 
             contextItem.list.Clear();
