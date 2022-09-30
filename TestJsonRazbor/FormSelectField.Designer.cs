@@ -700,7 +700,7 @@ namespace TestJsonRazbor
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(1108, 700);
+            this.splitContainer1.Size = new System.Drawing.Size(1108, 694);
             this.splitContainer1.SplitterDistance = 198;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 38;
@@ -718,7 +718,7 @@ namespace TestJsonRazbor
             treeNode1.Text = "Root";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1});
-            this.treeView1.Size = new System.Drawing.Size(196, 447);
+            this.treeView1.Size = new System.Drawing.Size(196, 556);
             this.treeView1.TabIndex = 1;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             this.treeView1.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseDoubleClick);
@@ -740,14 +740,16 @@ namespace TestJsonRazbor
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.treeView2);
-            this.splitContainer2.Size = new System.Drawing.Size(908, 700);
+            this.splitContainer2.Size = new System.Drawing.Size(908, 694);
             this.splitContainer2.SplitterDistance = 760;
             this.splitContainer2.SplitterWidth = 2;
             this.splitContainer2.TabIndex = 0;
             // 
             // treeView2
             // 
-            this.treeView2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.treeView2.HideSelection = false;
             this.treeView2.Location = new System.Drawing.Point(0, 0);
             this.treeView2.Margin = new System.Windows.Forms.Padding(2);
@@ -756,7 +758,7 @@ namespace TestJsonRazbor
             treeNode2.Text = "Root";
             this.treeView2.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode2});
-            this.treeView2.Size = new System.Drawing.Size(146, 700);
+            this.treeView2.Size = new System.Drawing.Size(146, 555);
             this.treeView2.TabIndex = 2;
             this.treeView2.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
@@ -856,7 +858,7 @@ namespace TestJsonRazbor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1122, 590);
+            this.ClientSize = new System.Drawing.Size(1122, 584);
             this.Controls.Add(this.textBoxNameFilter);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.textBox1);
