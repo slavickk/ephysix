@@ -671,12 +671,12 @@ namespace TestJsonRazbor
         {
             ConverterOutput converter = null;
 //            if (checkBoxHash.Checked)
-             if(radioButtonSimple.Checked)
+             if(0==1/*radioButtonSimple.Checked*/)
             {
 
                 converter = new HashOutput() { hashConverter = new Hasher(), aliasProducer = Activator.CreateInstance(comboBoxTypeAlias.SelectedItem as Type) as AliasProducer };
             }
-            if (radioButtonCrypto.Checked)
+            if (0==1/*radioButtonCrypto.Checked*/)
             {
 
                 converter = new HashOutput() { hashConverter = new CryptoHash(), aliasProducer = Activator.CreateInstance(comboBoxTypeAlias.SelectedItem as Type) as AliasProducer };
@@ -684,14 +684,14 @@ namespace TestJsonRazbor
             switch (comboBox3.SelectedIndex)
             {
                 case 0:
-                    return new ConstantValue() { converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
+                    return new ConstantValue() {viewAsJsonString= checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
                 case 1:
                     if (comboBox2.SelectedIndex != 1)
-                        return new ExtractFromInputValue() { converter = converter, outputPath = textBoxFieldName.Text,isUniqOutputPath=checkBoxIsUniq.Checked, getNodeNameOnly=checkBoxNameOnly.Checked,returnOnlyFirstRow=checkBoxReturnFirstField.Checked, copyChildsOnly=checkBoxCopyChildOnly.Checked,  conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
+                        return new ExtractFromInputValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text,isUniqOutputPath=checkBoxIsUniq.Checked, getNodeNameOnly=checkBoxNameOnly.Checked,returnOnlyFirstRow=checkBoxReturnFirstField.Checked, copyChildsOnly=checkBoxCopyChildOnly.Checked,  conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
                     else
-                        return new ExtractFromInputValueWithScript() { converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
+                        return new ExtractFromInputValueWithScript() {viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
                 case 2:
-                    return new TemplateOutputValue() { converter = converter, outputPath = textBoxFieldName.Text, getNodeNameOnly = checkBoxNameOnly.Checked, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody=textBoxTemplate.Text };  
+                    return new TemplateOutputValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, getNodeNameOnly = checkBoxNameOnly.Checked, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody=textBoxTemplate.Text };  
                     break;
                 default:
                     break;
@@ -751,7 +751,7 @@ namespace TestJsonRazbor
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             OutputValue val = listBox1.SelectedItem as OutputValue;
-            radioButtonNoHash.Checked = true;
+           // radioButtonNoHash.Checked = true;
             comboBoxTypeAlias.SelectedIndex = -1;
             if (val != null)
             {
@@ -760,10 +760,10 @@ namespace TestJsonRazbor
                    if(val.converter.GetType().IsAssignableTo(typeof(HashOutput)))
                     {
                         var conv =val.converter as HashOutput;  
-                        if(conv.hashConverter.GetType() == typeof(Hasher))
+                       /* if(conv.hashConverter.GetType() == typeof(Hasher))
                             radioButtonSimple.Checked = true;
                         else
-                            radioButtonCrypto.Checked = true;
+                            radioButtonCrypto.Checked = true;*/
                         if (conv.aliasProducer != null)
                         {
                             for (int i = 0; i < comboBoxTypeAlias.Items.Count; i++)
@@ -788,6 +788,7 @@ namespace TestJsonRazbor
                 textBoxFieldName.Text = val.outputPath;
                 checkBoxIsUniq.Checked = val.isUniqOutputPath;
                 checkBoxNameOnly.Checked = val.getNodeNameOnly;
+                checkBoxPackToJson.Checked=val.viewAsJsonString;
                 if (val is ConstantValue)
                 {
                     comboBox3.SelectedIndex = 0;

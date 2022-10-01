@@ -261,6 +261,7 @@ namespace ParserLibrary
             {
                 return value.Replace("\"", "\\\"");
             }
+            public bool packToJsonString = false;
             public string to_json_internal(ref string val,bool isArr1=false)
             {
 /*                JsonElement el = new JsonElement() ;
@@ -271,64 +272,78 @@ namespace ParserLibrary
                 {
                     int yy = 0;
                 }
-                if (this.childs.Count > 0)
+                if (this.childs.Count > 0 && !packToJsonString)
                 {
-                    val += "{";
-                    string prevName = "";
-                    bool isArr = false;
-                    for (int i = 0; i < this.childs.Count; i++)
-                    {
-                 /*       if(i==10)
-                        {
-                            int yy = 0;
-                        }*/
-                        if (firstElnArray(this.childs ,i))
-//                        if(isArr==false && i< this.childs.Count-2 && this.childs[i].Name== this.childs[i+1].Name)
-                        {
-                            isArr = true;
-                            val += "\"" + this.childs[i].Name + "\":[";
-                        }
-                        if (prevName == this.childs[i].Name)
-                        {
-                            isArr = true;
-                        }
-
-                        this.childs[i].to_json_internal(ref val,isArr);
-                        if (lastElInArray(this.childs, i))
-                        {
-                            isArr = false;
-                            val += "]";
- /*                           if (i != this.childs.Count - 1 && !(isArr && this.childs[i].Name != this.childs[i + 1].Name))
-                                val += ",";*/
-                        }
-                        if (i != this.childs.Count - 1 && !(isArr  && this.childs[i].Name != this.childs[i + 1].Name))
-                            val += ",";
-                        prevName = this.childs[i].Name;
-                    }
-                    val += "}";
-                } else
+                    val = ChildsToJson(val);
+                }
+                else
                 {
-                    if (this.Value != null)
+                    if (packToJsonString)
                     {
-                        if (this.Value.GetType() == typeof(string))
-                            val += "\"" + mask(this.Value.ToString()) + "\"";
-                        else
-                        {
-                            if(this.Value != null && this.Value.GetType() == typeof(bool))
-                            {
-                //                int yy = 0;
-                                if ((bool)this.Value)
-                                    val += "true";
-                                else
-                                    val += "false";
-                            } else
-                                val += mask(this.Value.ToString());
-                        }
+                        val+="\""+mask(ChildsToJson(val)) + "\"";
                     }
                     else
-                        val += "\"\"";
-
+                    {
+                        if (this.Value != null)
+                        {
+                            if (this.Value.GetType() == typeof(string))
+                                val += "\"" + mask(this.Value.ToString()) + "\"";
+                            else
+                            {
+                                if (this.Value != null && this.Value.GetType() == typeof(bool))
+                                {
+                                    //                int yy = 0;
+                                    if ((bool)this.Value)
+                                        val += "true";
+                                    else
+                                        val += "false";
+                                }
+                                else
+                                    val += mask(this.Value.ToString());
+                            }
+                        }
+                        else
+                            val += "\"\"";
+                    }
                 }
+                return val;
+            }
+
+            private string ChildsToJson(string val)
+            {
+                val += "{";
+                string prevName = "";
+                bool isArr = false;
+                for (int i = 0; i < this.childs.Count; i++)
+                {
+                    /*       if(i==10)
+                           {
+                               int yy = 0;
+                           }*/
+                    if (firstElnArray(this.childs, i))
+                    //                        if(isArr==false && i< this.childs.Count-2 && this.childs[i].Name== this.childs[i+1].Name)
+                    {
+                        isArr = true;
+                        val += "\"" + this.childs[i].Name + "\":[";
+                    }
+                    if (prevName == this.childs[i].Name)
+                    {
+                        isArr = true;
+                    }
+
+                    this.childs[i].to_json_internal(ref val, isArr);
+                    if (lastElInArray(this.childs, i))
+                    {
+                        isArr = false;
+                        val += "]";
+                        /*                           if (i != this.childs.Count - 1 && !(isArr && this.childs[i].Name != this.childs[i + 1].Name))
+                                                       val += ",";*/
+                    }
+                    if (i != this.childs.Count - 1 && !(isArr && this.childs[i].Name != this.childs[i + 1].Name))
+                        val += ",";
+                    prevName = this.childs[i].Name;
+                }
+                val += "}";
                 return val;
             }
 

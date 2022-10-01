@@ -37,9 +37,6 @@ namespace TestJsonRazbor
             this.button7 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.checkBoxIsUniq = new System.Windows.Forms.CheckBox();
-            this.radioButtonCrypto = new System.Windows.Forms.RadioButton();
-            this.radioButtonSimple = new System.Windows.Forms.RadioButton();
-            this.radioButtonNoHash = new System.Windows.Forms.RadioButton();
             this.comboBoxTypeAlias = new System.Windows.Forms.ComboBox();
             this.checkBoxHash = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
@@ -97,6 +94,7 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.textBoxNameFilter = new System.Windows.Forms.TextBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.checkBoxPackToJson = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -128,10 +126,8 @@ namespace TestJsonRazbor
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.checkBoxPackToJson);
             this.groupBox2.Controls.Add(this.checkBoxIsUniq);
-            this.groupBox2.Controls.Add(this.radioButtonCrypto);
-            this.groupBox2.Controls.Add(this.radioButtonSimple);
-            this.groupBox2.Controls.Add(this.radioButtonNoHash);
             this.groupBox2.Controls.Add(this.comboBoxTypeAlias);
             this.groupBox2.Controls.Add(this.checkBoxHash);
             this.groupBox2.Controls.Add(this.button5);
@@ -169,49 +165,15 @@ namespace TestJsonRazbor
             this.checkBoxIsUniq.Text = "Uniq";
             this.checkBoxIsUniq.UseVisualStyleBackColor = true;
             // 
-            // radioButtonCrypto
-            // 
-            this.radioButtonCrypto.AutoSize = true;
-            this.radioButtonCrypto.Location = new System.Drawing.Point(659, 36);
-            this.radioButtonCrypto.Margin = new System.Windows.Forms.Padding(2);
-            this.radioButtonCrypto.Name = "radioButtonCrypto";
-            this.radioButtonCrypto.Size = new System.Drawing.Size(61, 19);
-            this.radioButtonCrypto.TabIndex = 46;
-            this.radioButtonCrypto.Text = "Crypto";
-            this.radioButtonCrypto.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonSimple
-            // 
-            this.radioButtonSimple.AutoSize = true;
-            this.radioButtonSimple.Location = new System.Drawing.Point(658, 21);
-            this.radioButtonSimple.Margin = new System.Windows.Forms.Padding(2);
-            this.radioButtonSimple.Name = "radioButtonSimple";
-            this.radioButtonSimple.Size = new System.Drawing.Size(61, 19);
-            this.radioButtonSimple.TabIndex = 45;
-            this.radioButtonSimple.Text = "Simple";
-            this.radioButtonSimple.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonNoHash
-            // 
-            this.radioButtonNoHash.AutoSize = true;
-            this.radioButtonNoHash.Checked = true;
-            this.radioButtonNoHash.Location = new System.Drawing.Point(658, 6);
-            this.radioButtonNoHash.Margin = new System.Windows.Forms.Padding(2);
-            this.radioButtonNoHash.Name = "radioButtonNoHash";
-            this.radioButtonNoHash.Size = new System.Drawing.Size(68, 19);
-            this.radioButtonNoHash.TabIndex = 44;
-            this.radioButtonNoHash.TabStop = true;
-            this.radioButtonNoHash.Text = "NoHash";
-            this.radioButtonNoHash.UseVisualStyleBackColor = true;
-            // 
             // comboBoxTypeAlias
             // 
             this.comboBoxTypeAlias.FormattingEnabled = true;
-            this.comboBoxTypeAlias.Location = new System.Drawing.Point(722, 24);
+            this.comboBoxTypeAlias.Location = new System.Drawing.Point(545, 7);
             this.comboBoxTypeAlias.Margin = new System.Windows.Forms.Padding(2);
             this.comboBoxTypeAlias.Name = "comboBoxTypeAlias";
-            this.comboBoxTypeAlias.Size = new System.Drawing.Size(158, 23);
+            this.comboBoxTypeAlias.Size = new System.Drawing.Size(23, 23);
             this.comboBoxTypeAlias.TabIndex = 43;
+            this.comboBoxTypeAlias.Visible = false;
             this.comboBoxTypeAlias.SelectedIndexChanged += new System.EventHandler(this.comboBoxTypeAlias_SelectedIndexChanged);
             // 
             // checkBoxHash
@@ -854,6 +816,16 @@ namespace TestJsonRazbor
             // 
             this.toolTip1.ForeColor = System.Drawing.Color.LavenderBlush;
             // 
+            // checkBoxPackToJson
+            // 
+            this.checkBoxPackToJson.AutoSize = true;
+            this.checkBoxPackToJson.Location = new System.Drawing.Point(573, 7);
+            this.checkBoxPackToJson.Name = "checkBoxPackToJson";
+            this.checkBoxPackToJson.Size = new System.Drawing.Size(114, 19);
+            this.checkBoxPackToJson.TabIndex = 48;
+            this.checkBoxPackToJson.Text = "PackToJsonValue";
+            this.checkBoxPackToJson.UseVisualStyleBackColor = true;
+            // 
             // FormSelectField
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -944,9 +916,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button buttonUp;
         private System.Windows.Forms.ComboBox comboBoxTypeConvert;
         private System.Windows.Forms.ComboBox comboBoxTypeAlias;
-        private System.Windows.Forms.RadioButton radioButtonCrypto;
-        private System.Windows.Forms.RadioButton radioButtonSimple;
-        private System.Windows.Forms.RadioButton radioButtonNoHash;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Panel panel1;
@@ -958,5 +927,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.TextBox textBoxNameFilter;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.CheckBox checkBoxReturnFirstField;
+        private System.Windows.Forms.CheckBox checkBoxPackToJson;
     }
 }

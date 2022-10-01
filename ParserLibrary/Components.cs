@@ -511,6 +511,8 @@ return true;
 
     public abstract class OutputValue
     {
+
+        public bool viewAsJsonString = false;
         public string outputPath;
         public bool isUniqOutputPath = true;
         public enum TypeCopy { Value, Structure };
@@ -543,6 +545,8 @@ return true;
                     el = new AbstrParser.UniEl(rootEl) { Name = outs[i] };
                 rootEl = el;
             }
+            if (viewAsJsonString)
+                rootEl.packToJsonString = true;
             return rootEl;
         }
 
