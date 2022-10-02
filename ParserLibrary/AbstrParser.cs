@@ -83,6 +83,7 @@ namespace ParserLibrary
     }
     public abstract class AbstrParser
     {
+//        protected bool cantTryParse=false;
         public static AbstrParser.UniEl getLocalRoot(AbstrParser.UniEl item1, string[] patts)
         {
             var item = item1;
@@ -187,7 +188,7 @@ namespace ParserLibrary
        // public static Drawer treeView1;
         public static List<AbstrParser> availParser = new List<AbstrParser>() { new JsonParser(), new XmlParser(), new Base64Parser(), new IPAddrParser() };
         public static DrawerFactory drawerFactory;
-        public abstract bool canRazbor(string line, UniEl ancestor, List<UniEl> list);
+        public abstract bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false);
         public virtual bool canRazbor(byte[] bytes, UniEl ancestor, List<UniEl> list)
         {
             return false;
@@ -280,7 +281,7 @@ namespace ParserLibrary
                 {
                     if (packToJsonString)
                     {
-                        val+="\""+mask(ChildsToJson(val)) + "\"";
+                        val+="\""+mask(ChildsToJson("")) + "\"";
                     }
                     else
                     {
@@ -495,7 +496,7 @@ namespace ParserLibrary
             return false;
         }
 
-        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list)
+        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse=false)
         {
             //            line = @"eyJCcmFuZCI6InhpYW9taSIsIkhhc05mY0hjZSI6ZmFsc2UsIkhhc0ZwU2Nhbm5lciI6dHJ1ZSwiSWQiOiIwNjZhY2MwMDE4ZDA1NWRiIiwiTWFudWZhY3RvcmVyIjoiWGlhb21pIiwiTW9kZWwiOiJSZWRtaSBOb3RlIDciLCJPc1ZlcnNpb24iOjI4LCJQcm9kdWN0IjoiQW5kcm9pZCIsIlJhbU1iIjoyNTYsIlNjcmVlbkRwaSI6IlhYSERQSSIsIlNjcmVlbkhlaWdodFB4IjoyMTMxLCJTY3JlZW5XaWR0aFB4IjoxMDgwLCJTY3JlZW5TaXplSW5jaGVzIjoyLjYzNzgwMDd9";
             byte[] bytes;
@@ -604,7 +605,7 @@ namespace ParserLibrary
         От 192.168.0.0 до 192.168.255.255 с маской 255.255.0.0 или /16
         От 100.64.0.0 до 100.127.255.255 с маской подсети 255.192.0.0
           */
-        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list)
+        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
         {
        //     return false;
             Match match = Regex.Match(line, @"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
@@ -669,7 +670,7 @@ namespace ParserLibrary
     }
     public class XmlParser : AbstrParser
     {
-        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list)
+        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
         {
             if (line.Contains("<SOAP-ENV"))
             {
@@ -755,7 +756,7 @@ namespace ParserLibrary
     public class JsonParser : AbstrParser
     {
         static string rootEls = "";
-        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list)
+        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list,bool cantTryParse=false)
         {
             var line1 = line.Trim();
 
@@ -782,7 +783,7 @@ namespace ParserLibrary
                 return false;
             }
             var el = doc.RootElement;
-            ExtractJsonFields(el, ancestor, list);
+            ExtractJsonFields(el, ancestor, list,cantTryParse);
             AbstrParser.regEvent("PR", time1);
 
             var milli = (DateTime.Now - time1).TotalMilliseconds;
@@ -806,14 +807,14 @@ namespace ParserLibrary
                     return el.ToString();
             }
         }
-        private void ExtractJsonFields(JsonElement el, UniEl ancestor, List<UniEl> list)
+        private void ExtractJsonFields(JsonElement el, UniEl ancestor, List<UniEl> list,bool cantTryParse)
         {
             if(el.ValueKind == JsonValueKind.Array)
             {
                 foreach (var el1 in el.EnumerateArray())
                 {
                     var newAnc = CreateNode(ancestor,list,"ItemList");
-                    ExtractJsonFields(el1, newAnc, list);
+                    ExtractJsonFields(el1, newAnc, list,cantTryParse);
                 }
             } else
             {
@@ -840,7 +841,7 @@ namespace ParserLibrary
                     if (value.ValueKind == JsonValueKind.Object)
                     {
                         UniEl newEl = CreateNode(ancestor, list, name);
-                        ExtractJsonFields(value, newEl, list);
+                        ExtractJsonFields(value, newEl, list,cantTryParse);
                     }
                     else
                     {
@@ -856,7 +857,7 @@ namespace ParserLibrary
                                 {
                                     UniEl newEl = CreateNode(ancestor, list, name);
                                     if (el1.ValueKind == JsonValueKind.Object)
-                                        ExtractJsonFields(el1, newEl, list);
+                                        ExtractJsonFields(el1, newEl, list, cantTryParse);
                                     else
                                     {
                                         // HZ
@@ -873,13 +874,16 @@ namespace ParserLibrary
                             {
                                 int yy = 0;
                             }
-                            foreach (var pars in availParser)
-                                if (pars.canRazbor(value.ToString(), newEl, list))
-                                {
-                                    if (includeBodyOnComplexField)
-                                        newEl.Value = GetObject(value);
-                                    goto ext;
-                                }
+                            if (!cantTryParse)
+                            {
+                                foreach (var pars in availParser)
+                                    if (pars.canRazbor(value.ToString(), newEl, list))
+                                    {
+                                        if (includeBodyOnComplexField)
+                                            newEl.Value = GetObject(value);
+                                        goto ext;
+                                    }
+                            }
                            newEl.Value = GetObject(value);
                         ext:;
                             /*                        if (xmlPaths.Contains(newEl.path))
