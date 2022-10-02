@@ -197,6 +197,7 @@ namespace TestJsonRazbor
                             step.receiver.MocBody = ex.toJSON();*/
                 }
                 Logger.log("Execution ended!");
+                taskA = null;
             },Canceller.Token);
         }
 

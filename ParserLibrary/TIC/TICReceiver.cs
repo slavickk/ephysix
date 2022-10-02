@@ -81,7 +81,10 @@ namespace ParserLibrary
                 Log.Information("Stop Listening");
             }
         }
-
+        public override bool cantTryParse()
+        {
+            return true;
+        }
         public async Task ClientHandler(TcpClient client, CancellationToken cancellationToken)
         {
             using (LogContext.PushProperty("client", client.Client.RemoteEndPoint))

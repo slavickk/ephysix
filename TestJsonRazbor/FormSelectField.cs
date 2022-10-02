@@ -421,7 +421,7 @@ namespace TestJsonRazbor
                 AbstrParser.UniEl ancestor = null;
                 AbstrParser.UniEl rootEl= null;
                 if (list.Count > 0)
-                    ancestor = list[0];
+                    ancestor = list.FirstOrDefault(ii=>ii.Name== paths[0]);
                 foreach (var path in paths)
                 {
                     if (ancestor == null || ancestor.Name != path)
@@ -429,7 +429,16 @@ namespace TestJsonRazbor
                         if (ancestor != null)
                             rootEl = ancestor.childs.FirstOrDefault(ii => ii.Name == path);
                         if (rootEl == null)
+                        {
+
+                           // ancestor = null;
+                            AbstrParser.UniEl lastRoot = null;
+                           /* if (list.Count > 0)
+                                lastRoot = list.FirstOrDefault(ii => ii.ancestor == null);*/
                             rootEl = AbstrParser.CreateNode(ancestor, list, path);
+                            if(lastRoot != null)
+                                lastRoot.ancestor=rootEl;
+                        }
                         ancestor = rootEl;
                     }
                 }
@@ -610,30 +619,46 @@ namespace TestJsonRazbor
                 tabControl1.TabPages.Remove(tabControl1.SelectedTab);
             }
         }
-
+        string[] getPaths(Step step,string AddPath="")
+        {
+            List<string> paths = new List<string>();
+            Step nextStep = step;
+            do
+            {
+                paths.Insert(0,nextStep.IDStep);
+                nextStep = step.owner.steps.FirstOrDefault(ii => ii.IDStep == nextStep.IDPreviousStep);
+            } while(nextStep != null);
+            if(AddPath!="")
+                paths.Add(AddPath);
+            return paths.ToArray();
+        }
         private void FillReceiverMocs(bool first,Step currentStep1)
         {
             if (currentStep1.owner.tempMocData != "")
             {
-                ParseInput(currentStep1.owner.tempMocData, new string[] { currentStep1.owner.steps.First(ii=>(ii.IDPreviousStep == null || ii.IDPreviousStep =="")).IDStep });
+                ParseInput(currentStep1.owner.tempMocData, new string[] { currentStep1.owner.steps.First(ii => (ii.IDPreviousStep == null || ii.IDPreviousStep == "")).IDStep }/* getPaths(currentStep1,"")*//*, new string[] { currentStep1.owner.steps.First(ii=>(ii.IDPreviousStep == null || ii.IDPreviousStep =="")).IDStep }*/);
+                return;
             }
             else
             {
                 if (currentStep1.receiver != null && (currentStep1.receiver.MocFile != null || (currentStep1.receiver.MocBody ?? "") != ""))
                 {
 
-                    ParseInput(((currentStep1.receiver.MocBody ?? "") != "") ? currentStep1.receiver.MocBody : ReadFile(currentStep1.receiver.MocFile), new string[] { currentStep1.IDStep, "Rec" });
+                    ParseInput(((currentStep1.receiver.MocBody ?? "") != "") ? currentStep1.receiver.MocBody : ReadFile(currentStep1.receiver.MocFile), getPaths(currentStep1, "Rec")/* new string[] { currentStep1.IDStep, "Rec" }*/);
                 }
 
                 if (currentStep1.sender != null && !first && (currentStep1.sender.MocFile != null || (currentStep1.sender.MocBody ?? "") != ""))
                 {
-                    ParseInput(((currentStep1.sender.MocBody ?? "") != "") ? currentStep1.sender.MocBody : ReadFile(currentStep1.sender.MocFile), new string[] { currentStep1.IDStep, "Send" });
+                    ParseInput(((currentStep1.sender.MocBody ?? "") != "") ? currentStep1.sender.MocBody : ReadFile(currentStep1.sender.MocFile), getPaths(currentStep1, "Send")/* new string[] { currentStep1.IDStep, "Send" }*/);
                 }
                 first = false;
                 if (currentStep1.IDPreviousStep != null && currentStep1.IDPreviousStep != "")
                 {
-
-                    FillReceiverMocs(first, currentStep1.owner.steps.First(ii => ii.IDStep == currentStep1.IDPreviousStep));
+                   // while (currentStep1!= null && currentStep1.IDPreviousStep != "")
+                    {
+                        FillReceiverMocs(first, currentStep1.owner.steps.First(ii => ii.IDStep == currentStep1.IDPreviousStep));
+                     //   currentStep1 = currentStep1.owner.steps.First(ii => ii.IDStep == currentStep1.IDPreviousStep);
+                    }
                 }
             }
         }

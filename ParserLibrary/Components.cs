@@ -21,6 +21,7 @@ using Npgsql;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using System.Net;
+using YamlDotNet.Core.Tokens;
 
 namespace ParserLibrary
 {
@@ -31,6 +32,10 @@ namespace ParserLibrary
 
     public abstract class Receiver
     {
+        public virtual bool cantTryParse()
+        {
+            return false;
+        }
         public virtual void Init(Pipeline owner)
         {
 
@@ -1414,8 +1419,11 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
         private bool tryParse(string input, ContextItem context, AbstrParser.UniEl rootElement)
         {
+            bool cantTryParse=false;
+            if (receiver != null)
+                cantTryParse = receiver.cantTryParse();
             foreach (var pars in AbstrParser.availParser)
-                if (pars.canRazbor(input, rootElement, context.list))
+                if (pars.canRazbor(input, rootElement, context.list,cantTryParse))
                 {
                     return true;
                 }
@@ -1673,7 +1681,16 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             }
             if (result!= null && result.IsSuccessStatusCode)
             {
+               
                 var response = await result.Content.ReadAsStringAsync();
+                IEnumerable<string> values;
+                //string rules = "";
+                if (result.Headers.TryGetValues("InactiveRules", out values))
+                {
+                    response=response.Substring(0,response.Length - 1)+((response.Length>2)?",":"")+"{\"Inactive\":["+string.Join(",",values.First().Split(";").Select(ii=>$"\"{ii}\""))+"]}]";
+                    //rules = values.First();
+                }
+                //if (result.Headers["AAA"])
                 return response;
             }
             if (kolRetry / urls.Length >= timeoutsBetweenRetryInMilli.Length)
