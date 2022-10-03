@@ -486,5 +486,20 @@ namespace TestJsonRazbor
         {
 
         }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void removeStepToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<Step> steps = pip.steps.ToList();
+            steps.Remove(currentStep);
+            pip.steps = steps.ToArray();
+
+            (selectedNode == null ? treeView1.Nodes : selectedNode.Nodes).Remove(selectedNode);//.Add(new TreeNode(stepName) { ContextMenuStrip = this.contextMenuStrip1, Tag = newStep });
+            treeView1.ExpandAll();
+        }
     }
 }

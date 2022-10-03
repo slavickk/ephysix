@@ -42,6 +42,7 @@ namespace TestJsonRazbor
             this.buttonYaml = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBoxResponceStep = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
@@ -71,7 +72,6 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -85,7 +85,7 @@ namespace TestJsonRazbor
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -113,7 +113,7 @@ namespace TestJsonRazbor
             this.treeView1.ContextMenuStrip = this.contextMenuStrip1;
             this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeView1.Location = new System.Drawing.Point(0, 0);
-            this.treeView1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.treeView1.Margin = new System.Windows.Forms.Padding(2);
             this.treeView1.Name = "treeView1";
             treeNode1.Name = "Steps";
             treeNode1.Text = "Steps";
@@ -132,25 +132,27 @@ namespace TestJsonRazbor
             this.addStepToolStripMenuItem,
             this.removeStepToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(143, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 70);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // addStepToolStripMenuItem
             // 
             this.addStepToolStripMenuItem.Name = "addStepToolStripMenuItem";
-            this.addStepToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.addStepToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addStepToolStripMenuItem.Text = "Add step";
             this.addStepToolStripMenuItem.Click += new System.EventHandler(this.AddNode);
             // 
             // removeStepToolStripMenuItem
             // 
             this.removeStepToolStripMenuItem.Name = "removeStepToolStripMenuItem";
-            this.removeStepToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.removeStepToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.removeStepToolStripMenuItem.Text = "Remove step";
+            this.removeStepToolStripMenuItem.Click += new System.EventHandler(this.removeStepToolStripMenuItem_Click);
             // 
             // buttonOpen
             // 
             this.buttonOpen.Location = new System.Drawing.Point(184, 19);
-            this.buttonOpen.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonOpen.Margin = new System.Windows.Forms.Padding(2);
             this.buttonOpen.Name = "buttonOpen";
             this.buttonOpen.Size = new System.Drawing.Size(48, 22);
             this.buttonOpen.TabIndex = 33;
@@ -161,7 +163,7 @@ namespace TestJsonRazbor
             // buttonNew
             // 
             this.buttonNew.Location = new System.Drawing.Point(124, 19);
-            this.buttonNew.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonNew.Margin = new System.Windows.Forms.Padding(2);
             this.buttonNew.Name = "buttonNew";
             this.buttonNew.Size = new System.Drawing.Size(50, 22);
             this.buttonNew.TabIndex = 6;
@@ -172,7 +174,7 @@ namespace TestJsonRazbor
             // buttonSavePipeline
             // 
             this.buttonSavePipeline.Location = new System.Drawing.Point(228, 19);
-            this.buttonSavePipeline.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonSavePipeline.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSavePipeline.Name = "buttonSavePipeline";
             this.buttonSavePipeline.Size = new System.Drawing.Size(43, 22);
             this.buttonSavePipeline.TabIndex = 33;
@@ -183,7 +185,7 @@ namespace TestJsonRazbor
             // buttonYaml
             // 
             this.buttonYaml.Location = new System.Drawing.Point(275, 19);
-            this.buttonYaml.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonYaml.Margin = new System.Windows.Forms.Padding(2);
             this.buttonYaml.Name = "buttonYaml";
             this.buttonYaml.Size = new System.Drawing.Size(40, 22);
             this.buttonYaml.TabIndex = 4;
@@ -194,7 +196,7 @@ namespace TestJsonRazbor
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(324, 19);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(36, 22);
             this.button1.TabIndex = 5;
@@ -230,19 +232,29 @@ namespace TestJsonRazbor
             this.groupBox1.Controls.Add(this.textBoxIDStep);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(6, 32);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.groupBox1.Size = new System.Drawing.Size(405, 301);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
+            this.groupBox1.Size = new System.Drawing.Size(407, 301);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Step detail";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(349, 15);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(60, 19);
+            this.checkBox1.TabIndex = 37;
+            this.checkBox1.Text = "bridge";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
             // textBoxResponceStep
             // 
             this.textBoxResponceStep.Location = new System.Drawing.Point(275, 12);
-            this.textBoxResponceStep.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxResponceStep.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxResponceStep.Name = "textBoxResponceStep";
             this.textBoxResponceStep.Size = new System.Drawing.Size(70, 23);
             this.textBoxResponceStep.TabIndex = 36;
@@ -260,7 +272,7 @@ namespace TestJsonRazbor
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(320, 284);
-            this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(76, 20);
             this.button3.TabIndex = 34;
@@ -272,7 +284,7 @@ namespace TestJsonRazbor
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(319, 72);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(67, 22);
             this.button2.TabIndex = 33;
@@ -283,8 +295,8 @@ namespace TestJsonRazbor
             // buttonUp
             // 
             this.buttonUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonUp.Location = new System.Drawing.Point(381, 116);
-            this.buttonUp.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonUp.Location = new System.Drawing.Point(383, 116);
+            this.buttonUp.Margin = new System.Windows.Forms.Padding(2);
             this.buttonUp.Name = "buttonUp";
             this.buttonUp.Size = new System.Drawing.Size(22, 22);
             this.buttonUp.TabIndex = 31;
@@ -296,8 +308,8 @@ namespace TestJsonRazbor
             // 
             this.buttonDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonDown.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.buttonDown.Location = new System.Drawing.Point(381, 140);
-            this.buttonDown.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonDown.Location = new System.Drawing.Point(383, 140);
+            this.buttonDown.Margin = new System.Windows.Forms.Padding(2);
             this.buttonDown.Name = "buttonDown";
             this.buttonDown.Size = new System.Drawing.Size(23, 22);
             this.buttonDown.TabIndex = 32;
@@ -308,7 +320,7 @@ namespace TestJsonRazbor
             // 
             this.buttonSenderMoc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonSenderMoc.Location = new System.Drawing.Point(326, 247);
-            this.buttonSenderMoc.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonSenderMoc.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSenderMoc.Name = "buttonSenderMoc";
             this.buttonSenderMoc.Size = new System.Drawing.Size(52, 22);
             this.buttonSenderMoc.TabIndex = 15;
@@ -319,7 +331,7 @@ namespace TestJsonRazbor
             // buttonReceiverMoc
             // 
             this.buttonReceiverMoc.Location = new System.Drawing.Point(254, 72);
-            this.buttonReceiverMoc.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonReceiverMoc.Margin = new System.Windows.Forms.Padding(2);
             this.buttonReceiverMoc.Name = "buttonReceiverMoc";
             this.buttonReceiverMoc.Size = new System.Drawing.Size(62, 22);
             this.buttonReceiverMoc.TabIndex = 14;
@@ -346,9 +358,9 @@ namespace TestJsonRazbor
             this.listBox1.FormattingEnabled = true;
             this.listBox1.ItemHeight = 15;
             this.listBox1.Location = new System.Drawing.Point(8, 116);
-            this.listBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listBox1.Margin = new System.Windows.Forms.Padding(2);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(372, 124);
+            this.listBox1.Size = new System.Drawing.Size(374, 124);
             this.listBox1.TabIndex = 12;
             this.listBox1.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
             // 
@@ -380,7 +392,7 @@ namespace TestJsonRazbor
             this.buttonTestServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonTestServer.Enabled = false;
             this.buttonTestServer.Location = new System.Drawing.Point(241, 247);
-            this.buttonTestServer.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonTestServer.Margin = new System.Windows.Forms.Padding(2);
             this.buttonTestServer.Name = "buttonTestServer";
             this.buttonTestServer.Size = new System.Drawing.Size(80, 22);
             this.buttonTestServer.TabIndex = 11;
@@ -392,7 +404,7 @@ namespace TestJsonRazbor
             // 
             this.buttonTestReceiver.Enabled = false;
             this.buttonTestReceiver.Location = new System.Drawing.Point(206, 72);
-            this.buttonTestReceiver.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonTestReceiver.Margin = new System.Windows.Forms.Padding(2);
             this.buttonTestReceiver.Name = "buttonTestReceiver";
             this.buttonTestReceiver.Size = new System.Drawing.Size(44, 22);
             this.buttonTestReceiver.TabIndex = 10;
@@ -404,7 +416,7 @@ namespace TestJsonRazbor
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button4.Location = new System.Drawing.Point(8, 276);
-            this.button4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button4.Margin = new System.Windows.Forms.Padding(2);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(230, 22);
             this.button4.TabIndex = 9;
@@ -416,7 +428,7 @@ namespace TestJsonRazbor
             // 
             this.buttonSetupSender.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonSetupSender.Location = new System.Drawing.Point(8, 247);
-            this.buttonSetupSender.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonSetupSender.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSetupSender.Name = "buttonSetupSender";
             this.buttonSetupSender.Size = new System.Drawing.Size(230, 22);
             this.buttonSetupSender.TabIndex = 8;
@@ -427,7 +439,7 @@ namespace TestJsonRazbor
             // buttonSetupReceiver
             // 
             this.buttonSetupReceiver.Location = new System.Drawing.Point(8, 72);
-            this.buttonSetupReceiver.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonSetupReceiver.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSetupReceiver.Name = "buttonSetupReceiver";
             this.buttonSetupReceiver.Size = new System.Drawing.Size(195, 22);
             this.buttonSetupReceiver.TabIndex = 6;
@@ -440,9 +452,9 @@ namespace TestJsonRazbor
             this.textBoxStepDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxStepDescription.Location = new System.Drawing.Point(96, 43);
-            this.textBoxStepDescription.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxStepDescription.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxStepDescription.Name = "textBoxStepDescription";
-            this.textBoxStepDescription.Size = new System.Drawing.Size(303, 23);
+            this.textBoxStepDescription.Size = new System.Drawing.Size(305, 23);
             this.textBoxStepDescription.TabIndex = 5;
             // 
             // label4
@@ -458,7 +470,7 @@ namespace TestJsonRazbor
             // textBoxIDPrevStep
             // 
             this.textBoxIDPrevStep.Location = new System.Drawing.Point(157, 14);
-            this.textBoxIDPrevStep.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxIDPrevStep.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxIDPrevStep.Name = "textBoxIDPrevStep";
             this.textBoxIDPrevStep.Size = new System.Drawing.Size(63, 23);
             this.textBoxIDPrevStep.TabIndex = 3;
@@ -477,7 +489,7 @@ namespace TestJsonRazbor
             // textBoxIDStep
             // 
             this.textBoxIDStep.Location = new System.Drawing.Point(24, 15);
-            this.textBoxIDStep.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxIDStep.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxIDStep.Name = "textBoxIDStep";
             this.textBoxIDStep.Size = new System.Drawing.Size(68, 23);
             this.textBoxIDStep.TabIndex = 1;
@@ -497,9 +509,9 @@ namespace TestJsonRazbor
             this.textBoxPipelineDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxPipelineDescription.Location = new System.Drawing.Point(130, 0);
-            this.textBoxPipelineDescription.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxPipelineDescription.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxPipelineDescription.Name = "textBoxPipelineDescription";
-            this.textBoxPipelineDescription.Size = new System.Drawing.Size(275, 23);
+            this.textBoxPipelineDescription.Size = new System.Drawing.Size(277, 23);
             this.textBoxPipelineDescription.TabIndex = 1;
             this.textBoxPipelineDescription.TextChanged += new System.EventHandler(this.textBoxPipelineDescription_TextChanged);
             // 
@@ -527,23 +539,13 @@ namespace TestJsonRazbor
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(349, 15);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(60, 19);
-            this.checkBox1.TabIndex = 37;
-            this.checkBox1.Text = "bridge";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            // 
             // FormPipeline
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(629, 336);
             this.Controls.Add(this.splitContainer1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "FormPipeline";
             this.Text = "FormPipeline";
             this.Load += new System.EventHandler(this.FormPipeline_Load);
