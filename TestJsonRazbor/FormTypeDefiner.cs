@@ -38,21 +38,26 @@ namespace TestJsonRazbor
 
         private void FormTypeDefiner_Load(object sender, EventArgs e)
         {
-            foreach(var t in Assembly.GetAssembly(typeof(Pipeline)).GetTypes().Where(ii => ii.IsAssignableTo(tDefine) && !ii.IsAbstract))
+            RefreshProps();
+        }
+
+        private void RefreshProps()
+        {
+            comboBox1.Items.Clear();
+            foreach (var t in Assembly.GetAssembly(typeof(Pipeline)).GetTypes().Where(ii => ii.IsAssignableTo(tDefine) && !ii.IsAbstract))
             {
                 comboBox1.Items.Add(new TypeDefiner(t));
             }
             this.Text = "Configure " + tDefine.Name;
-            if(tObject != null)
+            if (tObject != null)
             {
                 object[] objs = new object[comboBox1.Items.Count];
                 comboBox1.Items.CopyTo(objs, 0);
-                comboBox1.SelectedIndex=objs.IndexWhere(a=>((a as TypeDefiner).tTypeDef==tObject.GetType()));
-                if(comboBox1.SelectedIndex >= 0)
+                comboBox1.SelectedIndex = objs.IndexWhere(a => ((a as TypeDefiner).tTypeDef == tObject.GetType()));
+                if (comboBox1.SelectedIndex >= 0)
                     Refresh_tObjectProp();
             }
         }
-
 
         List<System.Windows.Forms.Label> labels = new List<Label>();
         List<System.Windows.Forms.TextBox> textBoxes = new List<TextBox>();
@@ -182,9 +187,9 @@ namespace TestJsonRazbor
 //                (frm as SenderDataExchanger).setContent((tObject as Sender).getTemplate(key));
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
-/*                    var ss = (frm as SenderDataExchanger).getContent();
-                    (tObject as Sender).setTemplate(key, ss);*/
-
+                    /*                    var ss = (frm as SenderDataExchanger).getContent();
+                                        (tObject as Sender).setTemplate(key, ss);*/
+                    Refresh_tObjectProp();
                 }
             }
 

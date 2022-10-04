@@ -183,5 +183,20 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false and nc.srcid
                 RefreshStream();
             }
         }
+
+        private async void button5_Click(object sender, EventArgs e)
+        {
+            await using (var cmd = new NpgsqlCommand(@"select datum
+from tmp_VitalyPrepare
+where src = '" + textBoxName.Text + "' ", conn))
+            await using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    fields.Add(new FieldItem() {  Name = reader.GetString(0), Type="String" });
+                }
+            }
+            RefreshListFields();
+        }
     }
 }
