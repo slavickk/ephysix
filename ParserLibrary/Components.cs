@@ -1901,7 +1901,7 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
                             stream.Name = reader.GetString(1);
                             stream.Description = reader.GetString(2);
                         }
-                        stream.fields.Add(new Stream.Field() { Name = reader.GetString(3), Type = reader.GetString(4), Detail = reader.GetString(5) });
+                        stream.fields.Add(new Stream.Field() { Name = reader.GetString(3), Type = reader.GetString(4), Detail =reader.IsDBNull(5)?"": reader.GetString(5) });
                     }
                 }
             }
