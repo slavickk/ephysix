@@ -87,7 +87,7 @@ namespace ParserLibrary
         public async Task sendResponse(string response, object context)
         {
             if (debugMode)
-                Logger.log("Send answer {content} to {step} ", Serilog.Events.LogEventLevel.Debug, "any", response, owner);
+                Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any",owner, response);
             if (saver != null)
                 saver.save(response);
 
@@ -156,7 +156,7 @@ namespace ParserLibrary
 
         public override string ToString()
         {
-            return $"Sender:{this.GetType().Name}";
+            return $"Sender:{this.GetType().Name} Step:{owner.IDStep}";
         }
         public virtual  string getExample()
         {
@@ -1518,9 +1518,15 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             //rootElInput.
             if (IDResponsedReceiverStep != "")
             {
+                if (debugMode)
+                    Logger.log("Send answer initializer {step}  ", Serilog.Events.LogEventLevel.Debug, "any", this);
 
                 var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
-                var content = local_rootOutput.toJSON();
+                string content;
+                if(sender == null)
+                    content = local_rootOutput.toJSON();
+                else
+                    content= await sender.send(local_rootOutput);
                 await step.receiver.sendResponse(content, context.context);
 
             }
