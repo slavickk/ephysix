@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CamundaInterfaces\CamundaInterfaces.csproj" />
+    <ProjectReference Include="..\CamundaInterfaces\CamundaDefinitionInterfaces.csproj" />
   </ItemGroup>
 
 </Project>
