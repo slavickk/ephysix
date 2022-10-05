@@ -151,8 +151,12 @@ namespace TestJsonRazbor
 
             if (fld.FieldType == typeof(double) || fld.FieldType == typeof(double[]))
                 return Convert.ToDouble(text);
+            if (fld.FieldType == typeof(TimeSpan) || fld.FieldType == typeof(TimeSpan[]))
+                return TimeSpan.Parse(text);
             if (fld.FieldType == typeof(int) || fld.FieldType == typeof(int[]))
                 return Convert.ToInt32(text);
+            if (fld.FieldType == typeof(Int64) || fld.FieldType == typeof(Int64[]))
+                return Convert.ToInt64(text);
             return text;
         }
 
