@@ -1856,7 +1856,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 public string Name { get; set; } = "";
                 public string Type { get; set; }
                 public string Detail { get; set; }
-                public bool Hash { get; set; }
+                public string SensitiveData { get; set; }
                 public long? linkedColumn { get; set; }
             }
             public string Name { get; set; }
@@ -1882,12 +1882,14 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             stream.Name = "";
             var conn = new NpgsqlConnection(db_connection_string);
             conn.Open();
-            using (var cmd = new NpgsqlCommand(@"select n.nodeid,n.name,a.val,np.name,'String',ap.val from md_node n
+            using (var cmd = new NpgsqlCommand(@"select n.nodeid,n.name,a.val,np.name,'String',ap.val,asd.val,rl.toid from md_node n
 inner join md_node_attr_val a  
 on ( a.nodeid=n.nodeid and attrid=22)
 inner join md_arc l on (l.fromid=n.nodeid and l.isdeleted=false)
 inner join md_node np on (l.toid=np.nodeid and np.isdeleted=false)
 inner join md_node_attr_val ap on ( ap.nodeid=np.nodeid and ap.attrid=22)
+left join md_node_attr_val asd on ( asd.nodeid=np.nodeid and asd.attrid=51)
+left join md_arc rl on ( rl.fromid=np.nodeid and rl.typeid=16)
 where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
 ", conn))
             {
@@ -1901,7 +1903,7 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
                             stream.Name = reader.GetString(1);
                             stream.Description = reader.GetString(2);
                         }
-                        stream.fields.Add(new Stream.Field() { Name = reader.GetString(3), Type = reader.GetString(4), Detail =reader.IsDBNull(5)?"": reader.GetString(5) });
+                        stream.fields.Add(new Stream.Field() { Name = reader.GetString(3), Type = reader.GetString(4), Detail =reader.IsDBNull(5)?"": reader.GetString(5),SensitiveData = reader.IsDBNull(6) ? null : reader.GetString(6), linkedColumn = reader.IsDBNull(7) ? null : reader.GetInt64(7) });
                     }
                 }
             }
