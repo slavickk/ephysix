@@ -9,12 +9,16 @@ namespace TestJsonRazbor
 {
     static class Program
     {
+
+        public static string ExecutedPath = "";
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            if(args.Length >0)
+                ExecutedPath = args[0];
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
    //         int a1 = 35;
             Application.EnableVisualStyles();
