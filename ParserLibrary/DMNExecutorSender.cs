@@ -103,8 +103,9 @@ namespace ParserLibrary
 
                         };*/
         }
-        public static ItemVar[] ExecDMNForXML(string xml, string var_json)
+        public static ItemVar[] ExecDMNForXML(string xml, string var_json,out string error)
         {
+            error = "";
             List<ItemInputVar> vars = JsonConvert.DeserializeObject<List<ItemInputVar>>(var_json);
             DmnExecutionContext ctx = null;
             try
@@ -118,7 +119,8 @@ namespace ParserLibrary
             }
             catch (Exception ex)
             {
-                Logger.log("Error DMN:{exc}", Serilog.Events.LogEventLevel.Error, ex);
+                error=$"Error DMN:{ex}";
+                return null;
 
             }
             return ctx.Variables.Where(ii => ii.Value.Type != null).Select(ii => new ItemVar() { Name = ii.Value.Name, Value = ii.Value.Value }).ToArray();
