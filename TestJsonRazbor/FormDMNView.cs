@@ -117,5 +117,12 @@ namespace TestJsonRazbor
             xml=content;
             this.webView21.Reload();
         }
+
+        private async void button4_Click(object sender, EventArgs e)
+        {
+            await getXML();
+            this.sender.setXML(xml);
+
+        }
     }
 }
