@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ParserLibrary;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,5 +17,16 @@ namespace WinFormsETLPackagedCreator
         {
             InitializeComponent();
         }
+
+        public void setVars(DMNExecutorSender.ItemVar[] vars)
+        {
+            listView1.Items.Clear();
+            foreach(var item in vars)
+            {
+                listView1.Items.Add(new ListViewItem(new string[] { item.Name, item.Value?.ToString() }));
+            }
+        }
+
+
     }
 }

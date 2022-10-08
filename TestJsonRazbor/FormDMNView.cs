@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WinFormsETLPackagedCreator;
 
 namespace TestJsonRazbor
 {
@@ -118,10 +119,32 @@ namespace TestJsonRazbor
             this.webView21.Reload();
         }
 
+        
+        void messageSend(string mess)
+        {
+            MessageBox.Show(mess);
+
+        }
         private async void button4_Click(object sender, EventArgs e)
         {
             await getXML();
-            this.sender.setXML(xml);
+            string var_body;
+            using(StreamReader sr = new StreamReader(@"C:\Users\User\source\repos\Polygons\DMN_DATA_EXAMPLE\vars.json"))
+            {
+                var_body = sr.ReadToEnd();
+            }
+            string message ;
+           var variables = DMNExecutorSender.ExecDMNForXML(xml, var_body,out message);
+            if(variables == null)
+            {
+                this.Invoke(messageSend, new object[] { message });
+                return;
+            }
+            FormViewDMNResults frm = new FormViewDMNResults();
+            frm.setVars(variables);
+            frm.Show();
+
+           // this.sender.setXML(xml);
 
         }
     }
