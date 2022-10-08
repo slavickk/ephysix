@@ -127,6 +127,7 @@ namespace TestJsonRazbor
         }
         private async void button4_Click(object sender, EventArgs e)
         {
+            toolStripStatusLabel1.Text = "";
             await getXML();
             string var_body;
             using(StreamReader sr = new StreamReader(@"C:\Users\User\source\repos\Polygons\DMN_DATA_EXAMPLE\vars.json"))
@@ -137,7 +138,8 @@ namespace TestJsonRazbor
            var variables = DMNExecutorSender.ExecDMNForXML(xml, var_body,out message);
             if(variables == null)
             {
-                this.Invoke(messageSend, new object[] { message });
+                toolStripStatusLabel1.Text = message;
+//                this.Invoke(messageSend, new object[] { message });
                 return;
             }
             FormViewDMNResults frm = new FormViewDMNResults();
