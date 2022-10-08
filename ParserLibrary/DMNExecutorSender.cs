@@ -26,16 +26,16 @@ namespace ParserLibrary
         {
             for (int i = 0; i < countPrewarmingIntances; i++)
                 contexts.Add(getDMN(XML));
-//            base.Init(owner);
+            //            base.Init(owner);
         }
-       // static  List<net.adamec.lib.common.dmn.engine.parser.dto.DmnModel.Script> listScripts;
+        // static  List<net.adamec.lib.common.dmn.engine.parser.dto.DmnModel.Script> listScripts;
         //string[] allVariables = new string[] { };
         public class SignalledRule
         {
             public string RuleID;
             public int Severity;
             public string Result;
-            public bool retValue=true;
+            public bool retValue = true;
         }
         public class RecordField
         {
@@ -53,7 +53,7 @@ namespace ParserLibrary
             public string Name;
             public object Value;
         }
-       
+
 
         void getList(string Name)
         {
@@ -65,7 +65,7 @@ namespace ParserLibrary
             if (dict.Count == 0)
             {
                 dict.Add(new ItemInputVar() { Name = "SignalledRules", Value = new List<SignalledRule>() });
-                dict.Add(new ItemInputVar() { Name = "InputRecord", Value = new List<RecordField>()  });
+                dict.Add(new ItemInputVar() { Name = "InputRecord", Value = new List<RecordField>() });
                 dict.Add(new ItemInputVar() { Name = "InactiveRules", Value = new List<string>() });
             }
             foreach (var item in root.childs)
@@ -80,9 +80,9 @@ namespace ParserLibrary
                 if (it != null)
                 {
                     if (it.Name == "SignalledRules")
-                        (it.Value as List<SignalledRule>).Add(new SignalledRule() { retValue = true, RuleID = item.childs.First(ii => ii.Name == "RuleID").Value.ToString(), Severity = Convert.ToInt32(item.childs.First(ii => ii.Name == "Severity").Value),  Result = item.childs.First(ii => ii.Name == "Result").Value.ToString() });
+                        (it.Value as List<SignalledRule>).Add(new SignalledRule() { retValue = true, RuleID = item.childs.First(ii => ii.Name == "RuleID").Value.ToString(), Severity = Convert.ToInt32(item.childs.First(ii => ii.Name == "Severity").Value), Result = item.childs.First(ii => ii.Name == "Result").Value.ToString() });
                     if (it.Name == "InactiveRules")
-                        (it.Value as List<string>).Add( item.Value.ToString());
+                        (it.Value as List<string>).Add(item.Value.ToString());
                     if (it.Name == "InputRecord")
                         (it.Value as List<RecordField>).Add(new RecordField() { Key = item.childs.First(ii => ii.Name == "Key").Value.ToString(), Value = item.childs.First(ii => ii.Name == "Value").Value.ToString() });
 
@@ -90,18 +90,39 @@ namespace ParserLibrary
                 }
 
             }
-   /*         using (StreamWriter sw = new StreamWriter("vars.json"))
-            {
-                sw.Write(JsonConvert.SerializeObject(dict));
-            }*/
+            /*         using (StreamWriter sw = new StreamWriter("vars.json"))
+                     {
+                         sw.Write(JsonConvert.SerializeObject(dict));
+                     }*/
 
             return dict;
-/*            return new List<ItemInputVar>() { new ItemInputVar() { Name = "SignalledRules", Value = new SignalledRule[] { new SignalledRule() { RuleID = "REX_TRAN_001", Severity = 1 }
-, new SignalledRule() { RuleID = "REX_TRAN_002", Severity = 1 }
-, new SignalledRule() { RuleID = "REX_TRAN_003", Severity = 1 } } }
-            , new ItemInputVar() { Name = "InputRecord", Value = new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" }, new RecordField() { Key = "PAN", Value = "454********623" }, new RecordField() { Key = "PhoneNumber", Value = "+7922****45" }, new RecordField() { Key = "Amount", Value = "900" } } }
+            /*            return new List<ItemInputVar>() { new ItemInputVar() { Name = "SignalledRules", Value = new SignalledRule[] { new SignalledRule() { RuleID = "REX_TRAN_001", Severity = 1 }
+            , new SignalledRule() { RuleID = "REX_TRAN_002", Severity = 1 }
+            , new SignalledRule() { RuleID = "REX_TRAN_003", Severity = 1 } } }
+                        , new ItemInputVar() { Name = "InputRecord", Value = new RecordField[] { new RecordField() { Key = "TypeRecord", Value = "authTran" }, new RecordField() { Key = "PAN", Value = "454********623" }, new RecordField() { Key = "PhoneNumber", Value = "+7922****45" }, new RecordField() { Key = "Amount", Value = "900" } } }
 
-            };*/
+                        };*/
+        }
+        public static ItemVar[] ExecDMNForXML(string xml, string var_json)
+        {
+            List<ItemInputVar> vars = JsonConvert.DeserializeObject<List<ItemInputVar>>(var_json);
+            DmnExecutionContext ctx = null;
+            try
+            {
+                ctx = getDMN(xml);
+                foreach (var item in vars)
+                    ctx.WithInputParameter(item.Name, item.Value);
+
+                //        ctx.ExecuteDecision("Scoring");
+                ctx.ExecDecisions();
+            }
+            catch (Exception ex)
+            {
+                Logger.log("Error DMN:{exc}", Serilog.Events.LogEventLevel.Error, ex);
+
+            }
+            return ctx.Variables.Where(ii => ii.Value.Type != null).Select(ii => new ItemVar() { Name = ii.Value.Name, Value = ii.Value.Value }).ToArray();
+
         }
 
 
@@ -148,14 +169,14 @@ namespace ParserLibrary
                         }
                         object[] inputObjects = new object[] { arr1, arr2 };
             */
-            DmnExecutionContext ctx=null;
+            DmnExecutionContext ctx = null;
             try
             {
-                if(!contexts.TryTake(out ctx))
+                if (!contexts.TryTake(out ctx))
                     ctx = getDMN(XML);
                 List<IDmnDecision> executedDecision = new List<IDmnDecision>();
 
-                foreach(var item in PrepareData(root))
+                foreach (var item in PrepareData(root))
                     ctx.WithInputParameter(item.Name, item.Value);
 
                 //        ctx.ExecuteDecision("Scoring");
@@ -163,13 +184,13 @@ namespace ParserLibrary
             }
             catch (Exception ex)
             {
-                if(ctx!= null)  
+                if (ctx != null)
                     contexts.Add(ctx);
                 Logger.log("Error DMN:{exc}", Serilog.Events.LogEventLevel.Error, ex);
-/*                exc = ex;
-                if (ctx != null)
-                    dmn_variables = ctx.Variables.ToArray();
-                StateHasChanged();*/
+                /*                exc = ex;
+                                if (ctx != null)
+                                    dmn_variables = ctx.Variables.ToArray();
+                                StateHasChanged();*/
                 //                await JS.InvokeVoidAsync("alert", ex.Message);
 
                 //                await JS.InvokeVoidAsync("getXML");
@@ -177,22 +198,22 @@ namespace ParserLibrary
                 return "";
             }
 
-            var dmn_variables = ctx.Variables.Where(ii=>ii.Value.Type != null).Select(ii=>new ItemVar() { Name = ii.Value.Name, Value = ii.Value.Value }).ToArray();
+            var dmn_variables = ctx.Variables.Where(ii => ii.Value.Type != null).Select(ii => new ItemVar() { Name = ii.Value.Name, Value = ii.Value.Value }).ToArray();
             contexts.Add(ctx);
 
             return JsonSerializer.Serialize<ItemVar[]>(dmn_variables);
 
-//            StateHasChanged();
-//            return true;
+            //            StateHasChanged();
+            //            return true;
         }
-       // DmnExecutionContext ctx;
+        // DmnExecutionContext ctx;
 
         private static DmnExecutionContext getDMN(string XML)
         {
             DmnExecutionContext ctx;
             var def = DmnParser.ParseString(XML, DmnParser.DmnVersionEnum.V1_3);
             //       allVariables = await formListVariables();
-          //  listScripts = def.extensionElements.Script;
+            //  listScripts = def.extensionElements.Script;
             var definition = DmnDefinitionFactory.CreateDmnDefinition(def);
 
             ctx = DmnExecutionContextFactory.CreateExecutionContext(definition);
@@ -215,13 +236,13 @@ namespace ParserLibrary
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
             metricCount.Increment();
-            DateTime time1= DateTime.Now;
-            var res= await execDmn(root);
+            DateTime time1 = DateTime.Now;
+            var res = await execDmn(root);
             metricCount.Decrement();
             metricPerformance.Add(time1);
             metricContexts.setCount(contexts.Count);
             return res;
-//            return ans.ToString();
+            //            return ans.ToString();
 
         }
 
