@@ -175,7 +175,7 @@ namespace TestJsonRazbor
 //            Pipeline
 //            var pip=Pipeline.load(@"C:\Users\User\Documents\model.yml");
             Pipeline pip = new Pipeline();
-            pip.steps.First().sender = new JsonSender();
+            pip.steps.First().sender = new HTTPSender();
             pip.Save(@"C:\Users\User\Documents\aa3.yml");
 /*            var pip2 = Pipeline.load();// (@"C:\D\aa1.yml");
             var pip1 = new Pipeline();
@@ -556,7 +556,7 @@ namespace TestJsonRazbor
                 }
                 if (currentType == typeof(Sender))
                 {
-                    currentType = typeof(JsonSender);
+                    currentType = typeof(HTTPSender);
                 }
 
                 return true;

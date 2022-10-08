@@ -2,7 +2,7 @@
   "profiles": {
     "TestJsonRazbor": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\User\\source\\repos\\Polygons\\TWO_CCFA_TWFA\\UntegrationTools\\PipelineTIC.yml",
+      "commandLineArgs": "C:\\Users\\User\\source\\repos\\Polygons\\ACS_TWO_TX\\IntegrationTools\\ACS_TW_TX.yml",
       "environmentVariables": {
         "SECRET_WORD": "aaa"
       }

@@ -120,20 +120,30 @@ namespace TestJsonRazbor
             }
             */
             //   dd();
-            if (File.Exists(fileNameStorageContext))
+            if (Program.ExecutedPath != "")
             {
-                string fileName = "";
-                using(StreamReader sr = new StreamReader(fileNameStorageContext))
-                {
-                    fileName=sr.ReadLine();
-                }
+                string fileName=Program.ExecutedPath;
                 this.Text = fileName;
                 LoadYaml(fileName);
+
             }
             else
             {
-                pip = new Pipeline();
-                this.Text = (pipelinePath == "") ? "new Pipeline" : pipelinePath;
+                if (File.Exists(fileNameStorageContext))
+                {
+                    string fileName = "";
+                    using (StreamReader sr = new StreamReader(fileNameStorageContext))
+                    {
+                        fileName = sr.ReadLine();
+                    }
+                    this.Text = fileName;
+                    LoadYaml(fileName);
+                }
+                else
+                {
+                    pip = new Pipeline();
+                    this.Text = (pipelinePath == "") ? "new Pipeline" : pipelinePath;
+                }
             }
         }
 
