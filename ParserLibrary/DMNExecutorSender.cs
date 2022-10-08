@@ -11,6 +11,8 @@ using net.adamec.lib.common.dmn.engine.engine.definition;
 using net.adamec.lib.common.dmn.engine.engine.execution.context;
 using net.adamec.lib.common.dmn.engine.parser;
 using System.Collections.Concurrent;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace ParserLibrary
 {
@@ -64,6 +66,7 @@ namespace ParserLibrary
             {
                 dict.Add(new ItemInputVar() { Name = "SignalledRules", Value = new List<SignalledRule>() });
                 dict.Add(new ItemInputVar() { Name = "InputRecord", Value = new List<RecordField>()  });
+                dict.Add(new ItemInputVar() { Name = "InactiveRules", Value = new List<string>() });
             }
             foreach (var item in root.childs)
             {
@@ -71,20 +74,28 @@ namespace ParserLibrary
                 {
                     "InputParameters" => "SignalledRules",
                     "InputRecordFields" => "InputRecord",
+                    "InactiveRule" => "InactiveRules",
                     _ => "none"
                 });
                 if (it != null)
                 {
                     if (it.Name == "SignalledRules")
                         (it.Value as List<SignalledRule>).Add(new SignalledRule() { retValue = true, RuleID = item.childs.First(ii => ii.Name == "RuleID").Value.ToString(), Severity = Convert.ToInt32(item.childs.First(ii => ii.Name == "Severity").Value),  Result = item.childs.First(ii => ii.Name == "Result").Value.ToString() });
+                    if (it.Name == "InactiveRules")
+                        (it.Value as List<string>).Add( item.Value.ToString());
                     if (it.Name == "InputRecord")
                         (it.Value as List<RecordField>).Add(new RecordField() { Key = item.childs.First(ii => ii.Name == "Key").Value.ToString(), Value = item.childs.First(ii => ii.Name == "Value").Value.ToString() });
 
 
                 }
-            }
 
-                return dict;
+            }
+   /*         using (StreamWriter sw = new StreamWriter("vars.json"))
+            {
+                sw.Write(JsonConvert.SerializeObject(dict));
+            }*/
+
+            return dict;
 /*            return new List<ItemInputVar>() { new ItemInputVar() { Name = "SignalledRules", Value = new SignalledRule[] { new SignalledRule() { RuleID = "REX_TRAN_001", Severity = 1 }
 , new SignalledRule() { RuleID = "REX_TRAN_002", Severity = 1 }
 , new SignalledRule() { RuleID = "REX_TRAN_003", Severity = 1 } } }

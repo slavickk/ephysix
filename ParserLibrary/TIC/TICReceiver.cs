@@ -20,6 +20,7 @@ namespace ParserLibrary
 
         public DummyProtocol1Receiver()
         {
+            cantTryParse = true;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             pushProperty = LogContext.PushProperty("reciever", "DummyProtocol1");
         }
@@ -81,10 +82,10 @@ namespace ParserLibrary
                 Log.Information("Stop Listening");
             }
         }
-        public override bool cantTryParse()
+      /*  public override bool cantTryParse()
         {
             return true;
-        }
+        }*/
         public async Task ClientHandler(TcpClient client, CancellationToken cancellationToken)
         {
             using (LogContext.PushProperty("client", client.Client.RemoteEndPoint))

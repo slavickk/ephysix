@@ -16,6 +16,7 @@ using Kestrel;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.VisualStudio.Threading;
+using System.Text.Json;
 //using Microsoft.
 
 namespace ParserLibrary
@@ -78,6 +79,7 @@ namespace ParserLibrary
             public int srabot = 0;
             public int unwait = 0;
             public string answer="";
+            public List<KestrelServer.Header> headers = new List<KestrelServer.Header>(); 
             public AsyncAutoResetEvent semaphore = new AsyncAutoResetEvent();
         }
         public class KestrelServer: Kestrel.KestrelServerImplement
@@ -100,7 +102,14 @@ namespace ParserLibrary
                 return Metrics.metric.getPrometeusMetric();
                 //            return 1;
             }
+            public string ResponseType = "application/json";
 
+            public class Header
+            {
+                public string Key;
+                public string? Value;
+            }
+           // List<Header> headers = new List<Header>();
             public override async Task ReceiveRequest(HttpContext httpContext)
             {
                 if (httpContext.Request.Path.Value.Contains("/metrics"))
@@ -134,6 +143,14 @@ namespace ParserLibrary
                     string str = await stream.ReadToEndAsync();
                     if (owner.debugMode)
                         Logger.log("Stream reading:{o} ", Serilog.Events.LogEventLevel.Debug, "any", Thread.CurrentThread.ManagedThreadId);
+                  //  headers.Clear();
+                    foreach(var head in httpContext.Request.Headers)
+                    {
+                        item.headers.Add(new Header() { Key = head.Key, Value = head.Value });   
+                      /*  var st = head.Key;
+                        var st1 = head.Value;*/
+                    }
+                    
                     try
                     {
                         owner.signal1(str, item).ContinueWith(antecedent =>
@@ -178,6 +195,8 @@ namespace ParserLibrary
             }
         }
         static string template = "";
+
+
         public static string GetSwaggerHtmlBody(string json_body)
         {
             if(template =="")
