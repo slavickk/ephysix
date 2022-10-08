@@ -22,6 +22,8 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using System.Net;
 using YamlDotNet.Core.Tokens;
+using static ParserLibrary.HTTPReceiver;
+using Microsoft.AspNetCore.Http.Metadata;
 
 namespace ParserLibrary
 {
@@ -32,10 +34,12 @@ namespace ParserLibrary
 
     public abstract class Receiver
     {
-        public virtual bool cantTryParse()
+        public bool  cantTryParse=false;
+/*        public virtual bool cantTryParse()
         {
             return false;
-        }
+        }*/
+
         public virtual void Init(Pipeline owner)
         {
 
@@ -1322,6 +1326,11 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             {
                 try
                 {
+                    if(sender?.GetType() == typeof(HTTPSender) && receiver.GetType() == typeof(HTTPReceiver))
+                    {
+                        (sender as HTTPSender).headers = (context as HTTPReceiver.SyncroItem).headers;
+                        
+                    }
                     var ans = await sender?.send(input);
                     await receiver.sendResponse(ans, context);
                 } 
@@ -1421,7 +1430,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         {
             bool cantTryParse=false;
             if (receiver != null)
-                cantTryParse = receiver.cantTryParse();
+                cantTryParse = receiver.cantTryParse;
             foreach (var pars in AbstrParser.availParser)
                 if (pars.canRazbor(input, rootElement, context.list,cantTryParse))
                 {
@@ -1587,7 +1596,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
     }
 
 
-    public  class JsonSender:Sender,ISelfTested
+    public  class HTTPSender:Sender,ISelfTested
     {
         [YamlIgnore]
         HttpClient client;
@@ -1596,7 +1605,8 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 //        public string certThumbprint= "E77587679318FED87BB040F00D76AB461B962D95";
         public List<string> certThumbprints = new List<string> { "A77587679318FED87BB040F00D76AB461B962D95" };
         public double timeoutSendInSeconds = 5;
-        public JsonSender()
+        public List<KestrelServer.Header> headers;
+        public HTTPSender()
         {
             createMetrics();
        //     InitClient();
@@ -1642,8 +1652,15 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         [YamlIgnore]
         public int index = 0;
 
+
+        public string ResponseType = "application/json";
         bool init = false;
         object syncro = new object();
+
+        public override async Task<string> send(string JsonBody)
+        {
+            return await  internSend(JsonBody);
+        }
         public  async Task<string> internSend(string body)
         {
             if(!init)
@@ -1670,10 +1687,30 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         restart:
             kolRetry++;
             HttpResponseMessage result = null;
-            var stringContent = new StringContent(body, UnicodeEncoding.UTF8, "application/json"); // use MediaTypeNames.Application.Json in Core 3.0+ and Standard 2.1+
+            var stringContent = new StringContent(body, UnicodeEncoding.UTF8, ResponseType); // use MediaTypeNames.Application.Json in Core 3.0+ and Standard 2.1+
+            if(headers!= null)
+            {
+                foreach (var head in headers.Where(ii => ii.Key != "SOAPAction" && ii.Key != "Connection"))
+                {
+                    try
+                    {
+                        stringContent.Headers.Add(head.Key, head.Value);
+                    }
+                    catch(Exception e77)
+                    {
+
+                    }
+                }
+            }
+            //stringContent.Headers.Add()
             try
             {
                 result = await client.PostAsync(urls[index], stringContent);
+                if(!result.IsSuccessStatusCode)
+                {
+                    Logger.log("Error send http request {res}", Serilog.Events.LogEventLevel.Error,result.StatusCode.ToString());
+
+                }
 
             }
             catch(Exception e63)
@@ -1739,7 +1776,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         static Metrics.MetricCount sendToRex = new Metrics.MetricCount("sendToRexSuc",  "Sended transactions to DummySystem1 time exec"); 
         static Metrics.MetricCount sendToRexErr = new Metrics.MetricCount("sendToRexErr", "Sended transactions to DummySystem1 with error");
         //static Metrics.MetricCount metricExecRex = new Metrics.MetricCount("RexTimeExecution", "Rex time execution");
-        string getVal(AbstrParser.UniEl el)
+        protected string getVal(AbstrParser.UniEl el)
         {
             if(el.childs.Count ==0)
             return $"\"{el.Value}\"";
@@ -1753,36 +1790,42 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
             await base.sendInternal(root);
-            string str = "{";
-            bool first = true;
-            str = "{" + String.Join(",", root.childs.Select(ii => $"\"{ii.Name}\":{getVal(ii)}")) + "}";
-/*            foreach (var el in root.childs)
-            {
-                str += ((first?"":",")+"\"" + el.Name + "\":" + getVal(el );
-                first = false;
-            }
-            str += "}";*/
+            string str = formBody(root);
+            /*            foreach (var el in root.childs)
+                        {
+                            str += ((first?"":",")+"\"" + el.Name + "\":" + getVal(el );
+                            first = false;
+                        }
+                        str += "}";*/
 
-/*            if (owner.debugMode)
-                Console.WriteLine("Send:" + str);*/
+            /*            if (owner.debugMode)
+                            Console.WriteLine("Send:" + str);*/
             DateTime time1 = DateTime.Now;
             try
             {
                 var ans = await internSend(str);
-                
-//                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information,this, str, ans);
-  //              createMetrics();
-              if(sendToRex != null)
-                sendToRex.Add(time1);
-              return ans;
+
+                //                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information,this, str, ans);
+                //              createMetrics();
+                if (sendToRex != null)
+                    sendToRex.Add(time1);
+                return ans;
             }
             catch (Exception e77)
             {
-//                createMetrics();
-                if(sendToRex!= null)
+                //                createMetrics();
+                if (sendToRex != null)
                     sendToRexErr.Add(time1);
                 throw;
             }
+        }
+
+        protected virtual string formBody(AbstrParser.UniEl root)
+        {
+            if (ResponseType == "application/xml" || ResponseType == "text/xml")
+                return root.childs[0].toXML();
+            else
+                return root.toJSON();
         }
 
         private void createMetrics()
@@ -1826,7 +1869,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
     }
 
-    public class StreamSender:JsonSender
+    public class StreamSender:HTTPSender
     {
         public static TimeSpan Interval; 
         public string streamName  = "checkRegistration5";
@@ -1834,6 +1877,13 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
         public static Metrics.MetricCount metricStreamConcurrent = new Metrics.MetricCount("StreamConcurrCount", "Some time concurrent count");
         public static Metrics.MetricCount metricPerformanceStreams = new Metrics.MetricCount("StreamTime", "Stream peformance time");
+        protected override string formBody(AbstrParser.UniEl root)
+        {
+            string str = "{";
+            str = "{" + String.Join(",", root.childs.Select(ii => $"\"{ii.Name}\":{getVal(ii)}")) + "}";
+            return str;
+        }
+
         public async override Task<string> sendInternal(AbstrParser.UniEl root)
         {
             metricStreamConcurrent.Increment();

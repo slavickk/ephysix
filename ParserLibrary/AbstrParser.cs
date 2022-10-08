@@ -242,6 +242,68 @@ namespace ParserLibrary
                     retValue.AddRange(item.toList());
                 return retValue;
             }
+
+
+            string getXMLText()
+            {
+                var n = this.childs.FirstOrDefault(ii => ii.Name == "#text");
+                if (n != null)
+                {
+                    if (n.value1 != null)
+                        return n.value1.ToString();
+                    else
+                    {
+                        if (n.childs.Count > 0)
+                        {
+                            return n.childs[0].toJSON();
+                        }
+                        else
+                        {
+                            int y = 0;
+                        }
+                    }
+                        }
+                return "";
+            }
+            public void to_xml_internal(XmlDocument xmlDoc,XmlNode node)
+            {
+                if (Name == "-xmlns" || Name=="#text")
+                    return;
+                string Namespace="";
+                if(this.childs.Count>0)
+                {
+                    var n = this.childs.FirstOrDefault(ii => ii.Name == "-xmlns");
+                    if (n != null)
+                        Namespace = n.getXMLText();
+
+                }
+
+                if (this.Name.Substring(0, 1) == "-")
+                {
+                    XmlAttribute attr = xmlDoc.CreateAttribute(Name.Substring(1));
+                    attr.Value =getXMLText();
+                    node.Attributes.Append(attr);
+                } else
+                {
+                    var new_node = xmlDoc.CreateNode(XmlNodeType.Element, this.Name, Namespace);
+                        new_node.InnerText = getXMLText();
+                    if (node != null)
+                        node.AppendChild(new_node);
+                    else
+                        xmlDoc.AppendChild(new_node);
+                    foreach(var item in childs)
+                        item.to_xml_internal(xmlDoc,new_node);
+                }
+            }
+
+            public string toXML()
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                to_xml_internal(xmlDoc, null);
+               
+                return xmlDoc.OuterXml;
+
+            }
             public string toJSON()
             {
                 string tt = "";
@@ -504,7 +566,7 @@ namespace ParserLibrary
             {
                 string value = System.Text.Encoding.UTF8.GetString(bytes);
                 foreach (var pars in availParser)
-                    if (pars.canRazbor(value, ancestor, list))
+                    if (pars.canRazbor(value, ancestor, list,cantTryParse))
                         return true;
 
                 int yy = 0;
@@ -695,14 +757,16 @@ namespace ParserLibrary
             {
                 return false;
             }
-            ExtractXmlFields(docXml.DocumentElement, ancestor, list);
+            ExtractXmlFields(docXml.DocumentElement, ancestor, list,false,cantTryParse);
+
+           // var xml=list[2].toXML();
 
             return true;
 
         }
 
         delegate bool mustRazbor(UniEl el);
-        private void ExtractXmlFields(XmlNode property, UniEl ancestor, List<UniEl> list,bool isAttr=false)
+        private void ExtractXmlFields(XmlNode property, UniEl ancestor, List<UniEl> list,bool isAttr=false, bool cantTryParse = false)
         {
             var type = property.GetType();
             var name = property.Name;
@@ -710,7 +774,7 @@ namespace ParserLibrary
             {
                 name = "-" + name;
             }
-            if(name=="mcp:Action")
+            if(name=="t:Extension")
             {
                 int yy = 0;
             }
@@ -722,28 +786,30 @@ namespace ParserLibrary
 
                 foreach (XmlNode node in property.Attributes)
                 {
-                    ExtractXmlFields(node, newEl, list,true);
+                    ExtractXmlFields(node, newEl, list,true,cantTryParse);
                 }
             }
 
             foreach (XmlNode node in property.ChildNodes)
             {
-                ExtractXmlFields(node, newEl, list);
+                ExtractXmlFields(node, newEl, list,false,cantTryParse);
             }
             //            else
             {
                 {
                     if (property.ChildNodes.Count == 0)
                     {
-                        foreach (var pars in availParser)
-                            if (pars.canRazbor(property.InnerText, newEl, list))
-                            {
-                                if(includeBodyOnComplexField)
-                                     newEl.Value = property.InnerText;
+                        if (!cantTryParse)
+                        {
+                            foreach (var pars in availParser)
+                                if (pars.canRazbor(property.InnerText, newEl, list))
+                                {
+                                    if (includeBodyOnComplexField)
+                                        newEl.Value = property.InnerText;
 
-                                return;
-                            }
-
+                                    return;
+                                }
+                        }
                         newEl.Value = property.InnerText;
                     }
                 }
