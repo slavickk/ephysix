@@ -110,27 +110,7 @@ namespace ParserLibrary
         public static ItemVar[] ExecDMNForXML(string xml, string var_json,out string error)
         {
             error = "";
-            List<ItemInputVar> vars = JsonConvert.DeserializeObject<List<ItemInputVar>>(var_json);
-
-            foreach(var item in vars)
-            {
-                if(item.Name=="SignalledRules")
-                {
-                    item.Value = (item.Value as JArray).Select(d => d.ToObject<SignalledRule>()).ToList();
-        //            List<B> objectsB = objs.Where(d => d["type"].ToString() == "b").Select(d => d.ToObject<B>()).ToList();
-                }
-                if (item.Name == "InputRecord")
-                {
-                    item.Value = (item.Value as JArray).Select(d => d.ToObject<RecordField>()).ToList();
-
-                }
-                if (item.Name == "InactiveRules")
-                {
-                    item.Value = (item.Value as JArray).Select(d => d.ToObject<string>()).ToList();
-
-                }
-            }
-
+            List<ItemInputVar> vars = formJson(var_json);
 
             DmnExecutionContext ctx = null;
             try
@@ -144,7 +124,7 @@ namespace ParserLibrary
             }
             catch (Exception ex)
             {
-                error=$"Error DMN:{ex}";
+                error = $"Error DMN:{ex}";
                 return null;
 
             }
@@ -152,6 +132,31 @@ namespace ParserLibrary
 
         }
 
+        public static List<ItemInputVar> formJson(string var_json)
+        {
+            List<ItemInputVar> vars = JsonConvert.DeserializeObject<List<ItemInputVar>>(var_json);
+
+            foreach (var item in vars)
+            {
+                if (item.Name == "SignalledRules")
+                {
+                    item.Value = (item.Value as JArray).Select(d => d.ToObject<SignalledRule>()).ToList();
+                    //            List<B> objectsB = objs.Where(d => d["type"].ToString() == "b").Select(d => d.ToObject<B>()).ToList();
+                }
+                if (item.Name == "InputRecord")
+                {
+                    item.Value = (item.Value as JArray).Select(d => d.ToObject<RecordField>()).ToList();
+
+                }
+                if (item.Name == "InactiveRules")
+                {
+                    item.Value = (item.Value as JArray).Select(d => d.ToObject<string>()).ToList();
+
+                }
+            }
+
+            return vars;
+        }
 
         public void setXML(string xml)
         {
