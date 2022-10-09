@@ -13,6 +13,7 @@ using net.adamec.lib.common.dmn.engine.parser;
 using System.Collections.Concurrent;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Newtonsoft.Json.Linq;
 
 namespace ParserLibrary
 {
@@ -90,10 +91,13 @@ namespace ParserLibrary
                 }
 
             }
-            /*         using (StreamWriter sw = new StreamWriter("vars.json"))
+                  
+                     using (StreamWriter sw = new StreamWriter("vars.json"))
                      {
+              /*  JsonSerializerSettings sett = new JsonSerializerSettings();
+                sett.*/
                          sw.Write(JsonConvert.SerializeObject(dict));
-                     }*/
+                     }
 
             return dict;
             /*            return new List<ItemInputVar>() { new ItemInputVar() { Name = "SignalledRules", Value = new SignalledRule[] { new SignalledRule() { RuleID = "REX_TRAN_001", Severity = 1 }
@@ -107,6 +111,27 @@ namespace ParserLibrary
         {
             error = "";
             List<ItemInputVar> vars = JsonConvert.DeserializeObject<List<ItemInputVar>>(var_json);
+
+            foreach(var item in vars)
+            {
+                if(item.Name=="SignalledRules")
+                {
+                    item.Value = (item.Value as JArray).Select(d => d.ToObject<SignalledRule>()).ToList();
+        //            List<B> objectsB = objs.Where(d => d["type"].ToString() == "b").Select(d => d.ToObject<B>()).ToList();
+                }
+                if (item.Name == "InputRecord")
+                {
+                    item.Value = (item.Value as JArray).Select(d => d.ToObject<RecordField>()).ToList();
+
+                }
+                if (item.Name == "InactiveRules")
+                {
+                    item.Value = (item.Value as JArray).Select(d => d.ToObject<string>()).ToList();
+
+                }
+            }
+
+
             DmnExecutionContext ctx = null;
             try
             {

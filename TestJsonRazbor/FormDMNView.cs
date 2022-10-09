@@ -138,7 +138,13 @@ namespace TestJsonRazbor
            var variables = DMNExecutorSender.ExecDMNForXML(xml, var_body,out message);
             if(variables == null)
             {
-                toolStripStatusLabel1.Text = message;
+
+                await Task.Run(() => MessageBox.Show(message));
+                return;
+                int index = message.IndexOf("\r\n")-1;
+                if (index == -1)
+                    index = message.Length;
+                toolStripStatusLabel1.Text =  message.Substring(0,index);
 //                this.Invoke(messageSend, new object[] { message });
                 return;
             }
