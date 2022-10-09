@@ -1,4 +1,5 @@
 ﻿//using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ParserLibrary;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WinFormsETLPackagedCreator;
+using static ParserLibrary.DMNExecutorSender;
 
 namespace TestJsonRazbor
 {
@@ -40,8 +42,61 @@ namespace TestJsonRazbor
                 xml = this.sender.XML;
 
             }
-        }
+            string var_body;
+            using (StreamReader sr = new StreamReader(fileNameVars))
+            {
+                var_body = sr.ReadToEnd();
+            }
+            var vars=DMNExecutorSender.formJson(var_body);
+            foreach(var item in vars)
+            {
+                treeView1.Nodes[0].Nodes.Add(item.Name);
+                var last= treeView1.Nodes[0].LastNode;
+                if (item.Name == "SignalledRules")
+                {
+                    foreach(var item2 in (item.Value as List<SignalledRule>))
+                    {
+                        last.Nodes.Add("RuleID");
+                        last.LastNode.Nodes.Add(item2.RuleID);
+                        last.Nodes.Add("Result");
+                        last.LastNode.Nodes.Add(item2.Result);
+                        last.Nodes.Add("Severity");
+                        last.LastNode.Nodes.Add(item2.Severity.ToString());
+                    }
+                }
+                if (item.Name == "InputRecord")
+                {
+                    foreach (var item2 in (item.Value as List<RecordField>))
+                    {
+                        //                    var item2 = (item.Value as List<RecordField>)[0];
+                        last.Nodes.Add("Key");
+                        last.LastNode.Nodes.Add(item2.Key);
+                        last.Nodes.Add("Value");
+                        last.LastNode.Nodes.Add(item2.Value);
+                    }
 
+                }
+                if (item.Name == "InactiveRules")
+                {
+                    foreach (var item2 in (item.Value as List<string>))
+                    {
+                        //                    var item2 = (item.Value as List<RecordField>)[0];
+                        last.Nodes.Add(item2);
+                    }
+                }
+
+            }
+        }
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+          //  var el = e.Node.Tag as AbstrParser.UniEl;
+            if (e.Node != null)
+            {
+               // textBox1.Text = el.path;
+                Clipboard.SetText(e.Node.Text);
+            }
+
+        }
         private void webView21_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
             FillDMN();
@@ -125,12 +180,13 @@ namespace TestJsonRazbor
             MessageBox.Show(mess);
 
         }
+        string fileNameVars = @"C:\Users\User\source\repos\Polygons\DMN_DATA_EXAMPLE\vars.json";
         private async void button4_Click(object sender, EventArgs e)
         {
             toolStripStatusLabel1.Text = "";
             await getXML();
             string var_body;
-            using(StreamReader sr = new StreamReader(@"C:\Users\User\source\repos\Polygons\DMN_DATA_EXAMPLE\vars.json"))
+            using(StreamReader sr = new StreamReader(fileNameVars))
             {
                 var_body = sr.ReadToEnd();
             }
