@@ -1326,11 +1326,11 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             {
                 try
                 {
-                    if(sender?.GetType() == typeof(HTTPSender) && receiver.GetType() == typeof(HTTPReceiver))
+                    /*if(sender?.GetType() == typeof(HTTPSender) && receiver.GetType() == typeof(HTTPReceiver))
                     {
                         (sender as HTTPSender).headers = (context as HTTPReceiver.SyncroItem).headers;
                         
-                    }
+                    }*/
                     var ans = await sender?.send(input);
                     await receiver.sendResponse(ans, context);
                 } 
@@ -1688,7 +1688,23 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             kolRetry++;
             HttpResponseMessage result = null;
             var stringContent = new StringContent(body, UnicodeEncoding.UTF8, ResponseType); // use MediaTypeNames.Application.Json in Core 3.0+ and Standard 2.1+
-            if(headers!= null)
+            if (0 == 1)
+            {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Pragma", "no-cache");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Cache-Control", "no-cache");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Java/12.0.1");
+
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Connection", "keep-alive");
+            }
+            //stringContent.Headers
+            //            client.DefaultRequestHeaders
+            //            "text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
+            //          client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue)= "text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
+            //        stringContent.Headers.Add("Accept", "text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2");
+            //stringContent.Headers.
+            /*if(headers!= null)
             {
                 foreach (var head in headers.Where(ii => ii.Key != "SOAPAction" && ii.Key != "Connection"))
                 {
@@ -1701,7 +1717,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
                     }
                 }
-            }
+            }*/
             //stringContent.Headers.Add()
             try
             {

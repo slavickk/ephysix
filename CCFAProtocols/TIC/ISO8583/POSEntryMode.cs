@@ -19,6 +19,7 @@ namespace CCFAProtocols.TIC.ISO8583
         Unknown = 0,
         ManyalKey = 1,
         MagneticStripeReadCVVnotReliable = 2,
+        ConsumerPresentedQR = 3,
         OpticalChacterReader = 4,
         ICCCVVRelivle = 5,
         ContactlessEMV = 7,
