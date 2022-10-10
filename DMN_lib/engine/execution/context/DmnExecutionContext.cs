@@ -248,10 +248,15 @@ namespace net.adamec.lib.common.dmn.engine.engine.execution.context
         /// <returns>The expression result converted to <paramref name="outputType"/></returns>
         /// 
 
-        static Interpreter interpreter = null;
-        static List<Parameter> parameters;
-        static object syncro= new object();
+        /*static*/ Interpreter interpreter = null;
+        /*static*/ List<Parameter> parameters;
+        /*static*/ object syncro= new object();
 
+
+        public /*static*/ void clearInterpreter()
+        {
+            interpreter = null;
+        }
         public virtual object EvalExpression(string expression, Type outputType, string executionId,string ownerName)
         {
             DateTime time1 = DateTime.Now;
