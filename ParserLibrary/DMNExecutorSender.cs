@@ -115,6 +115,7 @@ namespace ParserLibrary
             DmnExecutionContext ctx = null;
             try
             {
+              //  DmnExecutionContext.clearInterpreter();
                 ctx = getDMN(xml);
                 foreach (var item in vars)
                     ctx.WithInputParameter(item.Name, item.Value);

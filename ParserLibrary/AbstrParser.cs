@@ -13,6 +13,7 @@ using System.Net;
 using MaxMind.GeoIP2.Exceptions;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 
 namespace ParserLibrary
 {
@@ -265,24 +266,39 @@ namespace ParserLibrary
                         }
                 return "";
             }
-            public void to_xml_internal(XmlDocument xmlDoc,XmlNode node)
+            public class NamespaceItem
+            {
+                public string Name;
+                public string Namespace;
+            }
+
+            public void to_xml_internal(XmlDocument xmlDoc,XmlNode node,List<NamespaceItem> namespaces)
             {
                 if (Name == "-xmlns" || Name=="#text")
                     return;
                 string Namespace="";
                 if(this.childs.Count>0)
                 {
-                    var n = this.childs.FirstOrDefault(ii => ii.Name == "-xmlns");
+                    var n = this.childs.FirstOrDefault(ii => ii.Name == "-xmlns" || ii.Name.Contains("-xmlns:"));
                     if (n != null)
+                    {
+                        int index = n.Name.IndexOf(":");
                         Namespace = n.getXMLText();
+                        namespaces.Add(new NamespaceItem() { Name = ((index == -1) ? "" : n.Name.Substring( index+1)+":"), Namespace = Namespace });
 
-                }
+                    } else
+                    {
+                        Namespace = GetNamespace(namespaces, Namespace);
+                    }
+                } else
+                    Namespace = GetNamespace(namespaces, Namespace);
+
 
                 if (this.Name.Substring(0, 1) == "-")
                 {
-                    XmlAttribute attr = xmlDoc.CreateAttribute(Name.Substring(1));
-                    attr.Value =getXMLText();
-                    node.Attributes.Append(attr);
+                        XmlAttribute attr = xmlDoc.CreateAttribute(Name.Substring(1));
+                        attr.Value = getXMLText();
+                        node.Attributes.Append(attr);
                 } else
                 {
                     var new_node = xmlDoc.CreateNode(XmlNodeType.Element, this.Name, Namespace);
@@ -292,14 +308,27 @@ namespace ParserLibrary
                     else
                         xmlDoc.AppendChild(new_node);
                     foreach(var item in childs)
-                        item.to_xml_internal(xmlDoc,new_node);
+                        item.to_xml_internal(xmlDoc,new_node,namespaces);
                 }
+            }
+
+            private string GetNamespace(List<NamespaceItem> namespaces, string Namespace)
+            {
+                if (Name.Substring(0, 1) != "-")
+                {
+                    var item = namespaces.FirstOrDefault(ii => Name.Contains(ii.Name));
+                    if (item != null)
+                        Namespace = item.Namespace;
+                }
+
+                return Namespace;
             }
 
             public string toXML()
             {
+                List<NamespaceItem> namespaces = new List<NamespaceItem>();
                 XmlDocument xmlDoc = new XmlDocument();
-                to_xml_internal(xmlDoc, null);
+                to_xml_internal(xmlDoc, null,namespaces);
                
                 return xmlDoc.OuterXml;
 
