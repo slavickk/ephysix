@@ -11,6 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static ParserLibrary.Step;
 
 namespace TestJsonRazbor
 {
@@ -1008,6 +1009,60 @@ namespace TestJsonRazbor
 
         private void comboBoxTypeAlias_SelectedIndexChanged(object sender, EventArgs e)
         {
+
+        }
+
+        private void button6_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                int index = listBox1.SelectedIndex;
+                if (index > 0)
+                {
+                    var topIndex = listBox1.TopIndex;
+                    topIndex++;
+                    var item = itemFilter.outputFields[index];
+                    itemFilter.outputFields.RemoveAt(index);
+                    index++;
+                    itemFilter.outputFields.Insert(index, item);
+//                    itemFilter.outputFields[index] = fillOutput();
+                    redrawOutput();
+                    listBox1.SelectedIndex = index;
+                    listBox1.TopIndex = topIndex;
+                }
+            }
+            catch (Exception e77)
+            {
+                MessageBox.Show(e77.ToString());
+            }
+
+        }
+
+        private void buttonDown_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int index = listBox1.SelectedIndex;
+                if (index >= 0)
+                {
+                    var topIndex = listBox1.TopIndex;
+                    topIndex--;
+
+                    var item = itemFilter.outputFields[index];
+                    itemFilter.outputFields.RemoveAt(index);
+                    index--;
+                    itemFilter.outputFields.Insert(index, item);
+                    //                    itemFilter.outputFields[index] = fillOutput();
+                    redrawOutput();
+                    listBox1.SelectedIndex = index;
+                    listBox1.TopIndex = topIndex;
+
+                }
+            }
+            catch (Exception e77)
+            {
+                MessageBox.Show(e77.ToString());
+            }
 
         }
     }
