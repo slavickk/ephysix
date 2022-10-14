@@ -1020,10 +1020,10 @@ namespace TestJsonRazbor
                 if (index > 0)
                 {
                     var topIndex = listBox1.TopIndex;
-                    topIndex++;
+                    topIndex--;
                     var item = itemFilter.outputFields[index];
                     itemFilter.outputFields.RemoveAt(index);
-                    index++;
+                    index--;
                     itemFilter.outputFields.Insert(index, item);
 //                    itemFilter.outputFields[index] = fillOutput();
                     redrawOutput();
@@ -1043,14 +1043,14 @@ namespace TestJsonRazbor
             try
             {
                 int index = listBox1.SelectedIndex;
-                if (index >= 0)
+                if (index >= 0&& index<itemFilter.outputFields.Count-1)
                 {
                     var topIndex = listBox1.TopIndex;
-                    topIndex--;
+                    topIndex++;
 
                     var item = itemFilter.outputFields[index];
                     itemFilter.outputFields.RemoveAt(index);
-                    index--;
+                    index++;
                     itemFilter.outputFields.Insert(index, item);
                     //                    itemFilter.outputFields[index] = fillOutput();
                     redrawOutput();

@@ -670,6 +670,7 @@ namespace TestJsonRazbor
             this.splitContainer1.Cursor = System.Windows.Forms.Cursors.VSplit;
             this.splitContainer1.Location = new System.Drawing.Point(3, 24);
             this.splitContainer1.Margin = new System.Windows.Forms.Padding(2);
+            splitContainer1.Dock= System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -736,7 +737,7 @@ namespace TestJsonRazbor
             // 
             this.splitContainer3.Panel2.Controls.Add(this.groupBox2);
             this.splitContainer3.Size = new System.Drawing.Size(567, 934);
-            this.splitContainer3.SplitterDistance = 466;
+            this.splitContainer3.SplitterDistance = 200;
             this.splitContainer3.TabIndex = 40;
             // 
             // treeView2
