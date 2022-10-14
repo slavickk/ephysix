@@ -166,6 +166,7 @@ namespace TestJsonRazbor
                         // specify this thread's Abort() as the cancel delegate
                         using (Canceller.Token.Register(Thread.CurrentThread.Abort))
                         {
+                        AbstrParser.drawerFactory = null;
                             await pip.run();
                         }
 //                    await pip.run();

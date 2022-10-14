@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -30,6 +31,16 @@ namespace TestJsonRazbor
         private void FormStreamSenderSetup_Load(object sender, EventArgs e)
         {
             comboBoxSensitive.SelectedIndex = -1;
+
+            comboBoxSensitive.Items.Clear();
+            foreach (var item in Assembly.GetAssembly(typeof(AliasProducer)).GetTypes().Where(t => t.IsAssignableTo(typeof(AliasProducer)) && !t.IsAbstract))
+            {
+                var item1 = item.CustomAttributes.First(ii => ii.AttributeType == typeof(SensitiveAttribute));
+                comboBoxSensitive.Items.Add(item1.ConstructorArguments[0].Value);
+            }
+
+/*            foreach (var item in Assembly.GetAssembly(typeof(AliasProducer)).GetTypes().Where(t => t.IsAssignableTo(typeof(AliasProducer)) && !t.IsAbstract))
+                comboBoxSensitive.Items.Add(item);*/
             conn = new NpgsqlConnection(ownerSender.db_connection_string);
             conn.Open();
             key = ownerSender.streamName;
@@ -102,7 +113,9 @@ where nc.nodeid= @id and nc.isdeleted=false and nc.srcid=2", conn))
         List<FieldItem> fields= new List<FieldItem>();
         StreamSender.Stream toStream()
         {
-            return new StreamSender.Stream() { Name = textBoxName.Text, Description = textBoxDescription.Text, fields = fields.Select(ii => new StreamSender.Stream.Field() { Name = ii.Name, Detail = ii.Detail, Type = ii.Type, linkedColumn = ii.refColumn?.col_id, SensitiveData=ii.SensitiveData }).ToList() };
+            var ff = fields.Select(ii => new StreamSender.Stream.Field() { Name = ii.Name, Detail = ii.Detail, Type = ii.Type, linkedColumn = ii.refColumn?.col_id, SensitiveData = ii.SensitiveData }).ToList();
+            var ff1=ff.ToDictionary(p => p.Name);
+            return new StreamSender.Stream() { Name = textBoxName.Text, Description = textBoxDescription.Text, fields =ff1 };
         }
         private async void button3_Click(object sender, EventArgs e)
         {
@@ -190,7 +203,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false and nc.srcid
             textBoxName.Text = st.Name;
             textBoxDescription.Text = st.Description;
             fields.Clear();
-            fields.AddRange(st.fields.Select(ii => new FieldItem() { Name = ii.Name, Detail = ii.Detail, Type = ii.Type, SensitiveData = ii.SensitiveData, refColumn=(ii.linkedColumn==null?null:new ItemColumn(ii.linkedColumn,conn)) }));
+            fields.AddRange(st.fields.Select(ii => new FieldItem() { Name = ii.Value.Name, Detail = ii.Value.Detail, Type = ii.Value.Type, SensitiveData = ii.Value.SensitiveData, refColumn=(ii.Value.linkedColumn==null?null:new ItemColumn(ii.Value.linkedColumn,conn)) }));
             RefreshListFields();
         }
 

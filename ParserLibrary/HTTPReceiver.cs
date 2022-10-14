@@ -26,6 +26,7 @@ namespace ParserLibrary
         public int port = 8080;
 
         KestrelServer server ;
+        public string ResponseType = "application/json";
         public HTTPReceiver()
         {
             server = new KestrelServer(this);
@@ -102,7 +103,6 @@ namespace ParserLibrary
                 return Metrics.metric.getPrometeusMetric();
                 //            return 1;
             }
-            public string ResponseType = "application/json";
 
             public class Header
             {
@@ -186,7 +186,7 @@ namespace ParserLibrary
                 metricCountExecuted.Increment();
                 Interlocked.Increment(ref CountExecuted);
                 // await httpContext.Request.Body.
-                SetResponseType(httpContext, "application/json");
+                SetResponseType(httpContext, owner.ResponseType);
                 await SetResponseContent(httpContext, item.answer);
                 metricCountOpened.Decrement();
                 Interlocked.Decrement(ref CountOpened);

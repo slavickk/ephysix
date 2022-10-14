@@ -15,7 +15,7 @@ namespace ParserLibrary
 
         public override string getTemplate(string key)
         {
-            return "{\"TableName\": \"\", \"field\": {\"Name\": \"\",\"Type\": \"\",\"Value\": \"\"}}";
+            return "{\"TableName\": \"\",\"Key\": \"\", \"field\": {\"Name\": \"\",\"Type\": \"\",\"Value\": \"\"}}";
 //            return base.getTemplate(key);
         }
         public override string getExample()
@@ -53,8 +53,13 @@ namespace ParserLibrary
             string TableName="";
             string insert_list = "(";
             string select_list = "";// "values (";
+            string update_list = "";
+            string where_list = "";
+            string key = "";
+
             string create_list = "";
             int i1 = 0;
+            DateTime timeStamp = DateTime.Now;  
 //            var connString = "User ID=postgres;Password=test;Host=localhost;Port=5432;";
             timeFinish = DateTime.Now.AddMinutes(1);
             if (conn == null)
@@ -79,24 +84,31 @@ namespace ParserLibrary
                 if (fld.Name == "TableName")
                 {
                     TableName = fld.Value.ToString();
-                    insert_list = "(";
-                    select_list = "";// "values (";
-                    create_list = "";
-                    i1 = 0;
+                    insert_list = "(impTimeStamp";
+                    select_list = "values (@P0";// "values (";
+                    create_list = "impTimeStamp timestamp without time zone";
+                    update_list = " SET impTimeStamp=  @P0";
+                    where_list = "";
+
+                    i1 = 1;
                     cmd = new NpgsqlCommand();
+                    cmd.Parameters.AddWithValue($"@P0", timeStamp);
 
                 }
                 if (fld.Name == "EndRecord")
                 {
                     insert_list += ")";
                     select_list += ")";
-                    cmd.CommandText = $"insert into {TableName} {insert_list}  {select_list}";
+                    var inserted = $"insert into {TableName} {insert_list}  {select_list}";
+                    var updated = $"update {TableName}   {update_list} WHERE  {where_list}";
 
+                  //  cmd.CommandText = $"DO\r\n$$\r\ndeclare \r\n selected integer;\r\nbegin\r\n  {updated};\r\n  GET DIAGNOSTICS selected = ROW_COUNT;\r\n  if(selected =0) Then\r\n        {inserted};\r\n  END IF;\r\n  ----select selected;\r\nend  \r\n$$ LANGUAGE plpgsql;\r\n";
+                //    cmd.CommandText = $"insert into {TableName} {insert_list}  {select_list}";
+                     cmd.CommandText=updated;
                     cmd.Connection = conn;
                     try
                     {
-                        cmd.ExecuteNonQuery();
-
+                        ExecQu(cmd, inserted);
                     }
                     catch (NpgsqlException e77)
                     {
@@ -104,7 +116,7 @@ namespace ParserLibrary
                         {
                             try
                             {
-                                var cmd1 = new NpgsqlCommand($"CREATE TABLE IF NOT EXISTS public.{TableName}(    {create_list} )", conn);
+                                var cmd1 = new NpgsqlCommand($"CREATE TABLE IF NOT EXISTS fp.{TableName}(    {create_list} )", conn);
 //                                cmd1.Prepare()
                                 cmd1.ExecuteNonQuery();
                             }
@@ -114,7 +126,8 @@ namespace ParserLibrary
                             }
                             try
                             {
-                                cmd.ExecuteNonQuery();
+                                ExecQu(cmd, inserted);
+                              //  cmd.ExecuteNonQuery();
                             }
                             catch (Exception e89)
                             {
@@ -128,7 +141,12 @@ namespace ParserLibrary
                     }
 
                 }
-                if (fld.Name == "field")
+                if (fld.Name == "Key")
+                {
+                    key=fld.Value.ToString();
+                    where_list = key+"=";
+                }
+                    if (fld.Name == "field")
                 {
                     var TypeField = fld.childs.First(ii => ii.Name == "Type").Value.ToString();
                     //  string TableName = root.childs.First(ii => ii.Name == "TableName").Value.ToString();
@@ -136,6 +154,9 @@ namespace ParserLibrary
                     if (fld.childs.Count(ii => ii.Name == "Value") > 0)
                     {
                         int yy = 0;
+
+
+                        string nameField=fld.childs.First(ii => ii.Name == "Name").Value.ToString();
 
                         var val = fld.childs.First(ii => ii.Name == "Value").Value;
 
@@ -148,9 +169,13 @@ namespace ParserLibrary
                         }
                         if (sel_item != null)
                         {
-                            insert_list += ((insert_list.Length == 1) ? "" : ",") + fld.childs.First(ii => ii.Name == "Name").Value.ToString();
-                            select_list += ((select_list.Length == 0) ? "values (" : ",") + sel_item;
 
+                            string name = fld.childs.First(ii => ii.Name == "Name").Value.ToString();
+                            insert_list += ((insert_list.Length == 1) ? "" : ",") + name;
+                            select_list += ((select_list.Length == 0) ? "values (" : ",") + sel_item;
+                            update_list += ((update_list.Length == 0) ? " SET " : ",") + name+$"={sel_item}";
+                            if (name == key)
+                                where_list = $" WHERE {key}=@P{i1}";
                             cmd.Parameters.AddWithValue($"@P{i1}", fld.childs.First(ii => ii.Name == "Value").Value.ToString());
                         }
                     }
@@ -163,6 +188,14 @@ namespace ParserLibrary
             return await base.sendInternal(root);
         }
 
-
+        private static void ExecQu(NpgsqlCommand cmd, string inserted)
+        {
+            int returns = cmd.ExecuteNonQuery();
+            if (returns == 0)
+            {
+                cmd.CommandText = inserted;
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 }

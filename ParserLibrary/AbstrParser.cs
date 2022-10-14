@@ -250,8 +250,16 @@ namespace ParserLibrary
                 var n = this.childs.FirstOrDefault(ii => ii.Name == "#text");
                 if (n != null)
                 {
-                    if (n.value1 != null)
+                  /*  if (n.childs.Count > 0 && n.childs[0].Name == "DMNResult")
+                    {
+                        int y = 0;
+                    }
+*/
+                        if (n.value1 != null && n.childs.Count==0)
+                    {
+
                         return n.value1.ToString();
+                    }
                     else
                     {
                         if (n.childs.Count > 0)
@@ -530,7 +538,7 @@ namespace ParserLibrary
                         int yy = 0;
                     }
                     value1 = value;
-                    if (treeNode != null)
+                    if (drawerFactory != null && treeNode != null)
                     {
                         treeNode.Update(this);
 /*                        if (treeNode.Nodes.Count == 0)

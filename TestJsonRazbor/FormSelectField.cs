@@ -528,7 +528,10 @@ namespace TestJsonRazbor
                 FillReceiverMocs(first, currentStep);
             }
             foreach (var item in Assembly.GetAssembly(typeof(AliasProducer)).GetTypes().Where(t => t.IsAssignableTo(typeof(AliasProducer)) && !t.IsAbstract))
-                comboBoxTypeAlias.Items.Add(item);
+            {
+                var item1=item.CustomAttributes.First(ii => ii.AttributeType == typeof(SensitiveAttribute));
+                comboBoxTypeAlias.Items.Add(item1.ConstructorArguments[0].Value);
+            }
             if (1 == 1)
             {
                var ex = currentStep.sender.getTemplate("");
@@ -668,7 +671,10 @@ namespace TestJsonRazbor
             var el = e.Node.Tag as AbstrParser.UniEl;
             if (el != null)
             {
-                textBox1.Text = el.path;
+                if (e.Node.TreeView.Name == "treeView2" && el.path.Contains("Root/"))
+                    textBox1.Text = el.path.Substring(5);
+                else
+                    textBox1.Text = el.path;
                 Clipboard.SetText(textBox1.Text);
             }
 
