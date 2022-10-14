@@ -36,8 +36,6 @@ namespace TestJsonRazbor
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Root");
             this.button7 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.button10 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
             this.checkBoxPackToJson = new System.Windows.Forms.CheckBox();
             this.checkBoxIsUniq = new System.Windows.Forms.CheckBox();
             this.comboBoxTypeAlias = new System.Windows.Forms.ComboBox();
@@ -77,6 +75,8 @@ namespace TestJsonRazbor
             this.panel1 = new System.Windows.Forms.Panel();
             this.textBoxTemplate = new System.Windows.Forms.TextBox();
             this.buttonSelectTemplate = new System.Windows.Forms.Button();
+            this.button10 = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.button2 = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -128,8 +128,6 @@ namespace TestJsonRazbor
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.button10);
-            this.groupBox2.Controls.Add(this.button6);
             this.groupBox2.Controls.Add(this.checkBoxPackToJson);
             this.groupBox2.Controls.Add(this.checkBoxIsUniq);
             this.groupBox2.Controls.Add(this.comboBoxTypeAlias);
@@ -149,6 +147,8 @@ namespace TestJsonRazbor
             this.groupBox2.Controls.Add(this.panel3);
             this.groupBox2.Controls.Add(this.panel4);
             this.groupBox2.Controls.Add(this.panel1);
+            this.groupBox2.Controls.Add(this.button10);
+            this.groupBox2.Controls.Add(this.button6);
             this.groupBox2.Location = new System.Drawing.Point(17, 239);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
@@ -157,32 +157,6 @@ namespace TestJsonRazbor
             this.groupBox2.TabIndex = 35;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "OutputValues";
-            // 
-            // button10
-            // 
-            this.button10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button10.Enabled = false;
-            this.button10.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.button10.Location = new System.Drawing.Point(1356, 674);
-            this.button10.Margin = new System.Windows.Forms.Padding(4);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(40, 47);
-            this.button10.TabIndex = 50;
-            this.button10.Text = "V";
-            this.button10.UseVisualStyleBackColor = true;
-            // 
-            // button6
-            // 
-            this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(1356, 619);
-            this.button6.Margin = new System.Windows.Forms.Padding(4);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(40, 47);
-            this.button6.TabIndex = 49;
-            this.button6.Text = "^";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click_1);
             // 
             // checkBoxPackToJson
             // 
@@ -334,7 +308,7 @@ namespace TestJsonRazbor
             this.listBox1.Location = new System.Drawing.Point(7, 619);
             this.listBox1.Margin = new System.Windows.Forms.Padding(4);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(1341, 260);
+            this.listBox1.Size = new System.Drawing.Size(1368, 260);
             this.listBox1.TabIndex = 29;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -636,6 +610,28 @@ namespace TestJsonRazbor
             this.buttonSelectTemplate.Text = "Select Template";
             this.buttonSelectTemplate.UseVisualStyleBackColor = true;
             this.buttonSelectTemplate.Click += new System.EventHandler(this.buttonSelectTemplate_Click);
+            // 
+            // button10
+            // 
+            this.button10.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.button10.Location = new System.Drawing.Point(336, 567);
+            this.button10.Margin = new System.Windows.Forms.Padding(4);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(40, 47);
+            this.button10.TabIndex = 50;
+            this.button10.Text = "V";
+            this.button10.UseVisualStyleBackColor = true;
+            // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(286, 567);
+            this.button6.Margin = new System.Windows.Forms.Padding(4);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(40, 47);
+            this.button6.TabIndex = 49;
+            this.button6.Text = "^";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click_1);
             // 
             // groupBox1
             // 
