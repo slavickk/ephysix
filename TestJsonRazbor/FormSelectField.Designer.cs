@@ -32,8 +32,8 @@ namespace TestJsonRazbor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Root");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Root");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Root");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Root");
             this.button7 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.checkBoxPackToJson = new System.Windows.Forms.CheckBox();
@@ -96,6 +96,8 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.textBoxNameFilter = new System.Windows.Forms.TextBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.button6 = new System.Windows.Forms.Button();
+            this.button10 = new System.Windows.Forms.Button();
             this.groupBox2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -129,6 +131,8 @@ namespace TestJsonRazbor
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.button10);
+            this.groupBox2.Controls.Add(this.button6);
             this.groupBox2.Controls.Add(this.checkBoxPackToJson);
             this.groupBox2.Controls.Add(this.checkBoxIsUniq);
             this.groupBox2.Controls.Add(this.comboBoxTypeAlias);
@@ -153,7 +157,7 @@ namespace TestJsonRazbor
             this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox2.Size = new System.Drawing.Size(567, 387);
+            this.groupBox2.Size = new System.Drawing.Size(567, 464);
             this.groupBox2.TabIndex = 35;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "OutputValues";
@@ -618,7 +622,7 @@ namespace TestJsonRazbor
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox1.Size = new System.Drawing.Size(567, 390);
+            this.groupBox1.Size = new System.Drawing.Size(567, 466);
             this.groupBox1.TabIndex = 34;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Filter";
@@ -644,7 +648,7 @@ namespace TestJsonRazbor
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(563, 370);
+            this.tabControl1.Size = new System.Drawing.Size(563, 446);
             this.tabControl1.TabIndex = 15;
             this.tabControl1.Visible = false;
             // 
@@ -654,7 +658,7 @@ namespace TestJsonRazbor
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage1.Size = new System.Drawing.Size(555, 342);
+            this.tabPage1.Size = new System.Drawing.Size(555, 418);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
@@ -675,7 +679,7 @@ namespace TestJsonRazbor
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(829, 781);
+            this.splitContainer1.Size = new System.Drawing.Size(829, 934);
             this.splitContainer1.SplitterDistance = 148;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 38;
@@ -687,11 +691,11 @@ namespace TestJsonRazbor
             this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Margin = new System.Windows.Forms.Padding(2);
             this.treeView1.Name = "treeView1";
-            treeNode1.Name = "Node0";
-            treeNode1.Text = "Root";
+            treeNode3.Name = "Node0";
+            treeNode3.Text = "Root";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1});
-            this.treeView1.Size = new System.Drawing.Size(148, 781);
+            treeNode3});
+            this.treeView1.Size = new System.Drawing.Size(148, 934);
             this.treeView1.TabIndex = 1;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             this.treeView1.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseDoubleClick);
@@ -712,7 +716,7 @@ namespace TestJsonRazbor
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.treeView2);
-            this.splitContainer2.Size = new System.Drawing.Size(679, 781);
+            this.splitContainer2.Size = new System.Drawing.Size(679, 934);
             this.splitContainer2.SplitterDistance = 567;
             this.splitContainer2.SplitterWidth = 2;
             this.splitContainer2.TabIndex = 0;
@@ -731,8 +735,8 @@ namespace TestJsonRazbor
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.groupBox2);
-            this.splitContainer3.Size = new System.Drawing.Size(567, 781);
-            this.splitContainer3.SplitterDistance = 390;
+            this.splitContainer3.Size = new System.Drawing.Size(567, 934);
+            this.splitContainer3.SplitterDistance = 466;
             this.splitContainer3.TabIndex = 40;
             // 
             // treeView2
@@ -742,11 +746,11 @@ namespace TestJsonRazbor
             this.treeView2.Location = new System.Drawing.Point(0, 0);
             this.treeView2.Margin = new System.Windows.Forms.Padding(2);
             this.treeView2.Name = "treeView2";
-            treeNode2.Name = "Node0";
-            treeNode2.Text = "Root";
+            treeNode4.Name = "Node0";
+            treeNode4.Text = "Root";
             this.treeView2.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2});
-            this.treeView2.Size = new System.Drawing.Size(110, 781);
+            treeNode4});
+            this.treeView2.Size = new System.Drawing.Size(110, 934);
             this.treeView2.TabIndex = 2;
             this.treeView2.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
@@ -842,11 +846,33 @@ namespace TestJsonRazbor
             // 
             this.toolTip1.ForeColor = System.Drawing.Color.LavenderBlush;
             // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(152, 266);
+            this.button6.Margin = new System.Windows.Forms.Padding(2);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(43, 22);
+            this.button6.TabIndex = 49;
+            this.button6.Text = "^";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.buttonUp_Click);
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(199, 266);
+            this.button10.Margin = new System.Windows.Forms.Padding(2);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(43, 22);
+            this.button10.TabIndex = 50;
+            this.button10.Text = "V";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.buttonDown_Click);
+            // 
             // FormSelectField
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(843, 671);
+            this.ClientSize = new System.Drawing.Size(843, 824);
             this.Controls.Add(this.textBoxNameFilter);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.textBox1);
@@ -949,5 +975,7 @@ namespace TestJsonRazbor
         private System.Windows.Forms.CheckBox checkBoxPackToJson;
         private System.Windows.Forms.TreeView treeView2;
         private System.Windows.Forms.SplitContainer splitContainer3;
+        private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.Button button6;
     }
 }

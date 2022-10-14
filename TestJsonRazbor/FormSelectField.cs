@@ -1012,7 +1012,7 @@ namespace TestJsonRazbor
 
         }
 
-        private void button6_Click_1(object sender, EventArgs e)
+        private void buttonUp_Click(object sender, EventArgs e)
         {
             try
             {
