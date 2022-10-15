@@ -100,7 +100,7 @@ namespace ParserLibrary
                     insert_list += ")";
                     select_list += ")";
                     var inserted = $"insert into {TableName} {insert_list}  {select_list}";
-                    var updated = $"update {TableName}   {update_list} WHERE  {where_list}";
+                    var updated = $"update {TableName}   {update_list}   {where_list}";
 
                   //  cmd.CommandText = $"DO\r\n$$\r\ndeclare \r\n selected integer;\r\nbegin\r\n  {updated};\r\n  GET DIAGNOSTICS selected = ROW_COUNT;\r\n  if(selected =0) Then\r\n        {inserted};\r\n  END IF;\r\n  ----select selected;\r\nend  \r\n$$ LANGUAGE plpgsql;\r\n";
                 //    cmd.CommandText = $"insert into {TableName} {insert_list}  {select_list}";
@@ -175,7 +175,7 @@ namespace ParserLibrary
                             select_list += ((select_list.Length == 0) ? "values (" : ",") + sel_item;
                             update_list += ((update_list.Length == 0) ? " SET " : ",") + name+$"={sel_item}";
                             if (name == key)
-                                where_list = $" WHERE {key}=@P{i1}";
+                                where_list = $" WHERE {key}={sel_item}";
                             cmd.Parameters.AddWithValue($"@P{i1}", fld.childs.First(ii => ii.Name == "Value").Value.ToString());
                         }
                     }
