@@ -34,6 +34,8 @@ namespace ParserLibrary.DummyProtocol2
             logContext = LogContext.PushProperty("receiver", "DummyProtocol2");
         }
 
+
+        public string tracking_dir;
         /// <summary>
         /// Work dir for DummyProtocol2. 
         /// </summary>
@@ -58,20 +60,25 @@ namespace ParserLibrary.DummyProtocol2
         /// </list>
         /// </remarks>
         /// <exception cref="DirectoryNotFoundException"></exception>
+        /// 
         public string WorkDir
         {
             get => workdir;
             set
             {
-                workdir = value;
-                if (!Directory.Exists(value))
+                if (value != null)
                 {
-                    throw new DirectoryNotFoundException($"Directory {value} not found!");
-                }
 
-                upload_dir = Path.Combine(value, "upload");
-                processed_dir = Path.Combine(value, "processed");
-                error_dir = Path.Combine(value, "error");
+                    workdir = value;
+                    if (!Directory.Exists(value))
+                    {
+                        throw new DirectoryNotFoundException($"Directory {value} not found!");
+                    }
+
+                    upload_dir = Path.Combine(value, "upload");
+                    processed_dir = Path.Combine(value, "processed");
+                    error_dir = Path.Combine(value, "error");
+                }
             }
         }
 
@@ -94,6 +101,7 @@ namespace ParserLibrary.DummyProtocol2
         /// </summary>
         public override async Task startInternal()
         {
+            WorkDir = tracking_dir;
             Directory.CreateDirectory(upload_dir);
             Log.Information("Directory for upload: {dir}", upload_dir);
             Directory.CreateDirectory(processed_dir);
