@@ -223,7 +223,22 @@ and a2.toid in (@id1, @id2)
 
             }
         }
+        /*
+         select distinct n.nodeid,n.name, nt.name from md_node n, md_arc a1, md_arc a2,md_node nt
+        where n.nodeid = a1.fromid and a1.typeid = -6 and a2.fromid = a1.toid and a2.typeid in (9, 15)
+        and n.typeid = -6 and n.isdeleted = false
+        and a2.toid =nt.nodeid and nt.name='card'
+        union
+        select distinct  n.nodeid,n.name, nt.name from md_node n, md_arc a1, md_arc a2,md_node nt
+        where n.nodeid = a1.toid and a1.typeid = -6 and a2.fromid = a1.fromid and a2.typeid in (9, 15)
+        and n.typeid = -6 and n.isdeleted = false
+        and a2.toid =nt.nodeid and nt.name='card'
+        --and a2.toid in (@id1, @id2)
 
+        select n2.nodeid ,n2.name,nt2.name,n1.nodeid,n1.name,nt1.name from md_node n1,md_node nt1,md_arc a1,md_arc at1,md_node n2,md_node nt2,md_arc a2,md_arc at2
+        where  a1.fromid=1276538 and at1.fromid=n1.nodeid and at1.typeid in(9,15) and nt1.nodeid=at1.toid and a1.toid=n1.nodeid  and a2.toid=a1.fromid and a2.fromid=n2.nodeid 
+         and at2.fromid=n2.nodeid and at2.typeid in(9,15)  and nt2.nodeid=at2.toid
+         */
         private async void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             var selected=listBox1.SelectedItem as RelItem;
