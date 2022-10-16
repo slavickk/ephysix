@@ -13,6 +13,8 @@ namespace WinFormsApp1
 {
     public partial class TableViewControl : UserControl
     {
+
+
         public TableViewControl()
         {
             InitializeComponent();
@@ -41,9 +43,15 @@ namespace WinFormsApp1
       and n2.NodeID=nav2.NodeID
       and nav2.AttrID=a2.AttrID
   and a2.attrid>=5 and a2.attrid<=17
---      and n2.name = 'pan' and n1.name='card'
       and n1.nodeid=@id
-  ";
+union 
+ 
+select n1.NodeID, n1.Name, n2.NodeID, n2.Name, ' '
+    from md_node n1, md_arc a1, md_node n2
+    where n1.typeid=md_get_type('Stream') and a1.toid=n1.nodeid and a1.fromid=n2.nodeid and a1.typeid=md_get_type('Field2Stream')
+      and n2.typeid=md_get_type('StreamField')
+      and n1.nodeid=@id
+";
             string tableName = "";
             await using (var cmd = new NpgsqlCommand(command, conn))
             {
@@ -97,6 +105,11 @@ namespace WinFormsApp1
             {
                 OnTableDoubleClicked(list[listView1.SelectedIndices[0]]);
             }
+        }
+
+        private void TableViewControl_SizeChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

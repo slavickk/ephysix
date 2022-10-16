@@ -742,5 +742,21 @@ where r.isdeleted = false
             }
             await RedrawAllPackages();          
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            FormExploreFK form = new FormExploreFK(conn);
+            form.ShowDialog();
+        }
     }
 }

@@ -21,4 +21,10 @@
     <ProjectReference Include="..\CamundaInterfaces\CamundaDefinitionInterfaces.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="FormExploreFK.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

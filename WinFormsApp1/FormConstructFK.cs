@@ -62,7 +62,7 @@ namespace WinFormsApp1
 
         private async void button2_Click(object sender, EventArgs e)
         {
-            var command = @"select * from ccfa_insert_newFK(@detail,2,'VForeignKey')
+            var command = @"select * from md_insert_newFK(@detail,2,'VForeignKey')
   ";
             
             await using (var cmd = new NpgsqlCommand(command, conn))
