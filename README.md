@@ -1,11 +1,29 @@
 # Integration tools
-# ENVIRONMENTS
+## Functionality
+ The main function of integration tool - easy and fast transformation of real-time streams between different sources and destinations without programming(Low-Code system).
+ 
+ The processing flow consists of sequentially executed steps, each of which consists of a receiver (optionally) , filter transform block and sender.
+ 
+ The receiver transforms the input stream into an internal hierarchical structure. After filtering and converting  hierarchical structure convert to externals format on sender.
+ 
+ Different kind of receiver support different types of protocols (http, tcp).
+ 
+ Receivers can respose input format of stream( supports XML,JSON,BASE64...).
+ 
+ 
+## About OpenApi support
+ HTTPReceiver also support Swagger emulation (based on json definition) . Each call transform to internal structure and after transfomation convert internal structure to return method of call. 
+ 
+ 
+ 
+ 
+## ENVIRONMENTS(obsolete)
 |ENV_NAME|DEFAULT_VALUE|POSSIBLE VALUES|IS NECESSARY|DEPENDENT VARIABLES|DESCRIPTION|
 | ------ | ------ | ------ | ------ | ------ | ------ |
 |YAML_PATH|/app/Data/model.yml||true|None|YAML configuration file path|
 |LOG_LEVEL|Debug|Verbose, Debug, Information, Warning, Error, Fatal|true|None|Logging level|
 |LOG_PATH|||false|None|FilePath for logging.If variable absent-logging into default input/output |
-# PORTS
+## PORTS(obsolete)
 |PORT_NAME|DEFAULT_VALUE|PROTOCOL|HEALTHCHECK|HEALTHCHEK ROUTE|METRICS|METRICS ROUTE|DESCRIPTION|
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
 |PACKET_BEAT_PORT|15001|tcp|false|None|false||PACKETBEAT port (if listening PACKETBEAT)|
