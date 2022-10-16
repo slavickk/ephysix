@@ -31,6 +31,7 @@ namespace WinFormsApp1
         List<ItemColumn> list = new List<ItemColumn>();
         public async Task setContent(long id, NpgsqlConnection conn)
         {
+            selectedTableId=id;
             list.Clear();
             if (busy)
                 return;
@@ -76,6 +77,7 @@ select n1.NodeID, n1.Name, n2.NodeID, n2.Name, ' '
             busy = false;
 
         }
+        public long selectedTableId=-1;
         public ItemColumn selectedColumn;
 
         public delegate void SelectedChanged();

@@ -50,10 +50,15 @@ namespace WinFormsApp1
         List<Item> items= new List<Item>();
         private void button1_Click(object sender, EventArgs e)
         {
-            items.Add(new Item() { id1=tableViewControl1.selectedColumn.Id, name1=tableViewControl1.selectedColumn.Name, id2 = tableViewControl2.selectedColumn.Id, name2 = tableViewControl2.selectedColumn.Name });
+            items.Add(new Item() { id1 = tableViewControl1.selectedColumn.Id, name1 = tableViewControl1.selectedColumn.Name, id2 = tableViewControl2.selectedColumn.Id, name2 = tableViewControl2.selectedColumn.Name });
 
+            RefreshRelMembers();
+        }
+
+        private void RefreshRelMembers()
+        {
             listView1.Items.Clear();
-            listView1.Items.AddRange(items.Select(ii=>new ListViewItem(new String[] {ii.name1,ii.name2})).ToArray());
+            listView1.Items.AddRange(items.Select(ii => new ListViewItem(new String[] { ii.name1, ii.name2 })).ToArray());
         }
 
         public long IDRelation = 0;
@@ -163,6 +168,15 @@ and n1.name like '%" + textBox2.Text + "%' and n1.isdeleted=false", conn))
 
         }
 
+        public class RelItem
+        {
+            public long id;
+            public string name;
+            public override string ToString()
+            {
+                return name;
+            }
+        }
         private async void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             var selItem= comboBox1.SelectedItem as ItemTable;
@@ -172,14 +186,68 @@ and n1.name like '%" + textBox2.Text + "%' and n1.isdeleted=false", conn))
                     await tableViewControl1.setContent(selItem.table_id, conn);
                 if (checkBox2.Checked)
                     await tableViewControl2.setContent(selItem.table_id, conn);
-                if (tableViewControl1.selectedColumn != null && tableViewControl2.selectedColumn != null)
-                {
-                    @""
-                }
-                
+                await RefreshRels();
 
             }
 
+        }
+
+        private async Task RefreshRels()
+        {
+            if (tableViewControl1.selectedTableId >= 0 && tableViewControl2.selectedTableId >= 0)
+            {
+                await using (var cmd = new NpgsqlCommand(@"select distinct n.nodeid, n.name from md_node n, md_arc a1, md_arc a2
+where n.nodeid = a1.fromid and a1.typeid = -6 and a2.fromid = a1.toid and a2.typeid in (9, 15)
+and n.typeid = -6 and n.isdeleted = false
+and a2.toid in (@id1, @id2)
+union
+select distinct  n.nodeid, n.name from md_node n, md_arc a1, md_arc a2
+where n.nodeid = a1.toid and a1.typeid = -6 and a2.fromid = a1.fromid and a2.typeid in (9, 15)
+and n.typeid = -6 and n.isdeleted = false
+and a2.toid in (@id1, @id2)
+", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id1", tableViewControl1.selectedTableId);
+                    cmd.Parameters.AddWithValue("@id2", tableViewControl2.selectedTableId);
+                    listBox1.Items.Clear();
+                    await using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+
+                            listBox1.Items.Add(new RelItem() { id = reader.GetInt64(0), name = reader.GetString(1) });
+                        }
+                    }
+                }
+
+
+            }
+        }
+
+        private async void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selected=listBox1.SelectedItem as RelItem;
+            if(selected!= null)
+            {
+                await using (var cmd = new NpgsqlCommand(@"select n2.nodeid ,n2.name,n1.nodeid,n1.name,nm.name from md_node nm,md_node n1,md_arc a1,md_node n2,md_arc a2
+where nm.nodeid=@id and a1.fromid=@id and a1.toid=n1.nodeid and a2.toid=a1.fromid and a2.fromid=n2.nodeid
+", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", selected.id);
+//                    cmd.Parameters.AddWithValue("@id2", tableViewControl2.selectedTableId);
+                    items.Clear();
+                    await using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            textBox1.Text = reader.GetString(4);
+                            items.Add(new Item() {  id1 = reader.GetInt64(0),  name1 = reader.GetString(1), id2 = reader.GetInt64(2), name2 = reader.GetString(3) });
+                        }
+                    }
+                    RefreshRelMembers();
+                }
+
+            }
         }
     }
 }
