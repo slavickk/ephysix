@@ -13,7 +13,7 @@
  
 ## About OpenApi support
  HTTPReceiver also support Swagger emulation (based on json definition) . Each call transform to internal structure and after transfomation convert internal structure to return method of call. 
- 
+ This makes it possible to use the product as a proxy for a systems with existing API endpoint.
  
  
  
