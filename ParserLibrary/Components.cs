@@ -2030,8 +2030,8 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             using (var cmd = new NpgsqlCommand(@"select n.nodeid,n.name,a.val,np.name,'String',ap.val,asd.val,rl.toid from md_node n
 inner join md_node_attr_val a  
 on ( a.nodeid=n.nodeid and attrid=22)
-inner join md_arc l on (l.fromid=n.nodeid and l.isdeleted=false)
-inner join md_node np on (l.toid=np.nodeid and np.isdeleted=false)
+inner join md_arc l on (l.toid=n.nodeid and l.isdeleted=false)
+inner join md_node np on (l.fromid=np.nodeid and np.isdeleted=false)
 inner join md_node_attr_val ap on ( ap.nodeid=np.nodeid and ap.attrid=22)
 left join md_node_attr_val asd on ( asd.nodeid=np.nodeid and asd.attrid=51)
 left join md_arc rl on ( rl.fromid=np.nodeid and rl.typeid=16)

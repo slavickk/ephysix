@@ -284,19 +284,36 @@ namespace ParserLibrary
             {
                 if (Name == "-xmlns" || Name=="#text")
                     return;
+
+                if(Name== "Tran")
+                {
+                    int yy = 0;
+                }
                 string Namespace="";
                 if(this.childs.Count>0)
                 {
-                    var n = this.childs.FirstOrDefault(ii => ii.Name == "-xmlns" || ii.Name.Contains("-xmlns:"));
-                    if (n != null)
+                    bool found = false;
+                    //                    var n = this.childs.FirstOrDefault(ii => ii.Name == "-xmlns" || ii.Name.Contains("-xmlns:"));
+
+                    //                   if (n != null)
+                    string baseNamespace = "";
+                    foreach(var n in this.childs.Where(ii => ii.Name == "-xmlns" || ii.Name.Contains("-xmlns:")))
                     {
+                        found = true;
                         int index = n.Name.IndexOf(":");
                         Namespace = n.getXMLText();
+                        if (index == -1)
+                            baseNamespace = Namespace;
                         namespaces.Add(new NamespaceItem() { Name = ((index == -1) ? "" : n.Name.Substring( index+1)+":"), Namespace = Namespace });
 
-                    } else
+                    } 
+                    if(!found)
                     {
                         Namespace = GetNamespace(namespaces, Namespace);
+                    } else
+                    {
+                        if(baseNamespace != "")
+                            Namespace = baseNamespace;
                     }
                 } else
                     Namespace = GetNamespace(namespaces, Namespace);
@@ -324,7 +341,7 @@ namespace ParserLibrary
             {
                 if (Name.Substring(0, 1) != "-")
                 {
-                    var item = namespaces.FirstOrDefault(ii => Name.Contains(ii.Name));
+                    var item = namespaces.FirstOrDefault(ii => !String.IsNullOrEmpty(ii.Name) && Name.Contains(ii.Name)  );
                     if (item != null)
                         Namespace = item.Namespace;
                 }
