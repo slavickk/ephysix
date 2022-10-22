@@ -125,9 +125,14 @@ namespace TestJsonRazbor
                 string fileName=Program.ExecutedPath;
                 this.Text = fileName;
                 if (File.Exists(fileName))
-
-                    LoadYaml(fileName);
-
+                    try
+                    {
+                        LoadYaml(fileName);
+                    }
+                    catch( Exception e67)
+                    {
+                        MessageBox.Show(e67.ToString());
+                    }
             }
             else
             {

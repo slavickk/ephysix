@@ -1168,22 +1168,28 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         }
         public static Pipeline load(string fileName = @"C:\d\model.yml")
         {
+            string Body;
+            using (StreamReader sr = new StreamReader(fileName))
+            {
+                Body = sr.ReadToEnd();
+            }
+            return loadFromString(Body);
+        }
+
+        public static Pipeline loadFromString(string Body)
+        {
             var ser = new DeserializerBuilder();
             foreach (var type in getAllRegTypes())
                 ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
-            string Body;
-            using(StreamReader sr = new StreamReader(fileName))
-            {
-                Body=sr.ReadToEnd();
-            }
-            foreach(var var in getEnvVariables(Body))
+            foreach (var var in getEnvVariables(Body))
             {
                 string val = Environment.GetEnvironmentVariable(var);
-                if(val == null)
+                if (val == null)
                 {
                     throw new Exception($"Unknown environment variable {var}");
                 }
-                Body=Body.Replace("{#"+var+"#}", val);
+            //    MessageBox.Show($"{var}:{val}");
+                Body = Body.Replace("{#" + var + "#}", val);
             }
             var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
             var pip = deserializer.Deserialize<Pipeline>(Body);// (File.OpenText(fileName));
@@ -1191,7 +1197,8 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 step.owner = pip;
             return pip;
         }
-        public static Pipeline loadFromString(string content)
+
+      /*  public static Pipeline loadFromString(string content)
         {
             var ser = new DeserializerBuilder();
             foreach (var type in getAllRegTypes())
@@ -1201,7 +1208,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             foreach (var step in pip.steps)
                 step.owner = pip;
             return pip;
-        }
+        }*/
 
         public void Save( string fileName = @"C:\d\aa1.yml")
         {
@@ -1507,6 +1514,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             }
         }
 
+        public bool isHandleSenderError = false;
         private async Task FilterStep(ContextItem context, AbstrParser.UniEl rootElement)
         {
             DateTime time1 = DateTime.Now;
@@ -1534,7 +1542,25 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                         var root = CheckAndFillNode(rootElement, IDStep, true);// new AbstrParser.UniEl(rootElement.ancestor) { Name = IDStep };
                         rootElement = CheckAndFillNode(root,"Rec");
                     }
-                    await SendToSender(rootElement, context, local_rootOutput);
+                    try
+                    {
+
+                        await SendToSender(rootElement, context, local_rootOutput);
+                        new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode", Value=0 };
+                    }
+                    catch( Exception e77)
+                    {
+                        if (isHandleSenderError)
+                        {
+                            Logger.log("ErrorSender:" + e77.ToString(), Serilog.Events.LogEventLevel.Error);
+                            new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode", Value = 1 };
+
+
+                        }
+                        else
+                            throw;
+
+                    }
                 }
 
 
