@@ -56,15 +56,16 @@ namespace WinFormsApp1
         public class ItemTable
         {
             public string table_name;
+            public string scema;
             public long table_id;
             public string alias="";
             public long etl_id;
             public override string ToString()
             {
                 if (alias != "")
-                    return $"{table_name}({alias})";
+                    return $"{table_name}({alias}) -{scema}";
                 else
-                    return $"{table_name}";
+                    return $"{table_name}-{scema}";
             }
         }
         public class ItemColumn
@@ -76,11 +77,8 @@ namespace WinFormsApp1
 
             public override string ToString()
             {
-                if(table.alias != "")
-                    return $"{col_name}:{table.table_name}({table.alias})";
-                else
-                    return $"{col_name}:{table.table_name}";
-
+                    return $"{col_name}:{table}";
+            
             }
         }
 
@@ -140,10 +138,11 @@ namespace WinFormsApp1
         private async void button1_Click(object sender, EventArgs e)
         {
             comboBox1.Items.Clear();
-            await using (var cmd = new NpgsqlCommand(@"select nc.name colname,nc.nodeid colid,nt.name tablename,nt.nodeid tableid from MD_node nc 
+            await using (var cmd = new NpgsqlCommand(@"select nc.name colname,nc.nodeid colid,nt.name tablename,nt.nodeid tableid,s.name from MD_node nc 
 inner join MD_type tc on nc.typeid = tc.typeid and tc.key = 'Column'
 inner join MD_arc ac on (ac.fromid = nc.nodeid  and ac.isdeleted=false)
 inner join md_Node nt on ac.toid = nt.nodeid  and nt.typeid = 1 and nt.isdeleted=false
+inner join md_src s on (nt.srcid=s.srcid)
 
 
 where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
@@ -151,7 +150,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
             {
                 while (await reader.ReadAsync())
                 {
-                    comboBox1.Items.Add(new ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table= new ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3) } });
+                    comboBox1.Items.Add(new ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table= new ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3),scema=reader.GetString(4) } });
                 }
             }
         }

@@ -49,6 +49,7 @@ namespace TestJsonRazbor
                 textBoxIDStep.Text = currentStep.IDStep;
                 textBoxIDPrevStep.Text = currentStep.IDPreviousStep;
                 checkBox1.Checked = currentStep.isBridge;
+                checkBoxHandleSendError.Checked = currentStep.isHandleSenderError;
                 textBoxResponceStep.Text = currentStep.IDResponsedReceiverStep;
                 if (currentStep.IDPreviousStep == "")
                     buttonSetupReceiver.Enabled = true;
@@ -414,6 +415,7 @@ namespace TestJsonRazbor
             currentStep.IDStep=textBoxIDStep.Text;
             currentStep.IDPreviousStep=textBoxIDPrevStep.Text;
             currentStep.isBridge = checkBox1.Checked;
+            currentStep.isHandleSenderError=checkBoxHandleSendError.Checked;    
             currentStep.IDResponsedReceiverStep=textBoxResponceStep.Text ;
             currentStep.description=textBoxStepDescription.Text  ;
             treeView1.Refresh();
