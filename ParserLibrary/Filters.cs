@@ -4,11 +4,15 @@ using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
 
+public class ArrFilter : List<Filter>
+{
+
+}
+
 public class ConditionFilter : Filter
 {
     public string conditionPath { get; set; }
-    [YamlIgnore]
-    public string[] tokens=null;
+    [YamlIgnore] public string[] tokens = null;
 
     /*public ConditionFilter()
         {
@@ -19,7 +23,9 @@ public class ConditionFilter : Filter
     //       [JsonInclude]
     public ComparerV conditionCalcer { get; set; } = new ScriptCompaper();
     public static bool isNew = true;
-    public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list, ref AbstrParser.UniEl rootElement )
+
+    public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list,
+        ref AbstrParser.UniEl rootElement)
     {
         if (isNew)
         {
@@ -36,7 +42,8 @@ public class ConditionFilter : Filter
                 rootElement = AbstrParser.getLocalRoot(rootElement, tokens);
                 index = rootElement.rootIndex;
             }
-            return rootElement.getAllDescentants(tokens,index).Where(ii =>  conditionCalcer.Compare(ii));
+
+            return rootElement.getAllDescentants(tokens, index).Where(ii => conditionCalcer.Compare(ii));
         }
         else
             return list.Where(ii => ii.path == conditionPath && conditionCalcer.Compare(ii));

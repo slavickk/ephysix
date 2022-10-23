@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using YamlDotNet;
@@ -122,11 +121,6 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
     }
 
 
-
-    public class ArrFilter : List<Filter>
-    {
-
-    }
     public class ReplaySaver
     {
         public string path;
