@@ -70,47 +70,6 @@ return true;
     }
 
 
-    public class ExtractFromInputValueWithScript: ExtractFromInputValue
-    {
-        MethodDelegate checker = null;
-        string body = @"using System;
-using System.Linq;
-using ParserLibrary;
-AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
-{                                                           
-            var sb = new StringBuilder();
-            el.ancestor.childs.ForEach(s => sb.Append(s.Value));
-            return new AbstrParser.UniEl() { Value = sb};
-}
-";
-        
-/*        AbstrParser.UniEl ConvObject(AbstrParser.UniEl el)
-        {
-            var sb = new StringBuilder();
-            el.ancestor.childs.ForEach(s => sb.Append(s.Value+";"));
-            return new AbstrParser.UniEl() { Value = sb };
-        }*/
-        public string ScriptBody
-        {
-            get
-            {
-                return body;
-            }
-            set
-            {
-                body = value;
-                checker = CSScript.RoslynEvaluator
-                  .CreateDelegate(body);
-
-            }
-        }
-
-        public override AbstrParser.UniEl getFinalNode(AbstrParser.UniEl el)
-        {
-            return checker(el) as AbstrParser.UniEl;
-//            return base.getNode(rootEl);
-        }
-    }
     public class FilterComparer
     {
         /*        public virtual bool filter(List<Filter> filters, List<AbstrParser.UniEl> list)
