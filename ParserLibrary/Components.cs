@@ -1087,12 +1087,15 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         //public AbstrParser.UniEl rootElement = null;
         public async Task<bool> SelfTest()
         {
-            var res1=await (this.steps[0].sender as ISelfTested).isOK();
+            // check that sender implemented ISelfTested
+            if (steps[0].sender is not ISelfTested testableSender)
+                return false; // treating this as a failed self test
+            
+            var res1 = await testableSender.isOK();
             if(res1.Item3 == null)
                 Logger.log(  "{Item}.Results:{Res}",  Serilog.Events.LogEventLevel.Information,"any" , res1.Item2.ToString(),(res1.Item1 ? "OK" : "Fail"));
             else
                 Logger.log("{Item}.Results:{Res}",res1.Item3, Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
-
             return res1.Item1;
         }
         static List<Type> getAllRegTypes()
