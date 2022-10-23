@@ -395,7 +395,7 @@ return true;
                 return rootElement.getAllDescentants(tokens,index).Where(ii =>  conditionCalcer.Compare(ii));
             }
             else
-            return list.Where(ii => ii.path == conditionPath && conditionCalcer.Compare(ii));
+                return list.Where(ii => ii.path == conditionPath && conditionCalcer.Compare(ii));
         }
     }
 

@@ -29,3 +29,13 @@
 |PACKET_BEAT_PORT|15001|tcp|false|None|false||PACKETBEAT port (if listening PACKETBEAT)|
 |http port|80|http|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|http port|
 |https port|443|https|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|https port|
+
+# Development environment
+
+Don't forget to configure the user name and email to be used in commits. Do this on every machine you use to work on the project.
+
+Here is how to do it for the project (not globally):
+```
+git config --local user.name "Your Name"
+git config --local user.email "Your Email"
+```

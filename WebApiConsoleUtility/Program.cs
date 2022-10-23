@@ -69,7 +69,7 @@ namespace WebApiConsoleUtility
                     Log.Logger = new LoggerConfiguration()
                     .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
             .Enrich.FromLogContext()
-            .Enrich.WithProperty("Mashine", System.Environment.MachineName)
+            .Enrich.WithProperty("Machine", System.Environment.MachineName)
             //        .Enrich.With<>
             .WriteTo.Console(new RenderedCompactJsonFormatter())
             .CreateLogger();
@@ -86,7 +86,7 @@ namespace WebApiConsoleUtility
                 Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.ControlledBy(new LoggingLevelSwitch())
         .Enrich.FromLogContext()
-        .Enrich.WithProperty("Mashine", System.Environment.MachineName)
+        .Enrich.WithProperty("Machine", System.Environment.MachineName)
         //        .Enrich.With<>
         .WriteTo.Console(new RenderedCompactJsonFormatter())
         .CreateLogger();
