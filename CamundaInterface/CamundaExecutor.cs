@@ -127,7 +127,7 @@ namespace CamundaInterface
                                    {*/
                                 var itog = await SendToRefDataLoader.putRequestToRefDataLoader(client, item.processDefinitionId + ":" + item.topicName
                                      , item.variables["ConnSelect"].value.ToString(), item.variables["ConnAdm"].value.ToString(), item.variables["DictName"].value.ToString(), "TEST", item.variables["SQLText"].value.ToString()
-                                     , Convert.ToInt32(item.variables["MaxRecords"].value.ToString()), item.variables["DictAddr"].value.ToString(), item.variables["SensitiveData"].value.ToString());
+                                     , Convert.ToInt32(item.variables["MaxRecords"].value.ToString()), item.variables["DictAddr"].value.ToString(), item.variables["SensitiveData"].value.ToString() ,(int)item.variables["CountInKey"]?.value);
                                 Log.Information("Send to dict end");
                                 /*                                } 
                                                                 catch(Exception e77)

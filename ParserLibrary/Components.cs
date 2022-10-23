@@ -1263,25 +1263,25 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 {
 
                 }
-                var ll= rootElement.toJSON();
+                var ll = rootElement.toJSON();
             }
         }
-                public async Task run()
+        public async Task run()
         {
 
-            if(receiver != null)
+            if (receiver != null)
                 receiver.owner = this;
-            if(sender != null)
+            if (sender != null)
                 sender.owner = this;
             receiver.stringReceived = Receiver_stringReceived;
             try
             {
                 await receiver.start();
-            } 
-            catch(Exception e88)
+            }
+            catch (Exception e88)
             {
                 throw;
- //               MessageBox.Show(e88.ToString());
+                //               MessageBox.Show(e88.ToString());
             }
         }
         public string IDStep { get; set; } = "Example";
@@ -1309,7 +1309,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             public int exec(AbstrParser.UniEl rootElInput, ref AbstrParser.UniEl local_rootOutput)
             {
                 int count = 0;
-                if(local_rootOutput == null)
+                if (local_rootOutput == null)
                     local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
 
                 foreach (var ff in outputFields)
@@ -1320,29 +1320,55 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 return count;
             }
 
-    }
-    public List<ItemFilter> converters { get; set; } = new List<ItemFilter>() {  };
-/*        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
-        public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
-//        public RecordExtractor transformer;
+        }
+        public List<ItemFilter> converters { get; set; } = new List<ItemFilter>() { };
+        /*        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
+                public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
+        //        public RecordExtractor transformer;
         public Sender sender { get; set; } = new LongLifeRepositorySender();
         [YamlIgnore]
         public Pipeline owner { get; set; }
 
         public void Init(Pipeline owner)
         {
-            this.owner=owner;
+            this.owner = owner;
             this.sender?.Init(owner);
             this.receiver?.Init(owner);
+            if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
+            {
+                var moveDir = Path.Combine(this.SaveErrorSendDirectory, "Move");
+                if (Directory.Exists(moveDir))
+                {
+                    foreach(var file in Directory.GetFiles(moveDir))
+                    {
+                        try
+                        {
+                            File.Move(file, Path.Combine(SaveErrorSendDirectory, Path.GetFileName(file)));
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+
+
+                }
+                if (Directory.GetFiles(this.SaveErrorSendDirectory).Count() > 0)
+                {
+                    isErrorSending = true;
+                    tRestore = restoreSenderState(SaveErrorSendDirectory);
+                }
+            }
         }
         public Step(/*Pipeline owner1*/)
         {
-//            owner = owner1;
-          /*  sucMetric = Pipeline.metrics.getMetric("packagesReceived", false, true, "All packages, sended to utility");
-            errMetric = Pipeline.metrics.getMetric("packagesReceived", true, false, "All packages, sended to utility");*/
+            //            owner = owner1;
+            /*  sucMetric = Pipeline.metrics.getMetric("packagesReceived", false, true, "All packages, sended to utility");
+              errMetric = Pipeline.metrics.getMetric("packagesReceived", true, false, "All packages, sended to utility");*/
         }
 
-       static Metrics.MetricCount sucMetric = new Metrics.MetricCount("packagesReceivedSuccess", "All packages, sended to utility");
+        static Metrics.MetricCount sucMetric = new Metrics.MetricCount("packagesReceivedSuccess", "All packages, sended to utility");
         static Metrics.MetricCount errMetric = new Metrics.MetricCount("packagesReceivedUnsuccess", "All packages, sended to utility with error");
         //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
 
@@ -1352,7 +1378,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             public object context;
         }
         public bool isBridge = false;
-        private async Task Receiver_stringReceived(string input,object context)
+        private async Task Receiver_stringReceived(string input, object context)
         {
 
             DateTime time2 = DateTime.Now;
@@ -1378,8 +1404,8 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                     }*/
                     var ans = await sender?.send(input);
                     await receiver.sendResponse(ans, context);
-                } 
-                catch(Exception e66)
+                }
+                catch (Exception e66)
                 {
                     Logger.log($"On send error{e66.ToString()}", Serilog.Events.LogEventLevel.Error);
                     throw;
@@ -1395,7 +1421,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         private async Task checkChilds(ContextItem contextItem, AbstrParser.UniEl rootElement)
         {
 
-            foreach(var nextStep in this.owner.steps.Where(ii => ii.IDPreviousStep == this.IDStep))
+            foreach (var nextStep in this.owner.steps.Where(ii => ii.IDPreviousStep == this.IDStep))
             {
                 await nextStep.FilterStep(contextItem, rootElement);
                 await nextStep.checkChilds(contextItem, rootElement);
@@ -1417,8 +1443,8 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                         }*/
             if (debugMode)
             {
-               
-                Logger.log("{this} {filter} transform to output {count} items", Serilog.Events.LogEventLevel.Debug,this,item, count);
+
+                Logger.log("{this} {filter} transform to output {count} items", Serilog.Events.LogEventLevel.Debug, this, item, count);
             }
             var msec = (DateTime.Now - time1).TotalMilliseconds;
             AbstrParser.regEvent("FP", time1);
@@ -1428,7 +1454,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 return await sender.send(local_rootOutput);
         }
 
-                public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement)
+        public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement)
         {
             try
             {
@@ -1445,7 +1471,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                             foreach (var item in converters/*.First().filter(list)*/)
                             {
                                 AbstrParser.UniEl rEl = null;
-                                foreach (var item1 in item.filter.filter(list,ref rEl))
+                                foreach (var item1 in item.filter.filter(list, ref rEl))
                                 {
                                     var st = await FindAndCopy1(rootElement, time1, item, item1, list);
                                     if (st != "")
@@ -1473,11 +1499,11 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
         private bool tryParse(string input, ContextItem context, AbstrParser.UniEl rootElement)
         {
-            bool cantTryParse=false;
+            bool cantTryParse = false;
             if (receiver != null)
                 cantTryParse = receiver.cantTryParse;
             foreach (var pars in AbstrParser.availParser)
-                if (pars.canRazbor(input, rootElement, context.list,cantTryParse))
+                if (pars.canRazbor(input, rootElement, context.list, cantTryParse))
                 {
                     return true;
                 }
@@ -1490,23 +1516,23 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
             {
                 //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
 
-                if(tryParse(input, context, rootElement))
+                if (tryParse(input, context, rootElement))
                     await FilterStep(context, rootElement);
-/*                foreach (var pars in AbstrParser.availParser)
-                if (pars.canRazbor(input, rootElement, context.list))
-                    {
-                        await FilterStep(context, rootElement);
-                        break;
-                    }
-*/
+                /*                foreach (var pars in AbstrParser.availParser)
+                                if (pars.canRazbor(input, rootElement, context.list))
+                                    {
+                                        await FilterStep(context, rootElement);
+                                        break;
+                                    }
+                */
 
                 if (sucMetric != null)
                     sucMetric.Add(time2);
-               // throw new Exception("aaa");
+                // throw new Exception("aaa");
             }
             catch (Exception e77)
             {
-                if(errMetric != null)
+                if (errMetric != null)
                     errMetric.Add(time2);
                 Logger.log(e77.ToString(), Serilog.Events.LogEventLevel.Error);
                 rootElement = null;
@@ -1515,6 +1541,9 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         }
 
         public bool isHandleSenderError = false;
+
+        public string SaveErrorSendDirectory = "";
+        Task tRestore;
         private async Task FilterStep(ContextItem context, AbstrParser.UniEl rootElement)
         {
             DateTime time1 = DateTime.Now;
@@ -1527,34 +1556,44 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
                 foreach (var item in converters/*.First().filter(list)*/)
                 {
                     AbstrParser.UniEl rEl = null;
-                    if(this.IDStep =="Step_3")
+                    if (this.IDStep == "Step_3")
                     {
                         int y = 0;
                     }
-                    foreach (var item1 in item.filter.filter(context.list,ref rEl))
-                        found=await FindAndCopy(rootElement, time1, item, item1, context,local_rootOutput);
-//                    found = true;
+                    foreach (var item1 in item.filter.filter(context.list, ref rEl))
+                        found = await FindAndCopy(rootElement, time1, item, item1, context, local_rootOutput);
+                    //                    found = true;
                 }
                 if (found)
                 {
-                    if(rootElement?.ancestor?.Name != this.IDStep )
+                    if (rootElement?.ancestor?.Name != this.IDStep)
                     {
                         var root = CheckAndFillNode(rootElement, IDStep, true);// new AbstrParser.UniEl(rootElement.ancestor) { Name = IDStep };
-                        rootElement = CheckAndFillNode(root,"Rec");
+                        rootElement = CheckAndFillNode(root, "Rec");
                     }
                     try
                     {
+                       if (!isErrorSending)
+                            await SendToSender(rootElement, context, local_rootOutput);
+                       else
+                            SaveRestoreFile(local_rootOutput);
 
-                        await SendToSender(rootElement, context, local_rootOutput);
-                        new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode", Value=0 };
+                        new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode", Value = 0 };
                     }
-                    catch( Exception e77)
+                    catch (Exception e77)
                     {
                         if (isHandleSenderError)
                         {
                             Logger.log("ErrorSender:" + e77.ToString(), Serilog.Events.LogEventLevel.Error);
+                           
                             new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode", Value = 1 };
-
+                            if (!string.IsNullOrEmpty(SaveErrorSendDirectory))
+                            {
+                                SaveRestoreFile(local_rootOutput); 
+                                if (!isErrorSending)
+                                    tRestore = restoreSenderState(SaveErrorSendDirectory);
+                                isErrorSending = true;
+                            }
 
                         }
                         else
@@ -1566,6 +1605,69 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
             }
         }
+
+        private void SaveRestoreFile(AbstrParser.UniEl local_rootOutput)
+        {
+            using (var sw = new StreamWriter(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()))))
+                sw.Write(local_rootOutput.toJSON());
+        }
+
+        bool isErrorSending = false;
+        async Task restoreSenderState(string Dir)
+        {
+
+            var moveDir = Path.Combine(Dir, "Move");
+            if (!Directory.Exists(moveDir))
+                Directory.CreateDirectory(moveDir);
+
+            bool found = false;
+            do
+            {
+                found = false;
+                foreach (var file in Directory.GetFiles(Dir).OrderBy(ii => File.GetCreationTime(ii)))
+                {
+                    var file1 = Path.Combine(moveDir, Path.GetFileName(file));
+                    File.Move(file, file1);
+                    List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+                    string line = "";
+                    using (StreamReader sr = new StreamReader(file1))
+                    {
+                        line = sr.ReadToEnd();
+                    }
+                    AbstrParser.UniEl rootEl = AbstrParser.CreateNode(null, list, "Item");
+                    if (line != "")
+                    {
+                        foreach (var pars in AbstrParser.availParser)
+                            if (pars.canRazbor(line, rootEl, list))
+                                break;
+                    }
+
+                restart:
+                    try
+                    {
+                        await sender.send(rootEl);
+                    }
+                    catch (Exception e77)
+                    {
+                        await Task.Delay(1000);
+                        goto restart;
+
+                    }
+                    try
+                    {
+                        File.Delete(file1);
+                    }
+                    catch { }
+                }
+                if(!found && isErrorSending)
+                {
+                    isErrorSending = false;
+                    await Task.Delay(100);
+                    found = true;    
+                }
+            } while (found);
+        }
+    
 
         private async Task<bool> FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el,ContextItem context, AbstrParser.UniEl local_rootOutput)
         {

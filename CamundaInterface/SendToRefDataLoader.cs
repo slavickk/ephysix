@@ -56,7 +56,7 @@ namespace CamundaInterface
             public string Name { get; set; }
             public string Description { get; set; } = "!!!";
             public List<Field> Fields { get; set; } = new List<Field>();
-            public string Key { get; set; }
+            public string Key { get; set; } = "";
 
 
         }
@@ -75,7 +75,7 @@ namespace CamundaInterface
         static CryptoHash cryptoHash = new CryptoHash();
 
         public static async Task<ExportItem> putRequestToRefDataLoader(HttpClient client, string processId = "asdfa", string connectionStringBase = "User ID=postgres;Password=test;Host=localhost;Port=5432;", string connectionStringAdmin = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;",
-            string dictName = "People", string FID = "TEST", string command = "SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person", int maxRecord = 500, string baseAddr = "http://192.168.75.212:20226",string sensitiveDataArray="")
+            string dictName = "People", string FID = "TEST", string command = "SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person", int maxRecord = 500, string baseAddr = "http://192.168.75.212:20226",string sensitiveDataArray="",int CountInKey=1)
         {
             //            client.BaseAddress=new Uri(baseAddr);
             //            var client = new HttpClient() { BaseAddress = new Uri(baseAddr) };
@@ -142,12 +142,18 @@ namespace CamundaInterface
                         {
                             var type = reader.GetDataTypeName(i);
                             var name = reader.GetName(i);
-                            if (i == 0)
-                                dict.Key = name;
+                            if (i < CountInKey)
+                            {
+                                dict.Key = (String.IsNullOrEmpty(dict.Key) ? "" : "+") + name;
+                                name= dict.Key;
+                            }
                             else
                                 headerString += separator;
-                            headerString += name;
-                            dict.Fields.Add(new Dictionary.Field() { Name = name, Type = Dictionary.Field.ConvertType(type) });
+                            if (i >= CountInKey - 1)
+                            {
+                                headerString += name;
+                                dict.Fields.Add(new Dictionary.Field() { Name = name, Type = Dictionary.Field.ConvertType(type) });
+                            }
                         }
                         sw.WriteLine(headerString);
                         if (hash != new_hash )
@@ -181,7 +187,7 @@ namespace CamundaInterface
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
                                 var type = reader.GetDataTypeName(i);
-                                if (i > 0)
+                                if (i > CountInKey)
                                     bodyString += separator;
                                 /*                            if(Dictionary.Field.ConvertType(type) == "String")
                                                                 bodyString+=reader.GetString(i);
