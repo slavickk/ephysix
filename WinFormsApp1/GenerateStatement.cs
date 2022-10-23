@@ -607,11 +607,13 @@ namespace WinFormsApp1
             string outputTable = "output_Table";
             string description = "";
             int dest_id = 2;
+            int keyCount = 1;
             {
-                var command = @"select n.name,a1.val out_table,a2.val description,a3.val type_src  from md_Node n
+                var command = @"select n.name,a1.val out_table,a2.val description,a3.val type_src,a4.val  from md_Node n
 left join md_node_attr_val a1  on( a1.attrid=42 and a1.nodeid=n.nodeid)
 left join md_node_attr_val a2  on( a2.attrid=43 and a2.nodeid=n.nodeid)
 left join md_node_attr_val a3  on( a3.attrid=44 and a3.nodeid=n.nodeid)
+left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
   where n.nodeid=@id and n.isdeleted=false";
                 await using (var cmd = new NpgsqlCommand(command, conn))
                 {
@@ -627,6 +629,8 @@ left join md_node_attr_val a3  on( a3.attrid=44 and a3.nodeid=n.nodeid)
                                 description = reader.GetString(2);
                             if (!reader.IsDBNull(3))
                                 dest_id =Convert.ToInt32( reader.GetString(3));
+                            if (!reader.IsDBNull(4))
+                                keyCount = Convert.ToInt32(reader.GetString(4));
                         }
                     }
                 }

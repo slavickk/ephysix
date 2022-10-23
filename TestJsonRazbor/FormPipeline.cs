@@ -57,6 +57,8 @@ namespace TestJsonRazbor
                     buttonSetupReceiver.Enabled = false;
 
                 textBoxStepDescription.Text = currentStep.description;
+                textBoxRestorePath.Text=currentStep.SaveErrorSendDirectory ;
+
                 RedrawFilters();
                 if (currentStep.receiver == null)
                     buttonReceiverMoc.Enabled = false;
@@ -418,6 +420,7 @@ namespace TestJsonRazbor
             currentStep.isHandleSenderError=checkBoxHandleSendError.Checked;    
             currentStep.IDResponsedReceiverStep=textBoxResponceStep.Text ;
             currentStep.description=textBoxStepDescription.Text  ;
+            currentStep.SaveErrorSendDirectory = textBoxRestorePath.Text;
             treeView1.Refresh();
 
         }
