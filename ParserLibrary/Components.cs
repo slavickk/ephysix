@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using YamlDotNet;
 using YamlDotNet.Serialization;
 using CSScriptLib;
 using System.Collections.Concurrent;
 using System.Threading;
-using System.Data.HashFunction.xxHash;
 using System.Text.Json;
-using System.Security.Cryptography;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using YamlDotNet.Core.Tokens;
 using Microsoft.AspNetCore.Http.Metadata;
@@ -91,11 +88,6 @@ return true;
         }
     }
 
-    public abstract class ConverterOutput
-    {
-        public abstract AbstrParser.UniEl Convert(string value, AbstrParser.UniEl input_el, AbstrParser.UniEl output_el);
-    }
-
     public abstract class AliasProducer
     {
         public abstract string getAlias(string originalValue);
@@ -143,107 +135,6 @@ return true;
         {
             var tt =originalValue.Split(' ');
             return tt.Select(query => query.Substring(0,1)).Aggregate((a, b) => a + " " + b+"."); ;
-        }
-    }
-
-    public class HashOutput:ConverterOutput
-    {
-        public AliasProducer aliasProducer { get; set; }
-        public HashConverter hashConverter { get; set; }
-        public class OutItem
-        {
-            public string hash { get; set; }
-            public string alias { get; set; }
-        }
-
-        public  AbstrParser.UniEl ConvertToNew( AbstrParser.UniEl el)
-        {
-            var value = el.Value.ToString();
-            AbstrParser.UniEl result= new AbstrParser.UniEl() { Name=el.Name};
-            if (aliasProducer == null)
-            {
-                result.Value = hashConverter.hash(value);
-                return result;
-            }
-            else
-            {
-                var el1 = new AbstrParser.UniEl(result) { Name = "h", Value = hashConverter.hash(value) };
-                var el2 = new AbstrParser.UniEl(result) { Name = "a", Value = aliasProducer.getAlias(value) };
-                return result;
-            }
-            //            return JsonSerializer.Serialize<OutItem>(new OutItem() { alias = aliasProducer.getAlias(value), hash = hashConverter.hash(value) });   
-        }
-
-        public override AbstrParser.UniEl Convert(string value, AbstrParser.UniEl input_el, AbstrParser.UniEl output_el)
-        {
-            if (aliasProducer == null)
-            {
-                output_el.Value= hashConverter.hash(value);
-                return output_el;
-            }
-            else
-            {
-                var el1=new AbstrParser.UniEl(output_el) {  Name="h",Value= hashConverter.hash(value) };
-                var el2 = new AbstrParser.UniEl(output_el) { Name = "a", Value = aliasProducer.getAlias(value) };
-                return output_el;
-            }
-//            return JsonSerializer.Serialize<OutItem>(new OutItem() { alias = aliasProducer.getAlias(value), hash = hashConverter.hash(value) });   
-        }
-
-    }
-
-    public class Hash:HashOutput
-    {
-        public int SizeInBits = 64;
-        public Hash()
-        {
-            hashConverter = new Hasher();
-        }
-    }
-
-    public abstract class HashConverter
-    {
-        public abstract string hash(string value);
-
-    }
-    public class CryptoHash : HashConverter
-    {
-        static public string  pwd = "QWE123";
-        public override string hash(string value)
-        {
-            var data = Encoding.UTF8.GetBytes(pwd + value);
-//            string sHash;
-            using (SHA256 shaM = new SHA256Managed())
-            {
-                byte[] hash = shaM.ComputeHash(data);
-                return Convert.ToBase64String(hash);
-//                Console.WriteLine(sHash);
-            }
-  //          throw new NotImplementedException();
-        }
-    }
-    public class Hasher : HashConverter
-    {
-        public int SizeInBits = 64;
-        bool init = false;
-        public Hasher()
-        {
-
-        }
-         IxxHash instance ;
-        void Init()
-        {
-            if(!init)
-            {
-                init = true;
-                instance = xxHashFactory.Instance.Create(new xxHashConfig() { HashSizeInBits = SizeInBits });
-            }
-
-        }
-        public override string hash(string value)
-        {
-            Init();
-            return instance.ComputeHash(Encoding.ASCII.GetBytes(value)).AsHexString();
         }
     }
 
