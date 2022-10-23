@@ -1,45 +1,102 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CSScriptLib;
 using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
+
+public class ExtractFromInputValueWithScript: ExtractFromInputValue
+{
+    MethodDelegate checker = null;
+    string body = @"using System;
+using System.Linq;
+using ParserLibrary;
+AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
+{                                                           
+            var sb = new StringBuilder();
+            el.ancestor.childs.ForEach(s => sb.Append(s.Value));
+            return new AbstrParser.UniEl() { Value = sb};
+}
+";
+        
+/*        AbstrParser.UniEl ConvObject(AbstrParser.UniEl el)
+        {
+            var sb = new StringBuilder();
+            el.ancestor.childs.ForEach(s => sb.Append(s.Value+";"));
+            return new AbstrParser.UniEl() { Value = sb };
+        }*/
+    public string ScriptBody
+    {
+        get
+        {
+            return body;
+        }
+        set
+        {
+            body = value;
+            checker = CSScript.RoslynEvaluator
+                .CreateDelegate(body);
+
+        }
+    }
+
+    public override AbstrParser.UniEl getFinalNode(AbstrParser.UniEl el)
+    {
+        return checker(el) as AbstrParser.UniEl;
+//            return base.getNode(rootEl);
+    }
+}
 
 public abstract class OutputValue
 {
     public bool viewAsJsonString = false;
     public string outputPath;
     public bool isUniqOutputPath = true;
-    public enum TypeCopy { Value, Structure };
+
+    public enum TypeCopy
+    {
+        Value,
+        Structure
+    };
+
     public TypeCopy typeCopy = TypeCopy.Value;
-    public enum OnEmptyAction { Skip, FillEmpty };
+
+    public enum OnEmptyAction
+    {
+        Skip,
+        FillEmpty
+    };
+
     public OnEmptyAction onEmptyValueAction = OnEmptyAction.Skip;
 
     public ConverterOutput converter = null;
-    [YamlIgnore]
-    public virtual bool canReturnObject => true;
-        
+    [YamlIgnore] public virtual bool canReturnObject => true;
+
     public abstract object getValue(AbstrParser.UniEl rootEl);
     public abstract AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl);
     public abstract IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl);
 
     string[] outs = null;
+
     protected virtual AbstrParser.UniEl createOutPath(AbstrParser.UniEl outputRoot)
     {
-        if(outs==null && outputPath != "")
+        if (outs == null && outputPath != "")
         {
             outs = outputPath.Split("/");
         }
+
         if (outs == null)
             return outputRoot;
         var rootEl = outputRoot;
-        for(int i=0;i < outs.Length;i++)
+        for (int i = 0; i < outs.Length; i++)
         {
-            var el=rootEl.childs.LastOrDefault(ii => ii.Name == outs[i]);
-            if (el == null || ( !isUniqOutputPath &&   i== outs.Length-1))
+            var el = rootEl.childs.LastOrDefault(ii => ii.Name == outs[i]);
+            if (el == null || (!isUniqOutputPath && i == outs.Length - 1))
                 el = new AbstrParser.UniEl(rootEl) { Name = outs[i] };
             rootEl = el;
         }
+
         if (viewAsJsonString)
             rootEl.packToJsonString = true;
         return rootEl;
@@ -58,7 +115,6 @@ public abstract class OutputValue
             found = true;
             if (!this.canReturnObject)
             {
-
             }
 
             if (el1 == null && onEmptyValueAction == OnEmptyAction.Skip && this.canReturnObject)
@@ -80,6 +136,7 @@ public abstract class OutputValue
                     else
                         elV = getValue(inputRoot);
                 }
+
                 if (elV != null)
                 {
                     if (converter != null)
@@ -103,6 +160,7 @@ public abstract class OutputValue
             if (returnOnlyFirstRow)
                 return true;
         }
+
         return found;
     }
 
