@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ParserLibrary
 {
-    public class LongLifeRepositorySender:Sender
+    public class LongLifeRepositorySender: Sender, ISelfTested
     {
         public class Item
         {
@@ -52,6 +52,12 @@ namespace ParserLibrary
             }
             AbstrParser.regEvent("SR", time1);
 
+        }
+
+        public Task<(bool, string, Exception)> isOK()
+        {
+            Logger.log("Consider implementing LongLifeRepositorySender.isOK(). Returning true for now.", Serilog.Events.LogEventLevel.Warning);
+            return Task.FromResult((true, string.Empty, (Exception)null));
         }
     }
 }
