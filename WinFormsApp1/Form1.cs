@@ -335,6 +335,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
         int ETL_dest_id;
         string TableOutputName;
         long idPackage = -1;
+        string ETL_add_par = "";
         private async void button3_Click(object sender, EventArgs e)
         {
             if(ETLName == "")
@@ -345,13 +346,14 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
             }
             try
             {
-                await using (var cmd = new NpgsqlCommand(@"select * from ccfa_add_etl_package(2,@id,@title,@output_name,@description,@dest_id)", conn))
+                await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(2,@id,@title,@output_name,@description,@dest_id,@add_par)", conn))
                 {
                     cmd.Parameters.AddWithValue("@id", idPackage);
                     cmd.Parameters.AddWithValue("@title",ETLName);
                     cmd.Parameters.AddWithValue("@output_name", TableOutputName);
                     cmd.Parameters.AddWithValue("@description", ETLDescription);
                     cmd.Parameters.AddWithValue("@dest_id", ETL_dest_id);
+                    cmd.Parameters.AddWithValue("@add_par", ETL_add_par);
 
                     await using (var reader = await cmd.ExecuteReaderAsync())
                     {
@@ -523,6 +525,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
              frm.OutputTableName= TableOutputName;
              frm.ETLDescription= ETLDescription;
             frm.ETL_dest_id= ETL_dest_id;
+            frm.ETLAddPar = ETL_add_par;
 
             if ( frm.ShowDialog() == DialogResult.OK )
             {
@@ -530,6 +533,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
                 TableOutputName = frm.OutputTableName;
                 ETLDescription = frm.ETLDescription;
                 ETL_dest_id= frm.ETL_dest_id;
+                ETL_add_par = frm.ETLAddPar;
                 textBoxEtlDescr.Text = $"Etl:{ETLName} outFile:{TableOutputName}";
             }
         }
@@ -546,10 +550,11 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
                 var pack = comboBoxPackage.SelectedItem as ItemPackage;
                 idPackage = pack.id;
                 {
-                    await using (var cmd = new NpgsqlCommand(@"select n.name,a1.val out_table,a2.val description,a3.val type_src  from md_Node n
+                    await using (var cmd = new NpgsqlCommand(@"select n.name,a1.val out_table,a2.val description,a3.val type_src,a4.val add_par  from md_Node n
 left join md_node_attr_val a1  on( a1.attrid=42 and a1.nodeid=n.nodeid)
 left join md_node_attr_val a2  on( a2.attrid=43 and a2.nodeid=n.nodeid)
 left join md_node_attr_val a3  on( a3.attrid=44 and a3.nodeid=n.nodeid)
+left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
   where n.nodeid= @id and n.isdeleted=false", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", pack.id);
@@ -564,6 +569,10 @@ left join md_node_attr_val a3  on( a3.attrid=44 and a3.nodeid=n.nodeid)
                                     ETLDescription = reader.GetString(2);
                                 if(reader.FieldCount>3 && !reader.IsDBNull(3))
                                 ETL_dest_id =Convert.ToInt32( reader.GetString(3));
+                                ETL_add_par = "";
+                                if(!reader.IsDBNull(4))
+                                ETL_add_par = reader.GetString(4);
+
                                 textBoxEtlDescr.Text = $"Etl:{ETLName} outFile:{TableOutputName}";
 
                             }

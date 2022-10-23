@@ -23,6 +23,7 @@ namespace WinFormsApp1
         public string OutputTableName;
         public string ETLDescription;
         public int ETL_dest_id;
+        public string ETLAddPar;
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -30,6 +31,7 @@ namespace WinFormsApp1
             OutputTableName = textBoxOutputName.Text;
             ETLDescription = textBox1.Text;
             ETL_dest_id = (comboBox1.SelectedItem as ItemSelect).id;
+            ETLAddPar = numericUpDown1.Value.ToString();
         }
 
         public class ItemSelect
@@ -64,7 +66,22 @@ namespace WinFormsApp1
             textBoxETLName.Text = ETLName;
             textBoxOutputName.Text = OutputTableName;
             textBox1.Text=ETLDescription;
+            if(!string.IsNullOrEmpty(ETLAddPar))
+                numericUpDown1.Value =Convert.ToInt32(ETLAddPar);   
          
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selItem = (comboBox1.SelectedItem as ItemSelect);
+            if (selItem != null)
+            {
+                if (selItem.description == "CCFA Dictionary exporter")
+                    label3.Visible = numericUpDown1.Visible = true;
+                else
+                    label3.Visible = numericUpDown1.Visible = false;
+
+            }
         }
     }
 }

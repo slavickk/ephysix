@@ -42,6 +42,7 @@ namespace TestJsonRazbor
             this.buttonYaml = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBoxHandleSendError = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBoxResponceStep = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -72,7 +73,8 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.checkBoxHandleSendError = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.textBoxRestorePath = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -209,6 +211,8 @@ namespace TestJsonRazbor
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.textBoxRestorePath);
+            this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.checkBoxHandleSendError);
             this.groupBox1.Controls.Add(this.checkBox1);
             this.groupBox1.Controls.Add(this.textBoxResponceStep);
@@ -241,6 +245,16 @@ namespace TestJsonRazbor
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Step detail";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // checkBoxHandleSendError
+            // 
+            this.checkBoxHandleSendError.AutoSize = true;
+            this.checkBoxHandleSendError.Location = new System.Drawing.Point(17, 71);
+            this.checkBoxHandleSendError.Name = "checkBoxHandleSendError";
+            this.checkBoxHandleSendError.Size = new System.Drawing.Size(240, 36);
+            this.checkBoxHandleSendError.TabIndex = 38;
+            this.checkBoxHandleSendError.Text = "Handle Send Error";
+            this.checkBoxHandleSendError.UseVisualStyleBackColor = true;
             // 
             // checkBox1
             // 
@@ -453,7 +467,7 @@ namespace TestJsonRazbor
             // 
             this.textBoxStepDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxStepDescription.Location = new System.Drawing.Point(178, 106);
+            this.textBoxStepDescription.Location = new System.Drawing.Point(178, 109);
             this.textBoxStepDescription.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxStepDescription.Name = "textBoxStepDescription";
             this.textBoxStepDescription.Size = new System.Drawing.Size(585, 39);
@@ -462,7 +476,7 @@ namespace TestJsonRazbor
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(7, 106);
+            this.label4.Location = new System.Drawing.Point(7, 109);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(132, 32);
@@ -541,15 +555,21 @@ namespace TestJsonRazbor
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // checkBoxHandleSendError
+            // label7
             // 
-            this.checkBoxHandleSendError.AutoSize = true;
-            this.checkBoxHandleSendError.Location = new System.Drawing.Point(511, 65);
-            this.checkBoxHandleSendError.Name = "checkBoxHandleSendError";
-            this.checkBoxHandleSendError.Size = new System.Drawing.Size(240, 36);
-            this.checkBoxHandleSendError.TabIndex = 38;
-            this.checkBoxHandleSendError.Text = "Handle Send Error";
-            this.checkBoxHandleSendError.UseVisualStyleBackColor = true;
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(288, 72);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(139, 32);
+            this.label7.TabIndex = 39;
+            this.label7.Text = "RestorePath";
+            // 
+            // textBoxRestorePath
+            // 
+            this.textBoxRestorePath.Location = new System.Drawing.Point(435, 68);
+            this.textBoxRestorePath.Name = "textBoxRestorePath";
+            this.textBoxRestorePath.Size = new System.Drawing.Size(200, 39);
+            this.textBoxRestorePath.TabIndex = 40;
             // 
             // FormPipeline
             // 
@@ -622,5 +642,7 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckBox checkBoxHandleSendError;
+        private System.Windows.Forms.TextBox textBoxRestorePath;
+        private System.Windows.Forms.Label label7;
     }
 }
