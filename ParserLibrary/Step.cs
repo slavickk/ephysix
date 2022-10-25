@@ -376,6 +376,7 @@ public class Step
         }
     }
 
+    string musor = "qwertybbvgghhnbbbjkkll988765433222345556gggbgggghhhbbbbn";
     private void SaveRestoreFile(AbstrParser.UniEl local_rootOutput)
     {
         using (AesManaged aes = new AesManaged())
