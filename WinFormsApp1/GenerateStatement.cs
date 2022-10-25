@@ -368,6 +368,7 @@ namespace WinFormsApp1
 
         public class ItemTable
         {
+            public int src_id;
             public int seq_id;
             public string Name = "";
             public string Alias="";
@@ -895,7 +896,7 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
         private static async Task FillTableInfo(NpgsqlConnection conn, List<ItemTable> allTables, ItemRel item,long id)
         {
             {
-                string command = @"select at.val,n.name,st.val,st1.val,a1.toid from md_arc a
+                string command = @"select at.val,n.name,st.val,st1.val,a1.toid,n.srcid from md_arc a
 inner join md_node n on(n.nodeid = a.toid and n.typeid = md_get_type('ETLTable') and n.isdeleted=false)
 inner join md_arc a1 on (n.nodeid=a1.fromid  and a1.isdeleted=false)
 left join md_node_attr_val at on(at.nodeid = n.nodeid and at.attrid = 39/*md_get_attr('Alias')*/)
@@ -920,10 +921,11 @@ where a.fromid = @id  and a.isdeleted=false";
                             if (!reader.IsDBNull(3))
                                 condition = reader.GetString(3);
                             long table_id = reader.GetInt64(4);
+                            int src_id=reader.GetInt32(5);
 
                             if (allTables.Count(ii => ii.Name == table && ii.Alias == alias) == 0)
                             {
-                                allTables.Add(new ItemTable() { Name = table, Alias = alias, Condition = condition, SelectList = selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).Select(ii => new ItemTable.SelectListItem(ii) { fromOriginalSelect = true }).ToList(), TableId = table_id });
+                                allTables.Add(new ItemTable() { src_id=src_id, Name = table, Alias = alias, Condition = condition, SelectList = selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).Select(ii => new ItemTable.SelectListItem(ii) { fromOriginalSelect = true }).ToList(), TableId = table_id });
                             }
                             if (item != null)
                             {
@@ -959,6 +961,7 @@ where a.fromid = @id  and a.isdeleted=false";
             else
                 task.outputPath = $"tmp_table{i}_{package_id}";
             task.indexes.AddRange(allTables.Where(ii => ii.seq_id == i && ii.needed_indexes.Count > 0).Select(ii => ii.needed_indexes));
+            task.source_id =allTables.First().src_id;
             if (isFinishTask && i >1)
                 task.source_id = 2; //Temp decision
             if (isFinishTask && i > 1)
