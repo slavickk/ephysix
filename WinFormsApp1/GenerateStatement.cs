@@ -840,12 +840,13 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
             bool isExternalDest = countTask == 1 && list[0].srcId != 2 && dest_id != 2;
             for (int i = 1; i <= countTask; i++)
             {
-                await AddTask(conn, process, list, allTables, tasks, (countTask==1 && !isExternalDest),outputTable, i,dest_id,id,variables);
+                await AddTask(conn, process, list, allTables, tasks, (countTask==1 && !isExternalDest),outputTable, i,dest_id,id,variables,keyCount);
             }
             if(countTask == 0)
             {
-                allTables.First().seq_id = 1;
-                await AddTask(conn, process, list, allTables, tasks, false, outputTable, 1, dest_id, id,variables);
+                var s_id = 1;
+                allTables.First().seq_id = s_id;//1;??? 1;
+                await AddTask(conn, process, list, allTables, tasks, false, outputTable, s_id, dest_id, id,variables,keyCount);
                 countTask = 1;
                 isExternalDest = countTask == 1  && dest_id != 2;
             }
@@ -868,7 +869,7 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
 //                        rel.isExternal = true; //No!!!!
                         list.Add(rel);
 
-                        await AddTask(conn, process, list, allTables, tasks, true, outputTable, rel.seq_id,dest_id,id, variables);
+                        await AddTask(conn, process, list, allTables, tasks, true, outputTable, rel.seq_id,dest_id,id, variables, keyCount);
 
                     }
 
@@ -878,7 +879,7 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
             {
                 tasks[0].seq_id = 1;
                 tasks[0].outputTable.seq_id = 2;
-                await AddTask(conn, process, new List<ItemRel>() { }, new List<ItemTable>() { tasks[0].outputTable }, tasks, true, outputTable, 2, dest_id, id,variables);
+                await  AddTask(conn, process, new List<ItemRel>() { }, new List<ItemTable>() { tasks[0].outputTable }, tasks, true, outputTable, 2, dest_id, id,variables,keyCount);
 
             }
 
@@ -897,9 +898,9 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
                 string command = @"select at.val,n.name,st.val,st1.val,a1.toid from md_arc a
 inner join md_node n on(n.nodeid = a.toid and n.typeid = md_get_type('ETLTable') and n.isdeleted=false)
 inner join md_arc a1 on (n.nodeid=a1.fromid  and a1.isdeleted=false)
-left join md_node_attr_val at on(at.nodeid = n.nodeid and at.attrid = md_get_attr('Alias'))
-left join md_node_attr_val st on(st.nodeid = n.nodeid and st.attrid = md_get_attr('SelectList'))
-left join md_node_attr_val st1 on(st1.nodeid = n.nodeid and st1.attrid = md_get_attr('Condition'))
+left join md_node_attr_val at on(at.nodeid = n.nodeid and at.attrid = 39/*md_get_attr('Alias')*/)
+left join md_node_attr_val st on(st.nodeid = n.nodeid and st.attrid = 41/*md_get_attr('SelectList')*/)
+left join md_node_attr_val st1 on(st1.nodeid = n.nodeid and st1.attrid =40/* md_get_attr('Condition')*/)
 where a.fromid = @id  and a.isdeleted=false";
                 await using (var cmd = new NpgsqlCommand(command, conn))
                 {
@@ -949,9 +950,9 @@ where a.fromid = @id  and a.isdeleted=false";
             }
         }
 
-        private static async Task AddTask(NpgsqlConnection conn, CamundaProcess process, List<ItemRel> list, List<ItemTable> allTables, List<ItemTask> tasks, bool isFinishTask, string outputPath, int i,int dest_id,long package_id,List<ItemVar> variables)
+        private static async Task AddTask(NpgsqlConnection conn, CamundaProcess process, List<ItemRel> list, List<ItemTable> allTables, List<ItemTask> tasks, bool isFinishTask, string outputPath, int i,int dest_id,long package_id,List<ItemVar> variables,int keyCount)
         {
-            ItemTask task = new ItemTask();
+            ItemTask task = new ItemTask() {  keyCount=keyCount};
             task.seq_id = i;
             if (isFinishTask)
                 task.outputPath = outputPath.ToLower();
@@ -1145,7 +1146,7 @@ where a.fromid = @id  and a.isdeleted=false";
             public List<List<ItemTable.ColumnItem>> indexes =  new List<List<ItemTable.ColumnItem>>();
             public string sqlExec;
             public ItemTable outputTable;
-
+            public int keyCount = 1;
             string indexesDescription()
             {
                 if (indexes.Count == 0)
@@ -1192,6 +1193,8 @@ where a.fromid = @id  and a.isdeleted=false";
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("MaxRecords","1000"));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLText", sqlExec));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SensitiveData",String.Join(", " ,columnList.Select(ii=>ii.SensitiveData))));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("CountInKey", keyCount.ToString()));
+                    
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Variables", String.Join(", ", variables.Select(ii => ii.Name))));
 
                     retValue.topic = "to_dict_sender";
