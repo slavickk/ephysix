@@ -42,6 +42,8 @@ namespace TestJsonRazbor
             this.buttonYaml = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBoxRestorePath = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.checkBoxHandleSendError = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBoxResponceStep = new System.Windows.Forms.TextBox();
@@ -73,8 +75,6 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.label7 = new System.Windows.Forms.Label();
-            this.textBoxRestorePath = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -245,6 +245,22 @@ namespace TestJsonRazbor
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Step detail";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // textBoxRestorePath
+            // 
+            this.textBoxRestorePath.Location = new System.Drawing.Point(435, 68);
+            this.textBoxRestorePath.Name = "textBoxRestorePath";
+            this.textBoxRestorePath.Size = new System.Drawing.Size(200, 39);
+            this.textBoxRestorePath.TabIndex = 40;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(288, 72);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(139, 32);
+            this.label7.TabIndex = 39;
+            this.label7.Text = "RestorePath";
             // 
             // checkBoxHandleSendError
             // 
@@ -555,22 +571,6 @@ namespace TestJsonRazbor
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(288, 72);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(139, 32);
-            this.label7.TabIndex = 39;
-            this.label7.Text = "RestorePath";
-            // 
-            // textBoxRestorePath
-            // 
-            this.textBoxRestorePath.Location = new System.Drawing.Point(435, 68);
-            this.textBoxRestorePath.Name = "textBoxRestorePath";
-            this.textBoxRestorePath.Size = new System.Drawing.Size(200, 39);
-            this.textBoxRestorePath.TabIndex = 40;
-            // 
             // FormPipeline
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
@@ -580,6 +580,7 @@ namespace TestJsonRazbor
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FormPipeline";
             this.Text = "FormPipeline";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormPipeline_FormClosed);
             this.Load += new System.EventHandler(this.FormPipeline_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);

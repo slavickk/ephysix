@@ -523,5 +523,10 @@ namespace TestJsonRazbor
             (selectedNode == null ? treeView1.Nodes : selectedNode.Nodes).Remove(selectedNode);//.Add(new TreeNode(stepName) { ContextMenuStrip = this.contextMenuStrip1, Tag = newStep });
             treeView1.ExpandAll();
         }
+
+        private void FormPipeline_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }
