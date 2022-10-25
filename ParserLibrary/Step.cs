@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
+using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
@@ -376,8 +378,27 @@ public class Step
 
     private void SaveRestoreFile(AbstrParser.UniEl local_rootOutput)
     {
-        using (var sw = new StreamWriter(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()))))
-            sw.Write(local_rootOutput.toJSON());
+        using (AesManaged aes = new AesManaged())
+        {
+            // Create encryptor    
+            ICryptoTransform encryptor = aes.CreateEncryptor(owner.key,owner.IV);
+            // Create MemoryStream    
+            using (FileStream ms = new FileStream(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName())),FileMode.CreateNew))
+            {
+                // Create crypto stream using the CryptoStream class. This class is the key to encryption    
+                // and encrypts and decrypts data from any given stream. In this case, we will pass a memory stream    
+                // to encrypt    
+                using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                {
+                    // Create StreamWriter and write data to a stream    
+                    using (StreamWriter sw = new StreamWriter(cs))
+                        sw.Write(local_rootOutput.toJSON());
+                  //  encrypted = ms.ToArray();
+                }
+            }
+        }
+    /*    using (var sw = new StreamWriter(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()))))
+            sw.Write(local_rootOutput.toJSON());*/
     }
 
     bool isErrorSending = false;
@@ -398,10 +419,27 @@ public class Step
                 File.Move(file, file1);
                 List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
                 string line = "";
-                using (StreamReader sr = new StreamReader(file1))
+                using (AesManaged aes = new AesManaged())
+                {
+                    // Create a decryptor    
+                    ICryptoTransform decryptor = aes.CreateDecryptor(owner.key, owner.IV);
+                    // Create the streams used for decryption.    
+                    using (FileStream sr = new FileStream(file1,FileMode.Open))
+                    {
+                        // Create crypto stream    
+                        using (CryptoStream cs = new CryptoStream(sr, decryptor, CryptoStreamMode.Read))
+                        {
+                            // Read crypto stream    
+                            using (StreamReader reader = new StreamReader(cs))
+                                line = reader.ReadToEnd();
+                        }
+                    }
+                }
+
+              /*  using (StreamReader sr = new StreamReader(file1))
                 {
                     line = sr.ReadToEnd();
-                }
+                }*/
                 AbstrParser.UniEl rootEl = AbstrParser.CreateNode(null, list, "Item");
                 if (line != "")
                 {

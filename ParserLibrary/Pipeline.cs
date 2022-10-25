@@ -73,9 +73,17 @@ public class Pipeline
         }
 
     }
+    [YamlIgnore]
+    public byte[] key;
+    [YamlIgnore]
+    public byte[] IV;
     public async Task run()
     {
         CryptoHash.pwd = this.hashWord;
+        string key = "12345reqwt12345abcde";
+        this.key = Encoding.UTF8.GetBytes(key);
+        //aes.IV = iv;
+
         foreach (var step in steps)
         {
             if (step.receiver != null)
