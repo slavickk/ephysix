@@ -106,6 +106,9 @@ public class Step
         this.receiver?.Init(owner);
         if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
         {
+            // Ensure the save error directory exists
+            Directory.CreateDirectory(this.SaveErrorSendDirectory);
+                
             var moveDir = Path.Combine(this.SaveErrorSendDirectory, "Move");
             if (Directory.Exists(moveDir))
             {
