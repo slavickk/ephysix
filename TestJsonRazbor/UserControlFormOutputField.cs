@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 
@@ -27,7 +29,7 @@ namespace TestJsonRazbor
         public void Init()
         {
             InitializeComponent();
-
+            comboBox3.SelectedIndex = 0;
         }
         private void button4_Click(object sender, EventArgs e)
         {
@@ -99,5 +101,46 @@ namespace TestJsonRazbor
         {
 
         }
+
+        private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (comboBox3.SelectedIndex)
+            {
+                case 0:
+                    panel1.Visible = false;
+                    panel3.Visible = false;
+                    panel4.Visible = true;
+                    break;
+                case 1:
+                    panel1.Visible = false;
+                    panel3.Visible = true;
+                    panel4.Visible = false;
+                    break;
+                case 2:
+                    panel1.Visible = true;
+                    panel3.Visible = false;
+                    panel4.Visible = false;
+
+                    var type_frm = GetTypeOfForm();
+
+                    if (type_frm != null)
+                    {
+                        buttonSelectTemplate.Text = "Configure";
+                    }
+
+                    // Ищем  форму , которая обрабатывает Sendera
+
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+        private Type GetTypeOfForm()
+        {
+            return Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute) /*&& ii.ConstructorArguments[0].ArgumentType == currentStep.sender.GetType()*/) > 0);
+        }
+
     }
 }

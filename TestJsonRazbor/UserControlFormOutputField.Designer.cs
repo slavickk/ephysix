@@ -30,7 +30,6 @@
         {
             this.panel3 = new System.Windows.Forms.Panel();
             this.checkBoxPackToJson = new System.Windows.Forms.CheckBox();
-            this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.checkBoxReturnFirstField = new System.Windows.Forms.CheckBox();
             this.checkBoxNameOnly = new System.Windows.Forms.CheckBox();
             this.checkBoxCopyChildOnly = new System.Windows.Forms.CheckBox();
@@ -47,6 +46,7 @@
             this.button13 = new System.Windows.Forms.Button();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.panel4 = new System.Windows.Forms.Panel();
             this.textBoxConstant = new System.Windows.Forms.TextBox();
             this.comboBoxTypeConvert = new System.Windows.Forms.ComboBox();
@@ -62,7 +62,6 @@
             // panel3
             // 
             this.panel3.Controls.Add(this.checkBoxPackToJson);
-            this.panel3.Controls.Add(this.comboBox3);
             this.panel3.Controls.Add(this.checkBoxReturnFirstField);
             this.panel3.Controls.Add(this.checkBoxNameOnly);
             this.panel3.Controls.Add(this.checkBoxCopyChildOnly);
@@ -98,19 +97,6 @@
             this.checkBoxPackToJson.TabIndex = 50;
             this.checkBoxPackToJson.Text = "PackToJsonValue";
             this.checkBoxPackToJson.UseVisualStyleBackColor = true;
-            // 
-            // comboBox3
-            // 
-            this.comboBox3.FormattingEnabled = true;
-            this.comboBox3.Items.AddRange(new object[] {
-            "constant",
-            "select",
-            "template"});
-            this.comboBox3.Location = new System.Drawing.Point(1068, 73);
-            this.comboBox3.Margin = new System.Windows.Forms.Padding(4);
-            this.comboBox3.Name = "comboBox3";
-            this.comboBox3.Size = new System.Drawing.Size(149, 40);
-            this.comboBox3.TabIndex = 49;
             // 
             // checkBoxReturnFirstField
             // 
@@ -285,6 +271,21 @@
             this.label9.Text = "Add field path :";
             this.label9.Visible = false;
             // 
+            // comboBox3
+            // 
+            this.comboBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox3.FormattingEnabled = true;
+            this.comboBox3.Items.AddRange(new object[] {
+            "constant",
+            "select",
+            "template"});
+            this.comboBox3.Location = new System.Drawing.Point(1155, 68);
+            this.comboBox3.Margin = new System.Windows.Forms.Padding(4);
+            this.comboBox3.Name = "comboBox3";
+            this.comboBox3.Size = new System.Drawing.Size(149, 40);
+            this.comboBox3.TabIndex = 49;
+            this.comboBox3.SelectedIndexChanged += new System.EventHandler(this.comboBox3_SelectedIndexChanged);
+            // 
             // panel4
             // 
             this.panel4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -364,6 +365,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.comboBox3);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel1);

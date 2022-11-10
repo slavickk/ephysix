@@ -30,8 +30,7 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.userControlViewInputTree1 = new TestJsonRazbor.UserControlViewInputTree();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.userControlFormOutputField1 = new TestJsonRazbor.UserControlFormOutputField();
             this.button1 = new System.Windows.Forms.Button();
             this.textBoxDetailMetric = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -45,19 +44,10 @@
             this.label3 = new System.Windows.Forms.Label();
             this.buttonAddLabel = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.userControlFormOutputField1 = new TestJsonRazbor.UserControlFormOutputField();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
-            this.splitContainer2.Panel1.SuspendLayout();
-            this.splitContainer2.Panel2.SuspendLayout();
-            this.splitContainer2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
-            this.splitContainer3.Panel1.SuspendLayout();
-            this.splitContainer3.Panel2.SuspendLayout();
-            this.splitContainer3.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -72,7 +62,17 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
+            this.splitContainer1.Panel2.Controls.Add(this.userControlFormOutputField1);
+            this.splitContainer1.Panel2.Controls.Add(this.button1);
+            this.splitContainer1.Panel2.Controls.Add(this.textBoxDetailMetric);
+            this.splitContainer1.Panel2.Controls.Add(this.label2);
+            this.splitContainer1.Panel2.Controls.Add(this.textBoxNameMetric);
+            this.splitContainer1.Panel2.Controls.Add(this.label1);
+            this.splitContainer1.Panel2.Controls.Add(this.listView1);
+            this.splitContainer1.Panel2.Controls.Add(this.textBoxNameLabel);
+            this.splitContainer1.Panel2.Controls.Add(this.label3);
+            this.splitContainer1.Panel2.Controls.Add(this.buttonAddLabel);
+            this.splitContainer1.Panel2.Controls.Add(this.listBox1);
             this.splitContainer1.Size = new System.Drawing.Size(1512, 944);
             this.splitContainer1.SplitterDistance = 294;
             this.splitContainer1.TabIndex = 0;
@@ -85,49 +85,12 @@
             this.userControlViewInputTree1.Size = new System.Drawing.Size(294, 944);
             this.userControlViewInputTree1.TabIndex = 0;
             // 
-            // splitContainer2
+            // userControlFormOutputField1
             // 
-            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer2.Name = "splitContainer2";
-            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer2.Panel1
-            // 
-            this.splitContainer2.Panel1.Controls.Add(this.splitContainer3);
-            // 
-            // splitContainer2.Panel2
-            // 
-            this.splitContainer2.Panel2.Controls.Add(this.userControlFormOutputField1);
-            this.splitContainer2.Size = new System.Drawing.Size(1214, 944);
-            this.splitContainer2.SplitterDistance = 550;
-            this.splitContainer2.TabIndex = 0;
-            // 
-            // splitContainer3
-            // 
-            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer3.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer3.Name = "splitContainer3";
-            this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer3.Panel1
-            // 
-            this.splitContainer3.Panel1.Controls.Add(this.button1);
-            this.splitContainer3.Panel1.Controls.Add(this.textBoxDetailMetric);
-            this.splitContainer3.Panel1.Controls.Add(this.label2);
-            this.splitContainer3.Panel1.Controls.Add(this.textBoxNameMetric);
-            this.splitContainer3.Panel1.Controls.Add(this.label1);
-            this.splitContainer3.Panel1.Controls.Add(this.listView1);
-            // 
-            // splitContainer3.Panel2
-            // 
-            this.splitContainer3.Panel2.Controls.Add(this.textBoxNameLabel);
-            this.splitContainer3.Panel2.Controls.Add(this.label3);
-            this.splitContainer3.Panel2.Controls.Add(this.buttonAddLabel);
-            this.splitContainer3.Panel2.Controls.Add(this.listBox1);
-            this.splitContainer3.Size = new System.Drawing.Size(1214, 550);
-            this.splitContainer3.SplitterDistance = 230;
-            this.splitContainer3.TabIndex = 0;
+            this.userControlFormOutputField1.Location = new System.Drawing.Point(38, 657);
+            this.userControlFormOutputField1.Name = "userControlFormOutputField1";
+            this.userControlFormOutputField1.Size = new System.Drawing.Size(1164, 284);
+            this.userControlFormOutputField1.TabIndex = 0;
             // 
             // button1
             // 
@@ -178,9 +141,6 @@
             // 
             // listView1
             // 
-            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2,
@@ -213,7 +173,7 @@
             // textBoxNameLabel
             // 
             this.textBoxNameLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBoxNameLabel.Location = new System.Drawing.Point(124, 201);
+            this.textBoxNameLabel.Location = new System.Drawing.Point(128, 424);
             this.textBoxNameLabel.Name = "textBoxNameLabel";
             this.textBoxNameLabel.Size = new System.Drawing.Size(400, 39);
             this.textBoxNameLabel.TabIndex = 6;
@@ -222,7 +182,7 @@
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 204);
+            this.label3.Location = new System.Drawing.Point(7, 427);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(78, 32);
             this.label3.TabIndex = 5;
@@ -231,7 +191,7 @@
             // buttonAddLabel
             // 
             this.buttonAddLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonAddLabel.Location = new System.Drawing.Point(21, 255);
+            this.buttonAddLabel.Location = new System.Drawing.Point(38, 469);
             this.buttonAddLabel.Name = "buttonAddLabel";
             this.buttonAddLabel.Size = new System.Drawing.Size(292, 46);
             this.buttonAddLabel.TabIndex = 1;
@@ -241,23 +201,12 @@
             // 
             // listBox1
             // 
-            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox1.FormattingEnabled = true;
             this.listBox1.ItemHeight = 32;
-            this.listBox1.Location = new System.Drawing.Point(12, 24);
+            this.listBox1.Location = new System.Drawing.Point(2, 246);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(1190, 164);
             this.listBox1.TabIndex = 0;
-            // 
-            // userControlFormOutputField1
-            // 
-            this.userControlFormOutputField1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.userControlFormOutputField1.Location = new System.Drawing.Point(0, 0);
-            this.userControlFormOutputField1.Name = "userControlFormOutputField1";
-            this.userControlFormOutputField1.Size = new System.Drawing.Size(1214, 390);
-            this.userControlFormOutputField1.TabIndex = 0;
             // 
             // FormFormCounter
             // 
@@ -270,18 +219,9 @@
             this.Load += new System.EventHandler(this.FormFormCounter_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.splitContainer2.Panel1.ResumeLayout(false);
-            this.splitContainer2.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
-            this.splitContainer2.ResumeLayout(false);
-            this.splitContainer3.Panel1.ResumeLayout(false);
-            this.splitContainer3.Panel1.PerformLayout();
-            this.splitContainer3.Panel2.ResumeLayout(false);
-            this.splitContainer3.Panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
-            this.splitContainer3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -289,9 +229,7 @@
         #endregion
 
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.SplitContainer splitContainer2;
         private UserControlViewInputTree userControlViewInputTree1;
-        private System.Windows.Forms.SplitContainer splitContainer3;
         private System.Windows.Forms.TextBox textBoxDetailMetric;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBoxNameMetric;
