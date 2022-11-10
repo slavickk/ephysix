@@ -108,5 +108,15 @@ namespace TestJsonRazbor
                 listBox2.Items.Add(mm.PrometheusString);
             }
         }
+
+        private void buttonEditMetric_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonEditLabel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
