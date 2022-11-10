@@ -53,6 +53,7 @@ namespace ParserLibrary
             
         }
 
+        [YamlIgnore]
         public string PrometheusString
         {
             get
@@ -66,6 +67,8 @@ namespace ParserLibrary
         {
             public string Name;
             public OutputValue Value;
+            [YamlIgnore]
+
             public object[] current_values;
             public override string ToString()
             {
