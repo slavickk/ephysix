@@ -555,7 +555,7 @@ namespace ParserLibrary
                 {
 
                     var kvs=d.Key.Split("/");
-                    retValue += ($"prometeus_{Name}{Metrics.common_labels.Select(ii => ii.Value).Union(labels.Select((ii, index) => new Label(ii, kvs[index]))).toPrometheusLabels()}{d.Value.Value}\n");
+                    retValue += ($"prometeus_{Name}{Metrics.common_labels.Select(ii => ii.Value).Union(labels.Select((ii, index) => new Label(ii, kvs[index]))).toPrometheusLabels()}{d.Value.Value.Value}\n");
                 }
 
                 return retValue;
