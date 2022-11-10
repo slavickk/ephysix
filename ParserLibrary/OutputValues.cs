@@ -105,8 +105,62 @@ public abstract class OutputValue
     public bool getNodeNameOnly = false;
     public bool returnOnlyFirstRow = true;
 
+
+    public IEnumerable<object> getAllObject(AbstrParser.UniEl inputRoot)
+    {
+        bool found = false;
+        foreach (var el1 in getNodes(inputRoot))
+        {
+            AbstrParser.UniEl el = new AbstrParser.UniEl();
+            found = true;
+            if (!this.canReturnObject)
+            {
+            }
+
+            if (el1 == null && onEmptyValueAction == OnEmptyAction.Skip && this.canReturnObject)
+                yield break;
+            if (!this.canReturnObject || el1.childs.Count == 0)
+            {
+                object elV;
+                if (getNodeNameOnly && el1 != null)
+                    elV = el1.Name;
+                else
+                {
+                    if (canReturnObject)
+                        elV = el1.Value.ToString();
+                    else
+                        elV = getValue(inputRoot);
+                }
+
+                if (elV != null)
+                {
+                    if (converter != null)
+                        yield return converter.Convert(elV.ToString(), inputRoot, el).Value;
+                    else
+                        yield return elV;
+                }
+            }
+            else
+            {
+                CopyNode(el1, el);
+                yield return el;    
+                //                    el.childs.Add(el1.copy(el));
+            }
+
+            /*   else
+                   {
+                       var el = createOutPath(outputRoot);
+
+                       el.childs.Add(inputRoot.copy(outputRoot));
+                   }*/
+            if (returnOnlyFirstRow)
+                yield break; 
+        }
+
+    }
     public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
     {
+       
         // skipped--------------------------- Пока поддерживается только линейная структура записи
         //     if (typeCopy == TypeCopy.Value)
         bool found = false;

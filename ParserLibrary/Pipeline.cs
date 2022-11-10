@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -18,6 +19,8 @@ public class Pipeline
     [YamlIgnore]
     public AbstrParser.UniEl lastExecutedEl = null;
     public static Metrics metrics = new Metrics();
+
+    public List<MetricBuilder> metricsBuilder = new List<MetricBuilder>(); 
 
     public string hashWord { get; set; } = "QWE123";
     public string pipelineDescription = "Pipeline example";
@@ -59,7 +62,14 @@ public class Pipeline
 
         //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
     }
-
+    public Pipeline()
+    {
+        Metrics.MetricAuto metric1 = new Metrics.MetricAuto("iu_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds);
+        Metrics.MetricAuto metric2 = new Metrics.MetricAuto("iu_privileged_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().PrivilegedProcessorTime.TotalMilliseconds);
+        Metrics.MetricAuto metric3 = new Metrics.MetricAuto("iu_user_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().UserProcessorTime.TotalMilliseconds);
+        Metrics.MetricAuto metric4 = new Metrics.MetricAuto("iu_memory_size_total", "Memory usage", () => { var proc = Process.GetCurrentProcess(); return proc.NonpagedSystemMemorySize64 + proc.PagedMemorySize64; });
+        
+    }
     public static string ToStringValue(Pipeline pipes)
     {
         var ser = new SerializerBuilder();
@@ -92,6 +102,10 @@ public class Pipeline
                 step.sender.owner = step;
             step.Init(this);
 
+        }
+        foreach(var mb in this.metricsBuilder)
+        {
+            mb.Init();
         }
 //            step.owner = this;
         await steps.First(ii=>ii.IDPreviousStep=="" && ii.receiver != null).run();

@@ -8,6 +8,8 @@ namespace ParserLibrary;
 
 public abstract class Receiver
 {
+    public Metrics.MetricHistogram metricUpTime;
+    public Metrics.MetricHistogram metricUpTimeError;
     public bool  cantTryParse=false;
 /*        public virtual bool cantTryParse()
         {
@@ -16,7 +18,9 @@ public abstract class Receiver
 
     public virtual void Init(Pipeline owner)
     {
-
+        metricUpTime = new Metrics.MetricHistogram("iu_inbound_request_duration_msec", "handle performance receiver");
+        metricUpTimeError=new Metrics.MetricHistogram("iu_inbound_errors_total", "handle performance receiver",new double[] {30,100,500,1000,5000,10000});
+        metricUpTime.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
     }
 
     [YamlIgnore]
@@ -51,14 +55,25 @@ public abstract class Receiver
     public Func<string,object,Task> stringReceived;
     public async Task signal(string input,object context)
     {
-        if(debugMode)
+        DateTime time1= DateTime.Now;
+        try
         {
-            Logger.log("Receive step:{o} {input} {thr}", Serilog.Events.LogEventLevel.Debug, "any", owner, input,Thread.CurrentThread.ManagedThreadId);
+            if (debugMode)
+            {
+                Logger.log("Receive step:{o} {input} {thr}", Serilog.Events.LogEventLevel.Debug, "any", owner, input, Thread.CurrentThread.ManagedThreadId);
+            }
+            if (saver != null)
+                saver.save(input);
+            if (stringReceived != null)
+                await stringReceived(input, context);
+
+            metricUpTime.Add(time1);
         }
-        if (saver != null)
-            saver.save(input);
-        if(stringReceived != null)
-            await stringReceived(input,context);
+        catch (Exception e)
+        {
+            metricUpTimeError.Add(time1);
+            throw;
+        }
     }
 
 
