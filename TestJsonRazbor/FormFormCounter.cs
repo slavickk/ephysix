@@ -27,6 +27,8 @@ namespace TestJsonRazbor
         private void FormFormCounter_Load(object sender, EventArgs e)
         {
             RefreshBuildMetrics();
+            splitContainer2.SplitterDistance=splitContainer3.SplitterDistance = this.Height / 3;
+            
         }
 
         private void RefreshBuildMetrics()
