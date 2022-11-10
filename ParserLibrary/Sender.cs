@@ -7,10 +7,16 @@ namespace ParserLibrary;
 
 public abstract class Sender
 {
+    protected Metrics.MetricHistogram metricUpTime;
+    private Metrics.MetricHistogram metricUpTimeError;
     public virtual void Init(Pipeline owner)
     {
+        metricUpTimeError = new Metrics.MetricHistogram("iu_outbound_errors_total", "handle performance receiver", new double[] { 30, 100, 500, 1000, 5000, 10000 });
 
+        metricUpTime = new Metrics.MetricHistogram("iu_outbound_request_duration_msec", "handle performance receiver");
+        metricUpTime.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
     }
+
 
     public override string ToString()
     {
@@ -52,40 +58,50 @@ public abstract class Sender
     {
         DateTime time1 = DateTime.Now;
         string ans;
-        if (!MocMode)
+        try
         {
-            if (typeContent == TypeContent.internal_list)
-                ans= await sendInternal(root);
-            else
-                ans = await send(root.toJSON());
-        } else
-        {
-            // await Task.Delay(10);
-            if ((MocBody ?? "") != "")
-                ans = MocBody;
+            if (!MocMode)
+            {
+                if (typeContent == TypeContent.internal_list)
+                    ans = await sendInternal(root);
+                else
+                    ans = await send(root.toJSON());
+            }
             else
             {
-                if (MocContent == "")
+                // await Task.Delay(10);
+                if ((MocBody ?? "") != "")
+                    ans = MocBody;
+                else
                 {
-                    lock (syncro)
+                    if (MocContent == "")
                     {
-                        if (MocContent == "")
+                        lock (syncro)
                         {
-
-                            // string ans;
-                            using (StreamReader sr = new StreamReader(MocFile))
+                            if (MocContent == "")
                             {
-                                MocContent = sr.ReadToEnd();
-                                //       return ans;
+
+                                // string ans;
+                                using (StreamReader sr = new StreamReader(MocFile))
+                                {
+                                    MocContent = sr.ReadToEnd();
+                                    //       return ans;
+                                }
                             }
                         }
                     }
+                    ans = MocContent;
                 }
-                ans = MocContent;
             }
+            if (owner.debugMode)
+                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(), ans);
+            metricUpTime.Add(time1);
         }
-        if(owner.debugMode)
-            Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(), ans);
+        catch (Exception ex)
+        {
+            metricUpTimeError.Add(time1);
+            throw;
+        }
         return ans;
     }
     public async virtual Task<string> sendInternal(AbstrParser.UniEl root)

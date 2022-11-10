@@ -246,12 +246,15 @@ namespace TestJsonRazbor
         Sender sender1;
         private void button3_Click(object sender, EventArgs e)
         {
-            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject =((currentStep.sender== null)? new TICSender(): currentStep.sender) };
-            if (frm.ShowDialog() == DialogResult.OK)
+            if (currentStep != null)
             {
-                SetSenderObject(frm.tObject);
-                currentStep.sender = sender1;
+                FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject = ((currentStep.sender == null) ? new TICSender() : currentStep.sender) };
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    SetSenderObject(frm.tObject);
+                    currentStep.sender = sender1;
 
+                }
             }
         }
 
@@ -527,6 +530,12 @@ namespace TestJsonRazbor
         private void FormPipeline_FormClosed(object sender, FormClosedEventArgs e)
         {
             Application.Exit();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            FormFormCounter frm = new FormFormCounter( pip);
+            frm.ShowDialog();
         }
     }
 }

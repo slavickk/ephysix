@@ -85,6 +85,7 @@ namespace TestJsonRazbor
             {
                 listView1.Items.Add(new ListViewItem(new string[] { step.IDStep, (step.receiver == null) ? "" : step.receiver.MocMode.ToString(), (step.sender == null) ? "" : step.sender.MocMode.ToString() }));
             }
+            if(listView1.Items.Count>0)
             listView1.SelectedIndices.Add(0);
 
 

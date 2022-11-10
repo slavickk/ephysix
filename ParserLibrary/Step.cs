@@ -181,7 +181,8 @@ public class Step
                 throw;
             }
         }
-
+        foreach(var mb in owner.metricsBuilder)
+            await mb.Fill(rootElement); 
         contextItem.list.Clear();
         contextItem = null;
 

@@ -1065,5 +1065,10 @@ namespace TestJsonRazbor
             }
 
         }
+
+        private void textBoxFalueFieldSearchValue_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

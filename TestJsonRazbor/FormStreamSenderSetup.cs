@@ -107,15 +107,16 @@ where nc.nodeid= @id and nc.isdeleted=false and nc.srcid=2", conn))
             public string Type;
             public string Detail;
             public string SensitiveData;
+            public bool Calculated;
             public ItemColumn refColumn;
 
         }
         List<FieldItem> fields= new List<FieldItem>();
         StreamSender.Stream toStream()
         {
-            var ff = fields.Select(ii => new StreamSender.Stream.Field() { Name = ii.Name, Detail = ii.Detail, Type = ii.Type, linkedColumn = ii.refColumn?.col_id, SensitiveData = ii.SensitiveData }).ToList();
+            var ff = fields.Select(ii => new StreamSender.Stream.Field() { Name = ii.Name, Detail = ii.Detail, Type = ii.Type, linkedColumn = ii.refColumn?.col_id, SensitiveData = ii.SensitiveData, Calculated=(ii.Calculated?ii.Calculated:null) }).ToList();
             var ff1=ff.ToDictionary(p => p.Name);
-            return new StreamSender.Stream() { Name = textBoxName.Text, Description = textBoxDescription.Text, fields =ff1 };
+            return new StreamSender.Stream() { Name = textBoxName.Text, Description = textBoxDescription.Text, fieldsDict =ff1 };
         }
         private async void button3_Click(object sender, EventArgs e)
         {
@@ -156,14 +157,14 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false and nc.srcid
 
         private void buttonAdd_Click(object sender, EventArgs e)
         {
-            fields.Add(new FieldItem() { Detail = textBoxFieldDescription.Text,SensitiveData =comboBoxSensitive.SelectedValue?.ToString(), Name = textBoxFieldName.Text, Type = comboBoxFieldType.SelectedItem?.ToString(), refColumn = linkedColumn });
+            fields.Add(new FieldItem() { Calculated=checkBoxCalculated.Checked, Detail = textBoxFieldDescription.Text,SensitiveData =comboBoxSensitive.SelectedValue?.ToString(), Name = textBoxFieldName.Text, Type = comboBoxFieldType.SelectedItem?.ToString(), refColumn = linkedColumn });
             RefreshListFields();
         }
 
         private void RefreshListFields()
         {
             listView1.Items.Clear();
-            listView1.Items.AddRange(fields.Select(ii => new ListViewItem(new string[] { ii.Name, ii.Type, ii.Detail, ii.SensitiveData?.ToString(), ii.refColumn?.ToString() })).ToArray());
+            listView1.Items.AddRange(fields.Select(ii => new ListViewItem(new string[] { ii.Name, ii.Type, ii.Detail, ii.SensitiveData?.ToString(), ii.refColumn?.ToString(), (ii.Calculated?"Y":"") })).ToArray());
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
@@ -172,6 +173,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false and nc.srcid
             {
                 int index = listView1.SelectedIndices[0];
                 textBoxFieldDescription.Text = fields[index].Detail;
+                checkBoxCalculated.Checked = fields[index].Calculated;
                 textBoxFieldName.Text = fields[index].Name;
                 comboBoxFieldType.SelectedItem = fields[index].Type;
                 linkedColumn = fields[index].refColumn;
@@ -203,12 +205,13 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false and nc.srcid
             textBoxName.Text = st.Name;
             textBoxDescription.Text = st.Description;
             fields.Clear();
-            fields.AddRange(st.fields.Select(ii => new FieldItem() { Name = ii.Value.Name, Detail = ii.Value.Detail, Type = ii.Value.Type, SensitiveData = ii.Value.SensitiveData, refColumn=(ii.Value.linkedColumn==null?null:new ItemColumn(ii.Value.linkedColumn,conn)) }));
+            fields.AddRange(st.fieldsDict.Select(ii => new FieldItem() { Name = ii.Value.Name, Detail = ii.Value.Detail, Type = ii.Value.Type, Calculated=(bool)ii.Value.Calculated, SensitiveData = ii.Value.SensitiveData, refColumn=(ii.Value.linkedColumn==null?null:new ItemColumn(ii.Value.linkedColumn,conn)) }));
             RefreshListFields();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
+            StreamSender.ToConsul(toStream());
             ownerSender.setStream(getContent());
         }
         bool streamNameChanged = false;
@@ -247,7 +250,8 @@ where src = '" + textBoxName.Text + "' ", conn))
             {
                 int index = listView1.SelectedIndices[0];
                 fields[index].Detail = textBoxFieldDescription.Text;
-                fields[index].SensitiveData = comboBoxSensitive.SelectedItem.ToString();
+                fields[index].Calculated=checkBoxCalculated.Checked;
+                fields[index].SensitiveData = comboBoxSensitive.SelectedItem?.ToString();
                 fields[index].Name = textBoxFieldName.Text;
                 fields[index].Type = comboBoxFieldType.SelectedItem?.ToString(); 
                 fields[index].refColumn = linkedColumn;
@@ -270,6 +274,19 @@ where src = '" + textBoxName.Text + "' ", conn))
         {
             if (comboBoxSensitive.SelectedIndex == 0)
                 comboBoxSensitive.SelectedIndex = -1;
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            var fieldsSt=textBoxFromString.Text.Split(",");
+            foreach(var fld  in fieldsSt)
+            {
+                if(fields.Count(ii=>ii.Name== fld)==0)
+                {
+                    fields.Add(new FieldItem() { Name = fld, Type = "String" });
+                }
+            }
+            RefreshListFields() ;   
         }
     }
 }
