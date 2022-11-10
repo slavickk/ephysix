@@ -139,8 +139,11 @@ namespace WebApiConsoleUtility
                     if (suc)
                     {
                         Log.Information("Self test OK. Run pipeline.");
-                        Action action = async () => { await pip.run(); };
-                        new TaskFactory().StartNew(action, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default).ContinueWith((runner) => { Log.Information("Pipeline execution stopped.Terminating application..."); System.Diagnostics.Process.GetCurrentProcess().Kill(); });
+                        pip.run().ContinueWith((runner) =>
+                            {
+                                Log.Information("Pipeline execution stopped.Terminating application...");
+                                System.Diagnostics.Process.GetCurrentProcess().Kill();
+                            });
                     }
                     else
                     {

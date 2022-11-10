@@ -106,6 +106,9 @@ public class Step
         this.receiver?.Init(owner);
         if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
         {
+            // Ensure the save error directory exists
+            Directory.CreateDirectory(this.SaveErrorSendDirectory);
+                
             var moveDir = Path.Combine(this.SaveErrorSendDirectory, "Move");
             if (Directory.Exists(moveDir))
             {
@@ -377,6 +380,7 @@ public class Step
         }
     }
 
+    string musor = "qwertybbvgghhnbbbjkkll988765433222345556gggbgggghhhbbbbn";
     private void SaveRestoreFile(AbstrParser.UniEl local_rootOutput)
     {
         using (AesManaged aes = new AesManaged())

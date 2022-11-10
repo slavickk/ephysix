@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -87,14 +88,31 @@ public class Pipeline
     public byte[] key;
     [YamlIgnore]
     public byte[] IV;
+
+    public const int keyLength = 256;
+    private static string initialisationVector = "26744a68b53dd87b";
+
     public async Task run()
     {
+        Logger.log("Starting the pipeline", Serilog.Events.LogEventLevel.Warning);
+        
         CryptoHash.pwd = this.hashWord;
-        string key = "12345reqwt12345abcde";
-        this.key = Encoding.UTF8.GetBytes(key);
-        //aes.IV = iv;
+        string keyString = CryptoHash.pwd;
+        if(keyString.Length> keyLength / 8)
+            keyString = CryptoHash.pwd.Substring(0, keyLength / 8);
+        for (int i = CryptoHash.pwd.Length; i < keyLength / 8; i++)
+            keyString += "Y";
+       // string key = "12345reqwt12345abcde";
+        this.key = Encoding.UTF8.GetBytes(keyString);
+/*        using (AesManaged aes = new AesManaged())
+        {
+            aes.GenerateIV();
+            IV = aes.IV;
+        }*/
+            IV= Encoding.UTF8.GetBytes(initialisationVector);
+            //aes.IV = iv;
 
-        foreach (var step in steps)
+            foreach (var step in steps)
         {
             if (step.receiver != null)
                 step.receiver.owner = step;
@@ -108,7 +126,12 @@ public class Pipeline
             mb.Init();
         }
 //            step.owner = this;
-        await steps.First(ii=>ii.IDPreviousStep=="" && ii.receiver != null).run();
+        var entryStep = steps.First(ii => ii.IDPreviousStep == "" && ii.receiver != null);
+
+        Logger.log($"Starting the entry step {entryStep.IDStep}", Serilog.Events.LogEventLevel.Debug);
+        await entryStep.run();
+        
+        Logger.log($"Entry step {entryStep.IDStep} finished", Serilog.Events.LogEventLevel.Debug);
     }
 
     static IEnumerable<string> getEnvVariables(string body)
