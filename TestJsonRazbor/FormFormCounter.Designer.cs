@@ -29,23 +29,23 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.userControlViewInputTree1 = new TestJsonRazbor.UserControlViewInputTree();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.button1 = new System.Windows.Forms.Button();
+            this.textBoxDetailMetric = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.textBoxNameMetric = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textBoxNameMetric = new System.Windows.Forms.TextBox();
-            this.textBoxDetailMetric = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.buttonAddLabel = new System.Windows.Forms.Button();
             this.textBoxNameLabel = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.buttonAddLabel = new System.Windows.Forms.Button();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.userControlFormOutputField1 = new TestJsonRazbor.UserControlFormOutputField();
-            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -77,6 +77,14 @@
             this.splitContainer1.SplitterDistance = 294;
             this.splitContainer1.TabIndex = 0;
             // 
+            // userControlViewInputTree1
+            // 
+            this.userControlViewInputTree1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.userControlViewInputTree1.Location = new System.Drawing.Point(0, 0);
+            this.userControlViewInputTree1.Name = "userControlViewInputTree1";
+            this.userControlViewInputTree1.Size = new System.Drawing.Size(294, 944);
+            this.userControlViewInputTree1.TabIndex = 0;
+            // 
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -94,14 +102,6 @@
             this.splitContainer2.Size = new System.Drawing.Size(1214, 944);
             this.splitContainer2.SplitterDistance = 550;
             this.splitContainer2.TabIndex = 0;
-            // 
-            // userControlViewInputTree1
-            // 
-            this.userControlViewInputTree1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.userControlViewInputTree1.Location = new System.Drawing.Point(0, 0);
-            this.userControlViewInputTree1.Name = "userControlViewInputTree1";
-            this.userControlViewInputTree1.Size = new System.Drawing.Size(294, 944);
-            this.userControlViewInputTree1.TabIndex = 0;
             // 
             // splitContainer3
             // 
@@ -129,10 +129,56 @@
             this.splitContainer3.SplitterDistance = 239;
             this.splitContainer3.TabIndex = 0;
             // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(1052, 188);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(150, 46);
+            this.button1.TabIndex = 5;
+            this.button1.Text = "Add metric";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // textBoxDetailMetric
+            // 
+            this.textBoxDetailMetric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBoxDetailMetric.Location = new System.Drawing.Point(124, 192);
+            this.textBoxDetailMetric.Name = "textBoxDetailMetric";
+            this.textBoxDetailMetric.Size = new System.Drawing.Size(400, 39);
+            this.textBoxDetailMetric.TabIndex = 4;
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(3, 195);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(120, 32);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Comment";
+            // 
+            // textBoxNameMetric
+            // 
+            this.textBoxNameMetric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBoxNameMetric.Location = new System.Drawing.Point(124, 145);
+            this.textBoxNameMetric.Name = "textBoxNameMetric";
+            this.textBoxNameMetric.Size = new System.Drawing.Size(400, 39);
+            this.textBoxNameMetric.TabIndex = 2;
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(3, 148);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(78, 32);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Name";
+            // 
             // listView1
             // 
-            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
@@ -163,65 +209,6 @@
             this.columnHeader3.Text = "Labels";
             this.columnHeader3.Width = 260;
             // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 148);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(78, 32);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Name";
-            // 
-            // textBoxNameMetric
-            // 
-            this.textBoxNameMetric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBoxNameMetric.Location = new System.Drawing.Point(124, 145);
-            this.textBoxNameMetric.Name = "textBoxNameMetric";
-            this.textBoxNameMetric.Size = new System.Drawing.Size(400, 39);
-            this.textBoxNameMetric.TabIndex = 2;
-            // 
-            // textBoxDetailMetric
-            // 
-            this.textBoxDetailMetric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBoxDetailMetric.Location = new System.Drawing.Point(124, 192);
-            this.textBoxDetailMetric.Name = "textBoxDetailMetric";
-            this.textBoxDetailMetric.Size = new System.Drawing.Size(400, 39);
-            this.textBoxDetailMetric.TabIndex = 4;
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 195);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(120, 32);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Comment";
-            // 
-            // listBox1
-            // 
-            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 32;
-            this.listBox1.Location = new System.Drawing.Point(0, -10);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(1211, 164);
-            this.listBox1.TabIndex = 0;
-            // 
-            // buttonAddLabel
-            // 
-            this.buttonAddLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonAddLabel.Location = new System.Drawing.Point(21, 246);
-            this.buttonAddLabel.Name = "buttonAddLabel";
-            this.buttonAddLabel.Size = new System.Drawing.Size(292, 46);
-            this.buttonAddLabel.TabIndex = 1;
-            this.buttonAddLabel.Text = "Add label";
-            this.buttonAddLabel.UseVisualStyleBackColor = true;
-            this.buttonAddLabel.Click += new System.EventHandler(this.buttonAddLabel_Click);
-            // 
             // textBoxNameLabel
             // 
             this.textBoxNameLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -240,6 +227,28 @@
             this.label3.TabIndex = 5;
             this.label3.Text = "Name";
             // 
+            // buttonAddLabel
+            // 
+            this.buttonAddLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonAddLabel.Location = new System.Drawing.Point(21, 246);
+            this.buttonAddLabel.Name = "buttonAddLabel";
+            this.buttonAddLabel.Size = new System.Drawing.Size(292, 46);
+            this.buttonAddLabel.TabIndex = 1;
+            this.buttonAddLabel.Text = "Add label";
+            this.buttonAddLabel.UseVisualStyleBackColor = true;
+            this.buttonAddLabel.Click += new System.EventHandler(this.buttonAddLabel_Click);
+            // 
+            // listBox1
+            // 
+            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 32;
+            this.listBox1.Location = new System.Drawing.Point(0, 22);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(1211, 132);
+            this.listBox1.TabIndex = 0;
+            // 
             // userControlFormOutputField1
             // 
             this.userControlFormOutputField1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -247,17 +256,6 @@
             this.userControlFormOutputField1.Name = "userControlFormOutputField1";
             this.userControlFormOutputField1.Size = new System.Drawing.Size(1214, 390);
             this.userControlFormOutputField1.TabIndex = 0;
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(1052, 188);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(150, 46);
-            this.button1.TabIndex = 5;
-            this.button1.Text = "Add metric";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // FormFormCounter
             // 
