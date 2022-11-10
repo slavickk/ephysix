@@ -25,6 +25,8 @@ namespace ParserLibrary
     {
         public int port = 8080;
 
+        public string swaggerSpecPath = null;        
+
         KestrelServer server ;
         public string ResponseType = "application/json";
         public HTTPReceiver()
@@ -122,7 +124,8 @@ namespace ParserLibrary
                     if (httpContext.Request.Path.Value.Contains("/swagger"))
                 {
                     string json_body;
-                    using (StreamReader sr = new StreamReader(@"C:\Users\ygasnikov\source\repos\swagger-to-html-standalone-master\example\swagger.json"))
+                    
+                    using (StreamReader sr = new StreamReader(this.owner.swaggerSpecPath))
                     {
                         json_body = sr.ReadToEnd();
                     }
