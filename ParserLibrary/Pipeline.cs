@@ -84,6 +84,8 @@ public class Pipeline
 
     public async Task run()
     {
+        Logger.log("Starting the pipeline", Serilog.Events.LogEventLevel.Warning);
+        
         CryptoHash.pwd = this.hashWord;
         string keyString = CryptoHash.pwd;
         if(keyString.Length> keyLength / 8)
@@ -110,7 +112,12 @@ public class Pipeline
 
         }
 //            step.owner = this;
-        await steps.First(ii=>ii.IDPreviousStep=="" && ii.receiver != null).run();
+        var entryStep = steps.First(ii => ii.IDPreviousStep == "" && ii.receiver != null);
+
+        Logger.log($"Starting the entry step {entryStep.IDStep}", Serilog.Events.LogEventLevel.Debug);
+        await entryStep.run();
+        
+        Logger.log($"Entry step {entryStep.IDStep} finished", Serilog.Events.LogEventLevel.Debug);
     }
 
     static IEnumerable<string> getEnvVariables(string body)
