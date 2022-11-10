@@ -52,6 +52,14 @@ namespace ParserLibrary
             }
             
         }
+
+        public string PrometheusString
+        {
+            get
+            {
+                return metricCounter?.getBody();
+            }
+        }
         public string Name;
         public string Description;
         public class Label
@@ -59,6 +67,10 @@ namespace ParserLibrary
             public string Name;
             public OutputValue Value;
             public object[] current_values;
+            public override string ToString()
+            {
+                return Name;
+            }
         }
         public List<Label> labels= new List<Label>();
     }

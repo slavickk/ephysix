@@ -15,6 +15,14 @@ namespace TestJsonRazbor
     public partial class UserControlViewInputTree : UserControl
     {
         Step currentStep1;
+
+        public AbstrParser.UniEl rootEl
+        {
+            get
+            {
+                return treeView1.Nodes[0]?.Tag as AbstrParser.UniEl;
+            }
+        }
         public UserControlViewInputTree()
         {
        //     InitializeComponent();

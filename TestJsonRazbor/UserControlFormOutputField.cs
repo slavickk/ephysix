@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using static System.Resources.ResXFileRef;
 
 namespace TestJsonRazbor
 {
@@ -30,6 +31,10 @@ namespace TestJsonRazbor
         {
             InitializeComponent();
             comboBox3.SelectedIndex = 0;
+            var arrs = Enum.GetValues(typeof(ConstantValue.TypeObject));
+            foreach (var ar in arrs)
+                comboBoxTypeConvert.Items.Add(ar);
+            comboBoxTypeConvert.SelectedIndex = 0;
         }
         private void button4_Click(object sender, EventArgs e)
         {
@@ -43,14 +48,51 @@ namespace TestJsonRazbor
             {
                 return fillOutput();
             }
-        }
- 
-        OutputValue fillOutput()
-        {
-            ConverterOutput converter = null;
-            switch (comboBox3.SelectedIndex)
+            set
             {
-                case 0:
+
+                    if(value.GetType()== typeof(ConstantValue))
+                        {
+                            ConstantValue vvv= (ConstantValue)value;
+                            comboBox3.SelectedIndex = 0;
+                            textBoxConstant.Text = vvv.Value.ToString();
+
+                        }
+                if (value.GetType() == typeof(ExtractFromInputValue))
+                {
+                    ExtractFromInputValue vvv = (ExtractFromInputValue)value;
+                    comboBox3.SelectedIndex = 1;
+                    comboBox2.SelectedIndex = 0;
+                    checkBoxPackToJson.Checked = vvv.viewAsJsonString;
+                    /*= , converter = converter,*/
+                    /*outputPath = outputPath,*/
+                    isUniq = vvv.isUniqOutputPath;
+                    checkBoxNameOnly.Checked=vvv.getNodeNameOnly;
+                    checkBoxReturnFirstField.Checked=vvv.returnOnlyFirstRow;
+                    checkBoxCopyChildOnly.Checked=vvv.copyChildsOnly;
+                    textBoxValueFieldSearch.Text=vvv.conditionPath;
+                    if (vvv.conditionCalcer != null)
+                        textBoxFalueFieldSearchValue.Text = (vvv.conditionCalcer as ComparerForValue).value_for_compare;
+                    else
+                        textBoxFalueFieldSearchValue.Text = "";
+                    //= ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text)));
+                    if (vvv.valuePath != "")
+                    {
+                        checkBox2.Checked = true;
+                        textBoxAddFieldPath.Text = vvv.valuePath;
+                    }
+                    else
+                        checkBox2.Checked = false;
+                   }
+        }
+    }
+
+OutputValue fillOutput()
+{
+    ConverterOutput converter = null;
+    switch (comboBox3.SelectedIndex)
+    {
+        case 0:
                     return new ConstantValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = outputPath, isUniqOutputPath = isUniq, getNodeNameOnly = checkBoxNameOnly.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
                 case 1:
                     if (comboBox2.SelectedIndex != 1)

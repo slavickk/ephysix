@@ -63,7 +63,7 @@ namespace TestJsonRazbor
         }
         int getCurrentMetricIndex()
         {
-            if (listView1.Items.Count > 0)
+            if (listView1.Items.Count > 0 && listView1.SelectedIndices.Count>0)
                 return listView1.SelectedIndices[0];
             else
                 return -1;
@@ -76,6 +76,35 @@ namespace TestJsonRazbor
             {
                 pip.metricsBuilder[index].labels.Add(new MetricBuilder.Label() { Name = textBoxNameLabel.Text, Value = userControlFormOutputField1.outValue });
                 RefreshLabelsList();
+            }
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(listBox1.SelectedIndices.Count > 0)
+            {
+                int index = getCurrentMetricIndex();
+                if (index >= 0)
+                {
+
+                    int index1 = listBox1.SelectedIndices[0];
+                    if(index1>=0)
+                    {
+                        var label = pip.metricsBuilder[index].labels[index1];
+                        textBoxNameLabel.Text=label.Name;
+                        userControlFormOutputField1.outValue = label.Value;
+                    }
+                }
+            }
+        }
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            listBox2.Items.Clear(); 
+            foreach(var mm in pip.metricsBuilder)
+            {
+                await mm.Fill(userControlViewInputTree1.rootEl);
+                listBox2.Items.Add(mm.PrometheusString);
             }
         }
     }
