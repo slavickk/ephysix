@@ -20,7 +20,7 @@ namespace TestJsonRazbor
         {
             get
             {
-                return treeView1.Nodes[0]?.Tag as AbstrParser.UniEl;
+                return treeView1.Nodes[0]?.Nodes[0]?.Tag as AbstrParser.UniEl;
             }
         }
         public UserControlViewInputTree()

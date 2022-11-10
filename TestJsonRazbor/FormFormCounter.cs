@@ -48,7 +48,7 @@ namespace TestJsonRazbor
         private void RefreshLabelsList()
         {
             listBox1.Items.Clear();
-            if (listView1.Items.Count > 0)
+            if (listView1.Items.Count > 0 && listView1.SelectedIndices.Count>0)
             {
                 int index = listView1.SelectedIndices[0];
                 MetricBuilder metricBuilder = pip.metricsBuilder[index];
@@ -103,6 +103,7 @@ namespace TestJsonRazbor
             listBox2.Items.Clear(); 
             foreach(var mm in pip.metricsBuilder)
             {
+                mm.Init();
                 await mm.Fill(userControlViewInputTree1.rootEl);
                 listBox2.Items.Add(mm.PrometheusString);
             }
