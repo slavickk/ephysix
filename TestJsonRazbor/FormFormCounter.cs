@@ -42,7 +42,13 @@ namespace TestJsonRazbor
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            RefreshLabelsList();
+            int index = getCurrentMetricIndex();
+            if (index >= 0)
+            {
+                textBoxNameMetric.Text = pip.metricsBuilder[index].Name;
+                textBoxDetailMetric.Text= pip.metricsBuilder[index].Description;
+            }
+                RefreshLabelsList();
         }
 
         private void RefreshLabelsList()
@@ -111,11 +117,26 @@ namespace TestJsonRazbor
 
         private void buttonEditMetric_Click(object sender, EventArgs e)
         {
+            int index = getCurrentMetricIndex();
+            if (index >= 0)
+            {
+                pip.metricsBuilder[index]=new MetricBuilder() { Name = textBoxNameMetric.Text, Description = textBoxDetailMetric.Text, labels= pip.metricsBuilder[index] .labels};
+                RefreshBuildMetrics();
 
+            }
         }
-
-        private void buttonEditLabel_Click(object sender, EventArgs e)
+            private void buttonEditLabel_Click(object sender, EventArgs e)
         {
+            int index = getCurrentMetricIndex();
+            if (index >= 0)
+            {
+                int index1 = listBox1.SelectedIndices[0];
+                if (index1 >= 0)
+                {
+                    pip.metricsBuilder[index].labels[index1]=new MetricBuilder.Label() { Name = textBoxNameLabel.Text, Value = userControlFormOutputField1.outValue };
+                    RefreshLabelsList();
+                }
+            }
 
         }
     }
