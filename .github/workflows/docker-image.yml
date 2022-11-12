@@ -14,8 +14,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
+#     Set global environment variables:
+    - name: set global env
+      id: global_env
+      run: |
+        echo "::set-output name=IMAGE_NAME::${GITHUB_REPOSITORY#*/}"
+        echo "::set-output name=DOCKERHUB_IMAGE_NAME::docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY#*/}"
+    
     - name: Build the Docker image
-      run: docker build . --file WebApiConsoleUtility/Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file WebApiConsoleUtility/Dockerfile -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:latest" -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:${GITHUB_SHA::8}"
+#      run: docker build . --file WebApiConsoleUtility/Dockerfile --tag my-image-name:$(date +%s)
+#  docker build -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:latest" -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:${GITHUB_SHA::8}" .
     - name: Docker login
       run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p ${{secrets.GITHUB_TOKEN}}
 
