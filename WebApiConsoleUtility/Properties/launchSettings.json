@@ -1,13 +1,4 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:35047",
-      "sslPort": 44352
-    }
-  },
-  "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
@@ -32,12 +23,21 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "YAML_PATH": "/app/Data/model.yml",
+        "YAML_PATH": "/app/Data/ACS_TW.yml",
         "LOG_LEVEL": "Debug"
       },
       "publishAllPorts": true,
       "useSSL": true,
       "DockerfileRunArguments": "-p 15001:15001 "
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:35047",
+      "sslPort": 44352
     }
   }
 }

@@ -81,65 +81,6 @@ steps:
     port: 8080
     swaggerSpecPath: 
     responseType: text/xml
-    metricUpTime:
-      items:
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 1
-        sum: 7015.1516
-      - count: 0
-        sum: 0
-      labels:
-        handler:
-          name: handler
-          value: /
-        Name:
-          name: Name
-          value: HTTPReceiver
-      name: iu_inbound_request_duration_msec
-      comment: handle performance receiver
-      typeMetric: histogram
-      prometheusLabels: '{handler="/",Name="HTTPReceiver"}'
-    metricUpTimeError:
-      items:
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      - count: 0
-        sum: 0
-      labels:
-        handler:
-          name: handler
-          value: /
-      name: iu_inbound_errors_total
-      comment: handle performance receiver
-      typeMetric: histogram
-      prometheusLabels: '{handler="/"}'
     cantTryParse: true
     mocFile: C:\D\OutACS\xz2r4dkb.mbg
     mocBody: ''

@@ -8,7 +8,11 @@ namespace ParserLibrary;
 
 public abstract class Receiver
 {
+    [YamlIgnore]
+
     public Metrics.MetricHistogram metricUpTime;
+    [YamlIgnore]
+
     public Metrics.MetricHistogram metricUpTimeError;
     public bool  cantTryParse=false;
 /*        public virtual bool cantTryParse()
