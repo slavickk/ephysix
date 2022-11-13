@@ -7,7 +7,11 @@ namespace ParserLibrary;
 
 public abstract class Sender
 {
+    [YamlIgnore]
+
     protected Metrics.MetricHistogram metricUpTime;
+    [YamlIgnore]
+
     private Metrics.MetricHistogram metricUpTimeError;
     public virtual void Init(Pipeline owner)
     {
