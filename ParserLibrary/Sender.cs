@@ -24,7 +24,7 @@ public abstract class Sender
 
     public override string ToString()
     {
-        return $"Sender:{this.GetType().Name} Step:{owner.IDStep}";
+        return $"Sender:{this.GetType().Name} Step:{owner?.IDStep}";
     }
     public virtual  string getExample()
     {
