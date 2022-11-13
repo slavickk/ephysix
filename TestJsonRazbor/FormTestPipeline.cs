@@ -153,6 +153,7 @@ namespace TestJsonRazbor
             lastPerfTime = DateTime.Now;
             lastPerfCount = HTTPReceiver.KestrelServer.metricCountExecuted.getCount();
             lastPerfValue = HTTPReceiver.KestrelServer.metricTimeExecuted.sum;
+            Metrics.metric.allMetrics.Clear(); 
             /*  cancellationToken.IsCancellationRequested = true;
               if(cancellationToken.CanBeCanceled)
               {

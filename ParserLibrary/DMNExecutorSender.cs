@@ -27,6 +27,7 @@ namespace ParserLibrary
         {
             for (int i = 0; i < countPrewarmingIntances; i++)
                 contexts.Add(getDMN(XML));
+            base.Init(owner);
             //            base.Init(owner);
         }
         // static  List<net.adamec.lib.common.dmn.engine.parser.dto.DmnModel.Script> listScripts;

@@ -502,6 +502,8 @@ public class Step
     {
         // Save sender context
         //rootElInput.
+        var sendNode = CheckAndFillNode(rootElInput, "Send", true);
+        var toNode = CheckAndFillNode(sendNode, "To");
         if (IDResponsedReceiverStep != "")
         {
             if (debugMode)
@@ -514,12 +516,16 @@ public class Step
             else
                 content= await sender.send(local_rootOutput);
             await step.receiver.sendResponse(content, context.context);
+            foreach (var node in local_rootOutput.childs)
+            {
+                node.ancestor = toNode;
+                //          toNode.childs.Add(node);
+            }
+            StoreAnswer("Resp", rootElInput, context, content, step);
 
         }
         else
         {
-            var sendNode =CheckAndFillNode(rootElInput,"Send",true);
-            var toNode = CheckAndFillNode(sendNode, "To");
             var ans = await sender.send(local_rootOutput);
             foreach (var node in local_rootOutput.childs)
             {
@@ -544,13 +550,8 @@ public class Step
                 if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
                 {
                     var nextStep = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep);
-//                        tryParse(ans, context, CheckAndFillNode(sendNode, "From"));
-                    var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = nextStep.IDStep };
-                    newRoot = new AbstrParser.UniEl(newRoot) { Name = "Rec" };
-
-
-
-                    nextStep.tryParse(ans, context, newRoot);
+                    //                        tryParse(ans, context, CheckAndFillNode(sendNode, "From"));
+                    StoreAnswer("Rec",rootElInput, context, ans, nextStep);
                 }
 
 
@@ -563,8 +564,27 @@ public class Step
         }
     }
 
+    private static void StoreAnswer(string name_ans,AbstrParser.UniEl rootElInput, ContextItem context, string ans, Step nextStep)
+    {
+
+        if(nextStep.IDStep.Contains("ToTWO"))
+        {
+            int yy = 0;
+        }
+        var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = nextStep.IDStep };
+        newRoot = new AbstrParser.UniEl(newRoot) { Name = name_ans };
+
+
+
+        nextStep.tryParse(ans, context, newRoot);
+    }
+
     private static AbstrParser.UniEl CheckAndFillNode(AbstrParser.UniEl rootElInput,string Name,bool getAncestor =false)
     {
+        if(Name=="Step_ToTWO")
+        {
+            int yy = 0;
+        }
         AbstrParser.UniEl contextNode = (getAncestor?(rootElInput.ancestor): rootElInput).childs.FirstOrDefault(ii => ii.Name == Name);
         if (contextNode == null)
             contextNode = new AbstrParser.UniEl((getAncestor ? (rootElInput.ancestor) : rootElInput)) { Name = Name};

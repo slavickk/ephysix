@@ -13,13 +13,17 @@ namespace ParserLibrary
     {
         [YamlIgnore]
         Metrics.MetricCounters metricCounter;
+        [YamlIgnore]
+        Metrics.MetricHistogram metricHist;
 
         public void Init()
         {
             metricCounter = new Metrics.MetricCounters(Name, Description, labels.Select(ii => ii.Name).ToArray());
+            metricHist = new Metrics.MetricHistogram("calc_metrics", "calculate metric time");
         }
         public async Task Fill(AbstrParser.UniEl rootElement)
         {
+            DateTime time1= DateTime.Now;   
             int maxCount = -1;
             int maxIndex = -1;
             {
@@ -50,7 +54,7 @@ namespace ParserLibrary
                 }
                 metricCounter.AddCount(String.Join('/', values));
             }
-            
+            metricHist.Add(time1);
         }
 
         [YamlIgnore]

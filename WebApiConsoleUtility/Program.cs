@@ -102,8 +102,8 @@ namespace WebApiConsoleUtility
                 {
                     if (YamlPath == null)
                     {
-                        Log.Fatal("YAML_PATH environment variable not set.Set default config file placed at /app/Data/model.yml (saved in container)");
-                        YamlPath = "/app/Data/model.yml";
+                        YamlPath = "/app/Data/ACS_TW.yml";
+                        Log.Fatal($"YAML_PATH environment variable not set.Set default config file placed at {YamlPath} (saved in container)");
                     }
                     if (!File.Exists(YamlPath))
                     {

@@ -65,6 +65,12 @@ namespace TestJsonRazbor
         {
             drawFactory = new TreeDrawerFactory(treeView1);
 
+            if (currentStep1.owner.tempMocData != "")
+            {
+                ParseInput(currentStep1.owner.tempMocData, new string[] { currentStep1.owner.steps.First(ii => (ii.IDPreviousStep == null || ii.IDPreviousStep == "")).IDStep }/* getPaths(currentStep1,"")*//*, new string[] { currentStep1.owner.steps.First(ii=>(ii.IDPreviousStep == null || ii.IDPreviousStep =="")).IDStep }*/);
+                return;
+            }
+
             if (currentStep1.receiver != null && (currentStep1.receiver.MocFile != null || (currentStep1.receiver.MocBody ?? "") != ""))
             {
 

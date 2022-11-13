@@ -95,7 +95,7 @@ public class Pipeline
     public async Task run()
     {
         Logger.log("Starting the pipeline", Serilog.Events.LogEventLevel.Warning);
-        
+        Metrics.common_labels.Add( "Pipeline", new Metrics.Label("Pipeline", Path.GetFileNameWithoutExtension(this.fileName)));
         CryptoHash.pwd = this.hashWord;
         string keyString = CryptoHash.pwd;
         if(keyString.Length> keyLength / 8)
@@ -169,6 +169,7 @@ public class Pipeline
         }
         return "";
     }
+    public string fileName;
     public static Pipeline load(string fileName = @"C:\d\model.yml")
     {
         string Body;
@@ -176,7 +177,9 @@ public class Pipeline
         {
             Body = sr.ReadToEnd();
         }
-        return loadFromString(Body);
+        var pip= loadFromString(Body);
+        pip.fileName= fileName;
+        return pip;
     }
 
     public static Pipeline loadFromString(string Body)
