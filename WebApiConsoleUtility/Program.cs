@@ -50,7 +50,7 @@ namespace WebApiConsoleUtility
             string LogPath =Environment.GetEnvironmentVariable("LOG_PATH");
             string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
-            LogEventLevel defLevel = LogEventLevel.Debug;
+            LogEventLevel defLevel = LogEventLevel.Information;
             object outVal;
             string levelInfo = "";
             if (!IgnoreAll)

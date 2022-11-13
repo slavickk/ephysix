@@ -381,7 +381,7 @@ namespace ParserLibrary
             public override string getHeader(ref string lastName)
             {
                 string retValue = "";
-                if (this.Comment != "" && lastName != this.Name)
+     //           if (this.Comment != "" && lastName != this.Name)
                 {
                     retValue += "#  HELP " + this.Name + ":" + this.Comment + ".\n";
                     lastName = this.Name;
@@ -466,7 +466,7 @@ namespace ParserLibrary
             public override string getHeader(ref string lastName)
             {
                 string retValue = "";
-                if (this.Comment != "" && lastName != this.Name)
+       //         if (this.Comment != "" && lastName != this.Name)
                 {
                     retValue += "#  HELP " + this.Name + ":" + this.Comment + "\n";
                     lastName = this.Name;
