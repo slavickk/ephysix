@@ -184,6 +184,7 @@ namespace ParserLibrary
             string lastName = "";
             foreach (var metric in allMetrics.OrderBy(ii => ii.Name))
             {
+                if (metric.isBodyDefined) 
                 retValue += metric.getHeader(ref lastName);
                 /*                if (metric.Comment != "" && lastName != metric.Name)
                                 {
@@ -206,6 +207,11 @@ namespace ParserLibrary
                     labels.Add(label.Name, label);
             }
 
+
+            public virtual bool isBodyDefined
+            {
+                get { return true; }
+            }
             public string prometheusLabels
             {
                 get
@@ -548,6 +554,8 @@ namespace ParserLibrary
             {
                 this.labels = labels;
             }
+
+            public override bool isBodyDefined => dict.Count>0;
             public override string getBody()
             {
                 string retValue = "";
