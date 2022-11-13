@@ -14,12 +14,13 @@ namespace ParserLibrary
         [YamlIgnore]
         Metrics.MetricCounters metricCounter;
         [YamlIgnore]
-        Metrics.MetricHistogram metricHist;
+        static Metrics.MetricHistogram metricHist;
 
         public void Init()
         {
             metricCounter = new Metrics.MetricCounters(Name, Description, labels.Select(ii => ii.Name).ToArray());
-            metricHist = new Metrics.MetricHistogram("calc_metrics", "calculate metric time");
+            if(metricHist== null)
+                metricHist = new Metrics.MetricHistogram("calc_metrics", "calculate metric time");
         }
         public async Task Fill(AbstrParser.UniEl rootElement)
         {
