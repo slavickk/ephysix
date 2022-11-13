@@ -84,8 +84,6 @@ steps:
     cantTryParse: true
     mocFile: C:\D\OutACS\xz2r4dkb.mbg
     mocBody: ''
-    saver:
-      path: C:\D\OutACS
   converters:
   - name: FilterToTW
     filter: !ConditionFilter
