@@ -50,6 +50,7 @@ namespace WebApiConsoleUtility
             string LogPath =Environment.GetEnvironmentVariable("LOG_PATH");
             string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
+            string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
             LogEventLevel defLevel = LogEventLevel.Information;
             object outVal;
             string levelInfo = "";
@@ -116,6 +117,12 @@ namespace WebApiConsoleUtility
                     }
                     Log.Information("... Parsing " + YamlPath);
                     pip = Pipeline.load(YamlPath);
+                    if (DEBUG_MODE != null)
+                    {
+                        pip.debugMode = true;
+                        Log.Information("Set debugMode ");
+                    }
+
                     var recForSaver = pip.steps.FirstOrDefault(ii => ii.receiver != null && ii.receiver.saver != null);
                     if (recForSaver != null)
                     {
