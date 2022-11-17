@@ -21,8 +21,10 @@ jobs:
       run: |
         echo "::set-output name=IMAGE_NAME::${GITHUB_REPOSITORY#*/}"
         echo "::set-output name=DOCKERHUB_IMAGE_NAME::docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY#*/}"
+#        echo "::set-output name=TAGS::${GITHUB_REPOSITORY#*/}"
     
     - name: Build the Docker image
+#      if: github.repository == 'octo-org/octo-repo-prod'
       run: docker build . --file WebApiConsoleUtility/Dockerfile -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:latest" -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:${GITHUB_SHA::8}"
 #      run: docker build . --file WebApiConsoleUtility/Dockerfile --tag my-image-name:$(date +%s)
 #  docker build -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:latest" -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:${GITHUB_SHA::8}" .
@@ -34,3 +36,5 @@ jobs:
       env:
         IMAGE_NAME: $GITHUB_REPOSITORY
       run: docker push "docker.pkg.github.com/$GITHUB_REPOSITORY/${{ steps.global_env.outputs.IMAGE_NAME }}"     
+#        with:
+#         tags: ${{ steps.global_env.outputs.tags }}
