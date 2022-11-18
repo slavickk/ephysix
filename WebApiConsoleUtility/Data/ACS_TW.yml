@@ -259,12 +259,12 @@ steps:
     headers: 
     responseType: application/json
     urls:
-    - http://192.168.75.212:31092/api/Streams/LoadStream2?demo=true
+    - http://192.168.75.214/api/Streams/LoadStream2?demo=true
     timeoutsBetweenRetryInMilli:
     - 100
     mocFile: ''
     mocBody: ''
-    url: http://192.168.75.212:31092/api/Streams/LoadStream2?demo=true
+    url: http://192.168.75.214/api/Streams/LoadStream2?demo=true
 - isBridge: false
   isHandleSenderError: false
   saveErrorSendDirectory: ''
