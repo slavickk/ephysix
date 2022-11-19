@@ -1,3 +1,4 @@
+pipelineDescription: Pipeline ACS-CCFA-TWO
 metricsBuilder:
 - name: HOST_ANSWER
   description: Host Result answer of auth
@@ -66,13 +67,12 @@ metricsBuilder:
       conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
       conditionCalcer: 
       valuePath: ''
-pipelineDescription: Pipeline example
 hashWord: QWE123
 steps:
 - isBridge: false
-  isHandleSenderError: false
-  saveErrorSendDirectory: ''
-  recordSendCount: 21
+  isHandleSenderError: true
+  maxSavedLimitInMB: 10
+  saveErrorSendDirectory: '/CACHE'
   iDStep: Step_0
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
@@ -84,6 +84,7 @@ steps:
     cantTryParse: true
     mocFile: C:\D\OutACS\xz2r4dkb.mbg
     mocBody: ''
+    saver: 
   converters:
   - name: FilterToTW
     filter: !ConditionFilter
@@ -267,8 +268,8 @@ steps:
     url: http://192.168.75.214/api/Streams/LoadStream2?demo=true
 - isBridge: false
   isHandleSenderError: false
+  maxSavedLimitInMB: 0
   saveErrorSendDirectory: ''
-  recordSendCount: 19
   iDStep: Step_DMN
   iDPreviousStep: Step_0
   iDResponsedReceiverStep: ''
@@ -507,7 +508,7 @@ steps:
                 <text>&gt;0</text>
               </inputEntry>
               <inputEntry id="UnaryTests_051zchq">
-                <text></text>
+                <text>=0</text>
               </inputEntry>
               <inputEntry id="UnaryTests_1p7noi0">
                 <text></text>
@@ -681,8 +682,8 @@ steps:
     mocBody: ''
 - isBridge: false
   isHandleSenderError: false
+  maxSavedLimitInMB: 0
   saveErrorSendDirectory: ''
-  recordSendCount: 7
   iDStep: Step_ToTWO
   iDPreviousStep: Step_DMN
   iDResponsedReceiverStep: Step_0
@@ -825,8 +826,8 @@ steps:
     url: http://192.168.75.173:30212
 - isBridge: false
   isHandleSenderError: false
+  maxSavedLimitInMB: 0
   saveErrorSendDirectory: ''
-  recordSendCount: 0
   iDStep: Step_SaveAlert
   iDPreviousStep: Step_ToTWO
   iDResponsedReceiverStep: ''

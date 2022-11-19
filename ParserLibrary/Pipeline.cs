@@ -21,8 +21,7 @@ public class Pipeline
     public AbstrParser.UniEl lastExecutedEl = null;
     public static Metrics metrics = new Metrics();
 
-    public List<MetricBuilder> metricsBuilder = new List<MetricBuilder>(); 
-
+    
     public string hashWord { get; set; } = "QWE123";
     public string pipelineDescription = "Pipeline example";
     [YamlIgnore]
@@ -95,7 +94,9 @@ public class Pipeline
     public async Task run()
     {
         Logger.log("Starting the pipeline", Serilog.Events.LogEventLevel.Warning);
-        Metrics.common_labels.Add( "Pipeline", new Metrics.Label("Pipeline", Path.GetFileNameWithoutExtension(this.fileName)));
+        Metrics.Label lab;
+        if(!Metrics.common_labels.TryGetValue("Pipeline",out lab))
+            Metrics.common_labels.Add( "Pipeline", new Metrics.Label("Pipeline", Path.GetFileNameWithoutExtension(this.fileName)));
         CryptoHash.pwd = this.hashWord;
         string keyString = CryptoHash.pwd;
         if(keyString.Length> keyLength / 8)
@@ -169,6 +170,7 @@ public class Pipeline
         }
         return "";
     }
+    [YamlIgnore]
     public string fileName;
     public static Pipeline load(string fileName = @"C:\d\model.yml")
     {
@@ -243,5 +245,6 @@ public class Pipeline
     }
 
 
+    public List<MetricBuilder> metricsBuilder = new List<MetricBuilder>();
 
 }
