@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
-
+/// <summary>
+/// Step is a sequence of steps that includes (optionally) Sender, Receiver and a set of filters for selecting information
+/// </summary>
 public class Step
 {
 
@@ -127,8 +130,12 @@ public class Step
 
 
             }
-            if (Directory.GetFiles(this.SaveErrorSendDirectory).Count() > 0)
+            var files = Directory.GetFiles(this.SaveErrorSendDirectory);
+            if (files.Count() > 0)
             {
+                SizeDirectory=files.Select(ii => new FileInfo(ii).Length).Sum();
+
+               // Directory.GetF
                 isErrorSending = true;
                 tRestore = restoreSenderState(SaveErrorSendDirectory);
             }
@@ -316,6 +323,13 @@ public class Step
 
     public bool isHandleSenderError = false;
 
+    /// <summary>
+    /// Maximum amount of stored data, what sender unreacheble in mB. 
+    /// </summary>
+    /// <remarks>
+    /// If SaveErrorSendDirectory is shared by multiple program instances, the total amount available must be multiplied by the number of instances.
+    /// </remarks>
+    public Int64 maxSavedLimitInMB = 0;
     public string SaveErrorSendDirectory = "";
     Task tRestore;
     private async Task FilterStep(ContextItem context, AbstrParser.UniEl rootElement)
@@ -381,14 +395,22 @@ public class Step
     }
 
     string musor = "qwertybbvgghhnbbbjkkll988765433222345556gggbgggghhhbbbbn";
+    [YamlIgnore]
+    Int64 SizeDirectory = 0;
+    [YamlIgnore]
+    bool nonSavedError = false;
     private void SaveRestoreFile(AbstrParser.UniEl local_rootOutput)
     {
+        if(nonSavedError) 
+            return;
+
+        string fileName = Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()));
         using (AesManaged aes = new AesManaged())
         {
             // Create encryptor    
             ICryptoTransform encryptor = aes.CreateEncryptor(owner.key,owner.IV);
             // Create MemoryStream    
-            using (FileStream ms = new FileStream(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName())),FileMode.CreateNew))
+            using (FileStream ms = new FileStream(fileName,FileMode.CreateNew))
             {
                 // Create crypto stream using the CryptoStream class. This class is the key to encryption    
                 // and encrypts and decrypts data from any given stream. In this case, we will pass a memory stream    
@@ -401,9 +423,28 @@ public class Step
                   //  encrypted = ms.ToArray();
                 }
             }
+            FileInfo fi = new FileInfo(fileName);
+            Interlocked.Add(ref SizeDirectory, (fi.Length));
+            if(SizeDirectory/(1024*1024)>= maxSavedLimitInMB) 
+            {
+                nonSavedError = true;
+                Logger.log($"Size of directory {SaveErrorSendDirectory} exceed {maxSavedLimitInMB} MB , restored impossible .All saved dataErased.");
+                foreach (var file in Directory.GetFiles(this.SaveErrorSendDirectory))
+                {
+                    try
+                    {
+
+                        File.Delete(file);
+                    }
+                    catch
+                    { }
+                }
+            }
+
+//            SizeDirectoryInMB += (fi.Length * 1024 * 1024);
         }
-    /*    using (var sw = new StreamWriter(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()))))
-            sw.Write(local_rootOutput.toJSON());*/
+        /*    using (var sw = new StreamWriter(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()))))
+                sw.Write(local_rootOutput.toJSON());*/
     }
 
     bool isErrorSending = false;
@@ -461,12 +502,25 @@ public class Step
                 catch (Exception e77)
                 {
                     await Task.Delay(1000);
+                    if (nonSavedError)
+                    {
+                        try
+                        {
+                            File.Delete(file1);
+                        }
+                        catch { }
+
+                        return;
+                    }
                     goto restart;
 
                 }
                 try
                 {
+                    FileInfo fi = new FileInfo(file1);
                     File.Delete(file1);
+                    Interlocked.Add(ref SizeDirectory,-(fi.Length));
+                    //SizeDirectoryInMB -= (fi.Length * 1024 * 1024);
                 }
                 catch { }
             }
@@ -497,6 +551,7 @@ public class Step
 
         //            if(this.)
     }
+    [YamlIgnore]
     public int recordSendCount = 0;
     private async Task SendToSender(AbstrParser.UniEl rootElInput, ContextItem context, AbstrParser.UniEl local_rootOutput)
     {
