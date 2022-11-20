@@ -43,6 +43,9 @@ def getenv(cfg):
     return cfg
 
 def get_camunda_address(cfg):
+    """
+    Выдает строку коннекта к camunda сервису на основании его DNS имени
+    """
     ADDITIONAL_RDCLASS = 65535
 
     domain = dns.name.from_text(cfg['CAMUNDA_NAME'])
@@ -62,6 +65,9 @@ def get_camunda_address(cfg):
 
 
 def web(h, st):
+    """
+    Отвечает за выдачу Метрик и HealthCheck
+    """
     logger.info(f'Start WEB component (Health & Metrics)')
     log = logging.getLogger('werkzeug')
     log.disabled = True
@@ -93,6 +99,9 @@ def web(h, st):
 
 
 def db2db(task: ExternalTask) -> TaskResult:
+    """
+    Основной процесс, который вызывается по каждому заданию с определенным топиком, подписка идет в main
+    """
     global engine_src, engine_ser, engine_dst
     # Не нашел как передать параметры в процедуру, заполняю cfg еще раз.
     cfg = {}
@@ -226,6 +235,9 @@ def db2db(task: ExternalTask) -> TaskResult:
     return task.complete({"All": count, "Errors": errors})
 
 def main(health):
+    """
+    Подписка процесса на топик. Установка Health=OK. Как выставить Health!=OK я пока не знаю
+    """
     cfg = {}
     cfg = getenv(cfg)
     logger.info(f'Start MAIN component')
@@ -245,6 +257,9 @@ def main(health):
     #     raise
 
 if __name__ == '__main__':
+    """
+    Основной процесс-форкатель
+    """
     if sys.platform.lower().startswith("win"):
         method = 'spawn'
     else:
