@@ -278,7 +278,7 @@ steps:
   converters:
   - name: FilterSignalledRule
     filter: !ConditionFilter
-      conditionPath: Step_0/Step_1/Rec/ItemList/rule
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule
       conditionCalcer: !ComparerAlwaysTrue {}
     outputFields:
     - !ConstantValue
@@ -302,7 +302,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: true
-      conditionPath: Step_0/Step_1/Rec/ItemList/rule/name
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/name
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -315,7 +315,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: true
-      conditionPath: Step_0/Step_1/Rec/ItemList/rule/severity
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/severity
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -328,7 +328,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: true
-      conditionPath: Step_0/Step_1/Rec/ItemList/rule/answerOnSignal
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
       conditionCalcer: 
       valuePath: ''
   - name: FilterDataField
@@ -375,7 +375,7 @@ steps:
       valuePath: ''
   - name: FilterInactiveRules
     filter: !ConditionFilter
-      conditionPath: Step_0/Step_1/Rec/ItemList/Inactive
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/Inactive
       conditionCalcer: !ComparerAlwaysTrue {}
     outputFields:
     - !ConstantValue
@@ -399,7 +399,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Step_1/Rec/ItemList/Inactive
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/Inactive
       conditionCalcer: 
       valuePath: ''
   sender: !DMNExecutorSender
@@ -838,12 +838,12 @@ steps:
     filter: !AndOrFilter
       filters:
       - !ConditionFilter
-        conditionPath: Step_0/Step_1/Step_ToTWFA/Step_2/Rec/ItemList/Name
+        conditionPath: Step_0/Step_DMN/Step_ToTWFA/Step_2/Rec/ItemList/Name
         conditionCalcer: !ComparerForValue
           isNegative: false
           valueForCompare: SaveAlert
       - !ConditionFilter
-        conditionPath: Step_0/Step_1/Step_2/Rec/ItemList/Value
+        conditionPath: Step_0/Step_DMN/Step_2/Rec/ItemList/Value
         conditionCalcer: !ComparerForValue
           isNegative: false
           valueForCompare: true
@@ -872,7 +872,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Step_1/Send/To/InputParameters
+      conditionPath: Step_0/Step_DMN/Send/To/InputParameters
       conditionCalcer: 
       valuePath: ''
   sender: !PostgresExecutorSender
