@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:p3="http://camunda.org/schema/modeler/1.0" id="DefinitionTest" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" p3:executionPlatform="Camunda Platform" p3:executionPlatformVersion="7.15.0">
+  <process xmlns:p5="http://camunda.org/schema/1.0/bpmn" id="ETL_Process" name="ETL transformer" isExecutable="true" p5:versionTag="1.0.0">
+    <documentation>Not contain input variables!</documentation>
+    <startEvent id="Start_1">
+      <outgoing>Item_0</outgoing>
+    </startEvent>
+    <sequenceFlow id="Item_0" sourceRef="Start_1" targetRef="Id1" />
+    <serviceTask id="Id1" name="ETL_Task_1" p5:type="external" p5:topic="LoginDB">
+      <extensionElements>
+        <p5:inputOutput>
+          <p5:inputParameter name="SDSN">(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.75.173)(PORT=1521))(CONNECT_DATA=(SID=DEV3)))</p5:inputParameter>
+          <p5:inputParameter name="SLogin">TWA</p5:inputParameter>
+          <p5:inputParameter name="SPassword">TWA</p5:inputParameter>
+          <p5:inputParameter name="SDriver">oracle+cx_oracle</p5:inputParameter>
+          <p5:inputParameter name="TDSN">master.pgsqlanomaly01.service.consul:5432/fpdb</p5:inputParameter>
+          <p5:inputParameter name="TLogin">fp</p5:inputParameter>
+          <p5:inputParameter name="TPassword">rav1234</p5:inputParameter>
+          <p5:inputParameter name="TDriver">postgresql+psycopg2</p5:inputParameter>
+          <p5:inputParameter name="SQLTable">tmp_table1</p5:inputParameter>
+          <p5:inputParameter name="SQLParams" />
+          <p5:inputParameter name="SQLText">select card.pan pan,card.mbr mbr from card   
+</p5:inputParameter>
+          <p5:inputParameter name="Oper">Refill</p5:inputParameter>
+          <p5:inputParameter name="SQLIndexes">["mbr"]</p5:inputParameter>
+          <p5:inputParameter name="SQLColumns">{"pan":"VARCHAR","mbr":"NUMBER"}</p5:inputParameter>
+        </p5:inputOutput>
+      </extensionElements>
+      <incoming>Item_0</incoming>
+      <outgoing>Item_1</outgoing>
+    </serviceTask>
+    <sequenceFlow id="Item_1" sourceRef="Id1" targetRef="Id2" />
+    <serviceTask id="Id2" name="ETL_Task_2" p5:type="external" p5:topic="LoginDB">
+      <extensionElements>
+        <p5:inputOutput>
+          <p5:inputParameter name="SDSN">(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.75.173)(PORT=1521))(CONNECT_DATA=(SID=DEV3)))</p5:inputParameter>
+          <p5:inputParameter name="SLogin">TWA</p5:inputParameter>
+          <p5:inputParameter name="SPassword">TWA</p5:inputParameter>
+          <p5:inputParameter name="SDriver">oracle+cx_oracle</p5:inputParameter>
+          <p5:inputParameter name="TDSN">master.pgsqlanomaly01.service.consul:5432/fpdb</p5:inputParameter>
+          <p5:inputParameter name="TLogin">fp</p5:inputParameter>
+          <p5:inputParameter name="TPassword">rav1234</p5:inputParameter>
+          <p5:inputParameter name="TDriver">postgresql+psycopg2</p5:inputParameter>
+          <p5:inputParameter name="SQLTable">tmp_table2</p5:inputParameter>
+          <p5:inputParameter name="SQLParams" />
+          <p5:inputParameter name="SQLText">select account2card.mbr mbr,account.extaccountnumber extaccountnumber from account2card   
+ inner join   account  on (account2card.accountid=account.id)  
+</p5:inputParameter>
+          <p5:inputParameter name="Oper">Refill</p5:inputParameter>
+          <p5:inputParameter name="SQLIndexes">["mbr"]</p5:inputParameter>
+          <p5:inputParameter name="SQLColumns">{"mbr":"NUMBER","extaccountnumber":"VARCHAR"}</p5:inputParameter>
+        </p5:inputOutput>
+      </extensionElements>
+      <incoming>Item_1</incoming>
+      <outgoing>Item_2</outgoing>
+    </serviceTask>
+    <sequenceFlow id="Item_2" sourceRef="Id2" targetRef="Id3" />
+    <serviceTask id="Id3" name="ETL_Task_3" p5:type="external" p5:topic="LoginDB">
+      <extensionElements>
+        <p5:inputOutput>
+          <p5:inputParameter name="SDSN">master.pgsqlanomaly01.service.consul:5432/fpdb</p5:inputParameter>
+          <p5:inputParameter name="SLogin">fp</p5:inputParameter>
+          <p5:inputParameter name="SPassword">rav1234</p5:inputParameter>
+          <p5:inputParameter name="SDriver">postgresql+psycopg2</p5:inputParameter>
+          <p5:inputParameter name="TDSN">master.pgsqlanomaly01.service.consul:5432/fpdb</p5:inputParameter>
+          <p5:inputParameter name="TLogin">fp</p5:inputParameter>
+          <p5:inputParameter name="TPassword">rav1234</p5:inputParameter>
+          <p5:inputParameter name="TDriver">postgresql+psycopg2</p5:inputParameter>
+          <p5:inputParameter name="SQLTable">outputtable</p5:inputParameter>
+          <p5:inputParameter name="SQLParams" />
+          <p5:inputParameter name="SQLText">select tmp_table1.pan pan,tmp_table2.extaccountnumber extaccountnumber from tmp_table1   
+ inner join   tmp_table2  on (tmp_table1.mbr=tmp_table2.mbr)  
+</p5:inputParameter>
+          <p5:inputParameter name="Oper">Refill</p5:inputParameter>
+          <p5:inputParameter name="SQLIndexes" />
+          <p5:inputParameter name="SQLColumns">{"pan":"VARCHAR","extaccountnumber":"VARCHAR"}</p5:inputParameter>
+        </p5:inputOutput>
+      </extensionElements>
+      <incoming>Item_2</incoming>
+      <outgoing>Item_3</outgoing>
+    </serviceTask>
+    <sequenceFlow id="Item_3" sourceRef="Id3" targetRef="End_1" />
+    <endEvent id="End_1">
+      <incoming>Item_3</incoming>
+    </endEvent>
+    <textAnnotation id="Annotation_0">
+      <text>Extract data from Oracle to PostgreSQL </text>
+    </textAnnotation>
+    <association id="Association_0" sourceRef="Id1" targetRef="Annotation_0" />
+    <textAnnotation id="Annotation_1">
+      <text>Extract data from Oracle to PostgreSQL </text>
+    </textAnnotation>
+    <association id="Association_1" sourceRef="Id2" targetRef="Annotation_1" />
+    <textAnnotation id="Annotation_2">
+      <text>Merge data from PostgreSQL to PostgreSQL </text>
+    </textAnnotation>
+    <association id="Association_2" sourceRef="Id3" targetRef="Annotation_2" />
+  </process>
+  <BPMNDiagram xmlns="http://www.omg.org/spec/BPMN/20100524/DI" id="BPMNDiagram_1">
+    <BPMNPlane id="BPMNPlane_1" bpmnElement="ETL_Process">
+      <BPMNEdge id="Edge_3" bpmnElement="Item_3">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="656" y="100" />
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="706" y="100" />
+      </BPMNEdge>
+      <BPMNEdge id="Edge_2" bpmnElement="Item_2">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="506" y="100" />
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="556" y="100" />
+      </BPMNEdge>
+      <BPMNEdge id="Edge_1" bpmnElement="Item_1">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="356" y="100" />
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="406" y="100" />
+      </BPMNEdge>
+      <BPMNEdge id="Edge_0" bpmnElement="Item_0">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="206" y="100" />
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="256" y="100" />
+      </BPMNEdge>
+      <BPMNShape id="Shape_0" bpmnElement="Start_1">
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="170" y="82" width="36" height="36" />
+      </BPMNShape>
+      <BPMNShape id="Shape_1" bpmnElement="Id1">
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="256" y="60" width="100" height="80" />
+      </BPMNShape>
+      <BPMNShape id="Shape_2" bpmnElement="Id2">
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="406" y="60" width="100" height="80" />
+      </BPMNShape>
+      <BPMNShape id="Shape_3" bpmnElement="Id3">
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="556" y="60" width="100" height="80" />
+      </BPMNShape>
+      <BPMNShape id="Shape_End" bpmnElement="End_1">
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="706" y="82" width="36" height="36" />
+      </BPMNShape>
+      <BPMNShape id="ShapeAnnotation_1" bpmnElement="Annotation_0">
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="256" y="200" width="100" height="58" />
+      </BPMNShape>
+      <BPMNShape id="ShapeAnnotation_2" bpmnElement="Annotation_1">
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="406" y="200" width="100" height="58" />
+      </BPMNShape>
+      <BPMNShape id="ShapeAnnotation_3" bpmnElement="Annotation_2">
+        <Bounds xmlns="http://www.omg.org/spec/DD/20100524/DC" x="556" y="200" width="100" height="61" />
+      </BPMNShape>
+      <BPMNEdge id="EdgeAssociation_1" bpmnElement="Association_0">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="306" y="140" />
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="306" y="190" />
+      </BPMNEdge>
+      <BPMNEdge id="EdgeAssociation_2" bpmnElement="Association_1">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="456" y="140" />
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="456" y="190" />
+      </BPMNEdge>
+      <BPMNEdge id="EdgeAssociation_3" bpmnElement="Association_2">
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="606" y="140" />
+        <waypoint xmlns="http://www.omg.org/spec/DD/20100524/DI" x="606" y="190" />
+      </BPMNEdge>
+    </BPMNPlane>
+  </BPMNDiagram>
+</definitions>
