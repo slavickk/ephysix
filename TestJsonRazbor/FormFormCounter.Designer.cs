@@ -141,6 +141,8 @@
             // 
             // userControlFormOutputField1
             // 
+            this.userControlFormOutputField1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.userControlFormOutputField1.Location = new System.Drawing.Point(4, 313);
             this.userControlFormOutputField1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.userControlFormOutputField1.Name = "userControlFormOutputField1";
