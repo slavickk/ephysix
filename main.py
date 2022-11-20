@@ -23,22 +23,22 @@ import dns.flags
 
 
 
-logger.info(f'Start service version=0.0.1 ({__name__})')
+logger.info(f'Start service version=0.0.2 ({__name__})')
 
 def getenv(cfg):
-    cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else os.environ['MAX_TASKS']
-    cfg['lockDuration']         = 10000 if 'LOCK_DURATION' not in os.environ else os.environ['LOCK_DURATION']
-    cfg['asyncResponseTimeout'] = 5000 if 'ASYNC_RESPONCE_TIMEOUT' not in os.environ else os.environ['ASYNC_RESPONCE_TIMEOUT']
-    cfg['retries']              = 3 if 'RETRIES' not in os.environ else  os.environ['RETRIES']
-    cfg['retryTimeout']         = 5000 if 'RETRY_TIMEOUT' not in os.environ else  os.environ['RETRY_TIMEOUT']
-    cfg['sleepSeconds']         = 30 if 'SLEEP_SECONDS' not in os.environ else  os.environ['SLEEP_SECONDS']
+    cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else int(os.environ['MAX_TASKS'])
+    cfg['lockDuration']         = 10000 if 'LOCK_DURATION' not in os.environ else int(os.environ['LOCK_DURATION'])
+    cfg['asyncResponseTimeout'] = 5000 if 'ASYNC_RESPONCE_TIMEOUT' not in os.environ else int(os.environ['ASYNC_RESPONCE_TIMEOUT'])
+    cfg['retries']              = 3 if 'RETRIES' not in os.environ else int(os.environ['RETRIES'])
+    cfg['retryTimeout']         = 5000 if 'RETRY_TIMEOUT' not in os.environ else int(os.environ['RETRY_TIMEOUT'])
+    cfg['sleepSeconds']         = 30 if 'SLEEP_SECONDS' not in os.environ else int(os.environ['SLEEP_SECONDS'])
     cfg['DBDriver']             = 'postgresql+psycopg2' if 'DBDRIVER' not in os.environ else  os.environ['DBDRIVER']
-    cfg['DBUser']               = 'md' if 'DBUSER' not in os.environ else  os.environ['DBUSER']
-    cfg['DBPassword']           = 'rav1234' if 'DBPASSWORD' not in os.environ else  os.environ['DBPASSWORD']
-    cfg['DSN']                  = 'master.pgsqlanomaly01.service.consul:5432/fpdb' if 'DSN' not in os.environ else  os.environ['DSN']
-    cfg['CONSUL_ADDR']          = '192.168.75.205' if 'CONSUL_ADDR' not in os.environ else  os.environ['CONSUL_ADDR']
-    cfg['CAMUNDA_NAME']         = 'camunda.service.consul' if 'CAMUNDA_NAME' not in os.environ else  os.environ['CAMUNDA_NAME']
-    cfg['TOPIC']                = 'LoginDB' if 'TOPIC' not in os.environ else  os.environ['TOPIC']
+    cfg['DBUser']               = 'md' if 'DBUSER' not in os.environ else os.environ['DBUSER']
+    cfg['DBPassword']           = 'rav1234' if 'DBPASSWORD' not in os.environ else os.environ['DBPASSWORD']
+    cfg['DSN']                  = 'master.pgsqlanomaly01.service.consul:5432/fpdb' if 'DSN' not in os.environ else os.environ['DSN']
+    cfg['CONSUL_ADDR']          = '192.168.75.205' if 'CONSUL_ADDR' not in os.environ else os.environ['CONSUL_ADDR']
+    cfg['CAMUNDA_NAME']         = 'camunda.service.consul' if 'CAMUNDA_NAME' not in os.environ else os.environ['CAMUNDA_NAME']
+    cfg['TOPIC']                = 'LoginDB' if 'TOPIC' not in os.environ else os.environ['TOPIC']
 #    cfg[''] =  if '' not in os.environ else  os.environ['']
     return cfg
 
