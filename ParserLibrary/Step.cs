@@ -150,6 +150,9 @@ public class Step
 
     static Metrics.MetricCount sucMetric = new Metrics.MetricCount("packagesReceivedSuccess", "All packages, sended to utility");
     static Metrics.MetricCount errMetric = new Metrics.MetricCount("packagesReceivedUnsuccess", "All packages, sended to utility with error");
+    static Metrics.MetricCount errMetricRetry = new Metrics.MetricCount("packagesSendedUnsucRetry", "All packages, resended sucessfully after error");
+    static Metrics.MetricHistogram metricRetryTimeError = new Metrics.MetricHistogram("retryPackagesTime", "retry time on error", new double[] {  100, 500, 1000, 5000, 10000 ,30000,60000,600000});
+
     //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
 
     public class ContextItem
@@ -498,6 +501,8 @@ public class Step
                 try
                 {
                     await sender.send(rootEl);
+                    errMetricRetry.Increment();
+                    
                 }
                 catch (Exception e77)
                 {
@@ -506,7 +511,9 @@ public class Step
                     {
                         try
                         {
+                            var time=new FileInfo(file1).CreationTime;
                             File.Delete(file1);
+                            metricRetryTimeError.Add(time);
                         }
                         catch { }
 
