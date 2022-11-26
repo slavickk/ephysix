@@ -19,6 +19,9 @@ namespace TestJsonRazbor
         {
             if(args.Length >0)
                 ExecutedPath = args[0];
+            /*object s = "2.2";
+            var t= double.Parse((s as string).Replace(".",","));
+            */
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
    //         int a1 = 35;
             Application.EnableVisualStyles();

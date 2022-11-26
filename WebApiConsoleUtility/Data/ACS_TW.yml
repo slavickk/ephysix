@@ -72,7 +72,7 @@ steps:
 - isBridge: false
   isHandleSenderError: true
   maxSavedLimitInMB: 10
-  saveErrorSendDirectory: '/CACHE'
+  saveErrorSendDirectory: /CACHE
   iDStep: Step_0
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
@@ -249,6 +249,32 @@ steps:
       conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Match/-Nrn/#text
       conditionCalcer: 
       valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseAmount
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Moneys/Cust/-Amt/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseCurrency
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Moneys/Cust/-Ccy/#text
+      conditionCalcer: 
+      valuePath: ''
   sender: !StreamSender
     streamName: AReq
     dbConnectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;
@@ -278,7 +304,7 @@ steps:
   converters:
   - name: FilterSignalledRule
     filter: !ConditionFilter
-      conditionPath: Step_0/Step_1/Rec/ItemList/rule
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule
       conditionCalcer: !ComparerAlwaysTrue {}
     outputFields:
     - !ConstantValue
@@ -302,7 +328,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: true
-      conditionPath: Step_0/Step_1/Rec/ItemList/rule/name
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/name
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -315,7 +341,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: true
-      conditionPath: Step_0/Step_1/Rec/ItemList/rule/severity
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/severity
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -328,7 +354,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: true
-      conditionPath: Step_0/Step_1/Rec/ItemList/rule/answerOnSignal
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
       conditionCalcer: 
       valuePath: ''
   - name: FilterDataField
@@ -375,7 +401,7 @@ steps:
       valuePath: ''
   - name: FilterInactiveRules
     filter: !ConditionFilter
-      conditionPath: Step_0/Step_1/Rec/ItemList/Inactive
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/Inactive
       conditionCalcer: !ComparerAlwaysTrue {}
     outputFields:
     - !ConstantValue
@@ -399,7 +425,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Step_1/Rec/ItemList/Inactive
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/Inactive
       conditionCalcer: 
       valuePath: ''
   sender: !DMNExecutorSender
@@ -565,12 +591,12 @@ steps:
     filter: !AndOrFilter
       filters:
       - !ConditionFilter
-        conditionPath: Step_0/Step_1/Step_ToTWFA/Step_2/Rec/ItemList/Name
+        conditionPath: Step_0/Step_DMN/Step_ToTWFA/Step_2/Rec/ItemList/Name
         conditionCalcer: !ComparerForValue
           isNegative: false
           valueForCompare: SaveAlert
       - !ConditionFilter
-        conditionPath: Step_0/Step_1/Step_2/Rec/ItemList/Value
+        conditionPath: Step_0/Step_DMN/Step_2/Rec/ItemList/Value
         conditionCalcer: !ComparerForValue
           isNegative: false
           valueForCompare: true
@@ -599,7 +625,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Step_1/Send/To/InputParameters
+      conditionPath: Step_0/Step_DMN/Send/To/InputParameters
       conditionCalcer: 
       valuePath: ''
   sender: !PostgresExecutorSender
