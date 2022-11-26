@@ -10,6 +10,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -172,9 +174,11 @@ public class Pipeline
     }
     [YamlIgnore]
     public string fileName;
+    public static string basepath;
     public static Pipeline load(string fileName = @"C:\d\model.yml")
     {
         string Body;
+        basepath= Path.GetDirectoryName(fileName);
         using (StreamReader sr = new StreamReader(fileName))
         {
             Body = sr.ReadToEnd();
@@ -183,12 +187,76 @@ public class Pipeline
         pip.fileName= fileName;
         return pip;
     }
+    public class YamlIncludeNodeDeserializer : INodeDeserializer
+    {
+        private readonly IDeserializer deserializer;
+
+        public YamlIncludeNodeDeserializer(IDeserializer deserializer)
+        {
+            this.deserializer = deserializer;
+        }
+
+        bool INodeDeserializer.Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value)
+        {
+            var scalar = parser.Peek<Scalar>();
+            if (scalar != null && scalar.Tag == "!include")
+            {
+                var ext=Path.GetExtension(scalar.Value);
+                if (ext == ".yml" || ext == ".yaml")
+                {
+                    using (var sr = new StreamReader(Path.Combine(Pipeline.basepath, scalar.Value)))
+                    {
+
+                        //      var body = sr.ReadToEnd();
+
+                        //Console.WriteLine(expectedType.FullName);
+           //             value = deserializer.Deserialize(new Parser(sr), expectedType);
+                        value = deserializer.Deserialize<Step>(new Parser(sr));
+                        parser.MoveNext();
+                        return true;
+                    }
+
+                }
+                else
+                {
+                    using (var sr = new StreamReader(Path.Combine(Pipeline.basepath, scalar.Value)))
+                    {
+
+                        value = sr.ReadToEnd();
+
+                        //Console.WriteLine(expectedType.FullName);
+                        //value = deserializer.Deserialize(new Parser(includedFile), expectedType);
+                        parser.MoveNext();
+                        return true;
+                    }
+                }
+                // scalar.Value
+                // Replace this line with code that opens the file from scalar.Value
+  /*              using (var includedFile = new System.IO.StringReader("two"))
+                {
+                    Console.WriteLine(expectedType.FullName);
+                    value = deserializer.Deserialize(new Parser(includedFile), expectedType);
+                    parser.MoveNext();
+                    return true;
+                }*/
+            }
+
+            value = null;
+            return false;
+        }
+    }
+
 
     public static Pipeline loadFromString(string Body)
     {
         var ser = new DeserializerBuilder();
         foreach (var type in getAllRegTypes())
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        var deserializer = ser
+        .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        .WithNodeDeserializer(new YamlIncludeNodeDeserializer(ser.Build()), s => s.OnTop())
+        .Build();
         foreach (var var in getEnvVariables(Body))
         {
             string val = Environment.GetEnvironmentVariable(var);
@@ -199,7 +267,7 @@ public class Pipeline
             //    MessageBox.Show($"{var}:{val}");
             Body = Body.Replace("{#" + var + "#}", val);
         }
-        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+//        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         var pip = deserializer.Deserialize<Pipeline>(Body);// (File.OpenText(fileName));
         foreach (var step in pip.steps)
             step.owner = pip;
