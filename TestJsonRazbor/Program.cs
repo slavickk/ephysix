@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,6 +23,7 @@ namespace TestJsonRazbor
             /*object s = "2.2";
             var t= double.Parse((s as string).Replace(".",","));
             */
+//            var ti = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
    //         int a1 = 35;
             Application.EnableVisualStyles();
