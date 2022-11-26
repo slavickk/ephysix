@@ -161,6 +161,7 @@ public  class HTTPSender:Sender,ISelfTested
             //string rules = "";
             if (result.Headers.TryGetValues("InactiveRules", out values))
             {
+                if (values.Count() >0 && !string.IsNullOrEmpty(values.First()))
                 response=response.Substring(0,response.Length - 1)+((response.Length>2)?",":"")+"{\"Inactive\":["+string.Join(",",values.First().Split(";").Select(ii=>$"\"{ii}\""))+"]}]";
                 //rules = values.First();
             }
