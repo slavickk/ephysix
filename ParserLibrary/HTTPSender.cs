@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Security;
@@ -278,7 +279,7 @@ public  class HTTPSender:Sender,ISelfTested
         try
         {
             DateTime time1 = DateTime.Now;
-            var ans = await internSend("{\"stream\":\"checkTest\",\"originalTime\":\"2021-12-18T02:05:04.500Z\"}"); 
+            var ans = await internSend("{\"stream\":\"checkTest\",\"originalTime\":\""+ DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture) + "\"}"); 
             Logger.log(time1,"{Sender}-Send:{ans}" ,"SelfTest",Serilog.Events.LogEventLevel.Information,this,ans);
             if (ans == "")
                 isSuccess = false;
