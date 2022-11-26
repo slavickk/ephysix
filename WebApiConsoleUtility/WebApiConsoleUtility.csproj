@@ -22,6 +22,9 @@
     <None Update="Data\ACS_TW.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Data\decision.dmn">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Data\model - Copy.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
