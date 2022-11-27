@@ -179,6 +179,32 @@ steps:
       conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/t:Request/t:Match/-Nrn/#text
       conditionCalcer: 
       valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseAmount
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/t:Request/t:Moneys/t:Cust/-Amt/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseCurrency
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/t:Request/t:Moneys/t:Cust/-Ccy/#text
+      conditionCalcer: 
+      valuePath: ''
   sender: !StreamSender
     streamName: AReq
     dbConnectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;
@@ -190,12 +216,12 @@ steps:
     headers: 
     responseType: application/json
     urls:
-    - http://192.168.75.214/api/Streams/LoadStream2?demo=true
+    - http://192.168.75.214/api/Streams/LoadStream2
     timeoutsBetweenRetryInMilli:
     - 100
     mocFile: ''
     mocBody: ''
-    url: http://192.168.75.214/api/Streams/LoadStream2?demo=true
+    url: http://192.168.75.214/api/Streams/LoadStream2
 - isBridge: false
   isHandleSenderError: false
   saveErrorSendDirectory: ''
