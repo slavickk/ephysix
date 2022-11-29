@@ -249,6 +249,7 @@ public  class HTTPSender:Sender,ISelfTested
             //                createMetrics();
             if (sendToRex != null)
                 sendToRexErr.Add(time1);
+            Logger.log($"Error to send {this.GetType().Name} url {this.url}", e77, Serilog.Events.LogEventLevel.Error);
             throw;
         }
     }

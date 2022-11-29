@@ -179,6 +179,7 @@ namespace ParserLibrary
                     {
                         metricCountOpened.Decrement();
                         metricErrors.Increment();
+                        Logger.log("Error on input request ", e77, Serilog.Events.LogEventLevel.Error);
                         httpContext.Response.StatusCode = 404;
                         return;
                     }
