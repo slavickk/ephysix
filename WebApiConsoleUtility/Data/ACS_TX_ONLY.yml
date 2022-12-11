@@ -575,7 +575,7 @@ metricsBuilder:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/-Result/#text
+      conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/tran:Response/-Result/#text
       conditionCalcer: 
       valuePath: ''
 - name: DMN_ANSWER
