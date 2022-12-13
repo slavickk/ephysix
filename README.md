@@ -18,7 +18,7 @@
 ## Nearest aims
 * OpenAPI Support
 * Bult-in documentation(DocFX) https://dotnet.github.io/docfx/tutorial/docfx_getting_started.html
-* Kafka sender and receivier
+* Kafka sender and receivier, CDC(Change Data Capture) receiver
 * GUI Web-based tools for build integration pipelines
  
  
