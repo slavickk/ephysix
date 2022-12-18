@@ -237,6 +237,8 @@ public  class HTTPSender:Sender,ISelfTested
         try
         {
             var ans = await internSend(str);
+            sendActivity?.AddTag("answer", ans);
+
 
             //                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information,this, str, ans);
             //              createMetrics();

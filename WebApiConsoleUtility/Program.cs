@@ -51,6 +51,13 @@ namespace WebApiConsoleUtility
             string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
             string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
+            Pipeline.AgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
+            string sport= Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
+            if (string.IsNullOrEmpty(sport))
+                Pipeline.AgentPort = -1;
+            else
+                Pipeline.AgentPort = Convert.ToInt32(sport);
+
             LogEventLevel defLevel = LogEventLevel.Information;
             object outVal;
             string levelInfo = "";
@@ -115,6 +122,11 @@ namespace WebApiConsoleUtility
                         return;
 
                     }
+                    if (Pipeline.AgentPort > 0)
+                        Log.Information($"set jaeger host {Pipeline.AgentHost} on port {Pipeline.AgentPort}");
+                    else
+                        Log.Information($"jaeger host not set");
+
                     Log.Information("... Parsing " + YamlPath);
                     pip = Pipeline.load(YamlPath);
                     if (DEBUG_MODE != null)

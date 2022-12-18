@@ -23,6 +23,7 @@ namespace ParserLibrary;
 
 public class Pipeline
 {
+    private static readonly ActivitySource Activity = new("Pipeline");
     [YamlIgnore]
     public AbstrParser.UniEl lastExecutedEl = null;
     public static Metrics metrics = new Metrics();
@@ -99,6 +100,8 @@ public class Pipeline
 
     public async Task run()
     {
+        var activity = Activity.StartActivity("Process Message", ActivityKind.Consumer);
+
         Logger.log("Starting the pipeline", Serilog.Events.LogEventLevel.Warning);
         Metrics.Label lab;
         if(!Metrics.common_labels.TryGetValue("Pipeline",out lab))
@@ -149,6 +152,16 @@ public class Pipeline
                      TimeSpan.FromSeconds(1)))
             yield return match.Value.Substring(2,match.Value.Length-4);
     }
+
+    public Activity GetActivity(string Name,Activity mainActivity)
+    {
+        if (tracerBuilder == null)
+            return null;
+        if(mainActivity == null)
+            return Activity.StartActivity(Name, ActivityKind.Internal);
+        return Activity.StartActivity(Name, ActivityKind.Internal, mainActivity.Context);
+    }
+    public Activity mainActivity;
     public async static Task<string> GetContentFromGit(string git_url)
     {
 
@@ -250,21 +263,25 @@ public class Pipeline
         }
     }
    static TracerProvider tracerBuilder = null;
-    static void InitJaeger()
+
+    public static string AgentHost = "localhost";
+    public static int AgentPort =  6831;
+    static void InitJaeger(string Name)
     {
-        if (tracerBuilder == null)
+        if (tracerBuilder == null && AgentPort>0)
         {
             tracerBuilder= Sdk.CreateTracerProviderBuilder()
           .AddHttpClientInstrumentation()
-          .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("App2"))
+          .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(Name))
           .AddSource(nameof(Pipeline))
           .AddJaegerExporter(opts =>
           {
-              opts.AgentHost = "localhost";// _configuration["Jaeger:AgentHost"];
-              opts.AgentPort = 6831;// Convert.ToInt32(_configuration["Jaeger:AgentPort"]);
+              opts.AgentHost = AgentHost;// _configuration["Jaeger:AgentHost"];
+              opts.AgentPort = AgentPort;// Convert.ToInt32(_configuration["Jaeger:AgentPort"]);
               opts.ExportProcessorType = ExportProcessorType.Simple;
           })
           .Build();
+            //tracerBuilder.Shutdown(100);
         }
     }
 
@@ -289,10 +306,10 @@ public class Pipeline
             Body = Body.Replace("{#" + var + "#}", val);
         }
         //        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
-        InitJaeger();
         var pip = deserializer.Deserialize<Pipeline>(Body);// (File.OpenText(fileName));
         foreach (var step in pip.steps)
             step.owner = pip;
+        InitJaeger(pip.pipelineDescription);
         return pip;
     }
 
