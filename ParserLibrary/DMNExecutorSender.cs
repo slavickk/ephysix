@@ -272,6 +272,8 @@ namespace ParserLibrary
             metricCount.Increment();
             DateTime time1 = DateTime.Now;
             var res = await execDmn(root);
+            sendActivity?.AddTag("answer", res);
+
             metricCount.Decrement();
             metricPerformance.Add(time1);
             metricContexts.setCount(contexts.Count);

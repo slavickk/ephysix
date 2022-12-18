@@ -163,7 +163,7 @@ public class Step
     public bool isBridge = false;
     private async Task Receiver_stringReceived(string input, object context)
     {
-
+        owner.mainActivity = owner.GetActivity("receive package", null);
         DateTime time2 = DateTime.Now;
         ContextItem contextItem = new ContextItem() { context = context };
         //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
@@ -190,6 +190,9 @@ public class Step
             }
             catch (Exception e66)
             {
+                owner.mainActivity?.SetTag("pipelineError", "true");
+                owner.mainActivity?.Stop();
+                owner.mainActivity?.Dispose();
                 Logger.log($"On send error{e66.ToString()}", Serilog.Events.LogEventLevel.Error);
                 throw;
             }
@@ -197,6 +200,10 @@ public class Step
         foreach(var mb in owner.metricsBuilder)
             await mb.Fill(rootElement); 
         contextItem.list.Clear();
+      //  owner.mainActivity?.SetTag("pipelineError", "true");
+        owner.mainActivity?.Stop();
+        owner.mainActivity?.Dispose();
+        owner.mainActivity = null;
         contextItem = null;
 
         rootElement = null;

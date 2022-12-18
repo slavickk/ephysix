@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
@@ -59,10 +60,13 @@ public abstract class Sender
     //  public string IDResponsedReceiverStep = "";
     string MocContent = "";
     object syncro= new object();
+    protected Activity sendActivity;
     public async Task<string> send(AbstrParser.UniEl root)
     {
         DateTime time1 = DateTime.Now;
         string ans;
+        sendActivity = owner.owner.GetActivity($"Send{this.GetType().Name}", owner.owner.mainActivity);
+        sendActivity?.AddTag("typeSender", this.GetType().Name);
         try
         {
             if (!MocMode)
@@ -104,9 +108,12 @@ public abstract class Sender
         }
         catch (Exception ex)
         {
+            sendActivity?.AddTag("errorSend", "true");
+            sendActivity?.Dispose();
             metricUpTimeError.Add(time1);
             throw;
         }
+        sendActivity?.Dispose();
         return ans;
     }
     public async virtual Task<string> sendInternal(AbstrParser.UniEl root)
