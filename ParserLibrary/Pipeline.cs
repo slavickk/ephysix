@@ -14,6 +14,10 @@ using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace ParserLibrary;
 
@@ -245,7 +249,24 @@ public class Pipeline
             return false;
         }
     }
-
+   static TracerProvider tracerBuilder = null;
+    static void InitJaeger()
+    {
+        if (tracerBuilder == null)
+        {
+            tracerBuilder= Sdk.CreateTracerProviderBuilder()
+          .AddHttpClientInstrumentation()
+          .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("App2"))
+          .AddSource(nameof(Pipeline))
+          .AddJaegerExporter(opts =>
+          {
+              opts.AgentHost = "localhost";// _configuration["Jaeger:AgentHost"];
+              opts.AgentPort = 6831;// Convert.ToInt32(_configuration["Jaeger:AgentPort"]);
+              opts.ExportProcessorType = ExportProcessorType.Simple;
+          })
+          .Build();
+        }
+    }
 
     public static Pipeline loadFromString(string Body)
     {
@@ -267,7 +288,8 @@ public class Pipeline
             //    MessageBox.Show($"{var}:{val}");
             Body = Body.Replace("{#" + var + "#}", val);
         }
-//        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+        //        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+        InitJaeger();
         var pip = deserializer.Deserialize<Pipeline>(Body);// (File.OpenText(fileName));
         foreach (var step in pip.steps)
             step.owner = pip;
