@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
+using static ParserLibrary.Step;
 
 namespace ParserLibrary;
 
@@ -61,20 +62,20 @@ public abstract class Sender
     string MocContent = "";
     object syncro= new object();
     protected Activity sendActivity;
-    public async Task<string> send(AbstrParser.UniEl root)
+    public async Task<string> send(AbstrParser.UniEl root, ContextItem context)
     {
         DateTime time1 = DateTime.Now;
         string ans;
-        sendActivity = owner.owner.GetActivity($"Send{this.GetType().Name}", owner.owner.mainActivity);
+        sendActivity = owner.owner.GetActivity($"Send{this.GetType().Name}", context?.mainActivity);
         sendActivity?.AddTag("typeSender", this.GetType().Name);
         try
         {
             if (!MocMode)
             {
                 if (typeContent == TypeContent.internal_list)
-                    ans = await sendInternal(root);
+                    ans = await sendInternal(root,context);
                 else
-                    ans = await send(root.toJSON());
+                    ans = await send(root.toJSON(),context);
             }
             else
             {
@@ -116,14 +117,14 @@ public abstract class Sender
         sendActivity?.Dispose();
         return ans;
     }
-    public async virtual Task<string> sendInternal(AbstrParser.UniEl root)
+    public async virtual Task<string> sendInternal(AbstrParser.UniEl root,ContextItem context)
     {
         /*            if (owner.debugMode)
                             Console.WriteLine("send result");*/
         return "";
 
     }
-    public async virtual Task<string> send(string JsonBody)
+    public async virtual Task<string> send(string JsonBody,ContextItem context)
     {
         /*            if (owner.debugMode)
                             Console.WriteLine("send result");*/

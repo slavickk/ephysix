@@ -45,7 +45,7 @@ public class StreamSender:HTTPSender
         return str;
     }
 
-    public async override Task<string> sendInternal(AbstrParser.UniEl root)
+    public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context   )
     {
         metricStreamConcurrent.Increment();
         Interlocked.Increment(ref countOpenRexRequest);
@@ -61,7 +61,7 @@ public class StreamSender:HTTPSender
         //   foreach(var item in stream.fields.Where(ii => ii.SensitiveData.IsNotEmpty()))
 
         DateTime time1=DateTime.Now;
-        var ret= await base.sendInternal(root);
+        var ret= await base.sendInternal(root, context);
         Interval+=(DateTime.Now-time1); 
         Interlocked.Decrement(ref countOpenRexRequest);
         metricStreamConcurrent.Decrement();

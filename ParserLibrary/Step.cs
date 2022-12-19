@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -159,13 +160,14 @@ public class Step
     {
         public List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         public object context;
+        public Activity mainActivity;
     }
     public bool isBridge = false;
     private async Task Receiver_stringReceived(string input, object context)
     {
-        owner.mainActivity = owner.GetActivity("receive package", null);
+//        owner.mainActivity = owner.GetActivity("receive package", null);
         DateTime time2 = DateTime.Now;
-        ContextItem contextItem = new ContextItem() { context = context };
+        ContextItem contextItem = new ContextItem() { context = context ,mainActivity= owner.GetActivity("receive package", null) };
         //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
@@ -185,14 +187,14 @@ public class Step
                         (sender as HTTPSender).headers = (context as HTTPReceiver.SyncroItem).headers;
                         
                     }*/
-                var ans = await sender?.send(input);
+                var ans = await sender?.send(input,contextItem);
                 await receiver.sendResponse(ans, context);
             }
             catch (Exception e66)
             {
-                owner.mainActivity?.SetTag("pipelineError", "true");
-                owner.mainActivity?.Stop();
-                owner.mainActivity?.Dispose();
+                contextItem?.mainActivity?.SetTag("pipelineError", "true");
+                contextItem ? .mainActivity?.Stop();
+                contextItem?.mainActivity?.Dispose();
                 Logger.log($"On send error{e66.ToString()}", Serilog.Events.LogEventLevel.Error);
                 throw;
             }
@@ -201,9 +203,9 @@ public class Step
             await mb.Fill(rootElement); 
         contextItem.list.Clear();
       //  owner.mainActivity?.SetTag("pipelineError", "true");
-        owner.mainActivity?.Stop();
-        owner.mainActivity?.Dispose();
-        owner.mainActivity = null;
+        contextItem?.mainActivity?.Stop();
+        contextItem?.mainActivity?.Dispose();
+        //contextItem?.mainActivity = null;
         contextItem = null;
 
         rootElement = null;
@@ -222,7 +224,7 @@ public class Step
     {
         return $"Step:{this.IDStep}";
     }
-    private async Task<string> FindAndCopy1(AbstrParser.UniEl rootElInput, DateTime time1, ItemFilter item, AbstrParser.UniEl el, List<AbstrParser.UniEl> list)
+    private async Task<string> FindAndCopy1(AbstrParser.UniEl rootElInput, DateTime time1, ItemFilter item, AbstrParser.UniEl el, List<AbstrParser.UniEl> list,Step.ContextItem context)
     {
         int count = 0;
         AbstrParser.UniEl local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
@@ -242,10 +244,10 @@ public class Step
         if (IDResponsedReceiverStep != "")
             return "";
         else
-            return await sender.send(local_rootOutput);
+            return await sender.send(local_rootOutput,context);
     }
 
-    public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement)
+    public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement,Step.ContextItem context)
     {
         try
         {
@@ -264,7 +266,7 @@ public class Step
                             AbstrParser.UniEl rEl = null;
                             foreach (var item1 in item.filter.filter(list, ref rEl))
                             {
-                                var st = await FindAndCopy1(rootElement, time1, item, item1, list);
+                                var st = await FindAndCopy1(rootElement, time1, item, item1, list,context);
                                 if (st != "")
                                     return st;
                             }
@@ -507,7 +509,7 @@ public class Step
                 restart:
                 try
                 {
-                    await sender.send(rootEl);
+                    await sender.send(rootEl,null);
                     errMetricRetry.Increment();
                     
                 }
@@ -583,7 +585,7 @@ public class Step
             if(sender == null)
                 content = local_rootOutput.toJSON();
             else
-                content= await sender.send(local_rootOutput);
+                content= await sender.send(local_rootOutput,context);
             await step.receiver.sendResponse(content, context.context);
             foreach (var node in local_rootOutput.childs)
             {
@@ -595,7 +597,7 @@ public class Step
         }
         else
         {
-            var ans = await sender.send(local_rootOutput);
+            var ans = await sender.send(local_rootOutput,context);
             foreach (var node in local_rootOutput.childs)
             {
                 node.ancestor = toNode;
