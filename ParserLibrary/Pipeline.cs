@@ -161,7 +161,7 @@ public class Pipeline
             return Activity.StartActivity(Name, ActivityKind.Internal);
         return Activity.StartActivity(Name, ActivityKind.Internal, mainActivity.Context);
     }
-    public Activity mainActivity;
+//    public Activity mainActivity;
     public async static Task<string> GetContentFromGit(string git_url)
     {
 
