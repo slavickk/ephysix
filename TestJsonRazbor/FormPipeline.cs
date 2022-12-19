@@ -290,7 +290,7 @@ namespace TestJsonRazbor
                     List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
                     var rootElement = AbstrParser.CreateNode(null, list, currentStep.IDStep);
                     rootElement = AbstrParser.CreateNode(rootElement, list, "Rec");
-                    var res = await currentStep.FilterInfo1(input, time2, list, rootElement);
+                    var res = await currentStep.FilterInfo1(input, time2, list, rootElement,null);
                     string path = @"C:\D\Out";
                     var fileName = Path.Combine(path, "s_" + sender1.GetType().Name + "_" + Path.GetRandomFileName());
                     using (StreamWriter sw = new StreamWriter(fileName))
@@ -315,7 +315,7 @@ namespace TestJsonRazbor
                 }
                 Task taskA = Task.Run(async () =>
                 {
-                    var res = await sender1.send(sends);
+                    var res = await sender1.send(sends,null);
                     int yy = 0;
                     string path = @"C:\D\Out";
                     var fileName = "s_tic" + Path.GetRandomFileName();

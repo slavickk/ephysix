@@ -73,7 +73,7 @@ public  class HTTPSender:Sender,ISelfTested
     bool init = false;
     object syncro = new object();
 
-    public override async Task<string> send(string JsonBody)
+    public override async Task<string> send(string JsonBody, Step.ContextItem context)
     {
         return await  internSend(JsonBody);
     }
@@ -220,9 +220,9 @@ public  class HTTPSender:Sender,ISelfTested
     }
 
 
-    public async override Task<string> sendInternal(AbstrParser.UniEl root)
+    public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context)
     {
-        await base.sendInternal(root);
+        await base.sendInternal(root,context);
         string str = formBody(root);
         /*            foreach (var el in root.childs)
                         {

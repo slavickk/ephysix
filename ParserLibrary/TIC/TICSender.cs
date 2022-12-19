@@ -19,7 +19,7 @@ namespace ParserLibrary
             set => Frame = TICFrame.GetFrame(value);
         }*/
 
-        public override async Task<string> send(string JsonBody)
+        public override async Task<string> send(string JsonBody, Step.ContextItem context)
         {
             if (twfaclient is null || !twfaclient.Connected)
             {
