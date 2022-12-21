@@ -168,6 +168,10 @@ public class Step
 //        owner.mainActivity = owner.GetActivity("receive package", null);
         DateTime time2 = DateTime.Now;
         ContextItem contextItem = new ContextItem() { context = context ,mainActivity= owner.GetActivity("receive package", null) };
+        if (contextItem?.mainActivity != null)
+        {
+            contextItem?.mainActivity?.SetTag("context.url", owner.SaveContext(input));
+        }
         //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");

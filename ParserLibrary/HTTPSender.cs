@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
+using static ParserLibrary.Step;
 
 namespace ParserLibrary;
 
@@ -224,6 +225,11 @@ public  class HTTPSender:Sender,ISelfTested
     {
         await base.sendInternal(root,context);
         string str = formBody(root);
+        if (sendActivity != null)
+        {
+            sendActivity?.SetTag("context.url", owner.owner.SaveContext(str));
+        }
+
         /*            foreach (var el in root.childs)
                         {
                             str += ((first?"":",")+"\"" + el.Name + "\":" + getVal(el );

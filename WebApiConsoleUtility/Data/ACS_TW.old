@@ -72,7 +72,7 @@ steps:
 - isBridge: false
   isHandleSenderError: true
   maxSavedLimitInMB: 10
-  saveErrorSendDirectory: '/CACHE'
+  saveErrorSendDirectory: /CACHE
   iDStep: Step_0
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
@@ -249,6 +249,32 @@ steps:
       conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Match/-Nrn/#text
       conditionCalcer: 
       valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseAmount
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Moneys/Cust/-Amt/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseCurrency
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Moneys/Cust/-Ccy/#text
+      conditionCalcer: 
+      valuePath: ''
   sender: !StreamSender
     streamName: AReq
     dbConnectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;
@@ -260,12 +286,12 @@ steps:
     headers: 
     responseType: application/json
     urls:
-    - http://192.168.75.214/api/Streams/LoadStream2?demo=true
+    - http://192.168.75.214/api/Streams/LoadStream2
     timeoutsBetweenRetryInMilli:
     - 100
     mocFile: ''
     mocBody: ''
-    url: http://192.168.75.214/api/Streams/LoadStream2?demo=true
+    url: http://192.168.75.214/api/Streams/LoadStream2
 - isBridge: false
   isHandleSenderError: false
   maxSavedLimitInMB: 0
@@ -404,280 +430,7 @@ steps:
       valuePath: ''
   sender: !DMNExecutorSender
     countPrewarmingIntances: 4
-    xML: >
-      <?xml version="1.0" encoding="UTF-8"?>
-
-      <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:scripter="http://scripti.com/modeler7654" id="exampleSum" name="Summator" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
-        <extensionElements>
-          <scripter:script name="ToIndy">    
-            using BlazorDmnInterface.Client.Pages;
-            public string TransformToIndy(SignalledRule[]  rules)
-          {
-              return "FFFFFFFDDDD";
-          }
-      </scripter:script>
-          <scripter:script name="row1">1005</scripter:script>
-        </extensionElements>
-        <inputData id="dayType_id" name="InputRecord">
-          <variable id="dayType_ii" name="Inpur records list" typeRef="string" />
-        </inputData>
-        <inputData id="temperature_id" name="SignalledRules">
-          <variable id="temperature_ii" name="Signalled rules list" typeRef="integer" />
-        </inputData>
-        <decision id="Decision_03gaio2" name="Scoring">
-          <informationRequirement id="InformationRequirement_0pzu6m0">
-            <requiredDecision href="#Decision_0ttmt6w" />
-          </informationRequirement>
-          <informationRequirement id="InformationRequirement_0m36dw2">
-            <requiredDecision href="#Decision_1f9uw16" />
-          </informationRequirement>
-          <informationRequirement id="InformationRequirement_0bxln69">
-            <requiredDecision href="#Decision_11jgy39" />
-          </informationRequirement>
-          <decisionTable id="DecisionTable_0b99csc" hitPolicy="FIRST">
-            <input id="InputClause_04lbz3d">
-              <inputExpression id="LiteralExpression_0twiv3p" typeRef="number">
-                <text>WeighedCountFrictionless</text>
-              </inputExpression>
-            </input>
-            <input id="InputClause_11v9ldh">
-              <inputExpression id="LiteralExpression_014kmzc" typeRef="number">
-                <text>WeighedCountChallenge</text>
-              </inputExpression>
-            </input>
-            <input id="InputClause_0bm0dwi">
-              <inputExpression id="LiteralExpression_1he020a" typeRef="number">
-                <text>CountOfInactiveRules</text>
-              </inputExpression>
-            </input>
-            <output id="OutputClause_021evse" label="OutResult" name="OutResult" typeRef="number" />
-            <output id="OutputClause_1p2uajf" name="v3ds" typeRef="string" />
-            <output id="OutputClause_1epw2zy" name="SaveAlert" typeRef="number" />
-            <output id="OutputClause_0aeuras" name="OutComment" typeRef="string" />
-            <rule id="DecisionRule_1l0l4bi">
-              <description>Inactive rules detected</description>
-              <inputEntry id="UnaryTests_0v383ug">
-                <text></text>
-              </inputEntry>
-              <inputEntry id="UnaryTests_1sdj2b2">
-                <text></text>
-              </inputEntry>
-              <inputEntry id="UnaryTests_0tekjdw">
-                <text>&gt;0</text>
-              </inputEntry>
-              <outputEntry id="LiteralExpression_1ye1uto">
-                <text>1</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_04i30os">
-                <text>"challenge"</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_0o72k0t">
-                <text>0</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_15du0ae">
-                <text>"Inactive rules detected"</text>
-              </outputEntry>
-            </rule>
-            <rule id="DecisionRule_0lmnxbo">
-              <description>Challenge rules signalled</description>
-              <inputEntry id="UnaryTests_0kos06u">
-                <text></text>
-              </inputEntry>
-              <inputEntry id="UnaryTests_0casun4">
-                <text>&gt;0</text>
-              </inputEntry>
-              <inputEntry id="UnaryTests_0kxmwhb">
-                <text></text>
-              </inputEntry>
-              <outputEntry id="LiteralExpression_0zg0bkk">
-                <text>1</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_1u24zqq">
-                <text>"challenge"</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_0uro9t8">
-                <text>0</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_1sv8pdm">
-                <text>"Challenge rules signalled"</text>
-              </outputEntry>
-            </rule>
-            <rule id="DecisionRule_0kmp0ne">
-              <description>Frictionless rules signalled</description>
-              <inputEntry id="UnaryTests_1ahtaby">
-                <text>&gt;0</text>
-              </inputEntry>
-              <inputEntry id="UnaryTests_051zchq">
-                <text>=0</text>
-              </inputEntry>
-              <inputEntry id="UnaryTests_1p7noi0">
-                <text></text>
-              </inputEntry>
-              <outputEntry id="LiteralExpression_11o20v3">
-                <text>0</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_0pbptnb">
-                <text>"frictionless"</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_1y9je4g">
-                <text>0</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_1ygabc4">
-                <text>"Frictionless rules signalled"</text>
-              </outputEntry>
-            </rule>
-            <rule id="DecisionRule_1j0o2kk">
-              <description>No rules signalled.Default behaviour</description>
-              <inputEntry id="UnaryTests_1l84qbn">
-                <text></text>
-              </inputEntry>
-              <inputEntry id="UnaryTests_1yb4ukq">
-                <text></text>
-              </inputEntry>
-              <inputEntry id="UnaryTests_18tyh1m">
-                <text></text>
-              </inputEntry>
-              <outputEntry id="LiteralExpression_0m707he">
-                <text>1</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_0vj8lhh">
-                <text>"challenge"</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_0dbr2sc">
-                <text>0</text>
-              </outputEntry>
-              <outputEntry id="LiteralExpression_13i118w">
-                <text>"No rules signalled.Default behaviour"</text>
-              </outputEntry>
-            </rule>
-          </decisionTable>
-        </decision>
-        <decision id="Decision_0ttmt6w" name="Count of frictionless rules, weighted by severity">
-          <variable id="InformationItem_07pnjcl" name="WeighedCountFrictionless" typeRef="number" />
-          <informationRequirement id="InformationRequirement_1gxmr0t">
-            <requiredInput href="#temperature_id" />
-          </informationRequirement>
-          <literalExpression id="LiteralExpression_06mehq7">
-            <text>SignalledRules.Where(jj=&gt;jj.Result=="frictionless").Sum(ii=&gt;ii.Severity)</text>
-          </literalExpression>
-        </decision>
-        <decision id="Decision_1f9uw16" name="Count of challenge rules, weighted by severity">
-          <variable id="InformationItem_14mnm4n" name="WeighedCountChallenge" typeRef="number" />
-          <informationRequirement id="InformationRequirement_0j7o1ix">
-            <requiredInput href="#temperature_id" />
-          </informationRequirement>
-          <literalExpression id="LiteralExpression_1sl1uuz">
-            <text>SignalledRules.Where(jj=&gt;jj.Result=="challenge").Sum(ii=&gt;ii.Severity)</text>
-          </literalExpression>
-        </decision>
-        <inputData id="InputData_1x6w4j4" name="InactiveRules" />
-        <decision id="Decision_11jgy39" name="Count of inactive rules">
-          <variable id="InformationItem_07uisoa" name="CountOfInactiveRules" typeRef="number" />
-          <informationRequirement id="InformationRequirement_1rkpk2d">
-            <requiredInput href="#InputData_1x6w4j4" />
-          </informationRequirement>
-          <literalExpression id="LiteralExpression_0snx4pp">
-            <text>InactiveRules.Count()</text>
-          </literalExpression>
-        </decision>
-        <textAnnotation id="TextAnnotation_1">
-          <text>Fields of analyze record</text>
-        </textAnnotation>
-        <association id="Association_18hoj4i">
-          <sourceRef href="#dayType_id" />
-          <targetRef href="#TextAnnotation_1" />
-        </association>
-        <textAnnotation id="TextAnnotation_0cbnzqx">
-          <text>List of signalled rules</text>
-        </textAnnotation>
-        <association id="Association_1hixpjb">
-          <sourceRef href="#TextAnnotation_0cbnzqx" />
-          <targetRef href="#temperature_id" />
-        </association>
-        <textAnnotation id="TextAnnotation_1enhxao">
-          <text>List of inactive rules</text>
-        </textAnnotation>
-        <association id="Association_0sag1i7">
-          <sourceRef href="#TextAnnotation_1enhxao" />
-          <targetRef href="#InputData_1x6w4j4" />
-        </association>
-        <dmndi:DMNDI>
-          <dmndi:DMNDiagram id="DMNDiagram_1ejukud">
-            <dmndi:DMNShape id="DMNShape_1pny77l" dmnElementRef="dayType_id">
-              <dc:Bounds height="45" width="125" x="297" y="97" />
-            </dmndi:DMNShape>
-            <dmndi:DMNShape id="DMNShape_1b88mi9" dmnElementRef="temperature_id">
-              <dc:Bounds height="45" width="125" x="297" y="197" />
-            </dmndi:DMNShape>
-            <dmndi:DMNShape id="DMNShape_1izzhzd" dmnElementRef="TextAnnotation_1">
-              <dc:Bounds height="45" width="125" x="157" y="117" />
-            </dmndi:DMNShape>
-            <dmndi:DMNEdge id="DMNEdge_1mkr3rl" dmnElementRef="Association_18hoj4i">
-              <di:waypoint x="297" y="123" />
-              <di:waypoint x="282" y="136" />
-            </dmndi:DMNEdge>
-            <dmndi:DMNShape id="DMNShape_0radzsx" dmnElementRef="TextAnnotation_0cbnzqx">
-              <dc:Bounds height="80" width="100" x="160" y="180" />
-            </dmndi:DMNShape>
-            <dmndi:DMNEdge id="DMNEdge_0gfcq0j" dmnElementRef="Association_1hixpjb">
-              <di:waypoint x="260" y="220" />
-              <di:waypoint x="297" y="220" />
-            </dmndi:DMNEdge>
-            <dmndi:DMNShape id="DMNShape_1yeoz9u" dmnElementRef="Decision_03gaio2">
-              <dc:Bounds height="80" width="180" x="660" y="190" />
-            </dmndi:DMNShape>
-            <dmndi:DMNEdge id="DMNEdge_0nmuj87" dmnElementRef="InformationRequirement_1gxmr0t">
-              <di:waypoint x="360" y="197" />
-              <di:waypoint x="540" y="150" />
-              <di:waypoint x="540" y="130" />
-            </dmndi:DMNEdge>
-            <dmndi:DMNShape id="DMNShape_16et8ko" dmnElementRef="Decision_0ttmt6w">
-              <dc:Bounds height="80" width="180" x="450" y="50" />
-            </dmndi:DMNShape>
-            <dmndi:DMNShape id="DMNShape_0932le3" dmnElementRef="Decision_1f9uw16">
-              <dc:Bounds height="80" width="180" x="450" y="180" />
-            </dmndi:DMNShape>
-            <dmndi:DMNEdge id="DMNEdge_1e4du5i" dmnElementRef="InformationRequirement_0j7o1ix">
-              <di:waypoint x="422" y="220" />
-              <di:waypoint x="430" y="220" />
-              <di:waypoint x="450" y="220" />
-            </dmndi:DMNEdge>
-            <dmndi:DMNEdge id="DMNEdge_0osnlfu" dmnElementRef="InformationRequirement_0pzu6m0">
-              <di:waypoint x="540" y="130" />
-              <di:waypoint x="750" y="170" />
-              <di:waypoint x="750" y="190" />
-            </dmndi:DMNEdge>
-            <dmndi:DMNEdge id="DMNEdge_0cppq85" dmnElementRef="InformationRequirement_0m36dw2">
-              <di:waypoint x="630" y="220" />
-              <di:waypoint x="640" y="230" />
-              <di:waypoint x="660" y="230" />
-            </dmndi:DMNEdge>
-            <dmndi:DMNShape id="DMNShape_05tv9m2" dmnElementRef="InputData_1x6w4j4">
-              <dc:Bounds height="45" width="125" x="297" y="287" />
-            </dmndi:DMNShape>
-            <dmndi:DMNShape id="DMNShape_102zdy4" dmnElementRef="TextAnnotation_1enhxao">
-              <dc:Bounds height="80" width="100" x="160" y="270" />
-            </dmndi:DMNShape>
-            <dmndi:DMNEdge id="DMNEdge_1vdpzhv" dmnElementRef="Association_0sag1i7">
-              <di:waypoint x="260" y="307" />
-              <di:waypoint x="297" y="314" />
-            </dmndi:DMNEdge>
-            <dmndi:DMNShape id="DMNShape_0s67clu" dmnElementRef="Decision_11jgy39">
-              <dc:Bounds height="80" width="180" x="450" y="280" />
-            </dmndi:DMNShape>
-            <dmndi:DMNEdge id="DMNEdge_116w6gk" dmnElementRef="InformationRequirement_1rkpk2d">
-              <di:waypoint x="422" y="310" />
-              <di:waypoint x="430" y="320" />
-              <di:waypoint x="450" y="320" />
-            </dmndi:DMNEdge>
-            <dmndi:DMNEdge id="DMNEdge_1pi7j8f" dmnElementRef="InformationRequirement_0bxln69">
-              <di:waypoint x="540" y="280" />
-              <di:waypoint x="750" y="290" />
-              <di:waypoint x="750" y="270" />
-            </dmndi:DMNEdge>
-          </dmndi:DMNDiagram>
-        </dmndi:DMNDI>
-      </definitions>
+    xML: !include decision.dmn
     mocFile: ''
     mocBody: ''
 - isBridge: false

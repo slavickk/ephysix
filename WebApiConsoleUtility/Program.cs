@@ -58,6 +58,9 @@ namespace WebApiConsoleUtility
             else
                 Pipeline.AgentPort = Convert.ToInt32(sport);
 
+            Pipeline.ServiceAddr = Environment.GetEnvironmentVariable(Pipeline.EnvironmentVar);
+            if(Pipeline.ServiceAddr == null)    
+                Pipeline.ServiceAddr = "localhost:44352";
             LogEventLevel defLevel = LogEventLevel.Information;
             object outVal;
             string levelInfo = "";
@@ -100,7 +103,7 @@ namespace WebApiConsoleUtility
         .CreateLogger();
 
             }
-
+            Log.Information($"Service url on {Pipeline.ServiceAddr}");
             if (!IgnoreAll)
             {
                 if (levelInfo != "")

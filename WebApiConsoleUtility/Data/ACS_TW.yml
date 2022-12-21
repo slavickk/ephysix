@@ -1,3 +1,4 @@
+traceSaveDirectory: /CONTEXT
 pipelineDescription: Pipeline ACS-CCFA-TWO
 metricsBuilder:
 - name: HOST_ANSWER
@@ -67,7 +68,7 @@ metricsBuilder:
       conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
       conditionCalcer: 
       valuePath: ''
-hashWord: QWE123
+hashWord: {#SECRET_WORD#}
 steps:
 - isBridge: false
   isHandleSenderError: true
@@ -286,12 +287,12 @@ steps:
     headers: 
     responseType: application/json
     urls:
-    - http://192.168.75.214/api/Streams/LoadStream2
+    - {#REX_URL#}/api/Streams/LoadStream2
     timeoutsBetweenRetryInMilli:
     - 100
     mocFile: ''
     mocBody: ''
-    url: http://192.168.75.214/api/Streams/LoadStream2
+    url: {#REX_URL#}/api/Streams/LoadStream2
 - isBridge: false
   isHandleSenderError: false
   maxSavedLimitInMB: 0
@@ -571,12 +572,12 @@ steps:
     headers: 
     responseType: text/xml
     urls:
-    - http://192.168.75.173:30212
+    - {#AUTH_HOST_URL#}
     timeoutsBetweenRetryInMilli:
     - 100
     mocFile: ''
     mocBody: ''
-    url: http://192.168.75.173:30212
+    url: {#AUTH_HOST_URL#}
 - isBridge: false
   isHandleSenderError: false
   maxSavedLimitInMB: 0

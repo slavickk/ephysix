@@ -1,5 +1,6 @@
 pipelineDescription: Pipeline ACS-CCFA-TX
-hashWord: QWE123
+traceSaveDirectory: /CONTEXT
+hashWord: {#SECRET_WORD#}
 steps:
 - isBridge: false
   isHandleSenderError: true
@@ -216,12 +217,12 @@ steps:
     headers: 
     responseType: application/json
     urls:
-    - http://192.168.75.214/api/Streams/LoadStream2
+    - {#REX_URL#}/api/Streams/LoadStream2
     timeoutsBetweenRetryInMilli:
     - 100
     mocFile: ''
     mocBody: ''
-    url: http://192.168.75.214/api/Streams/LoadStream2
+    url: {#REX_URL#}/api/Streams/LoadStream2
 - isBridge: false
   isHandleSenderError: false
   saveErrorSendDirectory: ''
@@ -499,12 +500,12 @@ steps:
     headers: 
     responseType: text/xml
     urls:
-    - http://192.168.75.173:14404
+    - {#AUTH_HOST_URL#}
     timeoutsBetweenRetryInMilli:
     - 100
     mocFile: ''
     mocBody: ''
-    url: http://192.168.75.173:14404
+    url: {#AUTH_HOST_URL#}
 - isBridge: false
   isHandleSenderError: false
   saveErrorSendDirectory: ''

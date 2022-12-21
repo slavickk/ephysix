@@ -5,7 +5,8 @@
       "commandLineArgs": "C:\\Users\\User\\source\\repos\\Polygons\\ACS_TWO_TX\\IntegrationTools\\ACS_TW.yml",
       "environmentVariables": {
         "SECRET_WORD": "aaa",
-        "REX_URL": "http://192.168.75.212:27407/api/Streams/LoadStream2?demo=true"
+        "REX_URL": "http://192.168.75.214",
+        "AUTH_HOST_URL": "http://192.168.75.173:30212"
       }
     }
   }
