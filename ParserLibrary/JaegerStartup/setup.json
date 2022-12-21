@@ -23,10 +23,12 @@
       ]
     }
   ],
-  "linkPatterns": [{
-    "type": "tags",
-    "key": "send.url",
-    "url": "http://rbc.ru",
-    "text": "Information about Jaeger release #{send.url}"
-  }]
+  "linkPatterns": [
+    {
+      "type": "tags",
+      "key": "context.url",
+      "url": "#{context.url}",
+      "text": "Additional Information about topic"
+    }
+  ]
 }
