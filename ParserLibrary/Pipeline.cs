@@ -28,7 +28,38 @@ public class Pipeline
     public AbstrParser.UniEl lastExecutedEl = null;
     public static Metrics metrics = new Metrics();
 
-    
+    async Task saveTraceContext(string fileName,string body)
+    {
+        if(!string.IsNullOrEmpty(traceSaveDirectory))
+        {
+            if(!Directory.Exists(traceSaveDirectory))
+                Directory.CreateDirectory(traceSaveDirectory);
+            using(StreamWriter sw = new StreamWriter(Path.Combine(traceSaveDirectory, fileName))) 
+            {
+                await sw.WriteAsync(body);
+            }       
+        }
+    }
+
+
+    public const string EnvironmentVar = "NOMAD_ADDR_http_ctrl";
+    public static string ServiceAddr = "localhost:44352";
+    public string SaveContext(string body,string extension="txt")
+    {
+        Guid myuuid = Guid.NewGuid();
+        string fileName =$"{myuuid.ToString().Replace("-","")}.{extension}";
+        Task.Run(async() =>await saveTraceContext(fileName, body)).ContinueWith((t1) =>
+        {
+           // Console.WriteLine(t1.Result);
+        });
+        return  $"https://{ServiceAddr}/api/Context/GetContext?fileName={fileName.Replace(".","_")}";
+    }
+
+    /// <summary>
+    /// Directory which save log context files
+    /// </summary>
+    public static string traceSaveDirectoryStat = "C:\\D\\Store";
+    public string traceSaveDirectory = "C:\\D\\Store";
     public string hashWord { get; set; } = "QWE123";
     public string pipelineDescription = "Pipeline example";
     [YamlIgnore]
@@ -100,6 +131,7 @@ public class Pipeline
 
     public async Task run()
     {
+        traceSaveDirectoryStat = traceSaveDirectory;
         var activity = Activity.StartActivity("Process Message", ActivityKind.Consumer);
 
         Logger.log("Starting the pipeline", Serilog.Events.LogEventLevel.Warning);
@@ -285,8 +317,18 @@ public class Pipeline
         }
     }
 
+
+    public class occurencyItem
+    {
+        public string variable;
+        public string pattern;
+        public string value;
+        public string comment = "";
+    }
+    static List<occurencyItem> occurencyItems= new List<occurencyItem>()   ;
     public static Pipeline loadFromString(string Body)
     {
+        occurencyItems.Clear();
         var ser = new DeserializerBuilder();
         foreach (var type in getAllRegTypes())
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
@@ -303,6 +345,13 @@ public class Pipeline
                 throw new Exception($"Unknown environment variable {var}");
             }
             //    MessageBox.Show($"{var}:{val}");
+            int index = -1;
+            while( (index=Body.IndexOf("{#" + var + "#}",index+1)) != -1)
+            {
+                int indexBeg = Body.LastIndexOf("\n", index);
+                occurencyItems.Add(new occurencyItem() { pattern =((indexBeg>=0)? (Body.Substring(indexBeg+1,index-indexBeg-1)):""), variable = var , value=val});
+            }
+           // Body.
             Body = Body.Replace("{#" + var + "#}", val);
         }
         //        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
@@ -325,12 +374,65 @@ public class Pipeline
             return pip;
         }*/
 
+
+    void formMD(string fileName)
+    {
+        string md_fileName = fileName.Replace(".yml", ".md");
+        if(File.Exists(md_fileName))
+        {
+            using(StreamReader sr= new StreamReader(md_fileName))
+            {
+                var content=sr.ReadToEnd();
+                foreach(var item in occurencyItems)
+                {
+                    string patt = $" * {item.variable} ";
+                    int index=content.IndexOf(patt);
+                    if(index>=0)
+                    {
+                        int index1=content.IndexOf("\n",index+1);
+                        if (index1 == -1)
+                            index1 = content.Length;
+                        item.comment= content.Substring(index+patt.Length,index1-(index + patt.Length)-1);
+                    }
+
+                }
+            }
+        }
+        using (StreamWriter sw = new StreamWriter(md_fileName))
+        {
+            sw.WriteLine($"# {this.pipelineDescription}");
+            if (occurencyItems.Count > 0)
+                sw.WriteLine($"## ENVIRONMENT VARIABLES");
+
+            List<string> usedVars = new List<string>();
+            foreach (var item in occurencyItems)
+            {
+                if (!usedVars.Contains(item.variable))
+                {
+                    usedVars.Add(item.variable);
+                    sw.WriteLine($" * {item.variable} {item.comment}");
+                }
+            }
+        }
+    }
     public void Save( string fileName = @"C:\d\aa1.yml")
     {
         ISerializer serializer = getSerializer();
-        using (StreamWriter sw = new StreamWriter(fileName))
+
+      
+        using (StringWriter sw1 = new StringWriter())
         {
-            serializer.Serialize(sw, this);
+            serializer.Serialize(sw1, this);
+            var content=sw1.ToString();
+            foreach(var item in occurencyItems)
+            {
+                content=content.Replace(item.pattern + item.value, item.pattern + "{#" + item.variable + "#}");
+            }
+            using (StreamWriter sw = new StreamWriter(fileName))
+            {
+                sw.Write(content);
+            }
+            formMD(fileName);
         }
 
     }
