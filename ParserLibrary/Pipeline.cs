@@ -28,6 +28,12 @@ public class Pipeline
     public AbstrParser.UniEl lastExecutedEl = null;
     public static Metrics metrics = new Metrics();
 
+
+    [YamlIgnore]
+    Int64 sizeOfSavedContextInMB = 0;
+
+
+    public Int64 LimitOfSavedContextInMB = 10;
     async Task saveTraceContext(string fileName,string body)
     {
         if(!string.IsNullOrEmpty(traceSaveDirectory))
@@ -52,7 +58,7 @@ public class Pipeline
         {
            // Console.WriteLine(t1.Result);
         });
-        return  $"https://{ServiceAddr}/api/Context/GetContext?fileName={fileName.Replace(".","_")}";
+        return  $"http://{ServiceAddr}/api/Context/GetContext?fileName={fileName.Replace(".","_")}";
     }
 
     /// <summary>

@@ -496,7 +496,7 @@ steps:
     certPassword: ''
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
-    timeoutSendInSeconds: 5
+    timeoutSendInSeconds: 9
     headers: 
     responseType: text/xml
     urls:
