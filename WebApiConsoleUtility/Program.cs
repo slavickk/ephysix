@@ -163,7 +163,7 @@ namespace WebApiConsoleUtility
                         Log.Information("Self test OK. Run pipeline.");
                         pip.run().ContinueWith((runner) =>
                             {
-                                Log.Information("Pipeline execution stopped.Terminating application...");
+                                Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
                                 System.Diagnostics.Process.GetCurrentProcess().Kill();
                             });
                     }
