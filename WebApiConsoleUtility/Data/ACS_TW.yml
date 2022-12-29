@@ -279,6 +279,235 @@ steps:
   sender: !StreamSender
     streamName: AReq
     dbConnectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;
+        streamSender:
+      name: AReq
+      description: AReq transaction
+      fieldsDict:
+        deviceInfo_SDKAppID: &o0
+          name: deviceInfo_SDKAppID
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        dsTransID: &o1
+          name: dsTransID
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        mcc: &o2
+          name: mcc
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        destCardNum: &o3
+          name: destCardNum
+          type: String
+          detail: ''
+          sensitiveData: PAN
+          calculated: false
+          linkedColumn: 
+        purchaseAmount: &o4
+          name: purchaseAmount
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        purchaseCurrency: &o5
+          name: purchaseCurrency
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        purchaseDate: &o6
+          name: purchaseDate
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrCity: &o7
+          name: shipAddrCity
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrCountry: &o8
+          name: shipAddrCountry
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrLine1: &o9
+          name: shipAddrLine1
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrLine2: &o10
+          name: shipAddrLine2
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrLine3: &o11
+          name: shipAddrLine3
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrPostCode: &o12
+          name: shipAddrPostCode
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrState: &o13
+          name: shipAddrState
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserIP: &o14
+          name: browserIP
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        stream: &o15
+          name: stream
+          type: String
+          detail: Name of stream
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        originalTime: &o16
+          name: originalTime
+          type: String
+          detail: Time of stream
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        acctNumber: &o17
+          name: acctNumber
+          type: String
+          detail: ''
+          sensitiveData: PAN
+          calculated: false
+          linkedColumn: 
+        cardExpiryDate: &o18
+          name: cardExpiryDate
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        acquirerBIN: &o19
+          name: acquirerBIN
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        acquirerMerchantID: &o20
+          name: acquirerMerchantID
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserAcceptHeader: &o21
+          name: browserAcceptHeader
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserLanguage: &o22
+          name: browserLanguage
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserTZ: &o23
+          name: browserTZ
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserUserAgent: &o24
+          name: browserUserAgent
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        deviceInfo_Latitude: &o25
+          name: deviceInfo_Latitude
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        deviceInfo_Longitude: &o26
+          name: deviceInfo_Longitude
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        mbr: &o27
+          name: mbr
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: true
+          linkedColumn: 
+      fields:
+      - *o0
+      - *o1
+      - *o2
+      - *o3
+      - *o4
+      - *o5
+      - *o6
+      - *o7
+      - *o8
+      - *o9
+      - *o10
+      - *o11
+      - *o12
+      - *o13
+      - *o14
+      - *o15
+      - *o16
+      - *o17
+      - *o18
+      - *o19
+      - *o20
+      - *o21
+      - *o22
+      - *o23
+      - *o24
+      - *o25
+      - *o26
+      - *o27
     certName: ''
     certPassword: ''
     certThumbprints:
