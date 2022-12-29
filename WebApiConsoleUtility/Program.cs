@@ -131,7 +131,15 @@ namespace WebApiConsoleUtility
                         Log.Information($"jaeger host not set");
 
                     Log.Information("... Parsing " + YamlPath);
-                    pip = Pipeline.load(YamlPath);
+                    try
+                    {
+                        pip = Pipeline.load(YamlPath);
+                    }
+                    catch(Exception e66) 
+                    {
+                        Log.Fatal($"Error parsing {e66}");
+                        return;
+                    }
                     if (DEBUG_MODE != null)
                     {
                         pip.debugMode = true;
@@ -165,6 +173,7 @@ namespace WebApiConsoleUtility
                             {
                                 Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
                                 System.Diagnostics.Process.GetCurrentProcess().Kill();
+                                return;
                             });
                     }
                     else

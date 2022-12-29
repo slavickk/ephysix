@@ -173,7 +173,7 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
         }
         catch(Exception ex)
         {
-            
+            Logger.log($"DB open failed",ex);
             stream = this.streamSender;
             streams.TryAdd(key, stream);
             return (stream);
