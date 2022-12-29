@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
 using YamlDotNet.Core.Tokens;
+using Newtonsoft.Json;
+using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
 
@@ -80,6 +82,7 @@ public class StreamSender:HTTPSender
             public string SensitiveData { get; set; }
             HashOutput converter = null;
             public bool? Calculated { get; set; }
+            [YamlIgnore]
             public HashOutput SensitiveConverter
             {
                 get
@@ -122,17 +125,20 @@ public class StreamSender:HTTPSender
         return formJson(getStream(streamName));
     }
 
+    public Stream streamSender;
     public Stream getStream(string key)
     {
         Stream stream;
         if (streams.TryGetValue(key, out stream))
             return (stream);
         //                return JsonSerializer.Serialize<IEnumerable<string>>(stream.fields.Select(ii=>"\"ii.Name)); 
-        stream = new Stream();
-        stream.Name = "";
-        var conn = new NpgsqlConnection(db_connection_string);
-        conn.Open();
-        using (var cmd = new NpgsqlCommand(@"select n.nodeid,n.name,a.val,np.name,'String',ap.val,asd.val,rl.toid,ascalc.val from md_node n
+        try
+        {
+            stream = new Stream();
+            stream.Name = "";
+            var conn = new NpgsqlConnection(db_connection_string);
+            conn.Open();
+            using (var cmd = new NpgsqlCommand(@"select n.nodeid,n.name,a.val,np.name,'String',ap.val,asd.val,rl.toid,ascalc.val from md_node n
 inner join md_node_attr_val a  
 on ( a.nodeid=n.nodeid and attrid=22)
 inner join md_arc l on (l.toid=n.nodeid and l.isdeleted=false)
@@ -143,35 +149,43 @@ left join md_node_attr_val ascalc on ( ascalc.nodeid=np.nodeid and ascalc.attrid
 left join md_arc rl on ( rl.fromid=np.nodeid and rl.typeid=16)
 where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
 ", conn))
-        {
-            cmd.Parameters.AddWithValue("@name", key);
-            using (var reader = cmd.ExecuteReader())
             {
-                while (reader.Read())
+                cmd.Parameters.AddWithValue("@name", key);
+                using (var reader = cmd.ExecuteReader())
                 {
-                    if (stream.Name == "")
+                    while (reader.Read())
                     {
-                        stream.Name = reader.GetString(1);
-                        stream.Description = reader.GetString(2);
-                    }
-                    if(reader.GetString(3)=="mbr")
-                    {
+                        if (stream.Name == "")
+                        {
+                            stream.Name = reader.GetString(1);
+                            stream.Description = reader.GetString(2);
+                        }
+                        if (reader.GetString(3) == "mbr")
+                        {
 
+                        }
+                        stream.fieldsDict.Add(reader.GetString(3), new Stream.Field() { Name = reader.GetString(3), Type = reader.GetString(4), Detail = reader.IsDBNull(5) ? "" : reader.GetString(5), SensitiveData = reader.IsDBNull(6) ? null : reader.GetString(6), linkedColumn = reader.IsDBNull(7) ? null : reader.GetInt64(7), Calculated = reader.IsDBNull(8) ? false : true });
                     }
-                    stream.fieldsDict.Add(reader.GetString(3), new Stream.Field() { Name = reader.GetString(3), Type = reader.GetString(4), Detail =reader.IsDBNull(5)?"": reader.GetString(5),SensitiveData = reader.IsDBNull(6) ? null : reader.GetString(6), linkedColumn = reader.IsDBNull(7) ? null : reader.GetInt64(7),  Calculated = reader.IsDBNull(8) ? false : true });
                 }
             }
-        }
 
-        conn.Close();
-        if(stream.Name =="")
+            conn.Close();
+        }
+        catch(Exception ex)
+        {
+            
+            stream = this.streamSender;
+            streams.TryAdd(key, stream);
+            return (stream);
+        }
+        if (stream.Name =="")
         {
             stream.Name = key;
             stream.fieldsDict.Add("stream",new Stream.Field() { Name = "stream", Detail = "Name of stream", Type = "String" });
             stream.fieldsDict.Add("originalTime",new Stream.Field() { Name = "originalTime", Detail = "Time of stream", Type = "DateTime" });
         }
         stream.fieldsDict.Where(ii => !string.IsNullOrEmpty(ii.Value.SensitiveData)).Select(ii1 => ii1.Value.SensitiveConverter);
-
+        streamSender = stream;
         streams.TryAdd(key, stream);
         return (stream);
     }
@@ -207,7 +221,7 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
       };
     private static async Task SendPutAsync(HttpClient httpClient,string addr,StreamConsul post)
     {
-        var jsonContent = JsonSerializer.Serialize(post, jsonSerializerOptions);
+        var jsonContent = System.Text.Json.JsonSerializer.Serialize(post, jsonSerializerOptions);
         using var httpContent = new StringContent
             (jsonContent, Encoding.UTF8, "text/json");
         
