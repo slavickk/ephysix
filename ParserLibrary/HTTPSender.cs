@@ -78,7 +78,41 @@ public  class HTTPSender:Sender,ISelfTested
     {
         return await  internSend(JsonBody);
     }
-    public  async Task<string> internSend(string body)
+    protected async Task<bool> testGet()
+    {
+        if (!init)
+        {
+            lock (syncro)
+            {
+                if (!init)
+                {
+                    InitClient();
+                    init = true;
+                }
+            }
+        }
+
+        try
+        {
+            var result = await client.GetAsync(urls[index]);
+            if (!result.IsSuccessStatusCode)
+            {
+                Logger.log("Error get http request {res}", Serilog.Events.LogEventLevel.Error, result.StatusCode.ToString());
+
+            }
+            return true;
+        }
+        catch (Exception e63)
+        {
+            Logger.log("Error get", e63, Serilog.Events.LogEventLevel.Error);
+            return false;
+        }
+
+
+    }
+
+
+    public async Task<string> internSend(string body)
     {
         if(!init)
         {
@@ -286,13 +320,14 @@ public  class HTTPSender:Sender,ISelfTested
         string details;
         bool isSuccess = true;
         Exception exc = null;
-        details = "Make http request to " + this.urls[0];
+        details = "Make http get to " + this.urls[0];
         try
         {
             DateTime time1 = DateTime.Now;
-            var ans = await internSend("{\"stream\":\"checkTest\",\"originalTime\":\""+ DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture) + "\"}"); 
-            Logger.log(time1,"{Sender}-Send:{ans}" ,"SelfTest",Serilog.Events.LogEventLevel.Information,this,ans);
-            if (ans == "")
+
+            var ans = await testGet(); 
+            Logger.log(time1,"{Sender}-testGet:{ans}" ,"SelfTest",Serilog.Events.LogEventLevel.Information,this,ans);
+            if (ans == false)
                 isSuccess = false;
         }
         catch(Exception e77)

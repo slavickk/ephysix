@@ -90,15 +90,28 @@ public class Pipeline
     public async Task<bool> SelfTest()
     {
         // check that sender implemented ISelfTested
-        if (steps[0].sender is not ISelfTested testableSender)
-            return false; // treating this as a failed self test
-            
-        var res1 = await testableSender.isOK();
-        if(res1.Item3 == null)
-            Logger.log("{Item}.Results:{Res}", Serilog.Events.LogEventLevel.Information,"any", res1.Item2.ToString(),(res1.Item1 ? "OK" : "Fail"));
-        else
-            Logger.log("{Item}.Results:{Res}",res1.Item3, Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
-        return res1.Item1;
+/*        if (steps[0].sender is not ISelfTested testableSender)
+            return false; // treating this as a failed self test*/
+        bool retValue = true;
+        foreach (var step in steps)
+        {
+            if (step.sender != null)
+            {
+                var testableSender = step.sender as ISelfTested;
+                if (testableSender != null)
+                {
+
+                    var res1 = await testableSender.isOK();
+                    if (res1.Item3 == null)
+                        Logger.log("{Item}.Results:{Res}", Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+                    else
+                        Logger.log("{Item}.Results:{Res}", res1.Item3, Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+                    if (!res1.Item1)
+                        retValue = false;
+                }
+            }
+        }
+        return retValue;
     }
     static List<Type> getAllRegTypes()
     {

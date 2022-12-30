@@ -161,10 +161,12 @@ namespace TestJsonRazbor
               }*/
             logTextBox.Text = "";
             pip.debugMode = checkBoxDebug.Checked;
+//            pip.SelfTest().GetAwaiter().GetResult();    
             taskA = Task.Run(async () =>
             {
                 try
                 {
+                    await pip.SelfTest();
                         // specify this thread's Abort() as the cancel delegate
                         using (Canceller.Token.Register(Thread.CurrentThread.Abort))
                         {

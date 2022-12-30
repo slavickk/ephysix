@@ -178,8 +178,8 @@ namespace WebApiConsoleUtility
                     }
                     else
                     {
-                        Log.Fatal("Self test failed. Terminate execution.");
-                        return;
+                        Log.Error("Self test failed. Pipeline execution not possible.");
+//                        return;
 
                     }
 
