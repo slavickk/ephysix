@@ -13,10 +13,11 @@ using Npgsql;
 using YamlDotNet.Core.Tokens;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
+using System.Globalization;
 
 namespace ParserLibrary;
 
-public class StreamSender:HTTPSender
+public class StreamSender:HTTPSender,ISelfTested
 {
     public static TimeSpan Interval; 
     public string streamName  = "checkRegistration5";
@@ -24,6 +25,28 @@ public class StreamSender:HTTPSender
 
     public static Metrics.MetricCount metricStreamConcurrent = new Metrics.MetricCount("StreamConcurrCount", "Some time concurrent count");
     public static Metrics.MetricCount metricPerformanceStreams = new Metrics.MetricCount("StreamTime", "Stream peformance time");
+    public async Task<(bool, string, Exception)> isOK()
+    {
+        string details;
+        bool isSuccess = true;
+        Exception exc = null;
+        details = "Make http request to " + this.urls[0];
+        try
+        {
+            DateTime time1 = DateTime.Now;
+            var ans = await internSend("{\"stream\":\"checkTest\",\"originalTime\":\"" + DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture) + "\"}");
+            Logger.log(time1, "{Sender}-Send:{ans}", "SelfTest", Serilog.Events.LogEventLevel.Information, this, ans);
+            if (ans == "")
+                isSuccess = false;
+        }
+        catch (Exception e77)
+        {
+            isSuccess = false;
+            exc = e77;
+        }
+        //            if(ans)
+        return (isSuccess, details, exc);
+    }
     string getVal1(AbstrParser.UniEl el,Stream stream)
     {
         var conv = stream.fieldsDict[el.Name].SensitiveConverter;
