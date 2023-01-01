@@ -144,7 +144,7 @@ namespace WinFormsApp1
         public async static Task SendToCamunda(string path,string processId,List<ItemVar> variables)
         {
 //                    const string camundaPath = @"http://localhost:8080/engine-rest/";
-            const string camundaPath = @"http://192.168.75.217:18080/engine-rest/";
+            const string camundaPath = @"http://192.168.75.217:27858/engine-rest/";
             if (client == null)
                 client= new HttpClient();
 //            var ans7 =await  GetIncidents(camundaPath);
@@ -631,7 +631,11 @@ left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
                             if (!reader.IsDBNull(3))
                                 dest_id =Convert.ToInt32( reader.GetString(3));
                             if (!reader.IsDBNull(4))
-                                keyCount = Convert.ToInt32(reader.GetString(4));
+                            {
+                                var val1 = reader.GetString(4);
+                                if(!string.IsNullOrEmpty(val1))
+                                     keyCount = Convert.ToInt32(reader.GetString(4));
+                            }
                         }
                     }
                 }

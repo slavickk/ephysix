@@ -21,7 +21,7 @@ namespace WinFormsApp1
         }
         private async void Form1_Load(object sender, EventArgs e)
         {
-            conn = new NpgsqlConnection("User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;");
+            conn = new NpgsqlConnection("User ID=fp;Password=rav1234;Host=192.168.75.219;Port=5432;Database=fpdb;SearchPath=md;");
             conn.Open();
             tableViewControl1.OnTableDoubleClicked += TableViewControl1_OnTableDoubleClicked;
             //            GenerateStatement.Generate(conn, 315721);
