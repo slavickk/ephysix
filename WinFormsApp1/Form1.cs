@@ -769,7 +769,7 @@ where r.isdeleted = false
 
         private void button8_Click(object sender, EventArgs e)
         {
-            FormAddCustomTables frm = new FormAddCustomTables();
+            FormAddCustomTables frm = new FormAddCustomTables(conn);
             frm.ShowDialog();
         }
     }

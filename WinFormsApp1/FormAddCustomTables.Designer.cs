@@ -1,4 +1,13 @@
-﻿namespace WinFormsApp1
+﻿using Microsoft.VisualBasic;
+using static NpgsqlTypes.NpgsqlTsQuery;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
+using System.Data;
+using System.Security.Cryptography.Xml;
+using System.Security.Policy;
+using System.Text.RegularExpressions;
+using System;
+
+namespace WinFormsApp1
 {
     partial class FormAddCustomTables
     {
@@ -61,6 +70,7 @@
             this.textBoxUrl.Name = "textBoxUrl";
             this.textBoxUrl.Size = new System.Drawing.Size(533, 23);
             this.textBoxUrl.TabIndex = 0;
+            this.textBoxUrl.Text = "https://pkgstore.datahub.io/core/currency-codes/codes-all_json/data/029be9faf6547aba93d64384f7444774/codes-all_json.json";
             // 
             // label1
             // 
@@ -91,6 +101,7 @@
             this.textBoxUrlResult.Name = "textBoxUrlResult";
             this.textBoxUrlResult.Size = new System.Drawing.Size(535, 123);
             this.textBoxUrlResult.TabIndex = 3;
+           
             // 
             // textBoxSql
             // 
@@ -101,6 +112,7 @@
             this.textBoxSql.Name = "textBoxSql";
             this.textBoxSql.Size = new System.Drawing.Size(535, 123);
             this.textBoxSql.TabIndex = 4;
+            this.textBoxSql.Text = "select *\r\nfrom json_to_recordset(@body::json)\r\nas x(\"AlphabeticCode\" text,\"Currency\" text, \"NumericCode\" float,\"MinorUnit\" text);\r\n";
             // 
             // label2
             // 
@@ -146,6 +158,7 @@
             this.buttonSave.TabIndex = 8;
             this.buttonSave.Text = "Save Table";
             this.buttonSave.UseVisualStyleBackColor = true;
+            buttonSave.Click += ButtonSave_Click  ;
             // 
             // label3
             // 
@@ -292,6 +305,7 @@
             this.PerformLayout();
 
         }
+
 
         #endregion
 
