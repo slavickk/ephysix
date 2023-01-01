@@ -766,5 +766,11 @@ where r.isdeleted = false
             FormExploreFK form = new FormExploreFK(conn);
             form.ShowDialog();
         }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            FormAddCustomTables frm = new FormAddCustomTables();
+            frm.ShowDialog();
+        }
     }
 }
