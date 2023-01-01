@@ -138,7 +138,7 @@ namespace WinFormsApp1
                     cmd.Parameters.AddWithValue("@table_name", textBoxTableName.Text);
                     cmd.Parameters.AddWithValue("@url", textBoxUrl.Text);
                     cmd.Parameters.AddWithValue("@sql", textBoxSql.Text);
-                    cmd.Parameters.AddWithValue("@period", NpgsqlTypes.NpgsqlDbType.Timestamp, updatePeriod);
+                    cmd.Parameters.AddWithValue("@period", NpgsqlTypes.NpgsqlDbType.Interval, updatePeriod);
                     await using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -147,8 +147,28 @@ namespace WinFormsApp1
                         }
                     }
                 }
+                foreach (var field in fields)
+                {
+                    await using (var cmd = new NpgsqlCommand(@"select * from md_add_url_table_column(2,@id,@field_name,@field_type)", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id_table);
+                        cmd.Parameters.AddWithValue("@field_name", field.Name);
+                        cmd.Parameters.AddWithValue("@field_type", field.Type switch
+                        {
+                            "text" => "text",
+                            "double precision"=>"float",
+                            _ => "text"
+                        });
+                        await using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                id_table = reader.GetInt64(0);
+                            }
+                        }
+                    }
 
-
+                }
 
             }
             catch (Exception ex)
