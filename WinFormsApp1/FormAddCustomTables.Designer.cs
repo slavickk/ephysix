@@ -45,6 +45,9 @@ namespace WinFormsApp1
             this.label2 = new System.Windows.Forms.Label();
             this.buttonExecSql = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
+            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.buttonSave = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.textBoxTableName = new System.Windows.Forms.TextBox();
@@ -57,25 +60,24 @@ namespace WinFormsApp1
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.buttonSaveField = new System.Windows.Forms.Button();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // textBoxUrl
             // 
             this.textBoxUrl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxUrl.Location = new System.Drawing.Point(36, 2);
+            this.textBoxUrl.Location = new System.Drawing.Point(36, 34);
             this.textBoxUrl.Name = "textBoxUrl";
             this.textBoxUrl.Size = new System.Drawing.Size(533, 23);
             this.textBoxUrl.TabIndex = 0;
-            this.textBoxUrl.Text = "https://pkgstore.datahub.io/core/currency-codes/codes-all_json/data/029be9faf6547aba93d64384f7444774/codes-all_json.json";
+            this.textBoxUrl.Text = "https://pkgstore.datahub.io/core/currency-codes/codes-all_json/data/029be9faf6547" +
+    "aba93d64384f7444774/codes-all_json.json";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 5);
+            this.label1.Location = new System.Drawing.Point(9, 37);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(21, 15);
             this.label1.TabIndex = 1;
@@ -84,7 +86,7 @@ namespace WinFormsApp1
             // buttonExecUrl
             // 
             this.buttonExecUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonExecUrl.Location = new System.Drawing.Point(575, 2);
+            this.buttonExecUrl.Location = new System.Drawing.Point(575, 34);
             this.buttonExecUrl.Name = "buttonExecUrl";
             this.buttonExecUrl.Size = new System.Drawing.Size(52, 23);
             this.buttonExecUrl.TabIndex = 2;
@@ -96,37 +98,37 @@ namespace WinFormsApp1
             // 
             this.textBoxUrlResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxUrlResult.Location = new System.Drawing.Point(34, 32);
+            this.textBoxUrlResult.Location = new System.Drawing.Point(34, 64);
             this.textBoxUrlResult.Multiline = true;
             this.textBoxUrlResult.Name = "textBoxUrlResult";
             this.textBoxUrlResult.Size = new System.Drawing.Size(535, 123);
             this.textBoxUrlResult.TabIndex = 3;
-           
             // 
             // textBoxSql
             // 
             this.textBoxSql.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxSql.Location = new System.Drawing.Point(34, 179);
+            this.textBoxSql.Location = new System.Drawing.Point(34, 211);
             this.textBoxSql.Multiline = true;
             this.textBoxSql.Name = "textBoxSql";
             this.textBoxSql.Size = new System.Drawing.Size(535, 123);
             this.textBoxSql.TabIndex = 4;
-            this.textBoxSql.Text = "select *\r\nfrom json_to_recordset(@body::json)\r\nas x(\"AlphabeticCode\" text,\"Currency\" text, \"NumericCode\" float,\"MinorUnit\" text);\r\n";
+            this.textBoxSql.Text = "select *\r\nfrom json_to_recordset(@body::json)\r\nas x(\"AlphabeticCode\" text,\"Curren" +
+    "cy\" text, \"NumericCode\" float,\"MinorUnit\" text);\r\n";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(34, 158);
+            this.label2.Location = new System.Drawing.Point(34, 190);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(79, 15);
+            this.label2.Size = new System.Drawing.Size(244, 15);
             this.label2.TabIndex = 5;
-            this.label2.Text = "Sql statement";
+            this.label2.Text = "Sql statement(use @body for response body)";
             // 
             // buttonExecSql
             // 
             this.buttonExecSql.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonExecSql.Location = new System.Drawing.Point(575, 179);
+            this.buttonExecSql.Location = new System.Drawing.Point(575, 211);
             this.buttonExecSql.Name = "buttonExecSql";
             this.buttonExecSql.Size = new System.Drawing.Size(52, 23);
             this.buttonExecSql.TabIndex = 6;
@@ -142,120 +144,13 @@ namespace WinFormsApp1
             this.columnHeader3});
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
-            this.listView1.Location = new System.Drawing.Point(36, 306);
+            this.listView1.Location = new System.Drawing.Point(36, 338);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(448, 171);
             this.listView1.TabIndex = 7;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
-            // 
-            // buttonSave
-            // 
-            this.buttonSave.Location = new System.Drawing.Point(492, 511);
-            this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(95, 23);
-            this.buttonSave.TabIndex = 8;
-            this.buttonSave.Text = "Save Table";
-            this.buttonSave.UseVisualStyleBackColor = true;
-            buttonSave.Click += ButtonSave_Click  ;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 486);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(69, 15);
-            this.label3.TabIndex = 9;
-            this.label3.Text = "Table Name";
-            // 
-            // textBoxTableName
-            // 
-            this.textBoxTableName.Location = new System.Drawing.Point(84, 482);
-            this.textBoxTableName.Name = "textBoxTableName";
-            this.textBoxTableName.Size = new System.Drawing.Size(184, 23);
-            this.textBoxTableName.TabIndex = 10;
-            // 
-            // textBoxTableCaption
-            // 
-            this.textBoxTableCaption.Location = new System.Drawing.Point(84, 511);
-            this.textBoxTableCaption.Name = "textBoxTableCaption";
-            this.textBoxTableCaption.Size = new System.Drawing.Size(400, 23);
-            this.textBoxTableCaption.TabIndex = 13;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 515);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(49, 15);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "Caption";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(490, 306);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(39, 15);
-            this.label4.TabIndex = 14;
-            this.label4.Text = "Name";
-            // 
-            // textBoxFieldName
-            // 
-            this.textBoxFieldName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxFieldName.Location = new System.Drawing.Point(490, 321);
-            this.textBoxFieldName.Name = "textBoxFieldName";
-            this.textBoxFieldName.Size = new System.Drawing.Size(137, 23);
-            this.textBoxFieldName.TabIndex = 15;
-            // 
-            // textBox1
-            // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(490, 363);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(137, 23);
-            this.textBox1.TabIndex = 17;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(490, 347);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(49, 15);
-            this.label6.TabIndex = 16;
-            this.label6.Text = "Caption";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.Location = new System.Drawing.Point(490, 407);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(137, 23);
-            this.textBox2.TabIndex = 19;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(490, 391);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(31, 15);
-            this.label7.TabIndex = 18;
-            this.label7.Text = "Type";
-            // 
-            // buttonSaveField
-            // 
-            this.buttonSaveField.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonSaveField.Location = new System.Drawing.Point(490, 436);
-            this.buttonSaveField.Name = "buttonSaveField";
-            this.buttonSaveField.Size = new System.Drawing.Size(97, 23);
-            this.buttonSaveField.TabIndex = 20;
-            this.buttonSaveField.Text = "Save Field";
-            this.buttonSaveField.UseVisualStyleBackColor = true;
-            this.buttonSaveField.Click += new System.EventHandler(this.buttonSaveField_Click);
             // 
             // columnHeader1
             // 
@@ -272,11 +167,127 @@ namespace WinFormsApp1
             this.columnHeader3.Text = "Type";
             this.columnHeader3.Width = 90;
             // 
+            // buttonSave
+            // 
+            this.buttonSave.Location = new System.Drawing.Point(492, 543);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(95, 23);
+            this.buttonSave.TabIndex = 8;
+            this.buttonSave.Text = "Save Table";
+            this.buttonSave.UseVisualStyleBackColor = true;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 518);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(69, 15);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Table Name";
+            // 
+            // textBoxTableName
+            // 
+            this.textBoxTableName.Location = new System.Drawing.Point(84, 514);
+            this.textBoxTableName.Name = "textBoxTableName";
+            this.textBoxTableName.Size = new System.Drawing.Size(184, 23);
+            this.textBoxTableName.TabIndex = 10;
+            // 
+            // textBoxTableCaption
+            // 
+            this.textBoxTableCaption.Location = new System.Drawing.Point(84, 543);
+            this.textBoxTableCaption.Name = "textBoxTableCaption";
+            this.textBoxTableCaption.Size = new System.Drawing.Size(400, 23);
+            this.textBoxTableCaption.TabIndex = 13;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 547);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(49, 15);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Caption";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(490, 338);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(39, 15);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "Name";
+            // 
+            // textBoxFieldName
+            // 
+            this.textBoxFieldName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxFieldName.Location = new System.Drawing.Point(490, 353);
+            this.textBoxFieldName.Name = "textBoxFieldName";
+            this.textBoxFieldName.Size = new System.Drawing.Size(137, 23);
+            this.textBoxFieldName.TabIndex = 15;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.Location = new System.Drawing.Point(490, 395);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(137, 23);
+            this.textBox1.TabIndex = 17;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(490, 379);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(49, 15);
+            this.label6.TabIndex = 16;
+            this.label6.Text = "Caption";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox2.Location = new System.Drawing.Point(490, 439);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(137, 23);
+            this.textBox2.TabIndex = 19;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(490, 423);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(31, 15);
+            this.label7.TabIndex = 18;
+            this.label7.Text = "Type";
+            // 
+            // buttonSaveField
+            // 
+            this.buttonSaveField.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonSaveField.Location = new System.Drawing.Point(490, 468);
+            this.buttonSaveField.Name = "buttonSaveField";
+            this.buttonSaveField.Size = new System.Drawing.Size(97, 23);
+            this.buttonSaveField.TabIndex = 20;
+            this.buttonSaveField.Text = "Save Field";
+            this.buttonSaveField.UseVisualStyleBackColor = true;
+            this.buttonSaveField.Click += new System.EventHandler(this.buttonSaveField_Click);
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(37, 5);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(532, 23);
+            this.comboBox1.TabIndex = 21;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
             // FormAddCustomTables
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(628, 546);
+            this.ClientSize = new System.Drawing.Size(628, 579);
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.buttonSaveField);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.label7);
@@ -332,5 +343,6 @@ namespace WinFormsApp1
         private TextBox textBox2;
         private Label label7;
         private Button buttonSaveField;
+        private ComboBox comboBox1;
     }
 }
