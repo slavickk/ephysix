@@ -23,7 +23,7 @@ import dns.flags
 
 
 
-logger.info(f'Start service version=0.0.2 ({__name__})')
+logger.info(f'Start service version=0.0.3 ({__name__})')
 
 def getenv(cfg):
     cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else int(os.environ['MAX_TASKS'])
@@ -165,6 +165,14 @@ def db2db(task: ExternalTask) -> TaskResult:
                 "select 1 from MD_Camunda_Hash where key=:key and hash=:hash"
                 ), {"key": SQLTable + cfg['TOPIC'], "hash": hash_}).fetchone()
 
+        if vars['Oper'] == 'Refill':
+            try:
+                logger.debug(f'Oper==Refill => truncate table {SQLTable}')
+                engine_dst.execute(text("truncate table "+SQLTable))
+            except BaseException as ex:
+                logger.error(f'Exception truncate: {ex}')
+                recreate_flag = None
+
         if recreate_flag is None:
             # Если HASH такого запроса в базе не обнаружен - пересоздаем целевые таблицы
             logger.debug(f'Recreate table {SQLTable}')
@@ -189,9 +197,6 @@ def db2db(task: ExternalTask) -> TaskResult:
             engine_ser.execute(text(
                 "insert into MD_Camunda_Hash (key, hash) values(:key, :hash) on conflict (key) do update set hash=:hash"
                  ), {"key": SQLTable + cfg['TOPIC'], "hash": hash_})
-        if vars['Oper'] == 'Refill':
-            logger.debug(f'Oper==Refill => truncate table {SQLTable}')
-            engine_dst.execute(text("truncate table "+SQLTable))
 
         ins=''
         val=''
