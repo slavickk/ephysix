@@ -25,7 +25,7 @@ namespace WebApiConsoleUtility
         public static int RequestQueueLimit = -1;
         static Pipeline pip;
         static bool IgnoreAll = false;
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             /*            var req = Environment.GetEnvironmentVariable("MAX_CONCURRENT_REQUEST");
                         if (req != null)
@@ -135,7 +135,7 @@ namespace WebApiConsoleUtility
 
 
                     Log.Information("Parsing done.Making self test.");
-                    var suc = pip.SelfTest().GetAwaiter().GetResult();
+                    var suc = await pip.SelfTest();
                     if (suc)
                     {
                         Log.Information("Self test OK. Run pipeline.");
@@ -157,7 +157,7 @@ namespace WebApiConsoleUtility
                         Log.Information("Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
                     else
                         Log.Information("Logging to " + LogPath + ".");
-                    CreateHostBuilder(args).Build().Run();
+                    await CreateHostBuilder(args).Build().RunAsync();
 
                 }
                 catch (Exception ex)
@@ -172,8 +172,7 @@ namespace WebApiConsoleUtility
             } else
             {
                 Log.Information("Starting Integrity Utility web host ");
-                CreateHostBuilder(args).Build().Run();
-
+                await CreateHostBuilder(args).Build().RunAsync();
             }
 
 
