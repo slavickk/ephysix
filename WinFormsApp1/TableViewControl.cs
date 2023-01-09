@@ -44,6 +44,7 @@ namespace WinFormsApp1
       and n2.NodeID=nav2.NodeID
       and nav2.AttrID=a2.AttrID
   and a2.attrid>=5 and a2.attrid<=17
+  and n2.isdeleted=false and n1.isdeleted=false
       and n1.nodeid=@id
 union 
  
@@ -51,6 +52,7 @@ select n1.NodeID, n1.Name, n2.NodeID, n2.Name, ' '
     from md_node n1, md_arc a1, md_node n2
     where n1.typeid=md_get_type('Stream') and a1.toid=n1.nodeid and a1.fromid=n2.nodeid and a1.typeid=md_get_type('Field2Stream')
       and n2.typeid=md_get_type('StreamField')
+  and n2.isdeleted=false and n1.isdeleted=false
       and n1.nodeid=@id
 ";
             string tableName = "";

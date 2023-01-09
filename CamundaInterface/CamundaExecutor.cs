@@ -15,8 +15,8 @@ namespace CamundaInterface
 {
     public class CamundaExecutor
     {
-//        const string camundaPath = @"http://localhost:8080/engine-rest/";
-        const string camundaPath = @"http://192.168.75.217:18080/engine-rest/";
+        //        const string camundaPath = @"http://localhost:8080/engine-rest/";
+        static string camundaPath = "";// @"http://192.168.75.217:18080/engine-rest/";
         public class ItemFetchAndLock
         {
             public class Topic
@@ -88,9 +88,29 @@ namespace CamundaInterface
             public int retries { get; set; }
             public int retryTimeout { get; set; }
         }
-
+        public static async Task runCycle()
+        {
+            while (0 == 0)
+            {
+                try
+                {
+                    await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler" });
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                    Log.Information("Restart fetch");
+                }
+            }
+        }
+   
         public static async Task fetch(string[] topics)
         {
+            if (string.IsNullOrEmpty(camundaPath))
+            {
+                var addr = Resolver.ResolveConsulAddr("Camunda");
+                camundaPath = $"http://{addr}/engine-rest/";
+            }
             ExternalTaskAnswer it1 = null;
             if (client == null)
                 client = new HttpClient();
@@ -120,6 +140,24 @@ namespace CamundaInterface
                                                             var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{item.id}/complete", new CamundaCompleteItem() { workerId = workerId, variables = dict });
                                                         }
                                                         else*/
+                            if (item.topicName == "url_crowler")
+                            {
+                                Log.Information("get from url start");
+                                /*   try
+                                   {*/
+                                var itog = await url_crowler.execGet(client
+                                     , item.variables["ConnSelect"].value.ToString(), item.variables["ConnAdm"].value.ToString(), item.variables["Table"].value.ToString(), item.variables["URL"].value.ToString()
+                                     , item.variables["SQL"].value.ToString()
+                                     , Convert.ToInt32(item.variables["UpdateTimeout"].value.ToString()));
+                                Log.Information("get from url  end");
+                                /*                                } 
+                                                                catch(Exception e77)
+                                                                { 
+                                                                    Log.Error(e77.ToString()); 
+                                                                }*/
+                                dictOutput.Add("All", new CamundaCompleteItem.Variable() { value = itog.all });
+                                dictOutput.Add("Errors", new CamundaCompleteItem.Variable() { value = itog.errors });
+                            }
                             if (item.topicName == "to_dict_sender")
                             {
                                 Log.Information("Send to dict start");
@@ -127,7 +165,7 @@ namespace CamundaInterface
                                    {*/
                                 var itog = await SendToRefDataLoader.putRequestToRefDataLoader(client, item.processDefinitionId + ":" + item.topicName
                                      , item.variables["ConnSelect"].value.ToString(), item.variables["ConnAdm"].value.ToString(), item.variables["DictName"].value.ToString(), "TEST", item.variables["SQLText"].value.ToString()
-                                     , Convert.ToInt32(item.variables["MaxRecords"].value.ToString()), item.variables["DictAddr"].value.ToString(), item.variables["SensitiveData"].value.ToString() ,(int)item.variables["CountInKey"]?.value);
+                                     , Convert.ToInt32(item.variables["MaxRecords"].value.ToString()), item.variables["DictAddr"].value.ToString(), item.variables["SensitiveData"].value.ToString() ,Convert.ToInt32(item.variables["CountInKey"]?.value));
                                 Log.Information("Send to dict end");
                                 /*                                } 
                                                                 catch(Exception e77)
@@ -199,7 +237,7 @@ namespace CamundaInterface
                     var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{it1.id}/failure", new ItemFailure()
                     {
                         workerId = workerId,
-                        errorMessage = "error hapenned!",
+                        errorMessage = $"error hapenned on {it1.topicName}!",
                         errorDetails= ex5.ToString(),
                         retries = 0,
                         retryTimeout = 600

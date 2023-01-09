@@ -45,6 +45,7 @@ namespace CamundaInterface
                         case "bigint":
                         case "integer":
                         case "numeric":
+                        case "double precision":
                             return "Double";
                             break;
                         default:
@@ -77,17 +78,21 @@ namespace CamundaInterface
         public static async Task<ExportItem> putRequestToRefDataLoader(HttpClient client, string processId = "asdfa", string connectionStringBase = "User ID=postgres;Password=test;Host=localhost;Port=5432;", string connectionStringAdmin = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;",
             string dictName = "People", string FID = "TEST", string command = "SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person", int maxRecord = 500, string baseAddr = "http://192.168.75.212:20226",string sensitiveDataArray="",int CountInKey=1)
         {
-            //            client.BaseAddress=new Uri(baseAddr);
-            //            var client = new HttpClient() { BaseAddress = new Uri(baseAddr) };
-            ExportItem retValue = new ExportItem();
-            var separator = ",";
+            NpgsqlConnection conn = null, connAdm = null;
 
-            List<ParserLibrary.AliasProducer> aliasProducers = new List<ParserLibrary.AliasProducer>();
-
-            if(sensitiveDataArray!="")
+            try
             {
-                aliasProducers=sensitiveDataArray.Split(",").Select(ii=> ((ii.Trim().Length > 0)?(new AliasPan() as AliasProducer):null)).ToList();
-            }
+                //            client.BaseAddress=new Uri(baseAddr);
+                //            var client = new HttpClient() { BaseAddress = new Uri(baseAddr) };
+                ExportItem retValue = new ExportItem();
+                var separator = ";";
+
+                List<ParserLibrary.AliasProducer> aliasProducers = new List<ParserLibrary.AliasProducer>();
+
+                if (sensitiveDataArray != "")
+                {
+                    aliasProducers = sensitiveDataArray.Split(",").Select(ii => ((ii.Trim().Length > 0) ? (new AliasPan() as AliasProducer) : null)).ToList();
+                }
 
 
             //            var client = new HttpClient();
@@ -100,123 +105,147 @@ namespace CamundaInterface
                         }*/
             ;
 
-            var conn = new NpgsqlConnection(connectionStringBase/*"User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;"*/);
-            conn.Open();
+                conn = new NpgsqlConnection(connectionStringBase/*"User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;"*/);
+                conn.Open();
 
-            // Check Hash
-            var connAdm = conn;
-            if (connectionStringBase != connectionStringAdmin)
-            {
-                connAdm = new NpgsqlConnection(connectionStringAdmin);
-                connAdm.Open();
-            }
-            var hash = "";
-            await using (var cmd1 = new NpgsqlCommand("select hash from MD_Camunda_Hash where key=@key", connAdm))
-            {
-                cmd1.Parameters.AddWithValue("@key", dictName + processId);
-                await using (var reader = await cmd1.ExecuteReaderAsync())
+                // Check Hash
+                connAdm = conn;
+                if (connectionStringBase != connectionStringAdmin)
                 {
-                    while (await reader.ReadAsync())
-                    {
-                        hash = reader.GetString(0);
-                    }
+                    connAdm = new NpgsqlConnection(connectionStringAdmin);
+                    connAdm.Open();
                 }
-            }
-            var new_hash = StringSha256Hash(command);
-            if (hash != new_hash)
-                await SetHashToBase(processId, connectionStringBase, connectionStringAdmin, dictName, connAdm, new_hash);
-
-            //            command = @"SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person";
-            //            int maxRecord = 500;
-            int kolRecord = 0;
-            using (StringWriter sw = new StringWriter())
-            {
-                await using (var cmd = new NpgsqlCommand(command, conn))
+                var hash = "";
+                await using (var cmd1 = new NpgsqlCommand("select hash from MD_Camunda_Hash where key=@key", connAdm))
                 {
-                    //                cmd.Parameters.AddWithValue("@id", id);
-                    await using (var reader = await cmd.ExecuteReaderAsync())
+                    cmd1.Parameters.AddWithValue("@key", dictName + processId);
+                    await using (var reader = await cmd1.ExecuteReaderAsync())
                     {
-                        string headerString = "";
-                        Dictionary dict = new Dictionary() { Name = dictName };
-                        for (int i = 0; i < reader.FieldCount; i++)
-                        {
-                            var type = reader.GetDataTypeName(i);
-                            var name = reader.GetName(i);
-                            if (i < CountInKey)
-                            {
-                                dict.Key = (String.IsNullOrEmpty(dict.Key) ? "" : "+") + name;
-                                name= dict.Key;
-                            }
-                            else
-                                headerString += separator;
-                            if (i >= CountInKey - 1)
-                            {
-                                headerString += name;
-                                dict.Fields.Add(new Dictionary.Field() { Name = name, Type = Dictionary.Field.ConvertType(type) });
-                            }
-                        }
-                        sw.WriteLine(headerString);
-                        if (hash != new_hash )
-                        {
-                            var url1 = $"/schema/dict/{FID}";
-                            Uri uri1 = new Uri(new Uri(baseAddr), url1);
-
-                            string dict1 = JsonSerializer.Serialize<Dictionary>(dict);
-                            /*                    HttpContent content = new StringContent(dict1);
-                                                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");  //  "application/json";
-                                                var res = await client.PostAsync(uri1, content);
-                            */
-
-                            var options = new JsonSerializerOptions();
-                            options.PropertyNameCaseInsensitive = false;
-                            var res = await client.PostAsJsonAsync<Dictionary>(uri1, dict, options);
-
-
-                            if (!res.IsSuccessStatusCode)
-                            {
-                                var ans1 = res.Content.ReadAsStringAsync();
-                            }
-                            else
-                            {
-
-                            }
-                        }
                         while (await reader.ReadAsync())
                         {
-                            string bodyString = "";
+                            hash = reader.GetString(0);
+                        }
+                    }
+                }
+                var new_hash = StringSha256Hash(command);
+                /*            if (hash != new_hash)
+                                await SetHashToBase(processId, connectionStringBase, connectionStringAdmin, dictName, connAdm, new_hash);
+                */
+                //            command = @"SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person";
+                //            int maxRecord = 500;
+                int kolRecord = 0;
+                using (StringWriter sw = new StringWriter())
+//                using (StreamWriter sw = new StreamWriter(@"c:\d\ex.csv"))
+                {
+                    await using (var cmd = new NpgsqlCommand(command, conn))
+                    {
+                        //                cmd.Parameters.AddWithValue("@id", id);
+                        await using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            string headerString = "";
+                            Dictionary dict = new Dictionary() { Name = dictName };
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
                                 var type = reader.GetDataTypeName(i);
-                                if (i > CountInKey)
-                                    bodyString += separator;
-                                /*                            if(Dictionary.Field.ConvertType(type) == "String")
-                                                                bodyString+=reader.GetString(i);
-                                                            else
-                                                            { 
-                                                                if(type=="bigint")*/
-                                if(aliasProducers.Count> i && aliasProducers[i] != null)
-                                    bodyString += cryptoHash.hash(reader.GetValue(i).ToString());
+                                var name = reader.GetName(i);
+                                if (i < CountInKey)
+                                {
+                                    dict.Key = (String.IsNullOrEmpty(dict.Key) ? "" : "+") + name;
+                                    name = dict.Key;
+                                }
                                 else
-                                    bodyString += reader.GetValue(i).ToString();
-
+                                    headerString += separator;
+                                if (i >= CountInKey - 1)
+                                {
+                                    headerString += name;
+                                    dict.Fields.Add(new Dictionary.Field() { Name = name, Type = Dictionary.Field.ConvertType(type) });
+                                }
                             }
-                            retValue.all++;
-                            sw.WriteLine(bodyString);
-                            if (++kolRecord >= maxRecord)
+                            sw.WriteLine(headerString);
+                            if (hash != new_hash)
                             {
-                                kolRecord = await SendToCCfa(client, dictName, FID, baseAddr, kolRecord, sw);
+                                var url1 = $"/api/v0/schema/dict/{FID}";
+//                                "http://192.168.75.213:16666/api/v0/schema/dict/TEST"
+                                Uri uri1 = new Uri(new Uri(baseAddr), url1);
 
+                                string dict1 = JsonSerializer.Serialize<Dictionary>(dict);
+                                /*                    HttpContent content = new StringContent(dict1);
+                                                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");  //  "application/json";
+                                                    var res = await client.PostAsync(uri1, content);
+                                */
+
+                                var options = new JsonSerializerOptions();
+                                options.PropertyNameCaseInsensitive = false;
+                                var res = await client.PostAsJsonAsync<Dictionary>(uri1, dict, options);
+
+                                res.EnsureSuccessStatusCode();
+
+                                if (hash != new_hash)
+                                    await SetHashToBase(processId, connectionStringBase, connectionStringAdmin, dictName, connAdm, new_hash);
+
+                                if (!res.IsSuccessStatusCode)
+                                {
+                                    var ans1 = await res.Content.ReadAsStringAsync();
+                                }
+                                else
+                                {
+                                    //throw 
+                                }
+                            }
+                            while (await reader.ReadAsync())
+                            {
+                                string bodyString = "";
+                                for (int i = 0; i < reader.FieldCount; i++)
+                                {
+                                    var type = reader.GetDataTypeName(i);
+                                    if (i >= CountInKey)
+                                        bodyString += separator;
+                                    /*                            if(Dictionary.Field.ConvertType(type) == "String")
+                                                                    bodyString+=reader.GetString(i);
+                                                                else
+                                                                { 
+                                                                    if(type=="bigint")*/
+                                    var val = reader.GetValue(i).ToString();
+                                    if(val=="840")
+                                    {
+                                        int y = 0;
+                                    }
+                                    if (aliasProducers.Count > i && aliasProducers[i] != null)
+                                        bodyString += cryptoHash.hash(val);
+                                    else
+                                        bodyString += val;
+
+                                }
+                                retValue.all++;
+                                sw.WriteLine(bodyString);
+                                if (++kolRecord >= maxRecord)
+                                {
+                                    kolRecord = await SendToCCfa(client, dictName, FID, baseAddr, kolRecord, sw);
+
+                                }
                             }
                         }
-                    }
 
+
+                    }
+                    kolRecord = await SendToCCfa(client, dictName, FID, baseAddr, kolRecord, sw);
 
                 }
-                kolRecord = await SendToCCfa(client, dictName, FID, baseAddr, kolRecord, sw);
-
+                CloseConns(conn, connAdm);
+                return retValue;
+            } catch(Exception ex)
+            {
+                CloseConns(conn, connAdm);
+                throw;
             }
-            conn.Close();
-            return retValue;
+        }
+
+        private static void CloseConns(NpgsqlConnection? conn, NpgsqlConnection connAdm)
+        {
+            if (conn != null)
+                conn.Close();
+            if (connAdm != conn && connAdm != null)
+                connAdm.Close();
         }
 
         private static async Task SetHashToBase(string processId, string connectionStringBase, string connectionStringAdmin, string dictName, NpgsqlConnection connAdm,string new_hash)
@@ -243,6 +272,10 @@ namespace CamundaInterface
 
         private static async Task<int> SendToCCfa(HttpClient client, string dictName, string FID, string baseAddr, int kolRecord, StringWriter sw)
         {
+            using (StreamWriter sw1 = new StreamWriter(@"C:\d\ex.csv"))
+            {
+                sw1.Write(sw.GetStringBuilder());
+            }
             if (kolRecord != 0)
             {
                 Log.Information("Send record to" + kolRecord);
@@ -351,17 +384,19 @@ namespace CamundaInterface
                     sc.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
                     multiPartFormContent.Add(sc, "file", "people.csv");
 
-                    var response = await client.PostAsync($"{baseAddr}/referencedata/{FID}/{dictName}/append", multiPartFormContent);
+                    var response = await client.PostAsync($"{baseAddr}/api/v0/referencedata/{FID}/{dictName}/append?delimeter=;", multiPartFormContent);
                     try
                     {
                         response.EnsureSuccessStatusCode();
-                        Console.WriteLine($"OK: {await response.Content.ReadAsStringAsync()}");
-                        Log.Information($"OK: {await response.Content.ReadAsStringAsync()}");
+                        var ans = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"OK: {ans}");
+                        Log.Information($"OK: {ans}");
                     }
                     catch (HttpRequestException)
                     {
                         Log.Error($"{response.StatusCode}:{await response.Content.ReadAsStringAsync()}");
-//                        Console.WriteLine($"{response.StatusCode}:{await response.Content.ReadAsStringAsync()}");
+                        throw;
+                        //                        Console.WriteLine($"{response.StatusCode}:{await response.Content.ReadAsStringAsync()}");
                     }
                     catch (Exception e)
                     {

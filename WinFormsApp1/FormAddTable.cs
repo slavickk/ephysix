@@ -133,19 +133,19 @@ namespace WinFormsApp1
         private async void button1_Click(object sender, EventArgs e)
         {
             button2.Enabled = false;
-            //            var command = "select pathlen,ccfa_nodeinfo(p.n1),ccfa_nodeinfo(p.n2),ccfa_nodeinfo(p.n3),ccfa_nodeinfo(p.n4),ccfa_nodeinfo(p.n5),ccfa_nodeinfo(p.n6),ccfa_nodeinfo(p.n7),ccfa_nodeinfo(p.n8),ccfa_nodeinfo(p.n9),ccfa_nodeinfo(p.n10) from ccfa_MD_allpaths_4(@FROMID,@TOID,@DEPTH,@EXCLUDE) p order by 1";
+            //            var command = "select pathlen,md_nodeinfo(p.n1),md_nodeinfo(p.n2),md_nodeinfo(p.n3),md_nodeinfo(p.n4),md_nodeinfo(p.n5),md_nodeinfo(p.n6),md_nodeinfo(p.n7),md_nodeinfo(p.n8),md_nodeinfo(p.n9),md_nodeinfo(p.n10) from ccfa_MD_allpaths_4(@FROMID,@TOID,@DEPTH,@EXCLUDE) p order by 1";
             var command = @"select pathlen
-,case when(ccfa_nodeinfo(p.n2) like 'Column%') then '' else COALESCE(CAST(p.n2 as varchar(30)), '') end
-|| case when(ccfa_nodeinfo(p.n3) like 'Column%') then '' else COALESCE(CAST(p.n3 as varchar(30)), '') end
-|| case when(ccfa_nodeinfo(p.n4) like 'Column%') then '' else COALESCE(CAST(p.n4 as varchar(30)), '') end
-|| case when(ccfa_nodeinfo(p.n5) like 'Column%') then '' else COALESCE(CAST(p.n5 as varchar(30)), '') end
-|| case when(ccfa_nodeinfo(p.n6) like 'Column%') then '' else COALESCE(CAST(p.n6 as varchar(30)), '') end
-|| case when(ccfa_nodeinfo(p.n7) like 'Column%') then '' else COALESCE(CAST(p.n7 as varchar(30)), '') end
-|| case when(ccfa_nodeinfo(p.n8) like 'Column%') then '' else COALESCE(CAST(p.n8 as varchar(30)), '') end
-|| case when(ccfa_nodeinfo(p.n9) like 'Column%') then '' else COALESCE(CAST(p.n9 as varchar(30)), '') end
-|| case when(ccfa_nodeinfo(p.n10) like 'Column%') then '' else COALESCE(CAST(p.n10 as varchar(30)), '') end
-,ccfa_nodeinfo(p.n1),ccfa_nodeinfo(p.n2),ccfa_nodeinfo(p.n3),ccfa_nodeinfo(p.n4),ccfa_nodeinfo(p.n5),ccfa_nodeinfo(p.n6),ccfa_nodeinfo(p.n7),ccfa_nodeinfo(p.n8),ccfa_nodeinfo(p.n9),ccfa_nodeinfo(p.n10)
-from ccfa_MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2";
+,case when(md_nodeinfo(p.n2) like 'Column%') then '' else COALESCE(CAST(p.n2 as varchar(30)), '') end
+|| case when(md_nodeinfo(p.n3) like 'Column%') then '' else COALESCE(CAST(p.n3 as varchar(30)), '') end
+|| case when(md_nodeinfo(p.n4) like 'Column%') then '' else COALESCE(CAST(p.n4 as varchar(30)), '') end
+|| case when(md_nodeinfo(p.n5) like 'Column%') then '' else COALESCE(CAST(p.n5 as varchar(30)), '') end
+|| case when(md_nodeinfo(p.n6) like 'Column%') then '' else COALESCE(CAST(p.n6 as varchar(30)), '') end
+|| case when(md_nodeinfo(p.n7) like 'Column%') then '' else COALESCE(CAST(p.n7 as varchar(30)), '') end
+|| case when(md_nodeinfo(p.n8) like 'Column%') then '' else COALESCE(CAST(p.n8 as varchar(30)), '') end
+|| case when(md_nodeinfo(p.n9) like 'Column%') then '' else COALESCE(CAST(p.n9 as varchar(30)), '') end
+|| case when(md_nodeinfo(p.n10) like 'Column%') then '' else COALESCE(CAST(p.n10 as varchar(30)), '') end
+,md_nodeinfo(p.n1),md_nodeinfo(p.n2),md_nodeinfo(p.n3),md_nodeinfo(p.n4),md_nodeinfo(p.n5),md_nodeinfo(p.n6),md_nodeinfo(p.n7),md_nodeinfo(p.n8),md_nodeinfo(p.n9),md_nodeinfo(p.n10)
+from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2";
 
             int i1 = 0;
             allPaths = new List<List<string[]>>();

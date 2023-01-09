@@ -175,6 +175,8 @@ namespace WinFormsApp1
             this.buttonSave.TabIndex = 8;
             this.buttonSave.Text = "Save Table";
             this.buttonSave.UseVisualStyleBackColor = true;
+            this.buttonSave.Click += new System.EventHandler(this.ButtonSave_Click);
+
             // 
             // label3
             // 

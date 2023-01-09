@@ -23,9 +23,11 @@ namespace WinFormsApp1
     public partial class FormAddCustomTables : Form
     {
         NpgsqlConnection conn;
+        NpgsqlConnection connExt;
         public FormAddCustomTables(Npgsql.NpgsqlConnection con)
         {
             conn = con;
+ 
             InitializeComponent();
         }
 
@@ -39,14 +41,52 @@ namespace WinFormsApp1
 
         }
         HttpClient client=new HttpClient();
-        private void FormAddCustomTables_Load(object sender, EventArgs e)
+
+        public class TableItem
         {
+            public long Id { get; set; }
+            public string Name { get; set; }
+            public override string ToString()
+            {
+                return Name;
+            }
+        }
+        private async void FormAddCustomTables_Load(object sender, EventArgs e)
+        {
+            connExt= new NpgsqlConnection();
+            var src = await GenerateStatement.getSrcInfo(5, conn);
+          //  src.
+            connExt.ConnectionString = src.connectionString;
+            connExt.Open();
            // using HttpClient client = new();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
             //client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
-
+            
+            await using (var cmd = new NpgsqlCommand(@"select n1.NodeID, n1.Name
+    from md_node n1, md_node_attr_val nav2
+    where n1.typeid = md_get_type('Table')
+      and n1.NodeID = nav2.NodeID
+      and nav2.AttrID = 107"
+, conn))
+            {
+                /*cmd.Parameters.AddWithValue("@id", id_table);
+                cmd.Parameters.AddWithValue("@table_name", textBoxTableName.Text);
+                cmd.Parameters.AddWithValue("@url", textBoxUrl.Text);
+                cmd.Parameters.AddWithValue("@sql", textBoxSql.Text);
+                cmd.Parameters.AddWithValue("@period", NpgsqlTypes.NpgsqlDbType.Interval, updatePeriod);*/
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        TableItem item = new TableItem() { Id = reader.GetInt64(0), Name = reader.GetString(1) };
+                        comboBox1.Items.Add(item);
+                        //id_table = reader.GetInt64(0);
+                    }
+                }
+            }
+           
         }
 
         private async void buttonExecSql_Click(object sender, EventArgs e)
@@ -112,33 +152,57 @@ namespace WinFormsApp1
         TimeSpan updatePeriod =new TimeSpan(24,0,0);
         private async void ButtonSave_Click(object sender, EventArgs e)
         {
-            try { 
+ //           id_table = 2056845;
+            try
+            { 
             string table=textBoxTableName.Text;
                 if (!string.IsNullOrEmpty(table))
                 {
-                    await using (var cmd = new NpgsqlCommand($"DROP TABLE IF EXISTS {table};", conn))
+                    await using (var cmd = new NpgsqlCommand($"DROP TABLE IF EXISTS {table};", connExt))
                     {
                         cmd.ExecuteNonQuery();
                     }
-                    await using (var cmd = new NpgsqlCommand($"CREATE TABLE IF NOT EXISTS {table} ({string.Join(',', fields.Select(ii => $"{ii.Name} {ii.Type}  NULL"))})", conn))
+                    await using (var cmd = new NpgsqlCommand($"CREATE TABLE IF NOT EXISTS {table} ({string.Join(',', fields.Select(ii => $"{ii.Name} {ii.Type}  NULL"))})", connExt))
                     {
                         cmd.ExecuteNonQuery();
                     }
-                    await using (var cmd = new NpgsqlCommand($"insert into  {table} ({string.Join(',', fields.Select(ii => ii.Name))}) {textBoxSql.Text}", conn))
+                    await using (var cmd = new NpgsqlCommand($"GRANT ALL ON TABLE  {table}  TO md", connExt))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+//                    GRANT ALL ON TABLE md.md_arc TO md;
+                    await using (var cmd = new NpgsqlCommand($"insert into  {table} ({string.Join(',', fields.Select(ii => ii.Name))}) {textBoxSql.Text}", connExt))
                     {
                         cmd.Parameters.AddWithValue("@body", textBoxUrlResult.Text);
 
                         cmd.ExecuteNonQuery();
                     }
                 }
+
+                
+                await using (var cmd = new NpgsqlCommand(@"select* from md_check_update_time(@table_name, @interval)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@table_name", textBoxTableName.Text.ToLower());
+                    cmd.Parameters.AddWithValue("@interval",NpgsqlTypes.NpgsqlDbType.Bigint, updatePeriod.TotalSeconds);
+                    await using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            bool updated  = reader.GetBoolean(0);
+                        }
+                    }
+                }
+
                 // Save table 
-                await using (var cmd = new NpgsqlCommand(@"select * from md_add_url_table(2,@id,@table_name,@url,@sql,@period)", conn))
+                await using (var cmd = new NpgsqlCommand(@"select * from md_add_url_table(5,@id,@table_name,@url,@sql,@example,@period)", conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id_table);
-                    cmd.Parameters.AddWithValue("@table_name", textBoxTableName.Text);
+                    cmd.Parameters.AddWithValue("@table_name", textBoxTableName.Text.ToLower());
                     cmd.Parameters.AddWithValue("@url", textBoxUrl.Text);
                     cmd.Parameters.AddWithValue("@sql", textBoxSql.Text);
-                    cmd.Parameters.AddWithValue("@period", NpgsqlTypes.NpgsqlDbType.Interval, updatePeriod);
+                    cmd.Parameters.AddWithValue("@example", textBoxUrlResult.Text);
+                    cmd.Parameters.AddWithValue("@period",NpgsqlTypes.NpgsqlDbType.Bigint,  updatePeriod.TotalSeconds);
                     await using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -149,21 +213,23 @@ namespace WinFormsApp1
                 }
                 foreach (var field in fields)
                 {
-                    await using (var cmd = new NpgsqlCommand(@"select * from md_add_url_table_column(2,@id,@field_name,@field_type)", conn))
+                    await using (var cmd = new NpgsqlCommand(@"select * from md_add_url_table_column(5,@id,@field_name,@field_type)", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", id_table);
-                        cmd.Parameters.AddWithValue("@field_name", field.Name);
+                        cmd.Parameters.AddWithValue("@field_name", field.Name.ToLower());
                         cmd.Parameters.AddWithValue("@field_type", field.Type switch
                         {
-                            "text" => "text",
-                            "double precision"=>"float",
-                            _ => "text"
+                            "text" => "VARCHAR",
+                            "VARCHAR" => "VARCHAR",
+                            "double precision" => "FLOAT",
+                            "FLOAT" => "FLOAT",
+                            _ => "VARCHAR"
                         });
                         await using (var reader = await cmd.ExecuteReaderAsync())
                         {
                             while (await reader.ReadAsync())
                             {
-                                id_table = reader.GetInt64(0);
+                              //  id_table = reader.GetInt64(0);
                             }
                         }
                     }
@@ -221,8 +287,52 @@ namespace WinFormsApp1
 
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private async void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            await using (var cmd = new NpgsqlCommand(@"select n1.NodeID, n1.Name, n2.Name, a2.key,nav_url.val,nav_url_sql.val,nav_per.val
+    from md_node n1, md_arc a1, md_node n2, md_node_attr_val nav2, md_attr a2
+	, md_node_attr_val nav_url
+	, md_node_attr_val nav_url_sql
+	, md_node_attr_val nav_per
+    where n1.typeid=md_get_type('Table') and a1.toid=n1.nodeid and a1.fromid=n2.nodeid and a1.typeid=md_get_type('Column2Table')
+      and n2.typeid=md_get_type('Column')
+      and n2.NodeID=nav2.NodeID
+      and n1.NodeID=nav_url.NodeID
+	  and nav_url.attrID=107
+      and n1.NodeID=nav_url_sql.NodeID
+	  and nav_url_sql.attrID=108
+      and n1.NodeID=nav_per.NodeID
+	  and nav_per.attrID=109
+	  
+      and nav2.AttrID=a2.AttrID
+ and a2.attrid>=5 and a2.attrid<=17
+ and n2.isdeleted=false
+  and n1.NodeId=@id
+"
+  , conn))
+            {
+                cmd.Parameters.AddWithValue("@id", (comboBox1.SelectedItem as TableItem).Id);
+                /*cmd.Parameters.AddWithValue("@table_name", textBoxTableName.Text);
+                cmd.Parameters.AddWithValue("@url", textBoxUrl.Text);
+                cmd.Parameters.AddWithValue("@sql", textBoxSql.Text);
+                cmd.Parameters.AddWithValue("@period", NpgsqlTypes.NpgsqlDbType.Interval, updatePeriod);*/
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    fields.Clear();
+                    while (await reader.ReadAsync())
+                    {
+                        this.id_table=reader.GetInt64(0);
+                        textBoxTableName.Text=reader.GetString(1);
+                        fields.Add(new ItemType() { Name = reader.GetString(2), Type = reader.GetString(3) });
+                        textBoxUrl.Text=reader.GetString(4);
+                        textBoxSql.Text=reader.GetString(5);
+
+                       this.updatePeriod = new TimeSpan(0,0,Convert.ToInt32(reader.GetString(6)));
+
+                    }
+                    refreshFields();    
+                }
+            }
 
         }
     }
