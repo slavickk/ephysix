@@ -267,5 +267,10 @@ namespace TestJsonRazbor
             FormAddScenario frm = new FormAddScenario(pip);
             frm.ShowDialog();
         }
+
+        private void checkBoxSaveScen_CheckedChanged(object sender, EventArgs e)
+        {
+            Step.saveAllResponses = checkBoxSaveScen.Checked;
+        }
     }
 }

@@ -51,10 +51,10 @@ namespace TestJsonRazbor
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.listBox2 = new System.Windows.Forms.ListBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.buttonScenario = new System.Windows.Forms.Button();
+            this.checkBoxSaveScen = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.checkBoxSaveScen = new System.Windows.Forms.CheckBox();
-            this.buttonScenario = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -293,6 +293,27 @@ namespace TestJsonRazbor
             this.splitContainer1.SplitterDistance = 498;
             this.splitContainer1.TabIndex = 15;
             // 
+            // buttonScenario
+            // 
+            this.buttonScenario.Location = new System.Drawing.Point(224, 174);
+            this.buttonScenario.Name = "buttonScenario";
+            this.buttonScenario.Size = new System.Drawing.Size(75, 23);
+            this.buttonScenario.TabIndex = 17;
+            this.buttonScenario.Text = "Scenarious";
+            this.buttonScenario.UseVisualStyleBackColor = true;
+            this.buttonScenario.Click += new System.EventHandler(this.buttonScenario_Click);
+            // 
+            // checkBoxSaveScen
+            // 
+            this.checkBoxSaveScen.AutoSize = true;
+            this.checkBoxSaveScen.Location = new System.Drawing.Point(189, 152);
+            this.checkBoxSaveScen.Name = "checkBoxSaveScen";
+            this.checkBoxSaveScen.Size = new System.Drawing.Size(110, 19);
+            this.checkBoxSaveScen.TabIndex = 16;
+            this.checkBoxSaveScen.Text = "save to scenario";
+            this.checkBoxSaveScen.UseVisualStyleBackColor = true;
+            this.checkBoxSaveScen.CheckedChanged += new System.EventHandler(this.checkBoxSaveScen_CheckedChanged);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -310,26 +331,6 @@ namespace TestJsonRazbor
             this.comboBox1.Size = new System.Drawing.Size(434, 23);
             this.comboBox1.TabIndex = 14;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
-            // 
-            // checkBoxSaveScen
-            // 
-            this.checkBoxSaveScen.AutoSize = true;
-            this.checkBoxSaveScen.Location = new System.Drawing.Point(189, 152);
-            this.checkBoxSaveScen.Name = "checkBoxSaveScen";
-            this.checkBoxSaveScen.Size = new System.Drawing.Size(110, 19);
-            this.checkBoxSaveScen.TabIndex = 16;
-            this.checkBoxSaveScen.Text = "save to scenario";
-            this.checkBoxSaveScen.UseVisualStyleBackColor = true;
-            // 
-            // buttonScenario
-            // 
-            this.buttonScenario.Location = new System.Drawing.Point(224, 174);
-            this.buttonScenario.Name = "buttonScenario";
-            this.buttonScenario.Size = new System.Drawing.Size(75, 23);
-            this.buttonScenario.TabIndex = 17;
-            this.buttonScenario.Text = "Scenarious";
-            this.buttonScenario.UseVisualStyleBackColor = true;
-            this.buttonScenario.Click += new System.EventHandler(this.buttonScenario_Click);
             // 
             // FormTestPipeline
             // 
