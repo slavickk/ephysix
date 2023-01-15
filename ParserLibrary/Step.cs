@@ -161,8 +161,11 @@ public class Step
         public List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         public object context;
         public Activity mainActivity;
+        public Scenario currentScenario = null;
     }
     public bool isBridge = false;
+
+    public static bool saveAllResponses = false;
     private async Task Receiver_stringReceived(string input, object context)
     {
 //        owner.mainActivity = owner.GetActivity("receive package", null);
@@ -175,6 +178,12 @@ public class Step
         //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
+        if(saveAllResponses)
+        {
+            contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
+            this.owner.scenarios.Add(contextItem.currentScenario);
+            contextItem.currentScenario.mocs.Add(new Scenario.Item() { IDStep = this.IDStep, isMocReceiverEnabled = true, MocFileReceiver = input });
+        }
         owner.lastExecutedEl = rootElement;
         if (!isBridge)
         {
@@ -192,7 +201,24 @@ public class Step
                         
                     }*/
                 var ans = await sender?.send(input,contextItem);
+
                 await receiver.sendResponse(ans, context);
+                if(saveAllResponses)
+                {
+                    Scenario.Item item= contextItem.currentScenario.mocs.FirstOrDefault(ii=>ii.IDStep== this.IDStep);
+                    if (item == null)
+                    {
+                        item = new Scenario.Item() { IDStep = this.IDStep, isMocSenderEnabled = true, MocFileSender = ans };
+                        contextItem.currentScenario.mocs.Add(item);
+                    }
+                    else
+                    {
+                        item.isMocSenderEnabled = true;
+                        item.MocFileSender = ans;   
+                    }
+
+
+                }
             }
             catch (Exception e66)
             {
