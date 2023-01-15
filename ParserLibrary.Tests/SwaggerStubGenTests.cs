@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
+using System.Reflection.Emit;
 using Microsoft.CSharp;
 using NSwag.CodeGeneration.CSharp;
 
@@ -18,6 +19,26 @@ namespace ParserLibrary.Tests;
 [TestFixture]
 public class SwaggerStubGenTests
 {
+    public static object HandlerImplementation(params object[] parameters)
+    {
+        Console.WriteLine("HandlerImplementation:");
+
+        foreach (var parameter in parameters)
+            Console.WriteLine(parameter);
+
+        return null;
+    }
+
+    public static object HandlerImplementation_2args(object a, object b)
+    {
+        Console.WriteLine("HandlerImplementation:");
+        Console.WriteLine(a);
+        Console.WriteLine(b);
+
+        return null;
+    }
+
+    
     // Test the compilation of the generated server code
     [Test]
     public async Task TestSwaggerStubGenAsync()
@@ -69,5 +90,275 @@ public class SwaggerStubGenTests
         // Load the assembly from the byte array
         var assembly = Assembly.Load(stream.ToArray());
         Assert.NotNull(assembly);
+
+        // Find the IController interface in the assembly
+        var controllerInterface = assembly.DefinedTypes.FirstOrDefault(t => t.Name == "IController");
+
+        // Dynamically compile an implementation of the IController interface using System.Reflection.Emit.
+        // The implementation should forward the call to a single method.
+
+        // Create a dynamic assembly
+        var assemblyName = new AssemblyName("TestAssembly");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("TestModule");
+
+        // Enumerate all methods in the IController interface
+        var methodInfos = controllerInterface.GetMethods();
+
+        // Create a type that implements the IController interface
+        var typeBuilder =
+            moduleBuilder.DefineType("TestType", TypeAttributes.Public, null, new[] { controllerInterface });
+
+        // Implement each method of the IController interface.
+        // Let's make all methods call HandlerImplementation.
+        foreach (var methodInfo in methodInfos)
+        {
+            // Create a method builder
+            var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name,
+                MethodAttributes.Public | MethodAttributes.Virtual, methodInfo.ReturnType,
+                methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
+
+            // Build a method that calls HandlerImplementation
+            var il = methodBuilder.GetILGenerator();
+
+            // Pack the arguments in an object array
+            il.Emit(OpCodes.Ldc_I4, methodInfo.GetParameters().Length);
+            il.Emit(OpCodes.Newarr, typeof(object));
+            
+            for (var i = 0; i < methodInfo.GetParameters().Length; i++)
+            {
+                il.Emit(OpCodes.Dup);
+                il.Emit(OpCodes.Ldc_I4, i);
+                il.Emit(OpCodes.Ldarg, i+1); // Arg 0 is "this", so we need to skip it
+                il.Emit(OpCodes.Box, methodInfo.GetParameters()[i].ParameterType);
+                il.Emit(OpCodes.Stelem_Ref);
+            }
+            
+            // Call the HandlerImplementation method
+            il.Emit(OpCodes.Call, typeof(SwaggerStubGenTests).GetMethod(nameof(HandlerImplementation)));
+            
+            il.Emit(OpCodes.Ret);
+            
+            // Mark the method as an override
+            typeBuilder.DefineMethodOverride(methodBuilder, methodInfo);
+        }
+
+        // Create the type
+        var type = typeBuilder.CreateType();
+
+        // Create an instance of the type
+        var instance = Activator.CreateInstance(type);
+
+        // Invoke the first method
+        var method = type.GetMethod(methodInfos[0].Name);
+        var r = method.Invoke(instance, new object[] { 10, "abc", null });
+
+        // The test passes if the code compiles and the method can be invoked
+        Assert.Pass();
     }
+
+    [Test]
+    public void TestSimpleDynamicMethod()
+    {
+        // Dynamically generate a method that adds two integer arguments and returns the result.
+        // The method is compiled using System.Reflection.Emit.
+
+        // Create a dynamic assembly
+        var assemblyName = new AssemblyName("TestAssembly");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("TestModule");
+
+        // Create a new type
+        var typeBuilder = moduleBuilder.DefineType("TestType", TypeAttributes.Public);
+
+        // Create a method builder
+        var methodBuilder = typeBuilder.DefineMethod("Add", MethodAttributes.Public | MethodAttributes.Static,
+            typeof(int), new[] { typeof(int), typeof(int) });
+
+        // Build the method
+        var il = methodBuilder.GetILGenerator();
+
+        // Load the first argument onto the stack
+        il.Emit(OpCodes.Ldarg_0);
+
+        // Load the second argument onto the stack
+        il.Emit(OpCodes.Ldarg_1);
+
+        // Add the two arguments
+        il.Emit(OpCodes.Add);
+
+        // Return the result
+        il.Emit(OpCodes.Ret);
+
+        // Create the type
+        var type = typeBuilder.CreateType();
+
+        // Invoke the method
+        var method = type.GetMethod("Add");
+
+        var result = method.Invoke(null, new object[] { 10, 20 });
+
+        // Check the result, it should be 30
+        Assert.AreEqual(30, result);
+    }
+    
+    public static int AddImpl(int a, int b)
+    {
+        return a + b;
+    }
+
+    [Test]
+    public void TestSimpleDynamicMethod_Add()
+    {
+        // Dynamically generate a method that calls HandlerImplementation and returns the result.
+        // The method is compiled using System.Reflection.Emit.
+
+        // Create a dynamic assembly
+        var assemblyName = new AssemblyName("TestAssembly");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("TestModule");
+
+        // Create a new type
+        var typeBuilder = moduleBuilder.DefineType("TestType", TypeAttributes.Public);
+
+        // Create a method builder
+        var methodBuilder = typeBuilder.DefineMethod("Handle", MethodAttributes.Public | MethodAttributes.Static,
+            typeof(int), new[] { typeof(int), typeof(int) });
+        
+        // Build the method
+        var il = methodBuilder.GetILGenerator();
+        
+        // For each method parameter, emit a Ldarg instruction to load the parameter onto the stack
+        for (var i = 0; i < 2; i++)
+            il.Emit(OpCodes.Ldarg, i);
+        
+        // Call AddImpl
+        var targetMethod = typeof(SwaggerStubGenTests).GetMethod(nameof(AddImpl));
+        il.Emit(OpCodes.Call, targetMethod);
+        
+        // Return the result
+        il.Emit(OpCodes.Ret);
+        
+        // Create the type
+        var type = typeBuilder.CreateType();
+        
+        // Invoke the method
+        var method = type.GetMethod("Handle");
+        
+        var result = method.Invoke(null, new object[] { 10, 20 });
+ 
+        // The result should be 30
+        Assert.AreEqual(30, result);
+    }
+    
+    public static object AddImpl_Boxed(object a, object b)
+    {
+        return (int)a + (int)b;
+    }
+
+    [Test]
+    public void TestSimpleDynamicMethod_Add_Boxed()
+    {
+        // Dynamically generate a method that calls HandlerImplementation and returns the result.
+        // The method is compiled using System.Reflection.Emit.
+
+        // Create a dynamic assembly
+        var assemblyName = new AssemblyName("TestAssembly");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("TestModule");
+
+        // Create a new type
+        var typeBuilder = moduleBuilder.DefineType("TestType", TypeAttributes.Public);
+
+        // Create a method builder
+        var methodBuilder = typeBuilder.DefineMethod("Handle", MethodAttributes.Public | MethodAttributes.Static,
+            typeof(int), new[] { typeof(object), typeof(object) });
+        
+        // Build the method
+        var il = methodBuilder.GetILGenerator();
+        
+        // For each method parameter, emit a Ldarg instruction to load the parameter onto the stack
+        for (var i = 0; i < 2; i++)
+            il.Emit(OpCodes.Ldarg, i);
+        
+        // Call AddImpl_Boxed
+        var targetMethod = typeof(SwaggerStubGenTests).GetMethod(nameof(AddImpl_Boxed));
+        il.Emit(OpCodes.Call, targetMethod);
+        
+        // Unbox the return value into a integer
+        il.Emit(OpCodes.Unbox_Any, typeof(int));
+        
+        // Return the result
+        il.Emit(OpCodes.Ret);
+        
+        // Create the type
+        var type = typeBuilder.CreateType();
+        
+        // Invoke the method
+        var method = type.GetMethod("Handle");
+        
+        var result = method.Invoke(null, new object[] { 10, 20 });
+ 
+        // The result should be 30
+        Assert.AreEqual(30, result);
+    }
+    
+    [Test]
+    public void TestDynamicMethod_CallHandlerWithVarArgs()
+    {
+        // Dynamically generate a method that calls HandlerImplementation packing all arguments into params.
+        // The method is compiled using System.Reflection.Emit.
+
+        // Create a dynamic assembly
+        var assemblyName = new AssemblyName("TestAssembly");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("TestModule");
+
+        // Create a new type
+        var typeBuilder = moduleBuilder.DefineType("TestType", TypeAttributes.Public);
+
+        var argTypes = new[]
+        {
+            typeof(object),
+            typeof(int),
+            typeof(object)
+        };
+
+        // Create a method builder
+        var methodBuilder = typeBuilder.DefineMethod("Handle", MethodAttributes.Public | MethodAttributes.Static,
+            typeof(object), argTypes);
+        
+        // Build the method
+        var il = methodBuilder.GetILGenerator();
+        
+        // Pack the arguments in an object array
+        il.Emit(OpCodes.Ldc_I4, argTypes.Length);
+        il.Emit(OpCodes.Newarr, typeof(object));
+        for (var i = 0; i < argTypes.Length; i++)
+        {
+            il.Emit(OpCodes.Dup);
+            il.Emit(OpCodes.Ldc_I4, i);
+            il.Emit(OpCodes.Ldarg, i);
+            il.Emit(OpCodes.Box, argTypes[i]);
+            il.Emit(OpCodes.Stelem_Ref);
+        }
+
+        // Call the method
+        var targetMethod = typeof(SwaggerStubGenTests).GetMethod(nameof(HandlerImplementation));
+        il.Emit(OpCodes.Call, targetMethod);
+        
+        // Return the result
+        il.Emit(OpCodes.Ret);
+        
+        // Create the type
+        var type = typeBuilder.CreateType();
+        
+        // Invoke the method
+        var method = type.GetMethod("Handle");
+        
+        var result = method.Invoke(null, new object[] { 10, 11, 12 });
+        
+        // The result should be null
+        Assert.IsNull(result);
+    }   
 }
