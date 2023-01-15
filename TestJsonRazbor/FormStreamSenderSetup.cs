@@ -205,14 +205,21 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false and nc.srcid
             textBoxName.Text = st.Name;
             textBoxDescription.Text = st.Description;
             fields.Clear();
-            fields.AddRange(st.fieldsDict.Select(ii => new FieldItem() { Name = ii.Value.Name, Detail = ii.Value.Detail, Type = ii.Value.Type, Calculated=(bool)ii.Value.Calculated, SensitiveData = ii.Value.SensitiveData, refColumn=(ii.Value.linkedColumn==null?null:new ItemColumn(ii.Value.linkedColumn,conn)) }));
+            fields.AddRange(st.fieldsDict.Select(ii => new FieldItem() { Name = ii.Value.Name, Detail = ii.Value.Detail, Type = ii.Value.Type, Calculated=(bool)((ii.Value.Calculated== null)?false: ii.Value.Calculated), SensitiveData = ii.Value?.SensitiveData, refColumn=(ii.Value.linkedColumn==null?null:new ItemColumn(ii.Value.linkedColumn,conn)) }));
             RefreshListFields();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            StreamSender.ToConsul(toStream());
-            ownerSender.setStream(getContent());
+            try
+            {
+                StreamSender.ToConsul(toStream());
+                ownerSender.setStream(getContent());
+            } 
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
         bool streamNameChanged = false;
         private void textBoxName_TextChanged(object sender, EventArgs e)

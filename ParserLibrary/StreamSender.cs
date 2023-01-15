@@ -256,7 +256,7 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
     {
 
         HttpClient httpClient = new HttpClient();
-        StreamConsul consul = new StreamConsul() { Name = stream.Name, Description = stream.Description, fields = stream.fields.Select(ii => new StreamConsul.Field() { Name = ii.Name, Detail = ii.Detail, Type = ii.Type,Calculated=(bool)ii.Calculated }).ToList() };
+        StreamConsul consul = new StreamConsul() { Name = stream.Name, Description = stream.Description, fields = stream.fields.Select(ii => new StreamConsul.Field() { Name = ii.Name, Detail = ii.Detail, Type = ii.Type,Calculated=(bool)((ii.Calculated==null)?false:ii.Calculated) }).ToList() };
         string CONSUL_ADDR = "http://192.168.75.204:8500";
         var res =httpClient.PutAsJsonAsync<StreamConsul>($"{CONSUL_ADDR}/v1/kv/ROOT/STREAMS/Schemas/{stream.Name}", consul,new JsonSerializerOptions()).ContinueWith(ii =>
         {
