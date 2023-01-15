@@ -81,6 +81,8 @@ namespace TestJsonRazbor
 
         private void FormTestPipeline_Load(object sender, EventArgs e)
         {
+            foreach(var scr in pip.scenarios)
+                comboBox1.Items.Add(scr);
             foreach (Step step in pip.steps)
             {
                 listView1.Items.Add(new ListViewItem(new string[] { step.IDStep, (step.receiver == null) ? "" : step.receiver.MocMode.ToString(), (step.sender == null) ? "" : step.sender.MocMode.ToString() }));
@@ -248,6 +250,22 @@ namespace TestJsonRazbor
 
             labelCount.Text = $"Executed:{HTTPReceiver.KestrelServer.CountExecuted}";
             labelOpened.Text = $"Open:{HTTPReceiver.KestrelServer.CountOpened}";
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelPerf_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonScenario_Click(object sender, EventArgs e)
+        {
+            FormAddScenario frm = new FormAddScenario(pip);
+            frm.ShowDialog();
         }
     }
 }

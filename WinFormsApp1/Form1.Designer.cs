@@ -282,10 +282,10 @@
             this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tableViewControl1.AutoSize = true;
-            this.tableViewControl1.Location = new System.Drawing.Point(390, 244);
+            this.tableViewControl1.Location = new System.Drawing.Point(368, 244);
             this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tableViewControl1.Name = "tableViewControl1";
-            this.tableViewControl1.Size = new System.Drawing.Size(324, 219);
+            this.tableViewControl1.Size = new System.Drawing.Size(346, 263);
             this.tableViewControl1.TabIndex = 14;
             // 
             // textBoxTableAdditional
