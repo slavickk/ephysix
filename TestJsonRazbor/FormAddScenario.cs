@@ -71,7 +71,7 @@ namespace TestJsonRazbor
                 checkBoxRec.Checked = currentScenarion.mocs[index].isMocReceiverEnabled;
                 checkBoxSendEnable.Checked = currentScenarion.mocs[index].isMocSenderEnabled;
                 textBox2.Text = currentScenarion.mocs[index].MocFileReceiver;
-                textBox2.Text = currentScenarion.mocs[index].MocFileSender;
+                textBox3.Text = currentScenarion.mocs[index].MocFileSender;
             }
         }
 
