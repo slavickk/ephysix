@@ -71,6 +71,7 @@ public class Pipeline
     [YamlIgnore]
     public string tempMocData ="";
     public Step[] steps { get; set; } = new Step[] { };// new Step[] { new Step() };
+    public List<Scenario> scenarios { get; set; }= new List<Scenario>();
     public bool debugMode
     {
         set
