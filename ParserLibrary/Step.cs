@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using YamlDotNet.Core.Tokens;
@@ -166,6 +167,9 @@ public class Step
     public bool isBridge = false;
 
     public static bool saveAllResponses = false;
+
+
+    Task saveScenarious = null;
     private async Task Receiver_stringReceived(string input, object context)
     {
 //        owner.mainActivity = owner.GetActivity("receive package", null);
@@ -181,7 +185,6 @@ public class Step
         if(saveAllResponses)
         {
             contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
-            this.owner.scenarios.Add(contextItem.currentScenario);
             contextItem.currentScenario.mocs.Add(new Scenario.Item() { IDStep = this.IDStep, isMocReceiverEnabled = true, MocFileReceiver = input });
         }
         owner.lastExecutedEl = rootElement;
@@ -216,7 +219,31 @@ public class Step
                         item.isMocSenderEnabled = true;
                         item.MocFileSender = ans;   
                     }
+                    this.owner.scenarios.Enqueue(contextItem.currentScenario);
+                    if (saveScenarious == null)
+                        saveScenarious = Task.Run( () => 
+                        {
+                            if(!Directory.Exists(SaveScenariousDirectory))
+                                Directory.CreateDirectory(SaveScenariousDirectory);
+                            Scenario scenario;
+                            while (0 == 0)
+                            {
+                                while (owner.scenarios.TryDequeue(out scenario))
+                                {
+                                    string fileName = Path.Combine(SaveScenariousDirectory, Path.GetFileName(Path.GetRandomFileName()));
+                                    using (StreamWriter sw = new StreamWriter(fileName))
+                                    {
+                                        sw.Write(JsonSerializer.Serialize<Scenario>(scenario));
+                                    }
 
+
+                                }
+                                Thread.Sleep(100);
+                            }
+
+                    //        this.SizeDirectory
+                        }
+                        );
 
                 }
             }
@@ -373,6 +400,7 @@ public class Step
     /// </remarks>
     public Int64 maxSavedLimitInMB = 0;
     public string SaveErrorSendDirectory = "";
+    public string SaveScenariousDirectory = "C:\\d\\Scenarious\\";
     Task tRestore;
     private async Task FilterStep(ContextItem context, AbstrParser.UniEl rootElement)
     {
