@@ -118,7 +118,7 @@ namespace TestJsonRazbor
 
         private void buttonDel_Click(object sender, EventArgs e)
         {
-            pip.scenarios.Remove(currentScenarion);
+           // pip.scenarios.Remove(currentScenarion);
             RefreshScenarious();
         }
     }
