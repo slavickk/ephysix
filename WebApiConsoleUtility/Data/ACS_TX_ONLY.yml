@@ -9,7 +9,7 @@ steps:
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
   description: Check registration extract
-  receiver: !HTTPReceiver
+  receiver: !HTTPReceiverSwagger  # !HTTPReceiverSwagger (but keep HTTPReceiver)
     port: 14403
     responseType: text/xml
     cantTryParse: true
