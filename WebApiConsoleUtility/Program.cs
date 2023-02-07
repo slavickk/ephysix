@@ -50,7 +50,18 @@ namespace WebApiConsoleUtility
             string LogPath =Environment.GetEnvironmentVariable("LOG_PATH");
             string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
-            LogEventLevel defLevel = LogEventLevel.Debug;
+            string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
+            Pipeline.AgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
+            string sport= Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
+            if (string.IsNullOrEmpty(sport))
+                Pipeline.AgentPort = -1;
+            else
+                Pipeline.AgentPort = Convert.ToInt32(sport);
+
+            Pipeline.ServiceAddr = Environment.GetEnvironmentVariable(Pipeline.EnvironmentVar);
+            if(Pipeline.ServiceAddr == null)    
+                Pipeline.ServiceAddr = "localhost:44352";
+            LogEventLevel defLevel = LogEventLevel.Information;
             object outVal;
             string levelInfo = "";
             if (!IgnoreAll)
@@ -92,7 +103,7 @@ namespace WebApiConsoleUtility
         .CreateLogger();
 
             }
-
+            Log.Information($"Service url on {Pipeline.ServiceAddr}");
             if (!IgnoreAll)
             {
                 if (levelInfo != "")
@@ -102,8 +113,8 @@ namespace WebApiConsoleUtility
                 {
                     if (YamlPath == null)
                     {
-                        Log.Fatal("YAML_PATH environment variable not set.Set default config file placed at /app/Data/model.yml (saved in container)");
-                        YamlPath = "/app/Data/model.yml";
+                        YamlPath = "/app/Data/ACS_TW.yml";
+                        Log.Fatal($"YAML_PATH environment variable not set.Set default config file placed at {YamlPath} (saved in container)");
                     }
                     if (!File.Exists(YamlPath))
                     {
@@ -114,8 +125,27 @@ namespace WebApiConsoleUtility
                         return;
 
                     }
+                    if (Pipeline.AgentPort > 0)
+                        Log.Information($"set jaeger host {Pipeline.AgentHost} on port {Pipeline.AgentPort}");
+                    else
+                        Log.Information($"jaeger host not set");
+
                     Log.Information("... Parsing " + YamlPath);
-                    pip = Pipeline.load(YamlPath);
+                    try
+                    {
+                        pip = Pipeline.load(YamlPath);
+                    }
+                    catch(Exception e66) 
+                    {
+                        Log.Fatal($"Error parsing {e66}");
+                        return;
+                    }
+                    if (DEBUG_MODE != null)
+                    {
+                        pip.debugMode = true;
+                        Log.Information("Set debugMode ");
+                    }
+
                     var recForSaver = pip.steps.FirstOrDefault(ii => ii.receiver != null && ii.receiver.saver != null);
                     if (recForSaver != null)
                     {
@@ -141,14 +171,15 @@ namespace WebApiConsoleUtility
                         Log.Information("Self test OK. Run pipeline.");
                         pip.run().ContinueWith((runner) =>
                             {
-                                Log.Information("Pipeline execution stopped.Terminating application...");
+                                Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
                                 System.Diagnostics.Process.GetCurrentProcess().Kill();
+                                return;
                             });
                     }
                     else
                     {
-                        Log.Fatal("Self test failed. Terminate execution.");
-                        return;
+                        Log.Error("Self test failed. Pipeline execution not possible.");
+//                        return;
 
                     }
 

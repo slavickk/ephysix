@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -17,7 +18,7 @@ namespace WinFormsApp1
     public class GenerateStatement
     {
        static HttpClient client;
-
+        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=192.168.75.219;Port=5432;Database=fpdb;SearchPath=md;";
         public class CamundaAnswer1
         {
             public class Link
@@ -144,7 +145,7 @@ namespace WinFormsApp1
         public async static Task SendToCamunda(string path,string processId,List<ItemVar> variables)
         {
 //                    const string camundaPath = @"http://localhost:8080/engine-rest/";
-            const string camundaPath = @"http://192.168.75.217:18080/engine-rest/";
+            const string camundaPath = @"http://192.168.75.217:27858/engine-rest/";
             if (client == null)
                 client= new HttpClient();
 //            var ans7 =await  GetIncidents(camundaPath);
@@ -373,6 +374,9 @@ namespace WinFormsApp1
             public string Name = "";
             public string Alias="";
             public string Condition="";
+            public string url = "";
+            public string sqlurl = "";
+            public int IntervalUpdateInSec = 0;
             public class SelectListItem
             {
                 public string expression = "";
@@ -544,7 +548,7 @@ namespace WinFormsApp1
                         if (list.Count(ii => ii.Name == item.NameColumns2 && ii.Alias == item.Alias2Table) > 0)
                             second = false;
                     }
-                    if (!item.isExternal)
+                    if (!item.isExternal  || itemTables.First(ii=>ii.Name== item.Name1Table).src_id == itemTables.First(ii => ii.Name == item.Name2Table).src_id)
                     {
                         if (!second)
                             returnValue += $" inner join  {item.Name1Table} {item.Alias1Table} on ({item.getOnClause()})  \r\n";
@@ -631,7 +635,11 @@ left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
                             if (!reader.IsDBNull(3))
                                 dest_id =Convert.ToInt32( reader.GetString(3));
                             if (!reader.IsDBNull(4))
-                                keyCount = Convert.ToInt32(reader.GetString(4));
+                            {
+                                var val1 = reader.GetString(4);
+                                if(!string.IsNullOrEmpty(val1))
+                                     keyCount = Convert.ToInt32(reader.GetString(4));
+                            }
                         }
                     }
                 }
@@ -736,7 +744,7 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
                 await FillTableInfo(conn, allTables, item, item.IdEtlRelation);
 
                 {
-                    string command = @"select t.name1table,t.columns1table,t.name2table,t.columns2table from ccfa_fk_info_as_table(@idFK) t";
+                    string command = @"select t.name1table,t.columns1table,t.name2table,t.columns2table from md_fk_info_as_table(@idFK) t";
                     await using (var cmd = new NpgsqlCommand(command, conn))
                     {
                         cmd.Parameters.AddWithValue("@idFK", item.IdFkRelation);
@@ -766,11 +774,14 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
                                 if (item.isExternal)
                                 {
                                     var t1 = allTables.First(ii => ii.Name == table1);
-                                    t1.needed_indexes = columns1.Split(',').Select(ii => t1.columns.First(i1 => i1.Name == ii.Trim())).ToList();//
-                                    t1.SelectList.AddRange(columns1.Split(',').Select(ii => new ItemTable.SelectListItem(ii)));
                                     var t2 = allTables.First(ii => ii.Name == table2);
-                                    t2.needed_indexes = columns2.Split(',').Select(ii => t1.columns.First(i1 => i1.Name == ii.Trim())).ToList();//
-                                    t2.SelectList.AddRange(columns2.Split(',').Select(ii => new ItemTable.SelectListItem(ii)));
+                                    if (t1.src_id != t2.src_id)
+                                    {
+                                        t1.needed_indexes = columns1.Split(',').Select(ii => t1.columns.First(i1 => i1.Name == ii.Trim())).ToList();//
+                                        t1.SelectList.AddRange(columns1.Split(',').Select(ii => new ItemTable.SelectListItem(ii)));
+                                        t2.needed_indexes = columns2.Split(',').Select(ii => t2.columns.First(i1 => i1.Name == ii.Trim())).ToList();//
+                                        t2.SelectList.AddRange(columns2.Split(',').Select(ii => new ItemTable.SelectListItem(ii)));
+                                    }
                                 }
                             }
                         }
@@ -788,12 +799,12 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
                 bool skipSecond = false;
                 if (item.isExternal)
                 {
-                    if (list.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name1Table && ii.Alias1Table == item.Alias1Table) || ((ii.Name2Table == item.Name1Table && ii.Alias2Table == item.Alias1Table)))) == 0)
+                    if (list.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name1Table && ii.Alias1Table == item.Alias1Table) || ((ii.Name2Table == item.Name1Table && ii.Alias2Table == item.Alias1Table)))) == 0 && allTables.First(ii=>ii.Name==item.Name1Table).src_id != allTables.First(ii => ii.Name == item.Name2Table).src_id)
                     {
                         skipSecond = true;
                         //                        item.Name2Table = "";
                     }
-                    if (list.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name2Table && ii.Alias1Table == item.Alias2Table) || ((ii.Name2Table == item.Name2Table && ii.Alias2Table == item.Alias2Table)))) == 0)
+                    if (list.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name2Table && ii.Alias1Table == item.Alias2Table) || ((ii.Name2Table == item.Name2Table && ii.Alias2Table == item.Alias2Table)))) == 0 && allTables.First(ii => ii.Name == item.Name1Table).src_id != allTables.First(ii => ii.Name == item.Name2Table).src_id)
                     {
                         skipFirst = true;
                     }
@@ -838,7 +849,7 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
             countTask = list.Max(ii => ii.seq_id);
 
             //            string outputPath = "outputTable";
-            bool isExternalDest = countTask == 1 && list[0].srcId != 2 && dest_id != 2;
+            bool isExternalDest = countTask == 1 /*&& list[0].srcId != 2*/ && dest_id != 5;
             for (int i = 1; i <= countTask; i++)
             {
                 await AddTask(conn, process, list, allTables, tasks, (countTask==1 && !isExternalDest),outputTable, i,dest_id,id,variables,keyCount);
@@ -849,7 +860,7 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
                 allTables.First().seq_id = s_id;//1;??? 1;
                 await AddTask(conn, process, list, allTables, tasks, false, outputTable, s_id, dest_id, id,variables,keyCount);
                 countTask = 1;
-                isExternalDest = countTask == 1  && dest_id != 2;
+                isExternalDest = countTask == 1  && dest_id != 5;
             }
             /* if (isExternalDest)
                  countTask++;
@@ -896,9 +907,16 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
         private static async Task FillTableInfo(NpgsqlConnection conn, List<ItemTable> allTables, ItemRel item,long id)
         {
             {
-                string command = @"select at.val,n.name,st.val,st1.val,a1.toid,n.srcid from md_arc a
+                string command = @"select at.val,n.name,st.val,st1.val,a1.toid,n.srcid
+,au.val url,asq.val isql,asi.val intrval
+from md_arc a
 inner join md_node n on(n.nodeid = a.toid and n.typeid = md_get_type('ETLTable') and n.isdeleted=false)
 inner join md_arc a1 on (n.nodeid=a1.fromid  and a1.isdeleted=false)
+
+left join md_node_attr_val au on (a1.toid=au.nodeid and au.attrid=107 and au.isdeleted=false)
+left join md_node_attr_val asq on (a1.toid=asq.nodeid and asq.attrid=108 and asq.isdeleted=false)
+left join md_node_attr_val asi on (a1.toid=asi.nodeid and asi.attrid=109 and asi.isdeleted=false)
+
 left join md_node_attr_val at on(at.nodeid = n.nodeid and at.attrid = 39/*md_get_attr('Alias')*/)
 left join md_node_attr_val st on(st.nodeid = n.nodeid and st.attrid = 41/*md_get_attr('SelectList')*/)
 left join md_node_attr_val st1 on(st1.nodeid = n.nodeid and st1.attrid =40/* md_get_attr('Condition')*/)
@@ -923,9 +941,21 @@ where a.fromid = @id  and a.isdeleted=false";
                             long table_id = reader.GetInt64(4);
                             int src_id=reader.GetInt32(5);
 
+                            string url = "";
+                            if (!reader.IsDBNull(6))
+                                url = reader.GetString(6);
+
+                            string sqlurl = "";
+                            if (!reader.IsDBNull(7))
+                                sqlurl = reader.GetString(7);
+
+                            int interval=0;
+                            if (!reader.IsDBNull(8))
+                                interval = Convert.ToInt32(reader.GetString(8));
+
                             if (allTables.Count(ii => ii.Name == table && ii.Alias == alias) == 0)
                             {
-                                allTables.Add(new ItemTable() { src_id=src_id, Name = table, Alias = alias, Condition = condition, SelectList = selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).Select(ii => new ItemTable.SelectListItem(ii) { fromOriginalSelect = true }).ToList(), TableId = table_id });
+                                allTables.Add(new ItemTable() { url=url, sqlurl=sqlurl, IntervalUpdateInSec=interval, src_id=src_id, Name = table, Alias = alias, Condition = condition, SelectList = selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).Select(ii => new ItemTable.SelectListItem(ii) { fromOriginalSelect = true }).ToList(), TableId = table_id });
                             }
                             if (item != null)
                             {
@@ -963,7 +993,7 @@ where a.fromid = @id  and a.isdeleted=false";
             task.indexes.AddRange(allTables.Where(ii => ii.seq_id == i && ii.needed_indexes.Count > 0).Select(ii => ii.needed_indexes));
             task.source_id =allTables.First().src_id;
             if (isFinishTask && i >1)
-                task.source_id = 2; //Temp decision
+                task.source_id = 5; //Temp decision
             if (isFinishTask && i > 1)
                 task.dest_id = dest_id; //Temp decision
 //            List<ItemTable.ColumnItem> selectList;
@@ -980,7 +1010,7 @@ where a.fromid = @id  and a.isdeleted=false";
 
             }*/
 
-            process.tasks.Add(await task.toExternalTask(conn, i,isFinishTask?"Merge":"Extract",columns,variables ));
+            process.tasks.AddRange(await task.toExternalTask(conn, i,isFinishTask?"Merge":"Extract",columns,variables, allTables.Where(ii => ii.seq_id == i)));
             tasks.Add(task);
         }
 
@@ -1144,7 +1174,7 @@ where a.fromid = @id  and a.isdeleted=false";
         {
             public int seq_id;
             public int source_id = 1;
-            public int dest_id = 2;
+            public int dest_id = 5;
             public string outputPath;
             public List<List<ItemTable.ColumnItem>> indexes =  new List<List<ItemTable.ColumnItem>>();
             public string sqlExec;
@@ -1154,10 +1184,12 @@ where a.fromid = @id  and a.isdeleted=false";
             {
                 if (indexes.Count == 0)
                     return "";
-                string retValue = "[";
+                string retValue = $"[";
+                bool first = true;
                 foreach(var item in indexes)
                 {
-                    retValue += "\""+String.Join(',', item.Select(ii => ii.Name).ToArray())+ "\"";
+                    retValue += (first?"":",")+"\""+String.Join(',', item.Select(ii => ii.Name).ToArray())+ "\"";
+                    first = false;
                 }
                 return retValue + "]";
             }
@@ -1173,10 +1205,35 @@ where a.fromid = @id  and a.isdeleted=false";
                /* }*/
                 return retValue + "}";
             }
-            public async Task<CamundaProcess.ExternalTask> toExternalTask(NpgsqlConnection conn,int index,string description, List<ItemTable.ColumnItem> columnList,List<ItemVar> variables)
+
+            CamundaProcess.ExternalTask urlTask(string ConnectionString, string ConnectionAdm, ItemTable table)
             {
+                CamundaProcess.ExternalTask retValue = new CamundaProcess.ExternalTask();
+                retValue.id = $"Id{table.Name}";
+                retValue.name = $"ETL_Task_{table.Name}";
+                retValue.topic = "url_crowler";
+                retValue.parameters.Clear();
+                retValue.Annotation = $"Get data from {"external url"} to {table.Name} ";
+                retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("ConnSelect", ConnectionString));
+                retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("ConnAdm", ConnectionAdm));
+                retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("URL", table.url));
+                retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQL",table.sqlurl));
+                retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Table", table.Name));
+                retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("UpdateTimeout", table.IntervalUpdateInSec.ToString()));
+                return retValue;
+
+            }
+
+            public async Task<List<CamundaProcess.ExternalTask>> toExternalTask(NpgsqlConnection conn,int index,string description, List<ItemTable.ColumnItem> columnList,List<ItemVar> variables, IEnumerable<ItemTable> allTables)
+            {
+                List<CamundaProcess.ExternalTask> listValue = new List<CamundaProcess.ExternalTask>();
                 var src=await GenerateStatement.getSrcInfo(source_id, conn);
                 var dest = await GenerateStatement.getSrcInfo(dest_id, conn);
+                foreach( var table in allTables.Where(ii=>!string.IsNullOrEmpty(ii.url)))
+                {
+                    listValue.Add(urlTask(src.connectionString, GenerateStatement.ConnectionStringAdm, table));
+                }
+
                 CamundaProcess.ExternalTask retValue = new CamundaProcess.ExternalTask();
                 retValue.id = $"Id{index}";
                 retValue.name = $"ETL_Task_{index}";
@@ -1188,9 +1245,12 @@ where a.fromid = @id  and a.isdeleted=false";
                 {
                     int posBase = src.dsn.LastIndexOf("/");
                     int posPort = src.dsn.LastIndexOf(":");
-                    string adm = $"User ID={src.login};Password={src.password};Host={src.dsn.Substring(0,posPort)};Port={src.dsn.Substring(posPort+1,4)};Database={src.dsn.Substring(posBase+1)};";
+//                    var admSet = await GenerateStatement.getSrcInfo(2, conn);
+
+
+                    string adm = GenerateStatement.ConnectionStringAdm;// $"User ID={admSet.login};Password={admSet.password};Host={src.dsn.Substring(0,posPort)};Port={src.dsn.Substring(posPort+1,4)};Database={src.dsn.Substring(posBase+1)};";
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("DictName", this.outputPath));
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("ConnSelect", adm));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("ConnSelect", src.connectionString));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("ConnAdm", adm));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("DictAddr", dest.dsn));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("MaxRecords","1000"));
@@ -1225,7 +1285,8 @@ where a.fromid = @id  and a.isdeleted=false";
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLParams", String.Join(", ",variables.Select(ii=>ii.Name))));
                 }
                 retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Signature", "569074234566666"));
-                return retValue;
+                listValue.Add(retValue);
+                return listValue;
             }
         }
 
@@ -1276,7 +1337,16 @@ where pan>:pan and orderedstatustime > to_date(:ost, 'DD.MM.YYYY Hh24:Mi:SS') an
             public string login;
             public string password;
             public string description;
+            public string connectionString
+            {
+                get
+                {
+                    int posBase = dsn.LastIndexOf("/");
+                    int posPort = dsn.LastIndexOf(":");
 
+                    return $"User ID={login};Password={password};Host={dsn.Substring(0, posPort)};Port={dsn.Substring(posPort + 1, 4)};Database={dsn.Substring(posBase + 1)};";
+                }
+            }
         }
         public static async Task<SrcItem> getSrcInfo(int id, NpgsqlConnection conn)
         {

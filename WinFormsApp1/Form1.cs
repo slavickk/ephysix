@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using CamundaInterface;
+using Npgsql;
 
 namespace WinFormsApp1
 {
@@ -19,9 +20,13 @@ namespace WinFormsApp1
                 return $"{id}:{Name}";
             }
         }
+        Task runner;
         private async void Form1_Load(object sender, EventArgs e)
+
         {
-            conn = new NpgsqlConnection("User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;");
+            runner=CamundaExecutor.runCycle();
+
+            conn = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
             conn.Open();
             tableViewControl1.OnTableDoubleClicked += TableViewControl1_OnTableDoubleClicked;
             //            GenerateStatement.Generate(conn, 315721);
@@ -346,7 +351,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
             }
             try
             {
-                await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(2,@id,@title,@output_name,@description,@dest_id,@add_par)", conn))
+                await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(5,@id,@title,@output_name,@description,@dest_id,@add_par)", conn))
                 {
                     cmd.Parameters.AddWithValue("@id", idPackage);
                     cmd.Parameters.AddWithValue("@title",ETLName);
@@ -367,7 +372,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
 
                 foreach(var item in variables)
                 {
-                    await using (var cmd = new NpgsqlCommand(@"select * from ccfa_add_etl_variable(2,@id,@name,@description,@type,@defaultValue)", conn))
+                    await using (var cmd = new NpgsqlCommand(@"select * from ccfa_add_etl_variable(5,@id,@name,@description,@type,@defaultValue)", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", idPackage);
                         cmd.Parameters.AddWithValue("@name", item.Name);
@@ -430,7 +435,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
                 } 
 */
                 foreach (var item in relations)
-                    await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetlrelation(2,@etlid,@fk_id,@table1id,@table2id)", conn))
+                    await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetlrelation(5,@etlid,@fk_id,@table1id,@table2id)", conn))
                     {
                         cmd.Parameters.AddWithValue("@etlid", idPackage);
                         cmd.Parameters.AddWithValue("@table1id", item.table1.etl_id);
@@ -445,7 +450,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
                         }
                     }
                 foreach (var item in conditions)
-                    await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetlcondition(2,@tableid,@condition)", conn))
+                    await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetlcondition(5,@tableid,@condition)", conn))
                     {
                         cmd.Parameters.AddWithValue("@tableid", item.table.etl_id);
                         cmd.Parameters.AddWithValue("@condition", item.condition);
@@ -470,7 +475,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false", conn))
         {
             if (lastItem != null)
             {
-                await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetltable(2,@etlid,@tableid,@alias,@select_list)", conn))
+                await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetltable(5,@etlid,@tableid,@alias,@select_list)", conn))
                 {
                     cmd.Parameters.AddWithValue("@etlid", idPackage);
                     cmd.Parameters.AddWithValue("@tableid", lastItem.table.table_id);
@@ -765,6 +770,12 @@ where r.isdeleted = false
         {
             FormExploreFK form = new FormExploreFK(conn);
             form.ShowDialog();
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            FormAddCustomTables frm = new FormAddCustomTables(conn);
+            frm.ShowDialog();
         }
     }
 }

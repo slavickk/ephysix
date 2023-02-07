@@ -86,7 +86,7 @@ static void Prepare()
             {
                 try
                 {
-                    await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender" });
+                    await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler" });
                 }
                 catch (Exception e)
                 {

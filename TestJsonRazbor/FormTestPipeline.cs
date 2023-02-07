@@ -81,10 +81,13 @@ namespace TestJsonRazbor
 
         private void FormTestPipeline_Load(object sender, EventArgs e)
         {
+            foreach(var scr in pip.scenarios)
+                comboBox1.Items.Add(scr);
             foreach (Step step in pip.steps)
             {
                 listView1.Items.Add(new ListViewItem(new string[] { step.IDStep, (step.receiver == null) ? "" : step.receiver.MocMode.ToString(), (step.sender == null) ? "" : step.sender.MocMode.ToString() }));
             }
+            if(listView1.Items.Count>0)
             listView1.SelectedIndices.Add(0);
 
 
@@ -152,6 +155,7 @@ namespace TestJsonRazbor
             lastPerfTime = DateTime.Now;
             lastPerfCount = HTTPReceiver.KestrelServer.metricCountExecuted.getCount();
             lastPerfValue = HTTPReceiver.KestrelServer.metricTimeExecuted.sum;
+            Metrics.metric.allMetrics.Clear(); 
             /*  cancellationToken.IsCancellationRequested = true;
               if(cancellationToken.CanBeCanceled)
               {
@@ -159,10 +163,12 @@ namespace TestJsonRazbor
               }*/
             logTextBox.Text = "";
             pip.debugMode = checkBoxDebug.Checked;
+//            pip.SelfTest().GetAwaiter().GetResult();    
             taskA = Task.Run(async () =>
             {
                 try
                 {
+                    await pip.SelfTest();
                         // specify this thread's Abort() as the cancel delegate
                         using (Canceller.Token.Register(Thread.CurrentThread.Abort))
                         {
@@ -244,6 +250,27 @@ namespace TestJsonRazbor
 
             labelCount.Text = $"Executed:{HTTPReceiver.KestrelServer.CountExecuted}";
             labelOpened.Text = $"Open:{HTTPReceiver.KestrelServer.CountOpened}";
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelPerf_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonScenario_Click(object sender, EventArgs e)
+        {
+            FormAddScenario frm = new FormAddScenario(pip);
+            frm.ShowDialog();
+        }
+
+        private void checkBoxSaveScen_CheckedChanged(object sender, EventArgs e)
+        {
+            Step.saveAllResponses = checkBoxSaveScen.Checked;
         }
     }
 }

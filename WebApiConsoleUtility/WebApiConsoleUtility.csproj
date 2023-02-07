@@ -19,6 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Data\ACS_TW.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\decision.dmn">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Data\model - Copy.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -26,7 +32,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="GeoData\GeoLite2-Country.mmdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Data\ACS_TX_ONLY.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

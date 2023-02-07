@@ -1,0 +1,1 @@
+jaeger-all-in-one.exe --query.ui-config setup.json

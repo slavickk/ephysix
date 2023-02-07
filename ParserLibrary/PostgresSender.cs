@@ -47,7 +47,7 @@ namespace ParserLibrary
         public override TypeContent typeContent => TypeContent.internal_list;
         DateTime timeFinish;
         NpgsqlConnection conn = null;
-        public async override Task<string> sendInternal(AbstrParser.UniEl root)
+        public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context )
         {
             //            var def = root.childs.First(ii => ii.Name == "Define");
             string TableName="";
@@ -185,7 +185,7 @@ namespace ParserLibrary
 
             }
 
-            return await base.sendInternal(root);
+            return await base.sendInternal(root,context);
         }
 
         private static void ExecQu(NpgsqlCommand cmd, string inserted)

@@ -75,6 +75,7 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.button5 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -211,6 +212,7 @@ namespace TestJsonRazbor
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.button5);
             this.groupBox1.Controls.Add(this.textBoxRestorePath);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.checkBoxHandleSendError);
@@ -303,10 +305,10 @@ namespace TestJsonRazbor
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(594, 606);
+            this.button3.Location = new System.Drawing.Point(733, 601);
             this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(141, 43);
+            this.button3.Size = new System.Drawing.Size(46, 43);
             this.button3.TabIndex = 34;
             this.button3.Text = "button3";
             this.button3.UseVisualStyleBackColor = true;
@@ -571,6 +573,16 @@ namespace TestJsonRazbor
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(449, 602);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(253, 46);
+            this.button5.TabIndex = 41;
+            this.button5.Text = "Pipeline metrics";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
             // FormPipeline
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
@@ -645,5 +657,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.CheckBox checkBoxHandleSendError;
         private System.Windows.Forms.TextBox textBoxRestorePath;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button button5;
     }
 }

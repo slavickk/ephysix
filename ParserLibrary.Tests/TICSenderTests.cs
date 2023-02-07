@@ -33,7 +33,7 @@ namespace ParserLibrary.Tests
 
             byte[] bytes = File.ReadAllBytes("TestData/test200.tic")[2..];
 
-            string respJson = await sender.send(TICMessage.DeserializeToJSON(bytes));
+            string respJson = await sender.send(TICMessage.DeserializeToJSON(bytes),null);
 
             byte[] resp = TICMessage.SerializeFromJson(respJson);
             Assert.AreEqual(bytes, resp);
@@ -148,7 +148,7 @@ namespace ParserLibrary.Tests
   }
             }";
 
-            var ans1 = await ticSender.send(ans);
+            var ans1 = await ticSender.send(ans, null);
             Assert.NotNull(ans1);
         }
     }

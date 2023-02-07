@@ -440,7 +440,7 @@ namespace TestJsonRazbor
                 }
             }
 
-            public async override Task<string> sendInternal(AbstrParser.UniEl root)
+            public async override Task<string> sendInternal(AbstrParser.UniEl root,Step.ContextItem context)
             {
                 if (!noDraw)
                 {

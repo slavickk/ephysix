@@ -489,6 +489,8 @@ namespace TestJsonRazbor
 
         private void FormSelectField_Load(object sender, EventArgs e)
         {
+
+            MessageBox.Show($"{this.Width}:{this.Height}:{this.splitContainer1.SplitterDistance}:{this.splitContainer2.SplitterDistance}:{this.splitContainer3.SplitterDistance}");
             //            userControlCondition1.action += UserControlCondition1_action;
             textBoxNameFilter.Text = itemFilter.Name;
 
@@ -1063,6 +1065,11 @@ namespace TestJsonRazbor
             {
                 MessageBox.Show(e77.ToString());
             }
+
+        }
+
+        private void textBoxFalueFieldSearchValue_TextChanged(object sender, EventArgs e)
+        {
 
         }
     }

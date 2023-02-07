@@ -246,12 +246,15 @@ namespace TestJsonRazbor
         Sender sender1;
         private void button3_Click(object sender, EventArgs e)
         {
-            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject =((currentStep.sender== null)? new TICSender(): currentStep.sender) };
-            if (frm.ShowDialog() == DialogResult.OK)
+            if (currentStep != null)
             {
-                SetSenderObject(frm.tObject);
-                currentStep.sender = sender1;
+                FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject = ((currentStep.sender == null) ? new TICSender() : currentStep.sender) };
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    SetSenderObject(frm.tObject);
+                    currentStep.sender = sender1;
 
+                }
             }
         }
 
@@ -287,7 +290,7 @@ namespace TestJsonRazbor
                     List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
                     var rootElement = AbstrParser.CreateNode(null, list, currentStep.IDStep);
                     rootElement = AbstrParser.CreateNode(rootElement, list, "Rec");
-                    var res = await currentStep.FilterInfo1(input, time2, list, rootElement);
+                    var res = await currentStep.FilterInfo1(input, time2, list, rootElement,null);
                     string path = @"C:\D\Out";
                     var fileName = Path.Combine(path, "s_" + sender1.GetType().Name + "_" + Path.GetRandomFileName());
                     using (StreamWriter sw = new StreamWriter(fileName))
@@ -312,7 +315,7 @@ namespace TestJsonRazbor
                 }
                 Task taskA = Task.Run(async () =>
                 {
-                    var res = await sender1.send(sends);
+                    var res = await sender1.send(sends,null);
                     int yy = 0;
                     string path = @"C:\D\Out";
                     var fileName = "s_tic" + Path.GetRandomFileName();
@@ -527,6 +530,12 @@ namespace TestJsonRazbor
         private void FormPipeline_FormClosed(object sender, FormClosedEventArgs e)
         {
             Application.Exit();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            FormFormCounter frm = new FormFormCounter( pip);
+            frm.ShowDialog();
         }
     }
 }

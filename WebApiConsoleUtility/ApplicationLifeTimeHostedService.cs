@@ -40,8 +40,10 @@ namespace WebApiConsoleUtility
 
         private void OnStopping()
         {
-            _logger.LogInformation("Hosted service OnStopping");
+            _logger.LogInformation("OnStopping method called. Sleeping 20 seconds.");
             Thread.Sleep(20000);
+            _logger.LogInformation("OnStopping method called end. Shutdown...");
+
         }
 
         private void OnStopped()

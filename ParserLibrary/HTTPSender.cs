@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Security;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
+using static ParserLibrary.Step;
 
 namespace ParserLibrary;
 
@@ -72,11 +74,45 @@ public  class HTTPSender:Sender,ISelfTested
     bool init = false;
     object syncro = new object();
 
-    public override async Task<string> send(string JsonBody)
+    public override async Task<string> send(string JsonBody, Step.ContextItem context)
     {
         return await  internSend(JsonBody);
     }
-    public  async Task<string> internSend(string body)
+    protected async Task<bool> testGet()
+    {
+        if (!init)
+        {
+            lock (syncro)
+            {
+                if (!init)
+                {
+                    InitClient();
+                    init = true;
+                }
+            }
+        }
+
+        try
+        {
+            var result = await client.GetAsync(urls[index]);
+            if (!result.IsSuccessStatusCode)
+            {
+                Logger.log("Error get http request {res}", Serilog.Events.LogEventLevel.Error, result.StatusCode.ToString());
+
+            }
+            return true;
+        }
+        catch (Exception e63)
+        {
+            Logger.log("Error get", e63, Serilog.Events.LogEventLevel.Error);
+            return false;
+        }
+
+
+    }
+
+
+    public async Task<string> internSend(string body)
     {
         if(!init)
         {
@@ -161,6 +197,7 @@ public  class HTTPSender:Sender,ISelfTested
             //string rules = "";
             if (result.Headers.TryGetValues("InactiveRules", out values))
             {
+                if (values.Count() >0 && !string.IsNullOrEmpty(values.First()))
                 response=response.Substring(0,response.Length - 1)+((response.Length>2)?",":"")+"{\"Inactive\":["+string.Join(",",values.First().Split(";").Select(ii=>$"\"{ii}\""))+"]}]";
                 //rules = values.First();
             }
@@ -218,10 +255,15 @@ public  class HTTPSender:Sender,ISelfTested
     }
 
 
-    public async override Task<string> sendInternal(AbstrParser.UniEl root)
+    public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context)
     {
-        await base.sendInternal(root);
+        await base.sendInternal(root,context);
         string str = formBody(root);
+        if (sendActivity != null)
+        {
+            sendActivity?.SetTag("context.url", owner.owner.SaveContext(str));
+        }
+
         /*            foreach (var el in root.childs)
                         {
                             str += ((first?"":",")+"\"" + el.Name + "\":" + getVal(el );
@@ -234,7 +276,11 @@ public  class HTTPSender:Sender,ISelfTested
         DateTime time1 = DateTime.Now;
         try
         {
+
             var ans = await internSend(str);
+            sendActivity?.AddTag("answer", ans);
+            sendActivity?.AddTag("send.url", this.url);
+
 
             //                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information,this, str, ans);
             //              createMetrics();
@@ -247,6 +293,7 @@ public  class HTTPSender:Sender,ISelfTested
             //                createMetrics();
             if (sendToRex != null)
                 sendToRexErr.Add(time1);
+            Logger.log($"Error to send {this.GetType().Name} url {this.url}", e77, Serilog.Events.LogEventLevel.Error);
             throw;
         }
     }
@@ -273,13 +320,14 @@ public  class HTTPSender:Sender,ISelfTested
         string details;
         bool isSuccess = true;
         Exception exc = null;
-        details = "Make http request to " + this.urls[0];
+        details = "Make http get to " + this.urls[0];
         try
         {
             DateTime time1 = DateTime.Now;
-            var ans = await internSend("{\"stream\":\"checkTest\",\"originalTime\":\"2021-12-18T02:05:04.500Z\"}"); 
-            Logger.log(time1,"{Sender}-Send:{ans}" ,"SelfTest",Serilog.Events.LogEventLevel.Information,this,ans);
-            if (ans == "")
+
+            var ans = await testGet(); 
+            Logger.log(time1,"{Sender}-testGet:{ans}" ,"SelfTest",Serilog.Events.LogEventLevel.Information,this,ans);
+            if (ans == false)
                 isSuccess = false;
         }
         catch(Exception e77)

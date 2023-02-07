@@ -27,6 +27,7 @@ namespace ParserLibrary
         {
             for (int i = 0; i < countPrewarmingIntances; i++)
                 contexts.Add(getDMN(XML));
+            base.Init(owner);
             //            base.Init(owner);
         }
         // static  List<net.adamec.lib.common.dmn.engine.parser.dto.DmnModel.Script> listScripts;
@@ -266,11 +267,13 @@ namespace ParserLibrary
 
         public override TypeContent typeContent => TypeContent.internal_list;
         DateTime timeFinish;
-        public async override Task<string> sendInternal(AbstrParser.UniEl root)
+        public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context)
         {
             metricCount.Increment();
             DateTime time1 = DateTime.Now;
             var res = await execDmn(root);
+            sendActivity?.AddTag("answer", res);
+
             metricCount.Decrement();
             metricPerformance.Add(time1);
             metricContexts.setCount(contexts.Count);
