@@ -33,7 +33,7 @@ namespace ParserLibrary.Tests
 
             byte[] bytes = File.ReadAllBytes("TestData/test200.dummy1")[2..];
 
-            string respJson = await sender.send(DummyProtocol1Message.DeserializeToJSON(bytes));
+            string respJson = await sender.send(DummyProtocol1Message.DeserializeToJSON(bytes),null);
 
             byte[] resp = DummyProtocol1Message.SerializeFromJson(respJson);
             Assert.AreEqual(bytes, resp);
@@ -148,7 +148,7 @@ namespace ParserLibrary.Tests
   }
             }";
 
-            var ans1 = await ticSender.send(ans);
+            var ans1 = await ticSender.send(ans, null);
             Assert.NotNull(ans1);
         }
     }

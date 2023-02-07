@@ -246,14 +246,22 @@ namespace ParserLibrary
 
                     if (httpContext.Request.Path.Value.Contains("/swagger"))
                 {
-                    string json_body;
-                    
-                    using (StreamReader sr = new StreamReader(this.owner.swaggerSpecPath))
+                    string json_body,content;
+                    Logger.log("Get swagger request");
+                    try
                     {
-                        json_body = sr.ReadToEnd();
+                        using (StreamReader sr = new StreamReader(this.owner.swaggerSpecPath))
+                        {
+                            json_body = sr.ReadToEnd();
+                        }
+
+                        content = GetSwaggerHtmlBody(json_body);
+                    }
+                    catch (Exception ex)
+                    {
+                        content= ex.Message;
                     }
 
-                    string content=GetSwaggerHtmlBody(json_body);
                     SetResponseType(httpContext, "text/html");
                     await SetResponseContent(httpContext, content);
                     return;
@@ -294,6 +302,7 @@ namespace ParserLibrary
                     {
                         metricCountOpened.Decrement();
                         metricErrors.Increment();
+                        Logger.log("Error on input request ", e77, Serilog.Events.LogEventLevel.Error);
                         httpContext.Response.StatusCode = 404;
                         return;
                     }

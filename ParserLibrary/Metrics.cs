@@ -1,13 +1,18 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using YamlDotNet.Core.Tokens;
 
 namespace ParserLibrary
 {
+    /*
     public class MetricsOld
     {
         List<Metric> allMetrics = new List<Metric>();
@@ -51,6 +56,15 @@ namespace ParserLibrary
             public bool isSuccess;
             public string Name;
             public string Comment="";
+            public class Label
+            {
+                public string Name;
+                public string Value;
+                public override string ToString()
+                {
+                    return $"{Name}=\"{Value}\"";
+                }
+            }
             int count = 0;
             double sum = 0;
             public void Add(DateTime time)
@@ -78,36 +92,35 @@ namespace ParserLibrary
 
             
 
-            /*public class Item
-            {
-                public string Name
-                {
-                    get
-                    {
-                        if (interval.Hours <= 1)
-                            return "LastHour";
-                        else
-                        if (interval.Days <= 1)
-                            return "LastDay";
-                        else
-                            return "AllTime";
-                    }
-                }
-                public DateTime time= new DateTime(1970,1,1);
-                public TimeSpan interval;
-                public int count = 0;
-                public double sum = 0;
-                public void Add(DateTime time,double value)
-                {
-                    if(time>)
-                }
-        }*/
+            
     }
 
     }
-
+*/
+    public static class MetricHelper
+    {
+        public static string toPrometheusLabels(this IEnumerable<Metrics.Label> metrics)
+        {
+            return "{" + string.Join(',', metrics) + "}";
+        }
+    }
     public class Metrics
     {
+        public class Label
+        {
+            public string Name;
+            public string Value;
+            public Label(string name, string value)
+            {
+                Name = name;
+                Value = value;
+            }
+            public override string ToString()
+            {
+                return $"{Name}=\"{Value}\"";
+            }
+        }
+        public static Dictionary<string, Label> common_labels = new Dictionary<string, Label>();
 
         public static Metrics metric = new Metrics();
 
@@ -122,7 +135,7 @@ namespace ParserLibrary
                 var metric = allMetrics.FirstOrDefault(oo => oo.Name == Name);
                 if (metric == null)
                 {
-                    metric = new MetricCount(Name,Comment) {  isSuccess = isSuccess };
+                    metric = new MetricCount(Name, Comment) { isSuccess = isSuccess };
                     allMetrics.Add(metric);
                 }
 
@@ -137,7 +150,7 @@ namespace ParserLibrary
                 var metric = allMetrics.FirstOrDefault(oo => oo.Name == Name);
                 if (metric == null)
                 {
-                    metric = new MetricAbs(Name,Comment) {  isSuccess = isSuccess };
+                    metric = new MetricAbs(Name, Comment) { isSuccess = isSuccess };
                     allMetrics.Add(metric);
                 }
 
@@ -171,6 +184,7 @@ namespace ParserLibrary
             string lastName = "";
             foreach (var metric in allMetrics.OrderBy(ii => ii.Name))
             {
+                if (metric.isBodyDefined) 
                 retValue += metric.getHeader(ref lastName);
                 /*                if (metric.Comment != "" && lastName != metric.Name)
                                 {
@@ -187,6 +201,26 @@ namespace ParserLibrary
 
         public abstract class Metric
         {
+            public void AddLabels(Label[] newLabels)
+            {
+                foreach (var label in newLabels)
+                    labels.Add(label.Name, label);
+            }
+
+
+            public virtual bool isBodyDefined
+            {
+                get { return true; }
+            }
+            public string prometheusLabels
+            {
+                get
+                {
+                    return Metrics.common_labels.Select(ii => ii.Value).Union(labels.Select(ii => ii.Value)).toPrometheusLabels();
+                }
+            }
+            public Dictionary<string, Metrics.Label> labels = new Dictionary<string, Label>();
+
             public Metric()
             {
                 Metrics.metric.allMetrics.Add(this);
@@ -241,7 +275,7 @@ namespace ParserLibrary
         }
         public class MetricHistogram : Metric
         {
-            double[] diapasones = new double[] { 1, 3, 5, 10, 20, 30, 50, 100, 200, 500, 700, 1000, 3000, 10000 };
+            double[] diapasones = new double[] { 1, 5, 10, 30, 50, 100, 200, 500, 1000, 10000 };
             public class Item
             {
                 public int count = 0;
@@ -249,9 +283,11 @@ namespace ParserLibrary
             }
             public Item[] items;
 
-            public MetricHistogram(string name, string description, double[] diapasones1)
+            public MetricHistogram(string name, string description, double[] diapasones1 = null)
             {
-                diapasones = diapasones1;
+                this.AddLabels(new Label[] { new Label("handler", "/") });
+                if (diapasones1 != null)
+                    diapasones = diapasones1;
                 this.Name = name;
                 Comment = description;
                 items = Enumerable.Range(0, diapasones.Length + 1).Select(ii => new Item()).ToArray();
@@ -293,6 +329,14 @@ namespace ParserLibrary
                 //ничего не нашли
                 return -1;
             }
+            public void Add(DateTime time)
+            {
+
+                Add((DateTime.Now - time).TotalMilliseconds);
+
+                /*   count++;
+                   sum += (DateTime.Now - time).TotalMilliseconds;*/
+            }
             override public void Add(double value)
             {
                 var index = BinarySearch(diapasones, value);
@@ -326,10 +370,10 @@ namespace ParserLibrary
                 {
                     totalCount += items[i].count;
                     totalSum += items[i].sum;
-                    retValue += "prometheus_" + Name + "_bucket{ handler = \"/\",le = \"" + getItemValue(i) + "\"} " + totalCount + "\n";
+                    retValue += "prometheus_" + Name + "_bucket" + Metrics.common_labels.Select(ii => ii.Value).Union(labels.Select(ii => ii.Value).Union(new Label[] { new Label("le", getItemValue(i)) })).toPrometheusLabels()/* +{ handler = \"/\",le = \"" + getItemValue(i) + "\"} "*/ + totalCount + "\n";
                 }
-                retValue += "prometheus_" + Name + "_sum{ handler = \"/\"} " + totalSum + "\n";
-                retValue += "prometheus_" + Name + "_count{ handler = \"/\"} " + totalCount + "\n";
+                retValue += $"prometheus_{Name}_sum{prometheusLabels} " + totalSum + "\n";
+                retValue += $"prometheus_{Name}_count{prometheusLabels} " + totalCount + "\n";
                 return retValue;
                 //                throw new NotImplementedException();
             }
@@ -337,7 +381,7 @@ namespace ParserLibrary
             public override string getHeader(ref string lastName)
             {
                 string retValue = "";
-                if (this.Comment != "" && lastName != this.Name)
+     //           if (this.Comment != "" && lastName != this.Name)
                 {
                     retValue += "#  HELP " + this.Name + ":" + this.Comment + ".\n";
                     lastName = this.Name;
@@ -349,10 +393,11 @@ namespace ParserLibrary
 
         public class MetricCount : Metric
         {
+
             public override string ToString()
             {
-                if(isPerf)
-                    return $"{this.count}:{this.Name}:{this.sum/this.count}";
+                if (isPerf)
+                    return $"{this.count}:{this.Name}:{this.sum / this.count}";
                 return $"{this.Name}:{this.count}";
             }
 
@@ -370,22 +415,23 @@ namespace ParserLibrary
                 Interlocked.Decrement(ref count);
 
             }
-            public MetricCount(string Name,string Comment)
+            public MetricCount(string Name, string Comment)
             {
                 this.Name = Name;
                 this.Comment = Comment;
+                labels.TryAdd("type", new Label("type", "Count"));
             }
 
             public override Type typeMetric => Type.count;
             public void Add(DateTime time)
             {
-                
+
                 isPerf = true;
                 Interlocked.Increment(ref count);
                 Add(ref sum, (DateTime.Now - time).TotalMilliseconds);
 
-             /*   count++;
-                sum += (DateTime.Now - time).TotalMilliseconds;*/
+                /*   count++;
+                   sum += (DateTime.Now - time).TotalMilliseconds;*/
             }
             public bool isPerf = false;
             public void Add(DateTime time, long value)
@@ -420,7 +466,7 @@ namespace ParserLibrary
             public override string getHeader(ref string lastName)
             {
                 string retValue = "";
-                if (this.Comment != "" && lastName != this.Name)
+       //         if (this.Comment != "" && lastName != this.Name)
                 {
                     retValue += "#  HELP " + this.Name + ":" + this.Comment + "\n";
                     lastName = this.Name;
@@ -432,7 +478,7 @@ namespace ParserLibrary
             public override string getBody()
             {
                 string retValue = "";
-                retValue += ("prometeus_" + Name + "{type=\"Count\",result=\"" +  "Success"  + "\"} " + getCount() + "\n");
+                retValue += ("prometeus_" + Name + prometheusLabels + getCount() + "\n");
                 /*                if (!noAverage)
                                     retValue += (Name + "{type=\"Avg\",result=\"" + (isSuccess ? "Success" : "Error") + "\"} " + getAverage() + "\n");*/
 
@@ -446,8 +492,10 @@ namespace ParserLibrary
         public class MetricAbs : MetricCount
         {
 
-            public MetricAbs(string Name,string Comment):base(Name,Comment)
-            { }
+            public MetricAbs(string Name, string Comment) : base(Name, Comment)
+            {
+                labels.TryAdd("type", new Label("type", "Count"));
+            }
             double val = 0;
             public override void Add(double value)
             {
@@ -455,11 +503,14 @@ namespace ParserLibrary
                 /*Interlocked.CompareExchange(
                     ref val, value, val);*/
             }
-
+            public void SetValue(double value)
+            {
+                val = value;
+            }
             public override string getBody()
             {
                 string retValue = "";
-                retValue += ("prometeus_" + Name + "{type=\"Count\",result=\"" + (isSuccess ? "Success" : "Error") + "\"} " + val + "\n");
+                retValue += ("prometeus_" + Name + prometheusLabels + val + "\n");
                 /*                if (!noAverage)
                                     retValue += (Name + "{type=\"Avg\",result=\"" + (isSuccess ? "Success" : "Error") + "\"} " + getAverage() + "\n");*/
 
@@ -468,7 +519,100 @@ namespace ParserLibrary
 
         }
 
+   /*     public class MetricUptime : MetricCount
+        {
+            DateTime timeStart = DateTime.Now;
+            public MetricUptime(string Name, string Comment) : base(Name, Comment)
+            {
+                labels.TryAdd("type", new Label("type", "Count"));
+            }
+            //double val = 0;
+            public override void Add(double value)
+            {
+               // Add(ref val, value);
+            }
+            public void SetValue(double value)
+            {
+             //   val = value;
+            }
+            public override string getBody()
+            {
+                string retValue = "";
+                retValue += ("prometeus_" + Name + prometheusLabels + (DateTime.Now-timeStart).TotalSeconds + "\n");
+                return retValue;
+            }
 
+        }
+   */
+        public class MetricCounters:MetricCount
+        {
+
+            public class Counter
+            {
+                int value = 0;
+                public int Increment()
+                {
+                    return Interlocked.Increment(ref value);
+
+                }
+
+                public int  Value
+                {
+                    get
+                    {
+                        return value;
+                    }
+                }
+            }
+            ConcurrentDictionary<string, Lazy<Counter>> dict = new ConcurrentDictionary<string, Lazy<Counter>>();
+            public void AddCount(string labels)
+            {
+                var value = dict
+                    .GetOrAdd(labels, _ => new Lazy<Counter>(() => new Counter(), lazyMode))
+                    .Value;
+                value.Increment();
+            }
+            LazyThreadSafetyMode lazyMode = LazyThreadSafetyMode.ExecutionAndPublication;
+            string[] labels;
+            public MetricCounters(string Name, string Comment, string[] labels) : base(Name, Comment)
+            {
+                this.labels = labels;
+            }
+
+            public override bool isBodyDefined => dict.Count>0;
+            public override string getBody()
+            {
+                string retValue = "";
+                foreach (var d in dict)
+                {
+
+                    var kvs=d.Key.Split("/");
+                    retValue += ($"prometeus_{Name}{Metrics.common_labels.Select(ii => ii.Value).Union(labels.Select((ii, index) => new Label(ii, kvs[index]))).toPrometheusLabels()}{d.Value.Value.Value}\n");
+                }
+
+                return retValue;
+            }
+        }
+        public class MetricAuto : MetricAbs
+        {
+            Func<double> func;
+            public MetricAuto(string Name, string Comment, Func<double> func) : base(Name, Comment)
+            {
+                this.func = func;
+            }
+
+            public override string getBody()
+            {
+                string retValue = "";
+                retValue += ("prometeus_" + Name + prometheusLabels + func().ToString() + "\n");
+                /*                if (!noAverage)
+                                    retValue += (Name + "{type=\"Avg\",result=\"" + (isSuccess ? "Success" : "Error") + "\"} " + getAverage() + "\n");*/
+
+                return retValue;
+            }
+
+        }
     }
 
 }
+

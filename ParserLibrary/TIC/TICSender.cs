@@ -19,7 +19,7 @@ namespace ParserLibrary
             set => Frame = DummyProtocol1Frame.GetFrame(value);
         }*/
 
-        public override async Task<string> send(string JsonBody)
+        public override async Task<string> send(string JsonBody, Step.ContextItem context)
         {
             if (dummySystem3Client is null || !dummySystem3Client.Connected)
             {

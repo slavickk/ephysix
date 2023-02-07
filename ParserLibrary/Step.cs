@@ -1,14 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
-
+/// <summary>
+/// Step is a sequence of steps that includes (optionally) Sender, Receiver and a set of filters for selecting information
+/// </summary>
 public class Step
 {
 
@@ -127,8 +132,12 @@ public class Step
 
 
             }
-            if (Directory.GetFiles(this.SaveErrorSendDirectory).Count() > 0)
+            var files = Directory.GetFiles(this.SaveErrorSendDirectory);
+            if (files.Count() > 0)
             {
+                SizeDirectory=files.Select(ii => new FileInfo(ii).Length).Sum();
+
+               // Directory.GetF
                 isErrorSending = true;
                 tRestore = restoreSenderState(SaveErrorSendDirectory);
             }
@@ -143,22 +152,41 @@ public class Step
 
     static Metrics.MetricCount sucMetric = new Metrics.MetricCount("packagesReceivedSuccess", "All packages, sended to utility");
     static Metrics.MetricCount errMetric = new Metrics.MetricCount("packagesReceivedUnsuccess", "All packages, sended to utility with error");
+    static Metrics.MetricCount errMetricRetry = new Metrics.MetricCount("packagesSendedUnsucRetry", "All packages, resended sucessfully after error");
+    static Metrics.MetricHistogram metricRetryTimeError = new Metrics.MetricHistogram("retryPackagesTime", "retry time on error", new double[] {  100, 500, 1000, 5000, 10000 ,30000,60000,600000});
+
     //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
 
     public class ContextItem
     {
         public List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         public object context;
+        public Activity mainActivity;
+        public Scenario currentScenario = null;
     }
     public bool isBridge = false;
+
+    public static bool saveAllResponses = false;
+
+
+    Task saveScenarious = null;
     private async Task Receiver_stringReceived(string input, object context)
     {
-
+//        owner.mainActivity = owner.GetActivity("receive package", null);
         DateTime time2 = DateTime.Now;
-        ContextItem contextItem = new ContextItem() { context = context };
+        ContextItem contextItem = new ContextItem() { context = context ,mainActivity= owner.GetActivity("receive package", null) };
+        if (contextItem?.mainActivity != null)
+        {
+            contextItem?.mainActivity?.SetTag("context.url", owner.SaveContext(input));
+        }
         //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
+        if(saveAllResponses)
+        {
+            contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
+            contextItem.currentScenario.mocs.Add(new Scenario.Item() { IDStep = this.IDStep, isMocReceiverEnabled = true, MocFileReceiver = input });
+        }
         owner.lastExecutedEl = rootElement;
         if (!isBridge)
         {
@@ -175,17 +203,66 @@ public class Step
                         (sender as HTTPSender).headers = (context as HTTPReceiver.SyncroItem).headers;
                         
                     }*/
-                var ans = await sender?.send(input);
+                var ans = await sender?.send(input,contextItem);
+
                 await receiver.sendResponse(ans, context);
+                if(saveAllResponses)
+                {
+                    Scenario.Item item= contextItem.currentScenario.mocs.FirstOrDefault(ii=>ii.IDStep== this.IDStep);
+                    if (item == null)
+                    {
+                        item = new Scenario.Item() { IDStep = this.IDStep, isMocSenderEnabled = true, MocFileSender = ans };
+                        contextItem.currentScenario.mocs.Add(item);
+                    }
+                    else
+                    {
+                        item.isMocSenderEnabled = true;
+                        item.MocFileSender = ans;   
+                    }
+                    this.owner.scenarios.Enqueue(contextItem.currentScenario);
+                    if (saveScenarious == null)
+                        saveScenarious = Task.Run( () => 
+                        {
+                            if(!Directory.Exists(SaveScenariousDirectory))
+                                Directory.CreateDirectory(SaveScenariousDirectory);
+                            Scenario scenario;
+                            while (0 == 0)
+                            {
+                                while (owner.scenarios.TryDequeue(out scenario))
+                                {
+                                    string fileName = Path.Combine(SaveScenariousDirectory, Path.GetFileName(Path.GetRandomFileName()));
+                                    using (StreamWriter sw = new StreamWriter(fileName))
+                                    {
+                                        sw.Write(JsonSerializer.Serialize<Scenario>(scenario));
+                                    }
+
+
+                                }
+                                Thread.Sleep(100);
+                            }
+
+                    //        this.SizeDirectory
+                        }
+                        );
+
+                }
             }
             catch (Exception e66)
             {
+                contextItem?.mainActivity?.SetTag("pipelineError", "true");
+                contextItem ? .mainActivity?.Stop();
+                contextItem?.mainActivity?.Dispose();
                 Logger.log($"On send error{e66.ToString()}", Serilog.Events.LogEventLevel.Error);
                 throw;
             }
         }
-
+        foreach(var mb in owner.metricsBuilder)
+            await mb.Fill(rootElement); 
         contextItem.list.Clear();
+      //  owner.mainActivity?.SetTag("pipelineError", "true");
+        contextItem?.mainActivity?.Stop();
+        contextItem?.mainActivity?.Dispose();
+        //contextItem?.mainActivity = null;
         contextItem = null;
 
         rootElement = null;
@@ -204,7 +281,7 @@ public class Step
     {
         return $"Step:{this.IDStep}";
     }
-    private async Task<string> FindAndCopy1(AbstrParser.UniEl rootElInput, DateTime time1, ItemFilter item, AbstrParser.UniEl el, List<AbstrParser.UniEl> list)
+    private async Task<string> FindAndCopy1(AbstrParser.UniEl rootElInput, DateTime time1, ItemFilter item, AbstrParser.UniEl el, List<AbstrParser.UniEl> list,Step.ContextItem context)
     {
         int count = 0;
         AbstrParser.UniEl local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
@@ -224,10 +301,10 @@ public class Step
         if (IDResponsedReceiverStep != "")
             return "";
         else
-            return await sender.send(local_rootOutput);
+            return await sender.send(local_rootOutput,context);
     }
 
-    public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement)
+    public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement,Step.ContextItem context)
     {
         try
         {
@@ -246,7 +323,7 @@ public class Step
                             AbstrParser.UniEl rEl = null;
                             foreach (var item1 in item.filter.filter(list, ref rEl))
                             {
-                                var st = await FindAndCopy1(rootElement, time1, item, item1, list);
+                                var st = await FindAndCopy1(rootElement, time1, item, item1, list,context);
                                 if (st != "")
                                     return st;
                             }
@@ -315,7 +392,15 @@ public class Step
 
     public bool isHandleSenderError = false;
 
+    /// <summary>
+    /// Maximum amount of stored data, what sender unreacheble in mB. 
+    /// </summary>
+    /// <remarks>
+    /// If SaveErrorSendDirectory is shared by multiple program instances, the total amount available must be multiplied by the number of instances.
+    /// </remarks>
+    public Int64 maxSavedLimitInMB = 0;
     public string SaveErrorSendDirectory = "";
+    public string SaveScenariousDirectory = "C:\\d\\Scenarious\\";
     Task tRestore;
     private async Task FilterStep(ContextItem context, AbstrParser.UniEl rootElement)
     {
@@ -380,14 +465,22 @@ public class Step
     }
 
     string musor = "qwertybbvgghhnbbbjkkll988765433222345556gggbgggghhhbbbbn";
+    [YamlIgnore]
+    Int64 SizeDirectory = 0;
+    [YamlIgnore]
+    bool nonSavedError = false;
     private void SaveRestoreFile(AbstrParser.UniEl local_rootOutput)
     {
+        if(nonSavedError) 
+            return;
+
+        string fileName = Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()));
         using (AesManaged aes = new AesManaged())
         {
             // Create encryptor    
             ICryptoTransform encryptor = aes.CreateEncryptor(owner.key,owner.IV);
             // Create MemoryStream    
-            using (FileStream ms = new FileStream(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName())),FileMode.CreateNew))
+            using (FileStream ms = new FileStream(fileName,FileMode.CreateNew))
             {
                 // Create crypto stream using the CryptoStream class. This class is the key to encryption    
                 // and encrypts and decrypts data from any given stream. In this case, we will pass a memory stream    
@@ -400,9 +493,28 @@ public class Step
                   //  encrypted = ms.ToArray();
                 }
             }
+            FileInfo fi = new FileInfo(fileName);
+            Interlocked.Add(ref SizeDirectory, (fi.Length));
+            if(SizeDirectory/(1024*1024)>= maxSavedLimitInMB) 
+            {
+                nonSavedError = true;
+                Logger.log($"Size of directory {SaveErrorSendDirectory} exceed {maxSavedLimitInMB} MB , restored impossible .All saved dataErased.");
+                foreach (var file in Directory.GetFiles(this.SaveErrorSendDirectory))
+                {
+                    try
+                    {
+
+                        File.Delete(file);
+                    }
+                    catch
+                    { }
+                }
+            }
+
+//            SizeDirectoryInMB += (fi.Length * 1024 * 1024);
         }
-    /*    using (var sw = new StreamWriter(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()))))
-            sw.Write(local_rootOutput.toJSON());*/
+        /*    using (var sw = new StreamWriter(Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()))))
+                sw.Write(local_rootOutput.toJSON());*/
     }
 
     bool isErrorSending = false;
@@ -455,17 +567,34 @@ public class Step
                 restart:
                 try
                 {
-                    await sender.send(rootEl);
+                    await sender.send(rootEl,null);
+                    errMetricRetry.Increment();
+                    
                 }
                 catch (Exception e77)
                 {
                     await Task.Delay(1000);
+                    if (nonSavedError)
+                    {
+                        try
+                        {
+                            var time=new FileInfo(file1).CreationTime;
+                            File.Delete(file1);
+                            metricRetryTimeError.Add(time);
+                        }
+                        catch { }
+
+                        return;
+                    }
                     goto restart;
 
                 }
                 try
                 {
+                    FileInfo fi = new FileInfo(file1);
                     File.Delete(file1);
+                    Interlocked.Add(ref SizeDirectory,-(fi.Length));
+                    //SizeDirectoryInMB -= (fi.Length * 1024 * 1024);
                 }
                 catch { }
             }
@@ -496,11 +625,14 @@ public class Step
 
         //            if(this.)
     }
+    [YamlIgnore]
     public int recordSendCount = 0;
     private async Task SendToSender(AbstrParser.UniEl rootElInput, ContextItem context, AbstrParser.UniEl local_rootOutput)
     {
         // Save sender context
         //rootElInput.
+        var sendNode = CheckAndFillNode(rootElInput, "Send", true);
+        var toNode = CheckAndFillNode(sendNode, "To");
         if (IDResponsedReceiverStep != "")
         {
             if (debugMode)
@@ -511,15 +643,19 @@ public class Step
             if(sender == null)
                 content = local_rootOutput.toJSON();
             else
-                content= await sender.send(local_rootOutput);
+                content= await sender.send(local_rootOutput,context);
             await step.receiver.sendResponse(content, context.context);
+            foreach (var node in local_rootOutput.childs)
+            {
+                node.ancestor = toNode;
+                //          toNode.childs.Add(node);
+            }
+            StoreAnswer("Resp", rootElInput, context, content, step);
 
         }
         else
         {
-            var sendNode =CheckAndFillNode(rootElInput,"Send",true);
-            var toNode = CheckAndFillNode(sendNode, "To");
-            var ans = await sender.send(local_rootOutput);
+            var ans = await sender.send(local_rootOutput,context);
             foreach (var node in local_rootOutput.childs)
             {
                 node.ancestor = toNode;
@@ -543,13 +679,8 @@ public class Step
                 if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
                 {
                     var nextStep = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep);
-//                        tryParse(ans, context, CheckAndFillNode(sendNode, "From"));
-                    var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = nextStep.IDStep };
-                    newRoot = new AbstrParser.UniEl(newRoot) { Name = "Rec" };
-
-
-
-                    nextStep.tryParse(ans, context, newRoot);
+                    //                        tryParse(ans, context, CheckAndFillNode(sendNode, "From"));
+                    StoreAnswer("Rec",rootElInput, context, ans, nextStep);
                 }
 
 
@@ -562,8 +693,27 @@ public class Step
         }
     }
 
+    private static void StoreAnswer(string name_ans,AbstrParser.UniEl rootElInput, ContextItem context, string ans, Step nextStep)
+    {
+
+        if(nextStep.IDStep.Contains("ToTWO"))
+        {
+            int yy = 0;
+        }
+        var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = nextStep.IDStep };
+        newRoot = new AbstrParser.UniEl(newRoot) { Name = name_ans };
+
+
+
+        nextStep.tryParse(ans, context, newRoot);
+    }
+
     private static AbstrParser.UniEl CheckAndFillNode(AbstrParser.UniEl rootElInput,string Name,bool getAncestor =false)
     {
+        if(Name=="Step_ToTWO")
+        {
+            int yy = 0;
+        }
         AbstrParser.UniEl contextNode = (getAncestor?(rootElInput.ancestor): rootElInput).childs.FirstOrDefault(ii => ii.Name == Name);
         if (contextNode == null)
             contextNode = new AbstrParser.UniEl((getAncestor ? (rootElInput.ancestor) : rootElInput)) { Name = Name};
