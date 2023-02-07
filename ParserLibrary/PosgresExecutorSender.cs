@@ -47,7 +47,7 @@ namespace ParserLibrary
         }
         List<ItemVar> sqlVariables = null;
 
-        public async override Task<string> sendInternal(AbstrParser.UniEl root)
+        public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context)
         {
             //            var def = root.childs.First(ii => ii.Name == "Define");
 //            if (sqlVariables == null)
