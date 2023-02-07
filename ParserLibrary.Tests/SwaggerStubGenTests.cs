@@ -88,70 +88,29 @@ public class SwaggerStubGenTests
         Assert.True(result.Success);
         
         // Load the assembly from the byte array
-        var assembly = Assembly.Load(stream.ToArray());
-        Assert.NotNull(assembly);
+        var controllerAssembly = Assembly.Load(stream.ToArray());
+        Assert.NotNull(controllerAssembly);
 
-        // Find the IController interface in the assembly
-        var controllerInterface = assembly.DefinedTypes.FirstOrDefault(t => t.Name == "IController");
+        var parentReceiver = new HTTPReceiverSwagger();
+        var requestHandler = new HTTPReceiverSwagger.RequestHandler(parentReceiver, true);
 
-        // Dynamically compile an implementation of the IController interface using System.Reflection.Emit.
-        // The implementation should forward the call to a single method.
-
-        // Create a dynamic assembly
-        var assemblyName = new AssemblyName("TestAssembly");
-        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
-        var moduleBuilder = assemblyBuilder.DefineDynamicModule("TestModule");
-
-        // Enumerate all methods in the IController interface
-        var methodInfos = controllerInterface.GetMethods();
-
-        // Create a type that implements the IController interface
-        var typeBuilder =
-            moduleBuilder.DefineType("TestType", TypeAttributes.Public, null, new[] { controllerInterface });
-
-        // Implement each method of the IController interface.
-        // Let's make all methods call HandlerImplementation.
-        foreach (var methodInfo in methodInfos)
-        {
-            // Create a method builder
-            var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name,
-                MethodAttributes.Public | MethodAttributes.Virtual, methodInfo.ReturnType,
-                methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
-
-            // Build a method that calls HandlerImplementation
-            var il = methodBuilder.GetILGenerator();
-
-            // Pack the arguments in an object array
-            il.Emit(OpCodes.Ldc_I4, methodInfo.GetParameters().Length);
-            il.Emit(OpCodes.Newarr, typeof(object));
-            
-            for (var i = 0; i < methodInfo.GetParameters().Length; i++)
-            {
-                il.Emit(OpCodes.Dup);
-                il.Emit(OpCodes.Ldc_I4, i);
-                il.Emit(OpCodes.Ldarg, i+1); // Arg 0 is "this", so we need to skip it
-                il.Emit(OpCodes.Box, methodInfo.GetParameters()[i].ParameterType);
-                il.Emit(OpCodes.Stelem_Ref);
-            }
-            
-            // Call the HandlerImplementation method
-            il.Emit(OpCodes.Call, typeof(SwaggerStubGenTests).GetMethod(nameof(HandlerImplementation)));
-            
-            il.Emit(OpCodes.Ret);
-            
-            // Mark the method as an override
-            typeBuilder.DefineMethodOverride(methodBuilder, methodInfo);
-        }
+        var controllerImplAssembly = requestHandler.ImplementController(controllerAssembly);
 
         // Create the type
-        var type = typeBuilder.CreateType();
+        var type = controllerImplAssembly.GetType("ControllerImpl");
 
         // Create an instance of the type
-        var instance = Activator.CreateInstance(type);
+        var instance = Activator.CreateInstance(type, requestHandler);
 
-        // Invoke the first method
-        var method = type.GetMethod(methodInfos[0].Name);
-        var r = method.Invoke(instance, new object[] { 10, "abc", null });
+        // // Invoke GetPetByIdAsync()
+        var GetPetByIdAsync = type.GetMethod("GetPetByIdAsync");
+        Assert.NotNull(GetPetByIdAsync);
+        var res_GetPetByIdAsync = GetPetByIdAsync.Invoke(instance, new object[] { 123 });
+
+        // Invoke updatePetWithForm. Corresponds to POSTing to /pet/{petId}
+        var UpdatePetWithFormAsync = type.GetMethod("UpdatePetWithFormAsync");
+        Assert.NotNull(UpdatePetWithFormAsync);
+        var res_UpdatePetWithFormAsync = UpdatePetWithFormAsync.Invoke(instance, new object[] { 333, "name", "Available" });
 
         // The test passes if the code compiles and the method can be invoked
         Assert.Pass();
