@@ -1,0 +1,20 @@
+pipelineDescription: Pipeline example
+hashWord: aaa
+steps:
+- isBridge: true
+  isHandleSenderError: true
+  saveErrorSendDirectory: Data/Restore
+  recordSendCount: 12
+  iDStep: Step_0
+  iDPreviousStep: ''
+  iDResponsedReceiverStep: ''
+  description: Check registration extract
+  receiver: !HTTPReceiverSwagger  # !HTTPReceiverSwagger (but keep HTTPReceiver)
+    port: 8080
+    responseType: text/xml
+    cantTryParse: true
+    mocFile: Data/OutACS_TX/e2soyscy.diz
+    mocBody: ''
+    swaggerSpecPath: Data/swagger.json  # standard Swagger file format
+  sender: !DummySender
+    dummyResponse: '{"Id":1,"Category":{"Id":2,"Name":"Dummy category"},"Name":"Dummy Name","PhotoUrls":["url1"],"Tags":[{"Id":0,"Name":"tag1"}],"Status":"Available"}'

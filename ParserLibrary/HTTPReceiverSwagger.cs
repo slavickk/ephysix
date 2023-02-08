@@ -145,19 +145,15 @@ namespace ParserLibrary
             /// Constructor
             /// </summary>
             /// <param name="receiver">The receiver that will handle the request</param>
-            /// <param name="dryRun">Whether to execute the actual pipeline or just return a dummy response</param>
             /// <param name="debugOutput">Whether to generate code to output debug information</param>
-            public RequestHandler(HTTPReceiverSwagger receiver, bool dryRun = false, bool debugOutput = false)
+            public RequestHandler(HTTPReceiverSwagger receiver, bool debugOutput = false)
             {
                 this._receiver = receiver;
-                this._dryRun = dryRun;
                 this._debugOutput = debugOutput;
             }
             
             private HTTPReceiverSwagger _receiver;
 
-            private bool _dryRun;
-            
             public static long CountExecuted = 0;  // Why do we have it when there is metricCountExecuted?
             public static long CountOpened = 0;  // Why do we have it when there is metricCountOpened?
             public static Metrics.MetricCount metricCountOpened = new("HTTPOpenConnectCount", "opened http connection at same time ");
@@ -176,6 +172,7 @@ namespace ParserLibrary
             /// <exception cref="HttpResponseException"></exception>
             public async Task<object> ReceiveRequest(MethodInfo controllerAction, Type returnType, IDictionary<string, object> parameters)
             {
+                // TODO: replace with a proper logging framework
                 Console.WriteLine("HandlerImplementation:");
                 Console.WriteLine("HandlerImplementation() parameters:");
                 foreach (var parameter in parameters)
@@ -189,81 +186,52 @@ namespace ParserLibrary
                 Console.WriteLine(json);
 
                 var item = new SyncroItem();
-                
-                if (_dryRun)
-                {
-                    // A simple JSON object containing Id, Category, Name.
-                    // The Category is itself an object with fields Id and Name.
-                    // The Name is an array of strings.
-                    item.answer = @"{
-            ""Id"": 1,
-            ""Category"": {
-                ""id"": 2,
-                ""Name"": ""category1""
-            },
-            ""Name"": ""Doggie"",
-            ""PhotoUrls"": [
-                ""url1""
-            ],
-            ""Tags"": [
-                {
-                    ""Id"": 0,
-                    ""Name"": ""tag1""
-                }
-            ],
-            ""Status"": ""Available""
-        }";
-                    // Log a message that it is Pet specific
-                    Logger.log("Pet specific request received, returning dummy Pet answer", LogEventLevel.Information);
-                }
 
-                if (!_dryRun)
-                {
-                    Interlocked.Increment(ref CountOpened);
-                    metricCountOpened.Increment();
-                    DateTime time1 = DateTime.Now;
+                Interlocked.Increment(ref CountOpened);
+                metricCountOpened.Increment();
+                DateTime time1 = DateTime.Now;
 
-                    var statusCode = HttpStatusCode.OK;
-                    
-                    try
+                var statusCode = HttpStatusCode.OK;
+
+                try
+                {
+                    // TODO: consider reworking the pipeline to use accept UniEl instead of string
+                    _receiver.signal1(json, item).ContinueWith(antecedent =>
                     {
-                        // TODO: consider reworking the pipeline to use accept UniEl instead of string
-                        _receiver.signal1(json, item).ContinueWith(antecedent =>
-                        {
-                            metricCountOpened.Decrement();
-                            metricErrors.Increment();
-                            statusCode = HttpStatusCode.NotFound;
-                            item.semaphore.Set();
-                        },TaskContinuationOptions.OnlyOnFaulted);
-                    }
-                    catch(Exception e)
-                    {
-                        // Log the exception
-                        Logger.log(e.ToString(), LogEventLevel.Error);
-                        
                         metricCountOpened.Decrement();
                         metricErrors.Increment();
-                        throw new HttpResponseException(HttpStatusCode.NotFound);
-                    }
-
-                    // Wait for the pipeline to signal the completion
-                    await item.semaphore.WaitAsync();
-                    if (statusCode != HttpStatusCode.OK)
-                        throw new HttpResponseException(statusCode);
-
-                    Interlocked.Increment(ref item.unwait);
-                    
-                    if (_receiver.debugMode)
-                    {
-                        Logger.log("Answer to client step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", _receiver.owner, item.answer);
-                    }
-                    metricCountExecuted.Increment();
-                    Interlocked.Increment(ref CountExecuted);
-                    metricCountOpened.Decrement();
-                    Interlocked.Decrement(ref CountOpened);
-                    metricTimeExecuted.Add(time1);
+                        statusCode = HttpStatusCode.NotFound;
+                        item.semaphore.Set();
+                    }, TaskContinuationOptions.OnlyOnFaulted);
                 }
-                
+                catch (Exception e)
+                {
+                    // Log the exception
+                    Logger.log(e.ToString(), LogEventLevel.Error);
+
+                    metricCountOpened.Decrement();
+                    metricErrors.Increment();
+                    throw new HttpResponseException(HttpStatusCode.NotFound);
+                }
+
+                // Wait for the pipeline to signal the completion
+                await item.semaphore.WaitAsync();
+                if (statusCode != HttpStatusCode.OK)
+                    throw new HttpResponseException(statusCode);
+
+                Interlocked.Increment(ref item.unwait);
+
+                if (_receiver.debugMode)
+                {
+                    Logger.log("Answer to client step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", _receiver.owner, item.answer);
+                }
+
+                metricCountExecuted.Increment();
+                Interlocked.Increment(ref CountExecuted);
+                metricCountOpened.Decrement();
+                Interlocked.Decrement(ref CountOpened);
+                metricTimeExecuted.Add(time1);
+
                 // The pipeline returns the answer as a string in item.answer.
                 // Convert it into the actual return type of the controller method.
                 if (returnType.IsGenericType)
@@ -294,12 +262,17 @@ namespace ParserLibrary
                         // The task type itself is non-parametric, so create an instance of it
                         if (taskType.IsGenericType == false)
                         {
-                            // Add JsonStringEnumConverter.
-                            // For some reason the JsonConverterAttribute in the wrapper class is not enough.
-                            var options = new JsonSerializerOptions();
-                            options.Converters.Add(new JsonStringEnumConverter());
-                            var returnValue = JsonSerializer.Deserialize(item.answer, taskType, options);
-                            return returnValue;
+                            try
+                            {
+                                var options = new JsonSerializerOptions();
+                                options.Converters.Add(new JsonStringEnumConverter());
+                                return JsonSerializer.Deserialize(item.answer, taskType, options);
+                            }
+                            catch (Exception e)
+                            {
+                                // Throw a more informative exception
+                                throw new Exception("Failed to deserialize the answer into " + taskType, e);
+                            }
                         }
                         
                         throw new Exception("Unsupported return type: " + taskType);
@@ -511,6 +484,8 @@ namespace ParserLibrary
             {
                 Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
             }
+            
+            Console.WriteLine("Send response: " + response);
 
             var item = context as SyncroItem;
             if (item != null)
