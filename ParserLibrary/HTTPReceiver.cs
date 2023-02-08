@@ -15,20 +15,8 @@ using System.Text;
 using Kestrel;
 using Microsoft.AspNetCore.Http;
 using System.IO;
-using System.Reflection;
 using Microsoft.VisualStudio.Threading;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using NSwag.CodeGeneration.CSharp;
-
 //using Microsoft.
 
 namespace ParserLibrary
@@ -39,127 +27,16 @@ namespace ParserLibrary
 
         public string swaggerSpecPath = null;        
 
-        IHostBuilder _hostBuilder;
-        
+        KestrelServer server ;
         public string ResponseType = "application/json";
         public HTTPReceiver()
         {
-            Logger.log("HTTPReceiver: Creating a host to listen on the port " + port);
-            
-            // Create a new host listening on the given port
-            _hostBuilder = Host.CreateDefaultBuilder()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseKestrel()
-                        .ConfigureServices(services =>
-                        {
-                            services.AddSwaggerGen(c =>
-                            {
-                                c.SwaggerDoc("v1",
-                                    new OpenApiInfo
-                                    {
-                                        Title = $"HTTPReceiver API based on {this.swaggerSpecPath}",
-                                        Version = "v1"
-                                    });
-                            });
-                        })
-                        .Configure(app =>
-                        {
-                            app.UseSwagger();
-                            app.UseSwaggerUI(c =>
-                            {
-                                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Integration Utility v1");
-                            });
-                            app.UseRouting();
-                            app.UseEndpoints(ep => ep.MapControllers());
-                        });
-
-                });
+            server = new KestrelServer(this);
         }
-
-        /// <summary>
-        /// Compiles the given Swagger specification into an assembly and returns it as an ApplicationPart
-        /// </summary>
-        /// <returns></returns>
-        private async Task<AssemblyPart> CompileAssemblyPartAsync()
-        {
-            var doc = await NSwag.OpenApiDocument.FromFileAsync(this.swaggerSpecPath);
-            
-            if (doc == null)
-                throw new Exception("Failed to load swagger spec");
-            
-            var serverGen = new CSharpControllerGenerator(doc, new CSharpControllerGeneratorSettings());
-            var serverCode = serverGen.GenerateFile();
-
-            if (string.IsNullOrWhiteSpace(serverCode))
-                throw new Exception("Failed to generate server code");
-
-            // Compile the code using Roslyn
-            var syntaxTree = CSharpSyntaxTree.ParseText(serverCode);
-
-            // Rewrite the above list with all variables inlined
-            var references = new List<Assembly>
-            {
-                Assembly.Load("Newtonsoft.Json"),
-                Assembly.Load("System.Runtime"),
-                Assembly.Load("System.Private.CoreLib"),
-                Assembly.Load("System.Runtime.Serialization.Primitives"),
-                Assembly.Load("System.ComponentModel.Annotations"),
-                Assembly.Load("netstandard"),
-                
-                // AspNetCore assemblies have to be listed explicitly
-                Assembly.Load("Microsoft.AspNetCore.Mvc"),
-                Assembly.Load("Microsoft.AspNetCore.Mvc.Core"),
-            };
-
-            var compilation = CSharpCompilation.Create("ParserLibrary")
-                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .AddReferences(references.Select(r => MetadataReference.CreateFromFile(r.Location)))
-                .AddSyntaxTrees(syntaxTree);
-
-            // Emit the code to a byte array
-            using var stream = new MemoryStream();
-            var result = compilation.Emit(stream);
-            
-            // Log diagnostics if the compilation failed
-            if (!result.Success)
-            {
-                foreach (var diagnostic in result.Diagnostics)
-                    Logger.log(diagnostic.ToString());
-                
-                throw new Exception("Failed to compile the generated server code");
-            }
-            
-            // Load the assembly from the byte array
-            var assembly = Assembly.Load(stream.ToArray());
-            
-            // Check and throw
-            if (assembly == null)
-                throw new Exception("Failed to load the server assembly");
-
-            return new AssemblyPart(assembly);
-        }
-
         public override async Task startInternal()
         {
-            // Finish the host configuration
-            Logger.log("HTTPReceiver: finish building the host");
-            
-            var serverPart = await CompileAssemblyPartAsync();
-
-            var host = _hostBuilder.ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseUrls("http://localhost:" + port);
-                webBuilder.ConfigureServices(services =>
-                {
-                    services.AddControllers()
-                        .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
-                        .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(serverPart));
-                });
-            }).Build();
-
-            Logger.log("HTTPReceiver: Starting the host");
-            await host.RunAsync();
+            await server.Start(port,1000);
+           // return base.startInternal();
         }
         //namespace Kestrel;
         public override async Task sendResponseInternal(string response, object context)
