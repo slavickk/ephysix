@@ -170,7 +170,7 @@ namespace ParserLibrary
             /// <param name="returnType">The actual return type of the controller method.</param>
             /// <returns></returns>
             /// <exception cref="HttpResponseException"></exception>
-            public async Task<object> ReceiveRequest(MethodInfo controllerAction, Type returnType, IDictionary<string, object> parameters)
+            public async Task<object> ReceiveRequestAsync(MethodInfo controllerAction, Type returnType, IDictionary<string, object> parameters)
             {
                 Logger.log(
                     "HandlerImplementation() parameters: " + string.Join(", ", parameters.Select(p => p.Value)),
@@ -364,7 +364,7 @@ namespace ParserLibrary
                     }
 
                     // Call the HandleRequest method
-                    il.Emit(OpCodes.Call, this.GetType().GetMethod(nameof(ReceiveRequest)));
+                    il.Emit(OpCodes.Call, this.GetType().GetMethod(nameof(ReceiveRequestAsync)));
                     
                     // RequestHandler returns Task<object> or just Task,
                     // depending on whether the method being implemented has a return value.
@@ -472,7 +472,7 @@ namespace ParserLibrary
             Logger.log("HTTPReceiverSwagger: Starting the host");
             await host.RunAsync();
         }
-        //namespace Kestrel;
+
         public override async Task sendResponseInternal(string response, object context)
         {
             if (debugMode)
