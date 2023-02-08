@@ -92,7 +92,14 @@ public class SwaggerStubGenTests
         Assert.NotNull(controllerAssembly);
 
         var parentReceiver = new HTTPReceiverSwagger();
-        var requestHandler = new HTTPReceiverSwagger.RequestHandler(parentReceiver, true);
+        parentReceiver.Init(null);
+        parentReceiver.stringReceived = async (input, context) =>
+        {
+            Console.WriteLine("(test) stringReceived:");
+            Console.WriteLine(input);
+            await parentReceiver.sendResponse(DummyPetAnswer, context);
+        };
+        var requestHandler = new HTTPReceiverSwagger.RequestHandler(parentReceiver);
 
         var controllerImplAssembly = requestHandler.ImplementController(controllerAssembly);
 
@@ -114,6 +121,32 @@ public class SwaggerStubGenTests
 
         // The test passes if the code compiles and the method can be invoked
         Assert.Pass();
+    }
+
+    private static string DummyPetAnswer
+    {
+        get
+        {
+            var answer = @"{
+                ""Id"": 1,
+                ""Category"": {
+                    ""id"": 2,
+                    ""Name"": ""category1""
+                },
+                ""Name"": ""Doggie"",
+                ""PhotoUrls"": [
+                    ""url1""
+                ],
+                ""Tags"": [
+                    {
+                        ""Id"": 0,
+                        ""Name"": ""tag1""
+                    }
+                ],
+                ""Status"": ""Available""
+            }";
+            return answer;
+        }
     }
 
     [Test]
