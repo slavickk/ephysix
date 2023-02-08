@@ -172,18 +172,15 @@ namespace ParserLibrary
             /// <exception cref="HttpResponseException"></exception>
             public async Task<object> ReceiveRequest(MethodInfo controllerAction, Type returnType, IDictionary<string, object> parameters)
             {
-                // TODO: replace with a proper logging framework
-                Console.WriteLine("HandlerImplementation:");
-                Console.WriteLine("HandlerImplementation() parameters:");
-                foreach (var parameter in parameters)
-                    Console.WriteLine(parameter);
-                
+                Logger.log(
+                    "HandlerImplementation() parameters: " + string.Join(", ", parameters.Select(p => p.Value)),
+                    LogEventLevel.Debug);
+
                 // Create a JSON object where names are parameter names and values are JSON representations of the parameters.
                 // Use dictionary mapping.
                 // This is the format that the AbstrParser expects.
                 var json = JsonSerializer.Serialize(parameters);
-                Console.WriteLine("HandlerImplementation() parameters as JSON:");
-                Console.WriteLine(json);
+                Logger.log("HandlerImplementation() parameters as JSON: " + json, LogEventLevel.Debug);
 
                 var item = new SyncroItem();
 
