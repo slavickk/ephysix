@@ -483,22 +483,13 @@ namespace ParserLibrary
                 Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
                 Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug, response);
             }
-            
-            var item = context as SyncroItem;
-            if (item != null)
+
+            if (context is SyncroItem item)
             {
                 item.answer = response;
                 Interlocked.Increment(ref item.srabot);
-                item.semaphore.Set();//.Release();
-                /*if (item.semaphore.CurrentCount == 0)
-                {
-                    int ii = 0;
-                    Interlocked.Increment(ref item.srabot);
-                    item.semaphore.Release();
-                }*/
-
+                item.semaphore.Set();
             }
-            // return base.sendResponseInternal(response, context);
         }
 
         public async Task signal1(string body,SyncroItem semaphoreItem)
