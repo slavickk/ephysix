@@ -163,24 +163,37 @@ namespace WebApiConsoleUtility
                         }
                     }
 
-
-                    Log.Information("Parsing done.Making self test.");
-                    var suc = await pip.SelfTest();
-                    if (suc)
+                    Log.Information("Parsing done");
+                    if (!pip.skipSelfTest)
                     {
-                        Log.Information("Self test OK. Run pipeline.");
-                        pip.run().ContinueWith((runner) =>
-                            {
-                                Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
-                                System.Diagnostics.Process.GetCurrentProcess().Kill();
-                                return;
-                            });
+                        Log.Information("Making self test.");
+                        var suc = await pip.SelfTest();
+                        if (suc)
+                        {
+                            Log.Information("Self test OK. Run pipeline.");
+                            pip.run().ContinueWith((runner) =>
+                                {
+                                    Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
+                                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                                    return;
+                                });
+                        }
+                        else
+                        {
+                            Log.Error("Self test failed. Pipeline won't be started. Running just the Integration Utility web host.");
+    //                        return;
+
+                        }
                     }
                     else
                     {
-                        Log.Error("Self test failed. Pipeline execution not possible.");
-//                        return;
-
+                        // TODO: deduplicate the code that runs the pipeline
+                        Log.Information("Running the pipeline without self-test because SkipSelfTest is true.");
+                        pip.run().ContinueWith((runner) =>
+                        {
+                            Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...", runner.IsFaulted, runner.Exception?.ToString());
+                            System.Diagnostics.Process.GetCurrentProcess().Kill();
+                        });
                     }
 
                     Log.Information("Starting Integrity Utility web host ");

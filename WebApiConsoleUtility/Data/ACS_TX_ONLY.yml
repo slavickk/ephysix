@@ -1,5 +1,7 @@
-pipelineDescription: Pipeline example
-hashWord: aaa
+pipelineDescription: Pipeline ACS-CCFA-TX
+traceSaveDirectory: /CONTEXT
+hashWord: {#SECRET_WORD#}
+skipSelfTest: true
 steps:
 - isBridge: false
   isHandleSenderError: true
