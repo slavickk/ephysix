@@ -296,6 +296,8 @@ namespace ParserLibrary
             {
                 // Find the IController interface in the assembly
                 var controllerInterface = assembly.DefinedTypes.FirstOrDefault(t => t.Name == "IController");
+                if (controllerInterface == null)
+                    throw new Exception("IController interface not found in the assembly");
 
                 // Dynamically compile an implementation of the IController interface using System.Reflection.Emit.
                 // The implementation should forward the call to a single method.
