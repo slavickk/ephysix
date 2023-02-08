@@ -379,18 +379,16 @@ namespace ParserLibrary
                             if (this._debugOutput)
                             {
                                 il.Emit(OpCodes.Ldstr, "Actual type on the stack");
-                                il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) }));
+                                il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new [] { typeof(string) }));
 
                                 // Print the actual return type to the console.
                                 // The actual value is at the top of the stack.
                                 il.Emit(OpCodes.Dup);
                                 il.Emit(OpCodes.Call, typeof(object).GetMethod("GetType"));
-                                il.Emit(OpCodes.Call,
-                                    typeof(Console).GetMethod("WriteLine", new Type[] { typeof(object) }));
+                                il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new [] { typeof(object) }));
 
                                 il.Emit(OpCodes.Ldstr, "Actual object that is wrapped within Task");
-                                il.Emit(OpCodes.Call,
-                                    typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) }));
+                                il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new [] { typeof(string) }));
 
                                 // Print the type of the value wrapped by Task.
                                 il.Emit(OpCodes.Dup);
@@ -398,8 +396,7 @@ namespace ParserLibrary
                                     .GetMethod("get_Result");
                                 il.Emit(OpCodes.Call, resultMethod);
                                 il.Emit(OpCodes.Call, typeof(object).GetMethod("GetType"));
-                                il.Emit(OpCodes.Call,
-                                    typeof(Console).GetMethod("WriteLine", new Type[] { typeof(object) }));
+                                il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new [] { typeof(object) }));
                             }
                             
                             // Get the type of the value wrapped by the Task<T> returned by RequestHandler
