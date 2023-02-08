@@ -4,7 +4,6 @@ steps:
 - isBridge: true
   isHandleSenderError: true
   saveErrorSendDirectory: Data/Restore
-  recordSendCount: 12
   iDStep: Step_0
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
