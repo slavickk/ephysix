@@ -449,8 +449,6 @@ namespace ParserLibrary
             // Dynamically implement the IController interface for Controller and add it to the service container
             var requestHandler = new RequestHandler(this);
             var controllerImplAssembly = requestHandler.ImplementController(serverPart.Assembly);
-            
-            // TODO: make RequestHandler a parameter of the IController implementation's constructor
 
             var host = _hostBuilder.ConfigureWebHostDefaults(webBuilder =>
             {
