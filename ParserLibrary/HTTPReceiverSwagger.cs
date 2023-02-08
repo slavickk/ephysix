@@ -481,10 +481,9 @@ namespace ParserLibrary
             if (debugMode)
             {
                 Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
+                Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug, response);
             }
             
-            Console.WriteLine("Send response: " + response);
-
             var item = context as SyncroItem;
             if (item != null)
             {
