@@ -247,10 +247,13 @@ namespace ParserLibrary
                             return answer;
                         }
                         
-                        // TODO: If it is a dictionary, then parse the answer into a dictionary
                         if (taskType.IsGenericType && taskType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
                         {
-                            throw new NotImplementedException("IDictionary<,> is not supported yet");
+                            // Parse item.answer as a Dictionary with string keys and taskType values.
+                            // Construct the resulting type dynamically as Dictionary<string, taskType>
+                            var dictType = typeof(Dictionary<,>).MakeGenericType(typeof(string), taskType.GetGenericArguments()[1]);
+                            var answer = JsonSerializer.Deserialize(item.answer, dictType);
+                            return answer;
                         }
                         
                         if (taskType == typeof(string))
