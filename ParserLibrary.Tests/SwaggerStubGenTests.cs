@@ -29,16 +29,6 @@ public class SwaggerStubGenTests
         return null;
     }
 
-    public static object HandlerImplementation_2args(object a, object b)
-    {
-        Console.WriteLine("HandlerImplementation:");
-        Console.WriteLine(a);
-        Console.WriteLine(b);
-
-        return null;
-    }
-
-    
     // Test the compilation of the generated server code
     [Test]
     public async Task TestSwaggerStubGenAsync()
