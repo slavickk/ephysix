@@ -130,10 +130,11 @@ namespace WebApiConsoleUtility
                     else
                         Log.Information($"jaeger host not set");
 
-                    Log.Information("... Parsing " + YamlPath);
+                    var yamlFullPath = Path.GetFullPath(YamlPath);
+                    Log.Information("... Parsing " + yamlFullPath);
                     try
                     {
-                        pip = Pipeline.load(YamlPath);
+                        pip = Pipeline.load(yamlFullPath);
                     }
                     catch(Exception e66) 
                     {
