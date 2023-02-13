@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ParserLibrary;
@@ -10,12 +11,17 @@ public class DummySender : Sender
     public override TypeContent typeContent => TypeContent.json;
 
     /// <summary>
-    /// The dummy response to return.
+    /// Dictionary of dummy responses to return, indexed by string keys.
     /// </summary>
-    public string DummyResponse;
+    public Dictionary<string, string> DummyResponses;
+
+    /// <summary>
+    /// The key of the dummy response to return.
+    /// </summary>
+    public string ResponseToReturn;
 
     public override Task<string> send(string JsonBody, Step.ContextItem context)
     {
-        return Task.FromResult(this.DummyResponse);
+        return Task.FromResult(this.DummyResponses[this.ResponseToReturn]);
     }
 }

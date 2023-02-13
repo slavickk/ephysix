@@ -16,4 +16,7 @@ steps:
     mocBody: ''
     swaggerSpecPath: Data/swagger.json  # standard Swagger file format
   sender: !DummySender
-    dummyResponse: '{"Id":1,"Category":{"Id":2,"Name":"Dummy category"},"Name":"Dummy Name","PhotoUrls":["url1"],"Tags":[{"Id":0,"Name":"tag1"}],"Status":"Available"}'
+    responseToReturn: getPet  # key to get the response from the below dictionary of dummy responses
+    dummyResponses:
+      getPet: '{"Id":1,"Category":{"Id":2,"Name":"Dummy category"},"Name":"Dummy Name","PhotoUrls":["url1"],"Tags":[{"Id":0,"Name":"tag1"}],"Status":"Available"}'
+      getInventory: '{"1": 250, "2": 22, "5": 2}'
