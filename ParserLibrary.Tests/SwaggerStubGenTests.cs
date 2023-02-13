@@ -210,8 +210,8 @@ public class SwaggerStubGenTests
         var il = methodBuilder.GetILGenerator();
         
         // For each method parameter, emit a Ldarg instruction to load the parameter onto the stack
-        for (var i = 0; i < 2; i++)
-            il.Emit(OpCodes.Ldarg, i);
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldarg_1);
         
         // Call AddImpl
         var targetMethod = typeof(SwaggerStubGenTests).GetMethod(nameof(AddImpl));
@@ -259,8 +259,8 @@ public class SwaggerStubGenTests
         var il = methodBuilder.GetILGenerator();
         
         // For each method parameter, emit a Ldarg instruction to load the parameter onto the stack
-        for (var i = 0; i < 2; i++)
-            il.Emit(OpCodes.Ldarg, i);
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldarg_1);
         
         // Call AddImpl_Boxed
         var targetMethod = typeof(SwaggerStubGenTests).GetMethod(nameof(AddImpl_Boxed));
