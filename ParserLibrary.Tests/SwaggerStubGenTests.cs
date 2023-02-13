@@ -192,8 +192,7 @@ public class SwaggerStubGenTests
     [Test]
     public void TestSimpleDynamicMethod_Add()
     {
-        // Dynamically generate a method that calls HandlerImplementation and returns the result.
-        // The method is compiled using System.Reflection.Emit.
+        // Dynamically generate a method that adds two integer arguments and returns the result.
 
         // Create a dynamic assembly
         var assemblyName = new AssemblyName("TestAssembly");
@@ -241,7 +240,7 @@ public class SwaggerStubGenTests
     [Test]
     public void TestSimpleDynamicMethod_Add_Boxed()
     {
-        // Dynamically generate a method that calls HandlerImplementation and returns the result.
+        // Dynamically generate a method that adds two boxed integer arguments and returns the result.
         // The method is compiled using System.Reflection.Emit.
 
         // Create a dynamic assembly
