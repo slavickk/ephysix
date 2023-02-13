@@ -78,7 +78,9 @@ namespace ParserLibrary
         /// <returns></returns>
         private async Task<AssemblyPart> CompileControllerAssemblyPartAsync()
         {
-            var doc = await NSwag.OpenApiDocument.FromFileAsync(this.swaggerSpecPath);
+            var swaggerSpecFullPath = Path.GetFullPath(this.swaggerSpecPath);
+            Logger.log("HTTPReceiverSwagger: Compiling controller from " + swaggerSpecFullPath);
+            var doc = await NSwag.OpenApiDocument.FromFileAsync(swaggerSpecFullPath);
             
             if (doc == null)
                 throw new Exception("Failed to load swagger spec");
