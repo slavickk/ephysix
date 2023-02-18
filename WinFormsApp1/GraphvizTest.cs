@@ -15,10 +15,11 @@ namespace WinFormsETLPackagedCreator
     public class GraphvizTest
     {
 
-        public static Bitmap test()
+        public static Bitmap test(string body= "digraph{a -> b; b -> c; c -> a;}")
         {
-            var getStartProcessQuery = new GetStartProcessQuery();
+            var getStartProcessQuery = new GetStartProcessQuery() ;
             var getProcessStartInfoQuery = new GetProcessStartInfoQuery();
+          
             var registerLayoutPluginCommand = new RegisterLayoutPluginCommand(getProcessStartInfoQuery, getStartProcessQuery);
 
             // GraphGeneration can be injected via the IGraphGeneration interface
@@ -26,8 +27,9 @@ namespace WinFormsETLPackagedCreator
             var wrapper = new GraphGeneration(getStartProcessQuery,
                                               getProcessStartInfoQuery,
                                               registerLayoutPluginCommand);
+            wrapper.GraphvizPath = @"C:\Program Files\Graphviz\bin\";
 
-            byte[] output = wrapper.GenerateGraph("digraph{a -> b; b -> c; c -> a;}", Enums.GraphReturnType.Png);
+            byte[] output = wrapper.GenerateGraph(body, Enums.GraphReturnType.Png);
 
             Bitmap bmp;
             using (MemoryStream mStream = new MemoryStream())

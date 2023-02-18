@@ -1,5 +1,6 @@
 ﻿using CamundaInterface;
 using Npgsql;
+using WinFormsETLPackagedCreator;
 //using Graphviz;
 
 namespace WinFormsApp1
@@ -25,8 +26,13 @@ namespace WinFormsApp1
         private async void Form1_Load(object sender, EventArgs e)
 
         {
-           
-            runner=CamundaExecutor.runCycle();
+            string body;
+            using(StreamReader sr= new StreamReader(@"\Data\example.txt"))
+            {
+                body = sr.ReadToEnd();
+            }
+            this.pictureBox1.Image = GraphvizTest.test(body);
+            runner =CamundaExecutor.runCycle();
 
             conn = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
             conn.Open();
