@@ -15,7 +15,7 @@ namespace WinFormsETLPackagedCreator
     public class GraphvizTest
     {
 
-        public static byte[] test()
+        public static Bitmap test()
         {
             var getStartProcessQuery = new GetStartProcessQuery();
             var getProcessStartInfoQuery = new GetProcessStartInfoQuery();
@@ -41,7 +41,7 @@ namespace WinFormsETLPackagedCreator
                 g.DrawImage(new Bitmap((@"C:\Users\Mena\Desktop\1.png"), new Point(182, 213));
             }*/
      //       pictureBox2.Image = bmp;
-            return output;
+            return bmp;
         }
 
     }
