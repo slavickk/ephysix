@@ -18,6 +18,7 @@ using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Collections.Concurrent;
 
 namespace ParserLibrary;
 
@@ -71,7 +72,7 @@ public class Pipeline
     [YamlIgnore]
     public string tempMocData ="";
     public Step[] steps { get; set; } = new Step[] { };// new Step[] { new Step() };
-    public List<Scenario> scenarios { get; set; }= new List<Scenario>();
+    public ConcurrentQueue<Scenario> scenarios { get; set; }= new ConcurrentQueue<Scenario>();
     public bool debugMode
     {
         set
@@ -120,13 +121,15 @@ public class Pipeline
 
         //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
     }
+    DateTime timeStart=DateTime.Now;
     public Pipeline()
     {
         Metrics.MetricAuto metric1 = new Metrics.MetricAuto("iu_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds);
         Metrics.MetricAuto metric2 = new Metrics.MetricAuto("iu_privileged_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().PrivilegedProcessorTime.TotalMilliseconds);
         Metrics.MetricAuto metric3 = new Metrics.MetricAuto("iu_user_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().UserProcessorTime.TotalMilliseconds);
         Metrics.MetricAuto metric4 = new Metrics.MetricAuto("iu_memory_size_total", "Memory usage", () => { var proc = Process.GetCurrentProcess(); return proc.NonpagedSystemMemorySize64 + proc.PagedMemorySize64; });
-        
+        Metrics.MetricAuto metric5 = new Metrics.MetricAuto("iu_uptime", "Uptime in seconds", () => {  return (DateTime.Now-timeStart).TotalSeconds; });
+
     }
     public static string ToStringValue(Pipeline pipes)
     {

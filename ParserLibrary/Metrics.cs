@@ -519,7 +519,31 @@ namespace ParserLibrary
 
         }
 
+   /*     public class MetricUptime : MetricCount
+        {
+            DateTime timeStart = DateTime.Now;
+            public MetricUptime(string Name, string Comment) : base(Name, Comment)
+            {
+                labels.TryAdd("type", new Label("type", "Count"));
+            }
+            //double val = 0;
+            public override void Add(double value)
+            {
+               // Add(ref val, value);
+            }
+            public void SetValue(double value)
+            {
+             //   val = value;
+            }
+            public override string getBody()
+            {
+                string retValue = "";
+                retValue += ("prometeus_" + Name + prometheusLabels + (DateTime.Now-timeStart).TotalSeconds + "\n");
+                return retValue;
+            }
 
+        }
+   */
         public class MetricCounters:MetricCount
         {
 
