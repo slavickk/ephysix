@@ -27,7 +27,7 @@ namespace WinFormsApp1
 
         {
             string body;
-            using(StreamReader sr= new StreamReader(@"\Data\example.txt"))
+            using(StreamReader sr= new StreamReader(@"Data\example.txt"))
             {
                 body = sr.ReadToEnd();
             }
