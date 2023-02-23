@@ -153,10 +153,10 @@ namespace GraphVizWrapper
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-//                Arguments = "-v -o -T" + returnType,
-                Arguments = "-v -T" + returnType,
+                //Arguments = "-v -T" + returnType,
+                Arguments = "-T" + returnType+ @" -oc:\graphviz_example\test.png -Tcmapx  -oc:\graphviz_example\test.map",
                 CreateNoWindow = true
-            });
+            }); ; ; ; ;
         }
 
         private byte[] ReadFully(Stream input)
