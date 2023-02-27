@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
@@ -32,7 +33,12 @@ namespace ParserLibrary
     {
         public int port = 8080;
 
-        public string swaggerSpecPath = null;        
+        public string swaggerSpecPath = null;
+        
+        /// <summary>
+        /// Path to save the generated server code to. If not set, the server code is not saved.
+        /// </summary>
+        public string serverCodePath = null;
 
         IHostBuilder _hostBuilder;
         
@@ -90,9 +96,49 @@ namespace ParserLibrary
 
             if (string.IsNullOrWhiteSpace(serverCode))
                 throw new Exception("Failed to generate server code");
+            
+            if (!string.IsNullOrEmpty(serverCodePath))
+            {
+                var fullPath = Path.GetFullPath(serverCodePath);
+                Logger.log("HTTPReceiverSwagger: Saving server code to " + fullPath);
+                File.WriteAllText(fullPath, serverCode);
+            }
 
             // Compile the code using Roslyn
             var syntaxTree = CSharpSyntaxTree.ParseText(serverCode);
+            
+            // Add the ApiController attribute to the generated controller class,
+            // so that the API controller logic described at
+            // https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-7.0#apicontroller-attribute,
+            // kicks in.
+            // We especially need model binding and automatic input validation.
+            var root = await syntaxTree.GetRootAsync();
+            var controllerClass = root.DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+
+            var controllerClassWithAttribute = controllerClass.AddAttributeLists(
+                SyntaxFactory.AttributeList(
+                    SyntaxFactory.SingletonSeparatedList(
+                        SyntaxFactory.Attribute(SyntaxFactory.QualifiedName(
+                            SyntaxFactory.QualifiedName(
+                                SyntaxFactory.QualifiedName(
+                                    SyntaxFactory.IdentifierName("Microsoft"),
+                                    SyntaxFactory.IdentifierName("AspNetCore")),
+                                SyntaxFactory.IdentifierName("Mvc")),
+                            SyntaxFactory.IdentifierName("ApiController"))))));
+
+            var rootWithAttribute = root.ReplaceNode(controllerClass, controllerClassWithAttribute);
+            syntaxTree = syntaxTree.WithRootAndOptions(rootWithAttribute, syntaxTree.Options);
+            
+            // If serverCodePath is given, write the updated syntax tree to serverCodePath-patched
+            if (!string.IsNullOrEmpty(serverCodePath))
+            {
+                // Add "modified" to the file name but keep the extension
+                var fullPath = Path.GetFullPath(serverCodePath);
+                var extension = Path.GetExtension(fullPath);
+                fullPath = fullPath.Substring(0, fullPath.Length - extension.Length) + "-patched" + extension;
+                Logger.log("HTTPReceiverSwagger: Saving patched server code to " + fullPath);
+                File.WriteAllText(fullPath, syntaxTree.ToString());
+            }
 
             // Rewrite the above list with all variables inlined
             var references = new List<Assembly>
@@ -459,7 +505,7 @@ namespace ParserLibrary
                     services.AddControllers()
                         .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
                         .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(serverPart));
-                    
+
                     // Register the IController implementation in the service container
                     var implementationClass = controllerImplAssembly.GetType("ControllerImpl");
                     Debug.Assert(implementationClass != null,
