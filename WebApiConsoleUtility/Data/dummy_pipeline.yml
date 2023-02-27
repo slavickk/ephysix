@@ -15,6 +15,7 @@ steps:
     mocFile: Data/OutACS_TX/e2soyscy.diz
     mocBody: ''
     swaggerSpecPath: Data/swagger.json  # standard Swagger file format
+    serverCodePath: "GeneratedServer.cs"  # save the NSwag-generated server code to this file
   sender: !DummySender
     responseToReturn: getPet  # key to get the response from the below dictionary of dummy responses
     dummyResponses:
