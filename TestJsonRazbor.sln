@@ -39,7 +39,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CamundaDefinitionInterfaces
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsETLPackagedCreator", "WinFormsApp1\WinFormsETLPackagedCreator.csproj", "{5EDFC4AD-F616-452A-9583-1DAA564EB8C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiCamundaExecutors", "WebApiCamundaExecutors\WebApiCamundaExecutors.csproj", "{68B8B988-5F16-46E2-B66A-E0278981DE19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiCamundaExecutors", "WebApiCamundaExecutors\WebApiCamundaExecutors.csproj", "{68B8B988-5F16-46E2-B66A-E0278981DE19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphVizWrapper", "GraphVizWrapper\GraphVizWrapper.csproj", "{CFEC60DC-14E0-47E4-A60E-8919FB5FEF5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,6 +125,10 @@ Global
 		{68B8B988-5F16-46E2-B66A-E0278981DE19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68B8B988-5F16-46E2-B66A-E0278981DE19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68B8B988-5F16-46E2-B66A-E0278981DE19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFEC60DC-14E0-47E4-A60E-8919FB5FEF5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFEC60DC-14E0-47E4-A60E-8919FB5FEF5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFEC60DC-14E0-47E4-A60E-8919FB5FEF5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFEC60DC-14E0-47E4-A60E-8919FB5FEF5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
