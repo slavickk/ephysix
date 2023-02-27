@@ -18,6 +18,23 @@ namespace TestJsonRazbor
     [GUI(typeof(StreamSender))]
     public partial class FormStreamSenderSetup : Form, SenderDataExchanger
     {
+        // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+        
+
+        public class JsonStream
+        {
+            public class Field
+            {
+                public string Name { get; set; }
+                public string Type { get; set; }
+                public string Detail { get; set; }
+            }
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public List<Field> fields { get; set; }
+        }
+
+
         public NpgsqlConnection conn { get; private set; }
         StreamSender ownerSender;
         string key;
@@ -294,6 +311,22 @@ where src = '" + textBoxName.Text + "' ", conn))
                 }
             }
             RefreshListFields() ;   
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            FormStreamFromJson frm = new FormStreamFromJson();
+            if(frm.ShowDialog() == DialogResult.OK)
+            {
+                textBoxName.Text = frm.retValue.Name;
+                textBoxDescription.Text = frm.retValue.Description;
+                fields.Clear();
+                foreach( var fld in frm.retValue.fields)
+                {
+                    fields.Add(new FieldItem() { Name = fld.Name, Detail = fld.Detail, Type = fld.Type });
+                }
+                RefreshListFields();                
+            }
         }
     }
 }

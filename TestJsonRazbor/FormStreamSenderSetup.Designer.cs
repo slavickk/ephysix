@@ -47,6 +47,7 @@
             this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
             this.label6 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.textBoxLinkColumn = new System.Windows.Forms.TextBox();
@@ -58,7 +59,7 @@
             this.textBoxFromString = new System.Windows.Forms.TextBox();
             this.button6 = new System.Windows.Forms.Button();
             this.checkBoxCalculated = new System.Windows.Forms.CheckBox();
-            this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
+            this.button7 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -246,6 +247,10 @@
             this.columnHeader3.Text = "Linked column";
             this.columnHeader3.Width = 260;
             // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "Calc";
+            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -310,10 +315,10 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(711, 23);
+            this.button5.Location = new System.Drawing.Point(677, 23);
             this.button5.Margin = new System.Windows.Forms.Padding(6);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(180, 49);
+            this.button5.Size = new System.Drawing.Size(202, 49);
             this.button5.TabIndex = 21;
             this.button5.Text = "from tmp_table";
             this.button5.UseVisualStyleBackColor = true;
@@ -361,15 +366,22 @@
             this.checkBoxCalculated.Text = "Calculated";
             this.checkBoxCalculated.UseVisualStyleBackColor = true;
             // 
-            // columnHeader6
+            // button7
             // 
-            this.columnHeader6.Text = "Calc";
+            this.button7.Location = new System.Drawing.Point(888, 24);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(108, 46);
+            this.button7.TabIndex = 26;
+            this.button7.Text = "XML";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // FormStreamSenderSetup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1098, 653);
+            this.Controls.Add(this.button7);
             this.Controls.Add(this.checkBoxCalculated);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.textBoxFromString);
@@ -437,5 +449,6 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.CheckBox checkBoxCalculated;
         private System.Windows.Forms.ColumnHeader columnHeader6;
+        private System.Windows.Forms.Button button7;
     }
 }
