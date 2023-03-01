@@ -5,7 +5,6 @@ using System.Net;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -143,9 +142,14 @@ public partial class HTTPReceiverSwagger
                     {
                         try
                         {
-                            var options = new JsonSerializerOptions();
-                            options.Converters.Add(new JsonStringEnumConverter());
-                            return JsonSerializer.Deserialize(item.answer, taskType, options);
+                            // Deserialize the answer into the task type, using Newtonsoft.Json,
+                            // so that data validation attributes are respected.
+                            var settings = new Newtonsoft.Json.JsonSerializerSettings
+                            {
+                                MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Error
+                            };
+                            return Newtonsoft.Json.JsonConvert.DeserializeObject(item.answer, taskType, settings);
+
                         }
                         catch (Exception e)
                         {
