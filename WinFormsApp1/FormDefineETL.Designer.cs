@@ -39,12 +39,15 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
+            this.comboBoxDestTables = new System.Windows.Forms.ComboBox();
+            this.buttonAdd = new System.Windows.Forms.Button();
+            this.buttonDel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // textBoxOutputName
             // 
-            this.textBoxOutputName.Location = new System.Drawing.Point(349, 59);
+            this.textBoxOutputName.Location = new System.Drawing.Point(351, 108);
             this.textBoxOutputName.Name = "textBoxOutputName";
             this.textBoxOutputName.Size = new System.Drawing.Size(338, 39);
             this.textBoxOutputName.TabIndex = 24;
@@ -89,7 +92,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 171);
+            this.label1.Location = new System.Drawing.Point(6, 214);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(124, 32);
             this.label1.TabIndex = 26;
@@ -100,16 +103,16 @@
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(13, 223);
+            this.textBox1.Location = new System.Drawing.Point(13, 273);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(840, 244);
+            this.textBox1.Size = new System.Drawing.Size(840, 264);
             this.textBox1.TabIndex = 27;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 117);
+            this.label2.Location = new System.Drawing.Point(13, 160);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(358, 32);
             this.label2.TabIndex = 28;
@@ -118,7 +121,7 @@
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(349, 117);
+            this.comboBox1.Location = new System.Drawing.Point(349, 160);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(338, 40);
             this.comboBox1.TabIndex = 29;
@@ -126,7 +129,7 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(615, 178);
+            this.numericUpDown1.Location = new System.Drawing.Point(615, 221);
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(72, 39);
             this.numericUpDown1.TabIndex = 30;
@@ -140,18 +143,49 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(393, 180);
+            this.label3.Location = new System.Drawing.Point(393, 223);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(216, 32);
             this.label3.TabIndex = 31;
             this.label3.Text = "Key element count";
             this.label3.Visible = false;
             // 
+            // comboBoxDestTables
+            // 
+            this.comboBoxDestTables.FormattingEnabled = true;
+            this.comboBoxDestTables.Location = new System.Drawing.Point(351, 62);
+            this.comboBoxDestTables.Name = "comboBoxDestTables";
+            this.comboBoxDestTables.Size = new System.Drawing.Size(336, 40);
+            this.comboBoxDestTables.TabIndex = 32;
+            // 
+            // buttonAdd
+            // 
+            this.buttonAdd.Location = new System.Drawing.Point(13, 108);
+            this.buttonAdd.Name = "buttonAdd";
+            this.buttonAdd.Size = new System.Drawing.Size(88, 46);
+            this.buttonAdd.TabIndex = 33;
+            this.buttonAdd.Text = "Add";
+            this.buttonAdd.UseVisualStyleBackColor = true;
+            this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
+            // 
+            // buttonDel
+            // 
+            this.buttonDel.Location = new System.Drawing.Point(109, 108);
+            this.buttonDel.Name = "buttonDel";
+            this.buttonDel.Size = new System.Drawing.Size(88, 46);
+            this.buttonDel.TabIndex = 34;
+            this.buttonDel.Text = "Del";
+            this.buttonDel.UseVisualStyleBackColor = true;
+            this.buttonDel.Click += new System.EventHandler(this.buttonDel_Click);
+            // 
             // FormDefineETL
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(867, 480);
+            this.ClientSize = new System.Drawing.Size(867, 550);
+            this.Controls.Add(this.buttonDel);
+            this.Controls.Add(this.buttonAdd);
+            this.Controls.Add(this.comboBoxDestTables);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.comboBox1);
@@ -185,5 +219,8 @@
         private ComboBox comboBox1;
         private NumericUpDown numericUpDown1;
         private Label label3;
+        private ComboBox comboBoxDestTables;
+        private Button buttonAdd;
+        private Button buttonDel;
     }
 }

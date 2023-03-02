@@ -20,7 +20,7 @@ namespace WinFormsApp1
             InitializeComponent();
         }
         public string ETLName;
-        public string OutputTableName;
+        public List<string> OutputTableName;
         public string ETLDescription;
         public int ETL_dest_id;
         public string ETLAddPar;
@@ -64,11 +64,22 @@ namespace WinFormsApp1
             }
             comboBox1.SelectedIndex = selectedIndex;
             textBoxETLName.Text = ETLName;
-            textBoxOutputName.Text = OutputTableName;
+            if (OutputTableName == null)
+                OutputTableName = new List<string>();
+            textBoxOutputName.Text = "";// OutputTableName;
+            refreshOutputTables();
             textBox1.Text=ETLDescription;
             if(!string.IsNullOrEmpty(ETLAddPar))
                 numericUpDown1.Value =Convert.ToInt32(ETLAddPar);   
          
+        }
+        void refreshOutputTables()
+        {
+            comboBoxDestTables.Items.Clear();
+            comboBoxDestTables.Items.AddRange(OutputTableName.ToArray());
+            if (comboBoxDestTables.Items.Count > 0)
+                comboBoxDestTables.SelectedIndex = 0;
+
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -82,6 +93,17 @@ namespace WinFormsApp1
                     label3.Visible = numericUpDown1.Visible = false;
 
             }
+        }
+
+        private void buttonAdd_Click(object sender, EventArgs e)
+        {
+            OutputTableName.Add(textBoxOutputName.Text);
+            refreshOutputTables();
+        }
+
+        private void buttonDel_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
