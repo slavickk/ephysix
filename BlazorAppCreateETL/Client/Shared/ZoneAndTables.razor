@@ -1,0 +1,99 @@
+﻿@page "/zoneandtables"
+@inject IJSRuntime JS
+@using BlazorAppCreateETL.Shared
+@using BlazorContextMenu
+@using System.Text.Json
+@inject HttpClient Http
+<ContextMenu Id=@("myMenu"+ID)>
+    <Item OnClick="@OnClick">Item 1</Item>
+    <Item OnClick="@OnClick">Item 2</Item>
+    <Item OnClick="@OnClick" Enabled="false">Item 3 (disabled)</Item>
+    <Seperator />
+    <Item>
+        Submenu
+        <SubMenu>
+            <Item OnClick="@OnClick">Submenu Item 1</Item>
+            <Item OnClick="@OnClick">Submenu Item 2</Item>
+        </SubMenu>
+    </Item>
+</ContextMenu>
+
+
+<table>
+    <tr>
+ <td>
+            @if (canAddNewSrc)
+            {
+                <button type="button" class="btn btn-outline-dark  btn-sm" @onclick="async()=>{await pushAdd();}">+</button>
+            }
+     </td>
+            <td>
+                <select id="SelDest" @bind="src_id_int">
+        @if (availSrc != null)
+        {
+            @foreach (var opt in availSrc)
+            {
+                                    <option value=@opt.id selected=@(opt==availSrc.First())>@opt.Name</option>
+            }
+        }
+                </select>
+            </td>
+            <td>
+                <TableDB @ref="tableDB" ID="@("T"+ID)" src_id="@src_id" ></TableDB>
+ </td>
+    </tr>
+</table>
+@code {
+    public TableDB tableDB;
+    //    string m_list = $"mlist{this.GetHashCode()}";
+    [Parameter]
+    public bool canAddNewSrc { get; set; }
+
+    [Parameter]
+    public string ID { get; set; } 
+
+    [Parameter]
+    public string? src_id 
+    { get { return src_id_int; }
+        set
+        {
+            src_id_int = value;    
+        }
+    }
+    string src_id_int;
+    [Parameter]
+    public Action? OnAddSrcPushed { get; set; }
+
+    async Task pushAdd()
+    {
+        OnAddSrcPushed?.Invoke();
+    }
+    void onChange()
+    {
+
+    }
+    IEnumerable<ItemPackage> availSrcInternal;
+    [Parameter]
+    public IEnumerable<ItemPackage> availSrc 
+    { 
+        get
+        {
+            return availSrcInternal;
+        }
+        set
+        {
+            availSrcInternal = value;
+            if(availSrcInternal?.Count() >0)
+            {
+                src_id = availSrcInternal.First().id.ToString();
+                if(tableDB != null)
+                    tableDB.src_id = src_id;
+            }
+        }
+    }
+    void OnClick(ItemClickEventArgs e)
+    {
+        Console.WriteLine($"Item Clicked => Menu: {e.ContextMenuId}, MenuTarget: {e.ContextMenuTargetId}, IsCanceled: {e.IsCanceled}, MenuItem: {e.MenuItemElement}, MouseEvent: {e.MouseEvent}");
+    }
+
+}

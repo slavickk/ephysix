@@ -43,7 +43,7 @@ namespace WinFormsApp1
       and n2.typeid=md_get_type('Column')
       and n2.NodeID=nav2.NodeID
       and nav2.AttrID=a2.AttrID
-  and a2.attrid>=5 and a2.attrid<=17
+  and a2.attrPID=1
   and n2.isdeleted=false and n1.isdeleted=false
       and n1.nodeid=@id
 union 

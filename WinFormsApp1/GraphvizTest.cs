@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
 using System.Windows.Forms;
+using ETL_DB_Interface;
 using GraphVizWrapper;
 using GraphVizWrapper.Commands;
 using GraphVizWrapper.Queries;
@@ -46,7 +47,7 @@ namespace WinFormsETLPackagedCreator
      //       pictureBox2.Image = bmp;
             return bmp;
         }
-        public static Bitmap drawContent(GenerateStatement.ETL_Package package)
+        public static string drawContent(GenerateStatement.ETL_Package package)
         {
             string addCont = "";
             string content = "digraph {\r\n    graph [pad=\"0.5\", nodesep=\"0.5\", ranksep=\"2\"];\r\n    node [shape=plain]\r\n    rankdir=LR;\r\n";
@@ -99,7 +100,7 @@ namespace WinFormsETLPackagedCreator
 
             content += "}";
 
-            return toGraphviz(content);
+            return content;
         }
 
         public interface IGraphviz

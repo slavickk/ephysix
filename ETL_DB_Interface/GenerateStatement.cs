@@ -11,10 +11,11 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CamundaInterfaces;
+using MaxMind.Db;
 using Npgsql;
 
 
-namespace WinFormsApp1
+namespace ETL_DB_Interface
 {
     public class GenerateStatement
     {
@@ -194,7 +195,8 @@ namespace WinFormsApp1
                             if (!item1.ended)
                             {
                                 var res=await WaitEndExec(camundaPath, item1);
-                                MessageBox.Show($"Task  {processId} {((res.isSucess)?"finished successfully":"failed")} with message: {res.Description}");
+                                Console.WriteLine($"Task  {processId} {((res.isSucess) ? "finished successfully" : "failed")} with message: {res.Description}");
+                                //MessageBox.Show($"Task  {processId} {((res.isSucess)?"finished successfully":"failed")} with message: {res.Description}");
 
                             }
 
@@ -688,7 +690,8 @@ namespace WinFormsApp1
 
                 if (package.allTables.Count == 0)
                 {
-                    MessageBox.Show($"The package {id} is empty");
+                    throw new Exception($"The package {id} is empty");
+//                    MessageBox.Show($"The package {id} is empty");
                     return;
                 }
             }
@@ -760,6 +763,182 @@ namespace WinFormsApp1
             }
 
             return countTask;
+        }
+        public static async Task<ETL_Package> fromPackage(NpgsqlConnection conn, BlazorAppCreateETL.Shared.ETL_Package ext_package)
+        {
+            ETL_Package package = new ETL_Package();
+            /*
+            ETL_Package package = new ETL_Package() { packet_id = ext_package.idPackage };
+            package.NamePacket = ext_package.ETLName; ;
+            package.outputTable = ext_package.TableOutputName;
+            package.description = ext_package.ETLDescription;
+            package.dest_id = ext_package.ETL_dest_id;
+            package.keyCount = 1;//???
+            foreach (var var1 in ext_package.variables)
+            {
+                package.variables.Add(new ItemVar() { Name = var1.Name, Type = var1.VariableType, DefaultValue = var1.VariableDefaultValue });
+
+            }
+
+            foreach (var var2 in ext_package.relations)
+            {
+                ItemRel rel = new ItemRel();
+                rel.IdFkRelation = var2.relationID;
+                rel.isExternal = true;
+                package.list.Add(rel);
+
+            }
+
+            //            List<ItemRel> listExternal = new List<ItemRel>();
+            //          int keyCount = 1;
+            //Variables
+
+            {
+            }
+
+
+            {
+                var command = @"select a.srcid,n.nodeid,a.nodeid from md_node a 
+inner join md_node n on (n.typeid=md_get_type('ETLRelation') and n.isdeleted=false)
+inner join md_arc a1 on (a.nodeid=a1.toid and a1.fromid=n.nodeid and a1.isdeleted=false)
+inner join md_arc a2 on (a2.toid=n.nodeid and a2.fromid=@id and a2.isdeleted=false)
+where a.typeid=md_get_type(@key) and a.isdeleted=false
+";
+
+
+               
+                await using (var cmd = new NpgsqlCommand(command, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.Parameters.AddWithValue("@key", "VForeignKey");
+                    await using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            ItemRel rel = new ItemRel();
+                            rel.srcId = reader.GetInt32(0);
+                            rel.IdEtlRelation = reader.GetInt64(1);
+                            rel.IdFkRelation = reader.GetInt64(2);
+                            rel.isExternal = true;
+                            package.list.Add(rel);
+                        }
+                    }
+                }
+            }
+
+            {
+                var command = @"select a.srcid,n.nodeid,a.nodeid from md_node a 
+inner join md_node n on (n.typeid=md_get_type('ETLRelation') and n.isdeleted=false)
+inner join md_arc a1 on (a.nodeid=a1.toid and a1.fromid=n.nodeid and a1.isdeleted=false)
+inner join md_arc a2 on (a2.toid=n.nodeid and a2.fromid=@id and a2.isdeleted=false)
+where a.typeid=md_get_type(@key) and a.isdeleted=false
+";
+                await using (var cmd = new NpgsqlCommand(command, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.Parameters.AddWithValue("@key", "ForeignKey");
+                    await using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            ItemRel rel = new ItemRel();
+                            rel.srcId = reader.GetInt32(0);
+                            rel.IdEtlRelation = reader.GetInt64(1);
+                            rel.IdFkRelation = reader.GetInt64(2);
+                            package.list.Add(rel);
+                        }
+                    }
+                }
+            }
+            if (package.list.Count == 0)
+            {
+                await FillTableInfo(conn, package.allTables, null, id);
+
+            }
+            foreach (var item in package.list)
+            {
+                //string a1 = @"";
+                await FillTableInfo(conn, package.allTables, item, item.IdEtlRelation);
+
+                {
+                    string command = @"select t.name1table,t.columns1table,t.name2table,t.columns2table from md_fk_info_as_table(@idFK) t";
+                    await using (var cmd = new NpgsqlCommand(command, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@idFK", item.IdFkRelation);
+                        await using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+
+                                string table1 = reader.GetString(0);
+                                string columns1 = reader.GetString(1);
+                                string table2 = reader.GetString(2);
+                                string columns2 = reader.GetString(3);
+                                // if (item.isExternal == false)
+                                {
+                                    if (table1 == item.Name1Table)
+                                    {
+                                        item.NameColumns1 = columns1;
+                                        item.NameColumns2 = columns2;
+                                    }
+                                    else
+                                    {
+                                        item.NameColumns1 = columns2;
+                                        item.NameColumns2 = columns1;
+
+                                    }
+                                }
+                                if (item.isExternal)
+                                {
+                                    var t1 = package.allTables.First(ii => ii.Name == table1);
+                                    var t2 = package.allTables.First(ii => ii.Name == table2);
+                                    if (t1.src_id != t2.src_id)
+                                    {
+                                        t1.needed_indexes = columns1.Split(',').Select(ii => t1.columns.First(i1 => i1.Name == ii.Trim())).ToList();//
+                                        t1.SelectList.AddRange(columns1.Split(',').Select(ii => new ItemTable.SelectListItem(ii)));
+                                        t2.needed_indexes = columns2.Split(',').Select(ii => t2.columns.First(i1 => i1.Name == ii.Trim())).ToList();//
+                                        t2.SelectList.AddRange(columns2.Split(',').Select(ii => new ItemTable.SelectListItem(ii)));
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+
+            }
+            SearchPaths(package.list);
+
+            foreach (var item in package.list)
+            {
+                bool skipFirst = false;
+                bool skipSecond = false;
+                if (item.isExternal)
+                {
+                    if (package.list.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name1Table && ii.Alias1Table == item.Alias1Table) || ((ii.Name2Table == item.Name1Table && ii.Alias2Table == item.Alias1Table)))) == 0 && package.allTables.First(ii => ii.Name == item.Name1Table).src_id != package.allTables.First(ii => ii.Name == item.Name2Table).src_id)
+                    {
+                        skipSecond = true;
+                        //                        item.Name2Table = "";
+                    }
+                    if (package.list.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name2Table && ii.Alias1Table == item.Alias2Table) || ((ii.Name2Table == item.Name2Table && ii.Alias2Table == item.Alias2Table)))) == 0 && package.allTables.First(ii => ii.Name == item.Name1Table).src_id != package.allTables.First(ii => ii.Name == item.Name2Table).src_id)
+                    {
+                        skipFirst = true;
+                    }
+                    if (skipFirst)
+                        item.is1Skip = true;
+                    if (skipSecond)
+                        item.is2Skip = true;
+                }
+
+                if (item.Name1Table != "")
+                    package.allTables.First(ii => ii.Name == item.Name1Table && ii.Alias == item.Alias1Table).seq_id = item.seq_id;
+                if (item.Name2Table != "")
+                    package.allTables.First(ii => ii.Name == item.Name2Table && ii.Alias == item.Alias2Table).seq_id = item.seq_id;
+
+            }
+            */
+            return package;
         }
 
         public static async Task<ETL_Package> getPackage(NpgsqlConnection conn, long id)
@@ -981,7 +1160,7 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
         {
             {
                 string command = @"select at.val,n.name,st.val,st1.val,a1.toid,n.srcid
-,au.val url,asq.val isql,asi.val intrval,src.descr,src.""PCI_DSS_ZONE""
+,au.val url,asq.val isql,asi.val intrval,src.descr,true
 from md_arc a
 inner join md_node n on(n.nodeid = a.toid and n.typeid = md_get_type('ETLTable') and n.isdeleted=false)
 inner join md_arc a1 on (n.nodeid=a1.fromid  and a1.isdeleted=false)
@@ -1471,7 +1650,7 @@ and b.srcid=@id
       and n2.typeid=md_get_type('Column')
       and n2.NodeID=nav2.NodeID
       and nav2.AttrID=a2.AttrID
-      and a2.attrid>=5 and a2.attrid<=17 
+      and a2.attrPID=1
       and n1.nodeid=@id and n1.isdeleted=false and n2.isdeleted=false  and a1.isdeleted=false 
   ";
             await using (var cmd = new NpgsqlCommand(command, conn))

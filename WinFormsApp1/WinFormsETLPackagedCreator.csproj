@@ -15,8 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BlazorAppCreateETL\Shared\BlazorAppCreateETL.Shared.csproj" />
     <ProjectReference Include="..\CamundaInterfaces\CamundaDefinitionInterfaces.csproj" />
     <ProjectReference Include="..\CamundaInterface\CamundaInterface.csproj" />
+    <ProjectReference Include="..\ETL_DB_Interface\ETL_DB_Interface.csproj" />
     <ProjectReference Include="..\GraphVizWrapper\GraphVizWrapper.csproj" />
   </ItemGroup>
 
@@ -41,6 +43,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="GraphViz\gvc.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="HTML\testInteractive.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
