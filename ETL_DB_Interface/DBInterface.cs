@@ -229,6 +229,8 @@ where nt.nodeid=@id and nc.isdeleted=false
             }
             public List<ItemColumnRef> columns= new List<ItemColumnRef>();
         }
+
+        
         public static async Task<List<SourceTableItem>> getSrcForTable(NpgsqlConnection conn, string tableName,int dest_id)
         {
             List<SourceTableItem> retValue = new List<SourceTableItem>();

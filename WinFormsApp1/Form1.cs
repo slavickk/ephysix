@@ -126,53 +126,7 @@ namespace WinFormsApp1
                     {
                         try
                         {
-                            FormAddTable frm = new FormAddTable(package.selectedFields.First().sourceColumn.table.table_id, cols.table.table_id, conn);
-                            if (frm.ShowDialog() == DialogResult.OK)
-                            {
-                                foreach (var item in frm.returnedItems)
-                                {
-                                    if (item.itemName == "Table")
-                                    {
-                                        if (package.selectedFields.Count(ii => ii.sourceColumn.table.table_id == item.itemId) > 0)
-                                        {
-                                            // add rel in dublicate table
-                                            var alias = ((char)('a' + package.selectedFields.Count)).ToString();
-                                            package.selectedFields.Add(new ETL_Package.ItemSelectedList()
-                                            {
-                                                sourceColumn ={ col_id = cols.col_id,alias=textBoxColumnAlias.Text,
-                                                col_name = cols.col_name,
-                                                table = new  ETL_Package.ItemTable() { alias = alias, table_id = cols.table.table_id, table_name = cols.table.table_name } }
-                                            });
-                                        }
-                                        else
-                                        {
-                                            if (cols.table.table_id != item.itemId)
-                                                // add relation
-                                                package.selectedFields.Add(new ETL_Package.ItemSelectedList()
-                                                { sourceColumn = { col_id = -1, col_name = "", table = new ETL_Package.ItemTable() { alias = "", table_id = item.itemId, table_name = await GetNodeName(item.itemId) } } });
-                                            else
-                                                //add new fileld in new table
-                                                package.selectedFields.Add(new ETL_Package.ItemSelectedList()
-                                                {
-                                                    sourceColumn = { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }
-                                                    ,
-                                                    outputTable = package.TableOutputName.First()
-                                                });
-//                                            selectedFields.Add(cols);
-                                        }
-                                    }
-
-                                }
-                                foreach (var item in frm.returnedItems)
-                                {
-                                    if (item.itemName == "ForeignKey" || item.itemName == "VForeignKey")
-                                    {
-                                        package.relations.Add(new ETL_Package.ItemRelation() { relationID = item.itemId, relationName = item.itemName, table1 = package.selectedFields.Where(ii => ii.sourceColumn.table.table_name == item.additionalInfo[0]).Last().sourceColumn.table, table2 = package.selectedFields.Where(ii => ii.sourceColumn.table.table_name == item.additionalInfo[1]).Last().sourceColumn.table });
-                                    }
-                                }
-                                RefreshListViewTablesSelected();
-                                RefreshListViewLinksSelected();
-                            }
+                            await AddNewTableRel(cols);
                         }
                         catch (Exception e77)
                         {
@@ -182,6 +136,58 @@ namespace WinFormsApp1
                 }
             }
         }
+
+        private async Task AddNewTableRel(ETL_Package.ItemColumn? cols)
+        {
+            FormAddTable frm = new FormAddTable(package.selectedFields.First().sourceColumn.table.table_id, cols.table.table_id, conn);
+            if (frm.ShowDialog() == DialogResult.OK)
+            {
+                foreach (var item in frm.returnedItems)
+                {
+                    if (item.itemName == "Table")
+                    {
+                        if (package.selectedFields.Count(ii => ii.sourceColumn.table.table_id == item.itemId) > 0)
+                        {
+                            // add rel in dublicate table
+                            var alias = ((char)('a' + package.selectedFields.Count)).ToString();
+                            package.selectedFields.Add(new ETL_Package.ItemSelectedList()
+                            {
+                                sourceColumn ={ col_id = cols.col_id,alias=textBoxColumnAlias.Text,
+                                                col_name = cols.col_name,
+                                                table = new  ETL_Package.ItemTable() { alias = alias, table_id = cols.table.table_id, table_name = cols.table.table_name } }
+                            });
+                        }
+                        else
+                        {
+                            if (cols.table.table_id != item.itemId)
+                                // add relation
+                                package.selectedFields.Add(new ETL_Package.ItemSelectedList()
+                                { sourceColumn = { col_id = -1, col_name = "", table = new ETL_Package.ItemTable() { alias = "", table_id = item.itemId, table_name = await GetNodeName(item.itemId) } } });
+                            else
+                                //add new fileld in new table
+                                package.selectedFields.Add(new ETL_Package.ItemSelectedList()
+                                {
+                                    sourceColumn = { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }
+                                    ,
+                                    outputTable = package.TableOutputName.First()
+                                });
+                            //                                            selectedFields.Add(cols);
+                        }
+                    }
+
+                }
+                foreach (var item in frm.returnedItems)
+                {
+                    if (item.itemName == "ForeignKey" || item.itemName == "VForeignKey")
+                    {
+                        package.relations.Add(new ETL_Package.ItemRelation() { relationID = item.itemId, relationName = item.itemName, table1 = package.selectedFields.Where(ii => ii.sourceColumn.table.table_name == item.additionalInfo[0]).Last().sourceColumn.table, table2 = package.selectedFields.Where(ii => ii.sourceColumn.table.table_name == item.additionalInfo[1]).Last().sourceColumn.table });
+                    }
+                }
+                RefreshListViewTablesSelected();
+                RefreshListViewLinksSelected();
+            }
+        }
+
         private async Task<string> GetNodeName(Int64 id)
         {
             var command = "select name from md_Node where nodeid=@id";
@@ -338,7 +344,7 @@ namespace WinFormsApp1
             comboBoxDestTable.Items.AddRange(package.TableOutputName.ToArray());
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private async void button5_Click(object sender, EventArgs e)
         {
             FormDefineETL frm = new FormDefineETL(conn);
             frm.ETLName= package.ETLName;
@@ -350,15 +356,38 @@ namespace WinFormsApp1
             if ( frm.ShowDialog() == DialogResult.OK )
             {
                 package.ETLName = frm.ETLName;
+                package.ETL_dest_id = frm.ETL_dest_id;
                 if (frm.OutputTableName.Count > 1)
                 {
                     var diff = frm.OutputTableName.Except(package.TableOutputName);// Intersect
+                    foreach(var item in diff ) 
+                    {
+                        var items=await DBInterface.getSrcForTable(conn, item, package.ETL_dest_id);
+                        string lastTableName = "";
+                        foreach (var it1 in items)
+                        {
+                            if (lastTableName != it1.table_name)
+                            {
+                                lastTableName = it1.table_name;
+                                bool isFirst = true;
+                                foreach (var cols in it1.columns)
+                                {
+                                    var col= new ETL_Package.ItemColumn() { col_id = cols.source_col_id, alias = cols.source_col_name, col_name=cols.source_col_name, table=new ETL_Package.ItemTable() {  table_name=it1.table_name, alias="", src_id=}  })
+                                    cols.source_col_id
+                                    if (isFirst)
+                                    {
+                                        isFirst = false;
+                                        await AddNewTableRel(new ETL_Package.ItemColumn() { col_id=cols.source_col_id, alias=cols. });
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 
 
                 package.TableOutputName=(frm.OutputTableName);
                 package.ETLDescription = frm.ETLDescription;
-                package.ETL_dest_id = frm.ETL_dest_id;
                 package.ETL_add_par = frm.ETLAddPar;
                 textBoxEtlDescr.Text = $"Etl:{package.ETLName} outFile:{package.TableOutputName}";
                 RefreshComboBoxDestTables();
