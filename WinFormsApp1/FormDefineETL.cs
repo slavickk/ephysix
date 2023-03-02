@@ -28,7 +28,7 @@ namespace WinFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             ETLName = textBoxETLName.Text;
-            OutputTableName = textBoxOutputName.Text;
+          //  OutputTableName = textBoxOutputName.Text;
             ETLDescription = textBox1.Text;
             ETL_dest_id = (comboBox1.SelectedItem as ItemSelect).id;
             ETLAddPar = numericUpDown1.Value.ToString();

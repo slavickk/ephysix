@@ -231,7 +231,7 @@ where nt.nodeid=@id and nc.isdeleted=false
         }
 
         
-        public static async Task<List<SourceTableItem>> getSrcForTable(NpgsqlConnection conn, string tableName,int dest_id)
+        public static async Task<List<SourceTableItem>> getSrcForTable(NpgsqlConnection conn, string tableName,int dest_id,int src_id)
         {
             List<SourceTableItem> retValue = new List<SourceTableItem>();
             await using (var cmd = new NpgsqlCommand(@"
@@ -240,14 +240,15 @@ where nt.nodeid=@id and nc.isdeleted=false
 from md_node c
 inner join md_arc l2 on (l2.fromid = c.nodeid and l2.typeid=md_get_type('Column2Table'))
 inner join md_node nt on (l2.toid=nt.nodeid )
-inner join md_node snode on (snode.synonym = c.synonym and snode.srcid=1)
+inner join md_node snode on (snode.synonym = c.synonym and snode.srcid=@srcid)
 inner join md_arc l1 on (l1.fromid = snode.nodeid and l1.typeid=md_get_type('Column2Table'))
 inner join md_node t1 on (l1.toid=t1.nodeid)
-where c.srcid=@srcid and nt.name=@tablename
+where c.srcid=@destid and nt.name=@tablename
 order by t1.nodeid
  ", conn))
             {
-                cmd.Parameters.AddWithValue("@srcid", dest_id);
+                cmd.Parameters.AddWithValue("@srcid", src_id);
+                cmd.Parameters.AddWithValue("@destid", dest_id);
                 cmd.Parameters.AddWithValue("@tablename", tableName);
                 long lastId = -1;
                 await using (var reader = await cmd.ExecuteReaderAsync())

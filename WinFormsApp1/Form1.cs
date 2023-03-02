@@ -110,7 +110,7 @@ namespace WinFormsApp1
                 if (package.selectedFields.Count < 1)
                 {
                     //add new table and new column
-                    package.selectedFields.Add(new ETL_Package.ItemSelectedList() { sourceColumn = new ETL_Package.ItemColumn() { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }, outputTable =((comboBoxDestTable.SelectedIndex<0)? package.TableOutputName.First() : comboBoxDestTable.Items[comboBoxDestTable.SelectedIndex]) });
+                    package.selectedFields.Add(new ETL_Package.ItemSelectedList() { sourceColumn = new ETL_Package.ItemColumn() { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }, outputTable =((comboBoxDestTable.SelectedIndex<0)? package.TableOutputName.First() : comboBoxDestTable.Items[comboBoxDestTable.SelectedIndex].ToString()) });
                     RefreshListViewTablesSelected();
                 }
                 else
@@ -357,12 +357,13 @@ namespace WinFormsApp1
             {
                 package.ETLName = frm.ETLName;
                 package.ETL_dest_id = frm.ETL_dest_id;
-                if (frm.OutputTableName.Count > 1)
+                if (frm.OutputTableName.Count > 1 && string.IsNullOrEmpty(textBoxFromSrc.Text))
                 {
+                    var src_id = Convert.ToInt32(textBoxFromSrc.Text);
                     var diff = frm.OutputTableName.Except(package.TableOutputName);// Intersect
                     foreach(var item in diff ) 
                     {
-                        var items=await DBInterface.getSrcForTable(conn, item, package.ETL_dest_id);
+                        var items=await DBInterface.getSrcForTable(conn, item, package.ETL_dest_id,src_id);
                         string lastTableName = "";
                         foreach (var it1 in items)
                         {
@@ -372,13 +373,9 @@ namespace WinFormsApp1
                                 bool isFirst = true;
                                 foreach (var cols in it1.columns)
                                 {
-                                    var col= new ETL_Package.ItemColumn() { col_id = cols.source_col_id, alias = cols.source_col_name, col_name=cols.source_col_name, table=new ETL_Package.ItemTable() {  table_name=it1.table_name, alias="", src_id=}  })
-                                    cols.source_col_id
-                                    if (isFirst)
-                                    {
-                                        isFirst = false;
-                                        await AddNewTableRel(new ETL_Package.ItemColumn() { col_id=cols.source_col_id, alias=cols. });
-                                    }
+                                    var col = new ETL_Package.ItemColumn() { col_id = cols.source_col_id, alias = cols.source_col_name, col_name = cols.source_col_name, table = new ETL_Package.ItemTable() { table_name = it1.table_name, alias = "", src_id = src_id, table_id = it1.table_id } };
+//                                    cols.source_col_id
+                                        await AddNewTableRel(col);
                                 }
                             }
                         }
@@ -441,7 +438,7 @@ namespace WinFormsApp1
                 package.selectedFields[index] = new ETL_Package.ItemSelectedList()
                 {
                     sourceColumn = { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, package.selectedFields[index].sourceColumn.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text },
-                    outputTable = ((comboBoxDestTable.SelectedIndex < 0) ? package.TableOutputName.First() : comboBoxDestTable.Items[comboBoxDestTable.SelectedIndex])
+                    outputTable = ((comboBoxDestTable.SelectedIndex < 0) ? package.TableOutputName.First() : comboBoxDestTable.Items[comboBoxDestTable.SelectedIndex].ToString())
                 }  ;
                 RefreshListViewTablesSelected();
             }
