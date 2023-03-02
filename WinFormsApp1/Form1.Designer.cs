@@ -81,6 +81,8 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.comboBoxDestTable = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBoxFromSrc = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.webView21)).BeginInit();
             this.SuspendLayout();
@@ -585,11 +587,30 @@
             this.comboBoxDestTable.Size = new System.Drawing.Size(190, 40);
             this.comboBoxDestTable.TabIndex = 43;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(373, 252);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(97, 32);
+            this.label5.TabIndex = 44;
+            this.label5.Text = "fromSrc";
+            // 
+            // textBoxFromSrc
+            // 
+            this.textBoxFromSrc.Location = new System.Drawing.Point(476, 252);
+            this.textBoxFromSrc.Name = "textBoxFromSrc";
+            this.textBoxFromSrc.Size = new System.Drawing.Size(87, 39);
+            this.textBoxFromSrc.TabIndex = 45;
+            this.textBoxFromSrc.Text = "2";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1333, 1361);
+            this.Controls.Add(this.textBoxFromSrc);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.comboBoxDestTable);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.button8);
@@ -694,5 +715,7 @@
         private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
         private ColumnHeader columnHeader14;
         private ComboBox comboBoxDestTable;
+        private Label label5;
+        private TextBox textBoxFromSrc;
     }
 }
