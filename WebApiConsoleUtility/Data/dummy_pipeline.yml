@@ -8,7 +8,7 @@ steps:
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
   description: Check registration extract
-  receiver: !HTTPReceiverSwagger  # !HTTPReceiverSwagger (but keep HTTPReceiver)
+  receiver: !HTTPReceiverSwagger
     port: 8080
     responseType: text/xml
     cantTryParse: true
@@ -16,6 +16,7 @@ steps:
     mocBody: ''
     swaggerSpecPath: Data/swagger.json  # standard Swagger file format
     serverCodePath: "GeneratedServer.cs"  # save the NSwag-generated server code to this file
+    certSubject: localhost
   sender: !DummySender
     responseToReturn: getPet  # key to get the response from the below dictionary of dummy responses
     dummyResponses:
