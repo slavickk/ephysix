@@ -1,0 +1,209 @@
+﻿@page "/viewDOT"
+@inject IJSRuntime JS
+@using BlazorAppCreateETL.Shared
+@using System.Text.Json
+@using System.Text;
+@inject HttpClient Http
+
+<table>
+    <tr>
+        <td>Select ETL:</td>
+        <td>
+            <select id="SelPackages" @onchange="async (eventArgs) => { await ComboChanged(eventArgs.Value); }">
+                @if (availPackages != null)
+                {
+                    @foreach (var opt in availPackages)
+                    {
+                        <option value=@opt.id>@opt.Name</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Select dest:</td>
+        <td>
+            <ZoneAndTables canAddNewSrc=false ID="a1" availSrc="@availSrc" src_id="@dest_id"></ZoneAndTables>
+        </td>
+    </tr>
+    @for(int i=0;i<1;i++)
+    {
+        <tr>
+            <td>Select source:</td>
+            <td>
+                <ZoneAndTables canAddNewSrc=true ID="d1" OnAddSrcPushed="@AddNewSrc" availSrc="@availSrc" src_id="@dest_id"></ZoneAndTables>
+            </td>
+        </tr>
+
+    }
+</table>
+<p>
+    <button @onclick="ConvertArray">Draw </button>
+</p>
+@if (addDialogNewTable )
+{
+    <DialogAddTable @ref="dialogAddTable" availSrc="@availSrc" showModal="@addDialogNewTable" DialogEnded="newTableDialogEnd" DialogCancel="@newTableDialogCancel"></DialogAddTable>
+}
+<div id="graph" style="text-align: center;">
+    @if (!string.IsNullOrEmpty(selectedID) && !isMenuCancelled)
+    {
+        <ul id="my_custom_menu" class="dropdown-menu" style=@("position:absolute;visibility:visible;display:block;left:"+posX+"px;top:"+posY+"px")>
+    <li><a class="dropdown-item"  @onclick="addNewTableDialog">Add new source table</a></li>
+    <li><a class="dropdown-item" href="#">Another action</a></li>
+    <li><a class="dropdown-item" href="#">Something else here</a></li>
+</ul>
+}
+</div>
+
+
+@code {
+    DialogAddTable dialogAddTable;
+    string? dest_id;
+    bool isMenuCancelled = false;
+    private IJSObjectReference? jsModule=null;
+    private CustomEventInterop Interop { get; set; }
+    string body = @"
+digraph {
+    graph [label=""Click on a node or an edge to delete it"" labelloc=""t"", fontsize=""20.0"" tooltip="" ""]
+    node [style=""filled""]
+    Node1 [id=""NodeId1"" label=""N1"" fillcolor=""#d62728""]
+    Node2 [id=""NodeId2"" label=""N2"" fillcolor=""#1f77b4""]
+    Node3 [id=""NodeId3"" label=""N3"" fillcolor=""#2ca02c""]
+    Node4 [id=""NodeId4"" label=""N4"" fillcolor=""#ff7f0e""  tooltip="" its important ""]
+    Node1 -> Node2 [id=""EdgeId12"" label=""E12""]
+    Node1 -> Node3 [id=""EdgeId131"" label=""E13""]
+    Node2 -> Node3 [id=""EdgeId23"" label=""E23""]
+    Node3 -> Node4 [id=""EdgeId34"" label=""E34""]
+}
+";
+    bool addDialogNewTable = false;
+    private async Task addNewTableDialog()
+    {
+        addDialogNewTable = true;
+        isMenuCancelled = true;
+    }
+    void newTableDialogCancel()
+    {
+        addDialogNewTable = false;
+    }
+    private Uri? CreateUri(string? uri) =>
+            string.IsNullOrEmpty(uri) ? null : new Uri(uri, UriKind.RelativeOrAbsolute);
+    async Task drawPackage(ETL_Package package)
+    {
+        string body;
+
+        var resp=await Http.PostAsJsonAsync<string>("ETLDB/drawFromSource", JsonSerializer.Serialize<ETL_Package>(package));
+
+        /*var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = CreateUri("ETLDB/drawFromSource"),
+                Content = new StringContent(JsonSerializer.Serialize<ETL_Package>(package), Encoding.UTF8, "application/json"),
+            };
+//            Http.GetAsync()
+        var resp = await Http.SendAsync(request);
+*/        //        var resp = await Http.GetAsync().GetAsync("ETLDB/drawFromSource?id=" + checkedValue.ToString());
+        resp.EnsureSuccessStatusCode();
+        body = await resp.Content.ReadAsStringAsync();
+        await diagramModule.InvokeVoidAsync("render", body);
+
+    }
+
+    async Task newTableDialogEnd(string IDResult)
+    {
+        package.allTables.Add(dialogAddTable.table);
+        await drawPackage(package);
+        addDialogNewTable = false;
+    }
+
+    string? selectedID;
+    double posX;
+    double posY;
+    private void AddNewSrc()
+    {
+    }
+    private async Task ConvertArray()
+    {
+        await diagramModule.InvokeVoidAsync("render", body);
+
+        // var text = await JS.InvokeAsync<string>("render", body);
+    }
+    ETL_Package package;
+    async Task ComboChanged( object checkedValue)
+    {
+        string body;
+        var resp=await Http.GetAsync("ETLDB/DrawPackage?id=" + checkedValue.ToString());
+        resp.EnsureSuccessStatusCode();
+        body= await resp.Content.ReadAsStringAsync();
+        await diagramModule.InvokeVoidAsync("render", body);
+        package= await Http.GetFromJsonAsync<ETL_Package>("ETLDB/FillETLPackage?id=" + checkedValue.ToString());
+        
+
+        //        el.Value = checkedValue.ToString();
+
+    }
+    async Task ComboDestChanged(object checkedValue)
+    {
+        availSrcTables = await Http.GetFromJsonAsync<ItemPackage[]>("ETLDB/GetTablesForPattern?pattern=" + checkedValue.ToString() + "&srcid=" + dest_id);
+
+        //        el.Value = checkedValue.ToString();
+
+    }
+
+    private async Task HandleCustomEvent(EventArgs args)
+    {
+        // ... handle custom event here
+    }
+
+    IEnumerable<ItemPackage> availPackages;
+    IEnumerable<ItemPackage> availSrc;
+    IEnumerable<ItemPackage> availSrcTables;
+    private async Task<ItemPackage[]> getAvailPackages()
+    {
+
+        return await Http.GetFromJsonAsync<ItemPackage[]>("ETLDB/GetPackages");
+
+    }
+    private async Task<ItemPackage[]> getAvailSrc()
+    {
+
+        return await Http.GetFromJsonAsync<ItemPackage[]>("ETLDB/GetSrc");
+
+    }
+
+
+    private async Task HandleCustomEvent1(string id,double x,double y)
+    {
+        selectedID = id;
+        posX = x;
+        posY = y;
+        isMenuCancelled = false;
+        StateHasChanged();
+        // ... handle custom event here
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        availPackages = await getAvailPackages();
+        availSrc = await getAvailSrc();
+        await base.OnInitializedAsync();
+    }
+    IJSObjectReference diagramModule;
+    protected override async  Task OnAfterRenderAsync(bool firstRender)
+    {
+         diagramModule = await JS
+            .InvokeAsync<IJSObjectReference>("import", "/diagrams.js");
+
+       // var diagram = "digraph { HelloWorld }";
+
+       // await diagramModule.InvokeVoidAsync("renderDot"
+       // if (jsModule == null)
+        {
+         /*   jsModule = await JS.InvokeAsync<IJSObjectReference>(
+    "import", "./Pages/ViewDOT.razor.js");*/
+            Interop = new(diagramModule);
+            await Interop.SetupCustomEventCallback((args,x,y) => HandleCustomEvent1(args,x,y));
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

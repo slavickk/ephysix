@@ -17,6 +17,7 @@ using Npgsql;
 using static NpgsqlTypes.NpgsqlTsQuery;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 using System.Linq.Expressions;
+using ETL_DB_Interface;
 
 namespace WinFormsApp1
 {
@@ -305,7 +306,7 @@ namespace WinFormsApp1
 	  and nav_per.attrID=109
 	  
       and nav2.AttrID=a2.AttrID
- and a2.attrid>=5 and a2.attrid<=17
+ and a2.attrPID=1
  and n2.isdeleted=false
   and n1.NodeId=@id
 "

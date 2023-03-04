@@ -1,0 +1,68 @@
+﻿@page "/TableDB"
+@inject IJSRuntime JS
+@using BlazorAppCreateETL.Shared
+@using BlazorContextMenu
+@using System.Text.Json
+@inject HttpClient Http
+<ContextMenu Id=@("myMenu"+ID)>
+    <Item OnClick="@OnClick">Item 1</Item>
+    <Item OnClick="@OnClick">Item 2</Item>
+    <Item OnClick="@OnClick" Enabled="false">Item 3 (disabled)</Item>
+    <Seperator />
+    <Item>
+        Submenu
+        <SubMenu>
+            <Item OnClick="@OnClick">Submenu Item 1</Item>
+            <Item OnClick="@OnClick">Submenu Item 2</Item>
+        </SubMenu>
+    </Item>
+    </ContextMenu>
+    <table><tr>
+        <td>
+                          <ContextMenuTrigger MenuId=@("myMenu"+ID)>
+            <input type=text list=@("mlist"+ID) @onchange=" async (eventArgs)=> { await ComboDestChanged(eventArgs); }">
+            <datalist id=@("mlist"+ID) >
+        @if (availSrcTables != null)
+        {
+            @foreach (var opt in availSrcTables)
+            {
+                                    <option>@opt.Name</option>
+            }
+        }
+                </datalist>
+                </ContextMenuTrigger>
+            </td>
+            <td><ContextMenuTrigger MenuId=@("myMenu"+ID)>
+<button type="button" class="btn btn-outline-dark  btn-sm">?</button></ContextMenuTrigger></td>
+  
+    </tr></table>
+@code {
+    [Parameter]
+    public string ID { get; set; }
+    [Parameter]
+    public string? src_id { get; set; }
+
+    public long TableID;
+    public string TableName;
+
+    IEnumerable<ItemPackage> availSrcTables;
+    async Task ComboDestChanged(ChangeEventArgs args)
+    {
+        availSrcTables = await Http.GetFromJsonAsync<ItemPackage[]>("ETLDB/GetTablesForPattern?pattern=" + args.Value.ToString() + "&srcid=" + src_id);
+        var table = availSrcTables.FirstOrDefault(ii => ii.Name == args.Value.ToString());
+        if (table != null)
+        {
+            TableID = table.id;
+            TableName = table.Name;
+           // int yy = 0;
+        }
+        //        el.Value = checkedValue.ToString();
+
+        }
+        void OnClick(ItemClickEventArgs e)
+        {
+        Console.WriteLine($"Item Clicked => Menu: {e.ContextMenuId}, MenuTarget: {e.ContextMenuTargetId}, IsCanceled: {e.IsCanceled}, MenuItem: {e.MenuItemElement}, MouseEvent: {e.MouseEvent}");
+        }
+
+
+}

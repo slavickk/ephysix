@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+<script src="https://unpkg.com/d3-graphviz@4.0.0/build/d3-graphviz.js"></script>
+<div id="graph" style="text-align: center;"></div>
+    console.log('selectEdge');
+<script>
+
+
+var dotSrc = `
+digraph {
+    graph [pad="0.5", nodesep="0.5", ranksep="2"];
+    node [shape=plain]
+    rankdir=LR;
+
+subgraph cluster_0 {
+    label=PCI_DSS;
+    style=filled;
+    color=lightgrey;
+Foo [id="id1",color="grey",label=<
+<table border="0" cellborder="1" cellspacing="0">
+  <tr><td bgcolor="red"><i>Input Foo</i></td></tr>
+  <tr><td port="1">one</td></tr>
+  <tr><td port="2">two</td></tr>
+  <tr><td port="3">three</td></tr>
+  <tr><td port="4">four</td></tr>
+  <tr><td port="5">five</td></tr>
+  <tr><td port="6">six</td></tr>
+</table>>];
+
+
+Bar [id="id2",label=<
+<table border="0" cellborder="1" cellspacing="0">
+  <tr><td><i>Input Bar</i></td></tr>
+  <tr><td port="7">seven</td></tr>
+  <tr><td port="8">eight</td></tr>
+  <tr><td port="9">nine</td></tr>
+  <tr><td port="10">ten</td></tr>
+</table>>];
+}
+
+ subgraph cluster_1 {
+ 
+Baz [label=<
+<table border="0" cellborder="1" cellspacing="0">
+  <tr><td><i>Output Baz</i></td></tr>
+  <tr><td port="a">alpha</td></tr>
+  <tr><td port="b">bravo</td></tr>
+  <tr><td port="c">charlie</td></tr>
+  <tr><td port="d">delta</td></tr>
+  <tr><td port="e">echo</td></tr>
+  <tr><td port="f">foxtrot</td></tr>
+</table>>];
+}
+Foo:2 -> Baz:a;
+Foo:1 -> Bar:7 [constraint=false];  
+Foo:2 -> Bar:8 [constraint=false];  
+Foo:3 -> Baz:e;
+Foo:6 -> Baz:b;
+Bar:7 -> Baz:d;
+Bar:9 -> Baz:f;
+}
+`;
+var dotSrcLines;
+
+var graphviz = d3.select("#graph").graphviz();
+
+function render(dotSrc) {
+    console.log('DOT source =', dotSrc);
+    dotSrcLines = dotSrc.split('\n');
+
+    graphviz
+        .transition(function() {
+            return d3.transition()
+                .delay(100)
+                .duration(1000);
+        })
+        .renderDot(dotSrc)
+        .on("end", interactive);
+}
+
+function interactive() {
+
+    nodes = d3.selectAll('.node,.edge');
+    nodes
+        .on("click", function () {
+            var title = d3.select(this).selectAll('title').text().trim();
+	    console.log(title);
+            var class1 = d3.select(this).attr('class');
+	    console.log(class1);
+            var text = d3.select(this).selectAll('text').text();
+	    console.log(text);
+            var id = d3.select(this).attr('id');
+	    console.log(id);
+            var color = d3.select(this).attr('color');
+	    console.log(color);
+
+    /*        dotElement = title.replace('->',' -> ');
+            console.log('Element id="%s" class="%s" title="%s" text="%s" dotElement="%s"', id, class1, title, text, dotElement);
+            console.log('Finding and deleting references to %s "%s" from the DOT source', class1, dotElement);
+            for (i = 0; i < dotSrcLines.length;) {
+                if (dotSrcLines[i].indexOf(dotElement) >= 0) {
+                    console.log('Deleting line %d: %s', i, dotSrcLines[i]);
+                    dotSrcLines.splice(i, 1);
+                } else {
+                    i++;
+                }
+            }
+            dotSrc = dotSrcLines.join('\n');
+            render(dotSrc);*/
+        });
+}
+
+render(dotSrc);
+window.chrome.webview.addEventListener('message', event => {
+    alert(event.data);
+    WriteDataFromCsharp(event.data);
+});
+function WriteDataFromCsharp(data) {
+    var target = document.getElementById('target');
+    if (target === null) { alert('target not found') };
+    //alert(target.id);
+    //target.textContent = event.data;
+
+    rootNode = JSON.parse(data);
+    target.innerHTML = addTable(rootNode); //addTable create an HTML table from the deserialized object rootNode
+}
+function RequestData() {
+    //function triggered by a button on the html page
+    //alert('post to c#');
+    window.chrome.webview.postMessage('getData');
+}
+</script>

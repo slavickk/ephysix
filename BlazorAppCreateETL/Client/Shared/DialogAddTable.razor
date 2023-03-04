@@ -1,0 +1,89 @@
+﻿@page "/dialogaddtable"
+@inject IJSRuntime JS
+@using BlazorAppCreateETL.Shared
+@using BlazorContextMenu
+@using System.Text.Json
+@inject HttpClient Http
+
+@if (showModal == true)
+{
+    <div class="modal fade show" id="exampleModal" style="display:block" aria-modal="true" role="dialog">
+        <!--      <div class="modal fade show" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+        <div class="modal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">-->
+        <div class="modal-dialog modal-dialog-scrollable  ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add new Table</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="@ModalCancel"></button>
+                </div>
+                <div class="modal-body">
+                    <ZoneAndTables @ref="zoneAndTables" canAddNewSrc=false ID="dial_a1" availSrc="@availSrc" src_id="@src_id"></ZoneAndTables>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="@(async () => await cancelDialog())">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="@(async () => await finishForm())">OK</button>
+                </div>
+
+
+
+
+            </div>
+
+
+        </div>
+    </div>
+}
+@code {
+    public ETL_Package.ItemTable table;
+    ZoneAndTables zoneAndTables;
+    [Parameter]
+    public Action? DialogCancel { get; set; }
+
+    [Parameter]
+    public EventCallback<string> DialogEnded { get; set; }
+
+    IEnumerable<ItemPackage> availSrcInternal;
+    [Parameter]
+    public IEnumerable<ItemPackage> availSrc
+    {
+        get
+        {
+            return availSrcInternal;
+        }
+        set
+        {
+            availSrcInternal = value;
+            if (availSrcInternal?.Count() > 0)
+            {
+                src_id = availSrcInternal.First().id.ToString();
+                if (zoneAndTables != null)
+                    zoneAndTables.src_id = src_id;
+            }
+        }
+    }
+
+    string src_id;
+    [Parameter]
+    public bool showModal { get; set; } = true;
+
+    void ModalShow() => showModal = true;
+    void ModalCancel()
+    {
+        showModal = false;
+        DialogCancel?.Invoke();
+
+    }
+    async Task finishForm()
+    {
+        table = new ETL_Package.ItemTable() { table_id = this.zoneAndTables.tableDB.TableID, table_name = this.zoneAndTables.tableDB.TableName };
+        showModal = false;
+        await DialogEnded.InvokeAsync("");
+    }
+
+    public async Task cancelDialog()
+    {
+        ModalCancel();
+        //        await OnCancelDialog?.Invoke();
+    }
+}
