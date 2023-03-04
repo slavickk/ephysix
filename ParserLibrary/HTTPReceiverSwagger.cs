@@ -26,6 +26,7 @@ using Microsoft.OpenApi.Models;
 using NSwag.CodeGeneration.CSharp;
 using Serilog.Events;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ParserLibrary
 {
@@ -40,9 +41,40 @@ namespace ParserLibrary
         /// </summary>
         public string serverCodePath = null;
 
+        /// <summary>
+        /// Server certificate subject name.
+        /// When given, enables HTTPS in Kestrel and is used to locate the certificate in the local machine certificate store.
+        /// When omitted, Kestrel is not configured to use HTTPS.
+        /// </summary>
+        public string certSubject;
+
         IHostBuilder _hostBuilder;
         
         public string ResponseType = "application/json";
+        
+        private X509Certificate2 FindMatchingCertificateBySubject(string subjectCommonName)
+        {
+            // This is a bit reworked copy of the example from
+            // https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-tutorial-dotnet-app-enable-https-endpoint
+            using var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+            
+            store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
+
+            // TODO: clarify the order in which the certificates are enumerated;
+            // if it is not deterministic, consider sorting the certificates by expiration date.
+            foreach (var cert in store.Certificates)
+            {
+                if (StringComparer.OrdinalIgnoreCase.Equals(subjectCommonName, cert.GetNameInfo(X509NameType.SimpleName, forIssuer: false))
+                    && DateTime.Now < cert.NotAfter
+                    && DateTime.Now >= cert.NotBefore)
+                {
+                    return cert;
+                }
+            }
+
+            throw new Exception($"Could not find a match for a certificate with subject 'CN={subjectCommonName}'.");
+        }
+        
         public HTTPReceiverSwagger()
         {
             Logger.log("HTTPReceiverSwagger: Creating a host to listen on the port " + port);
@@ -91,6 +123,16 @@ namespace ParserLibrary
 
             var host = _hostBuilder.ConfigureWebHostDefaults(webBuilder =>
             {
+                if (certSubject != null)
+                {
+                    Logger.log("HTTPReceiverSwagger: Configuring HTTPS with certificate subject " + certSubject);
+                    webBuilder.UseKestrel(opt =>
+                        opt.Listen(IPAddress.Any, port,
+                            options => options.UseHttps(FindMatchingCertificateBySubject(certSubject))));
+                }
+                else
+                    Logger.log("HTTPReceiverSwagger: Not using HTTPS because certSubject has not been given in pipeline definition.");
+
                 webBuilder.UseUrls("http://localhost:" + port);
                 webBuilder.ConfigureServices(services =>
                 {
