@@ -49,7 +49,7 @@ public  class HTTPSender:Sender,ISelfTested
     {
         if(certThumbprints.Count >0 && !certThumbprints.Contains(certificate.Thumbprint))
         {
-            Logger.log("Invalid certificate {Incorrect} , valid thumbprint {valid}.", Serilog.Events.LogEventLevel.Error, "any", certificate.Thumbprint, certThumbprints);
+            Logger.log("Invalid server certificate {Incorrect}, valid thumbprints are: {valid}.", Serilog.Events.LogEventLevel.Error, "any", certificate.Thumbprint, certThumbprints);
             return false;
         }
         return true;
