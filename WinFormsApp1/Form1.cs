@@ -150,7 +150,7 @@ namespace WinFormsApp1
 
         private async Task AddNewTableRel(ETL_Package.ItemColumn? cols,string newTableName)
         {
-            FormAddTable frm = new FormAddTable(package.selectedFields.First().sourceColumn.table.table_id, cols.table.table_id, conn);
+            FormAddTable frm = new FormAddTable(package.allTables.Select(ii=>ii.table_id).ToArray(),package.selectedFields.First().sourceColumn.table.table_id, cols.table.table_id, conn);
             if (frm.ShowDialog() == DialogResult.OK)
             {
                // package.allTables.Add(cols.table);
