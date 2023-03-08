@@ -493,6 +493,24 @@ namespace ETL_DB_Interface
             public ItemTable dstTable;
             public ItemTable.ColumnItem colSrc;
             public ItemTable.ColumnItem colDst;
+
+        }
+        static IEnumerable<(ItemTable,ItemRel)> enumerateTables(List<(ItemTable, ItemRel)> outTables,ItemTable table, List<ItemTable> tables, List<ItemRel> rels, List<ItemRel> usedRels ,ItemRel currentRel)
+        {
+//            currentRel = null;
+            outTables.Add( (table,currentRel));
+
+            //                var table = tables.First();
+            foreach (var rel in rels.Where(ii => !usedRels.Contains(ii) && ((ii.Name1Table == table.Name && ii.Alias1Table == table.Alias) || (ii.Name2Table == table.Name && ii.Alias2Table == table.Alias))))
+            {
+                currentRel = rel;
+                usedRels.Add(rel);
+                var table1 = ((rel.Name1Table == table.Name && rel.Alias1Table == table.Alias) ? tables.First(ii => ii.Name == rel.Name2Table && ii.Alias == rel.Alias2Table) : tables.First(ii => ii.Name == rel.Name1Table && ii.Alias == rel.Alias1Table));
+//                yield return table1;
+                enumerateTables(outTables, table1, tables, rels, usedRels,currentRel);
+            }
+            return outTables;
+//            yield return 
         }
         public static  string formSQLStatement(IEnumerable<ItemRel> items,IEnumerable<ItemTable> itemTables,out List<ItemTable.ColumnItem> columns,List<ItemVar> variables ,int dest_id,out List<RelItem> relColumns)
         {
@@ -503,39 +521,58 @@ namespace ETL_DB_Interface
             var columns1 = new List<ItemTable.ColumnItem>();
             string selectList = "";
             string whereCondition = "";
-            foreach (var item in itemTables)
+            List<ItemRel> usedRels= new List<ItemRel>();
+            List<ItemTable> usedTables = new List<ItemTable>();
+            List<(ItemTable, ItemRel)> outTables = new List<(ItemTable, ItemRel)>();
+            ItemRel outRel =null;
+            var out_tables1=enumerateTables(outTables,itemTables.First(), itemTables.ToList(), items.ToList(), usedRels, outRel);
+            string returnValue1 = "";
+            foreach (var item in out_tables1)// itemTables)
             {
-                if (onlyOneTable || items.Count(ii => (!ii.is1Skip && ii.Name1Table == item.Name && ii.Alias1Table == item.Alias) || (!ii.is2Skip && ii.Name2Table == item.Name && ii.Alias2Table == item.Alias)) > 0)
+                usedTables.Add(item.Item1);
+//                if (onlyOneTable || items.Count(ii => (!ii.is1Skip && ii.Name1Table == item.Name && ii.Alias1Table == item.Alias) || (!ii.is2Skip && ii.Name2Table == item.Name && ii.Alias2Table == item.Alias)) > 0)
                 {
-                    if (item.SelectList.Count >0 )
+                    if (item.Item1.SelectList.Count >0 )
                     {
-                        foreach (var srcCol in item.SelectList.Where(ii => columns1.Count(ii1 => ii1.Name == ii.expression) == 0 && ii.alias != "" && ii.expression != "").Select(ii => new ItemTable.ColumnItem() { Name = ii.alias, OutputTable=ii.outputTable, Type = ii.getAllColumnsFromExpression(item).First().Type, Lengtn = ii.getAllColumnsFromExpression(item).First().Lengtn }))
+                        foreach (var srcCol in item.Item1.SelectList.Where(ii => columns1.Count(ii1 => ii1.Name == ii.expression && ii1.OutputTable== ii.outputTable) == 0 && ii.alias != "" && ii.expression != "").Select(ii => new ItemTable.ColumnItem() { Name = ii.alias, OutputTable=ii.outputTable, Type = ii.getAllColumnsFromExpression(item.Item1).First().Type, Lengtn = ii.getAllColumnsFromExpression(item.Item1).First().Lengtn }))
                         {
                             columns1.Add(srcCol);
-                            relColumns.Add(new RelItem() { srcTable = item, colSrc = srcCol, colDst = srcCol });                    
+                            relColumns.Add(new RelItem() { srcTable = item.Item1, colSrc = srcCol, colDst = srcCol });                    
                         }
-                        var str= item.getSelectList().Trim();
+                        var str= item.Item1.getSelectList().Trim();
                         if(str.Length>0)
                         selectList +=((selectList=="")?"":",")+ str;//  prepareSQLString(item.SelectList, item);
 
                     }
-                    if (item.Condition != "")
+                    if (item.Item1.Condition != "" && !usedTables.Contains(item.Item1))
                     {
                         if (whereCondition != "")
                             whereCondition += " AND ";
-                        whereCondition += "(" + prepareSQLString(item.Condition, item) + ")";
+                        whereCondition += "(" + prepareSQLString(item.Item1.Condition, item.Item1) + ")";
 
                     }
                 }
+                if(item.Item2 == null)
+                    returnValue1 += $"{item.Item1.Name}  {item.Item1.Alias} \r\n";
+                else
+                {
+                    if (!(item.Item2.Name2Table==item.Item1.Name && item.Item2.Alias2Table== item.Item1.Alias))
+                        returnValue1 += $" inner join  {item.Item2.Name1Table} {item.Item2.Alias1Table} on ({item.Item2.getOnClause()})  \r\n";
+                    else
+                        returnValue1 += $" inner join   {item.Item2.Name2Table} {item.Item2.Alias2Table} on ({item.Item2.getOnClause()})  \r\n";
+
+                }
+
+
             }
             columns = columns1;
-            string returnValue = $"select {selectList} from ";
+            string returnValue = $"select {selectList} from {returnValue1}";
 
 
 
 
 
-            List<ItemTable> list=new List<ItemTable>();
+/*            List<ItemTable> list=new List<ItemTable>();
             if (onlyOneTable)
             {
                 var item = itemTables.First();
@@ -581,7 +618,7 @@ namespace ETL_DB_Interface
                     }
                     item.ToTableList(list);
                 }
-            }
+            }*/
             if (whereCondition != "")
                 returnValue = returnValue + "\r\n WHERE " + preoWhere(whereCondition,variables,dest_id);
             return returnValue;

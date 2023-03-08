@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using MaxMind.Db;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,10 +14,13 @@ namespace WinFormsApp1
 {
     public partial class FormAddTable : Form
     {
-        Int64 fromId, toId;
+        Int64[] fromIdArr;
+        Int64 fromId;
+        Int64    toId;
         NpgsqlConnection conn;
-        public FormAddTable(Int64 fromId1,Int64 toId1, NpgsqlConnection conn1)
+        public FormAddTable(Int64[] fromIdArr,Int64 fromId1,Int64 toId1, NpgsqlConnection conn1)
         {
+            this.fromIdArr= fromIdArr;
             fromId = fromId1;
             toId = toId1;
             conn = conn1;
@@ -95,13 +99,28 @@ namespace WinFormsApp1
 
         private async void FormAddTable_Load(object sender, EventArgs e)
         {
-            textBox1.Text=  await GetNodeName(fromId);
-            textBox2.Text = await GetNodeName(toId);
+            var arr = (await GetNodeName(fromIdArr)).ToArray();
+            
+            comboBoxSrc.Items.AddRange(  arr);
+            comboBoxSrc.SelectedIndex = 0;
+            textBox2.Text = (await GetNodeName(new Int64[] { toId })).First().ToString();
         }
 
-        private async Task<string> GetNodeName(Int64 id)
+        public class ItemNameTable
         {
-            var command = "select name,srcid from md_Node where nodeid=@id";
+            public long tableId;
+            public string tableName;
+            public int srcid;
+            public override string ToString()
+            {
+                return $"{tableName}({srcid})";
+            }
+        }
+
+        private async Task<List<ItemNameTable>> GetNodeName(Int64[] id)
+        {
+            List<ItemNameTable> retValue= new List<ItemNameTable>();
+            var command = "select name,srcid,nodeid from md_Node where nodeid=ANY(@id)";
             await using (var cmd = new NpgsqlCommand(command, conn))
             {
                 cmd.Parameters.AddWithValue("@id",id);
@@ -109,11 +128,11 @@ namespace WinFormsApp1
                 {
                     while (await reader.ReadAsync())
                     {
-                        return reader.GetString(0)+"("+reader.GetInt32(1)+")";
+                        retValue.Add(new ItemNameTable() { tableName = reader.GetString(0), srcid = reader.GetInt32(1), tableId = reader.GetInt64(2) });
                     }
                 }
             }
-            return "";
+            return retValue;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -124,7 +143,7 @@ namespace WinFormsApp1
                 itemsReturn.Clear();
                 itemsReturn.Add(new ItemReturn() { itemName = "Table", itemId = fromId });
                 itemsReturn.Add(new ItemReturn() { itemName = "Table", itemId = toId });
-                itemsReturn.Add(new ItemReturn() { itemId = form.IDRelation, itemName = "VForeignKey", additionalInfo = new string[3] { textBox1.Text, textBox2.Text, form.nameRelation } });
+                itemsReturn.Add(new ItemReturn() { itemId = form.IDRelation, itemName = "VForeignKey", additionalInfo = new string[3] { comboBoxSrc.SelectedItem.ToString(), textBox2.Text, form.nameRelation } });
 
             }
 
@@ -132,7 +151,7 @@ namespace WinFormsApp1
 
         private void comboBoxSrc_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            fromId= (comboBoxSrc.SelectedItem as ItemNameTable).tableId;
         }
 
         private async void button1_Click(object sender, EventArgs e)
