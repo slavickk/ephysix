@@ -30,7 +30,7 @@ namespace WinFormsApp1
             }
 //            Path path = new Path(@"HTML\testInteractive.html");
 
-            this.webView21.Source = new Uri(Path.GetFullPath(@"HTML/testInteractive.html"));
+           // this.webView21.Source = new Uri(Path.GetFullPath(@"HTML/testInteractive.html"));
 //            this.pictureBox1.Image = GraphvizTest.toGraphviz(body);
             runner =CamundaExecutor.runCycle();
 
@@ -430,7 +430,7 @@ namespace WinFormsApp1
                 RefreshListViewCondition();
                 RefreshComboBoxDestTables();
                 var package1 = await GenerateStatement.getPackage(conn, package.idPackage);
-                var ans = await webView21.CoreWebView2.ExecuteScriptAsync($"render('{GraphvizTest.drawContent(package1)}')");
+//                var ans = await webView21.CoreWebView2.ExecuteScriptAsync($"render('{GraphvizTest.drawContent(package1)}')");
 
                 //    pictureBox1.Image= GraphvizTest.drawContent(package1);
                 isBusy = false;

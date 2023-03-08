@@ -78,13 +78,9 @@
             this.buttonDelete = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.comboBoxDestTable = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
             this.textBoxFromSrc = new System.Windows.Forms.TextBox();
-            this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.webView21)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -101,7 +97,7 @@
             // textBox1
             // 
             this.textBox1.Location = new System.Drawing.Point(138, 4);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(104, 23);
             this.textBox1.TabIndex = 1;
@@ -110,7 +106,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(243, 4);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(76, 20);
             this.button1.TabIndex = 2;
@@ -122,7 +118,7 @@
             // 
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(10, 30);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.comboBox1.Margin = new System.Windows.Forms.Padding(2);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(231, 23);
             this.comboBox1.TabIndex = 3;
@@ -131,7 +127,7 @@
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(10, 98);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(76, 20);
             this.button2.TabIndex = 4;
@@ -149,7 +145,7 @@
             this.columnHeader14});
             this.listViewSelectedField.FullRowSelect = true;
             this.listViewSelectedField.Location = new System.Drawing.Point(10, 151);
-            this.listViewSelectedField.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listViewSelectedField.Margin = new System.Windows.Forms.Padding(2);
             this.listViewSelectedField.MultiSelect = false;
             this.listViewSelectedField.Name = "listViewSelectedField";
             this.listViewSelectedField.Size = new System.Drawing.Size(311, 153);
@@ -191,7 +187,7 @@
             this.columnHeader5});
             this.listViewLinks.FullRowSelect = true;
             this.listViewLinks.Location = new System.Drawing.Point(331, 151);
-            this.listViewLinks.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listViewLinks.Margin = new System.Windows.Forms.Padding(2);
             this.listViewLinks.MultiSelect = false;
             this.listViewLinks.Name = "listViewLinks";
             this.listViewLinks.Size = new System.Drawing.Size(385, 153);
@@ -247,7 +243,7 @@
             // textBoxCondition
             // 
             this.textBoxCondition.Location = new System.Drawing.Point(103, 328);
-            this.textBoxCondition.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxCondition.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxCondition.Name = "textBoxCondition";
             this.textBoxCondition.Size = new System.Drawing.Size(198, 23);
             this.textBoxCondition.TabIndex = 11;
@@ -256,7 +252,7 @@
             // 
             this.buttonAddCondition.Enabled = false;
             this.buttonAddCondition.Location = new System.Drawing.Point(304, 325);
-            this.buttonAddCondition.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonAddCondition.Margin = new System.Windows.Forms.Padding(2);
             this.buttonAddCondition.Name = "buttonAddCondition";
             this.buttonAddCondition.Size = new System.Drawing.Size(40, 20);
             this.buttonAddCondition.TabIndex = 12;
@@ -271,7 +267,7 @@
             this.columnHeader7});
             this.listViewAddCondition.FullRowSelect = true;
             this.listViewAddCondition.Location = new System.Drawing.Point(10, 354);
-            this.listViewAddCondition.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listViewAddCondition.Margin = new System.Windows.Forms.Padding(2);
             this.listViewAddCondition.MultiSelect = false;
             this.listViewAddCondition.Name = "listViewAddCondition";
             this.listViewAddCondition.Size = new System.Drawing.Size(376, 126);
@@ -293,20 +289,20 @@
             // 
             // tableViewControl1
             // 
-            this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.tableViewControl1.AutoSize = true;
-            this.tableViewControl1.Location = new System.Drawing.Point(389, 331);
-            this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1, 1, 1, 1);
+            this.tableViewControl1.ForeColor = System.Drawing.SystemColors.ControlLight;
+            this.tableViewControl1.Location = new System.Drawing.Point(392, 308);
+            this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tableViewControl1.Name = "tableViewControl1";
-            this.tableViewControl1.Size = new System.Drawing.Size(314, 262);
+            this.tableViewControl1.Size = new System.Drawing.Size(318, 358);
             this.tableViewControl1.TabIndex = 14;
             // 
             // textBoxTableAdditional
             // 
             this.textBoxTableAdditional.Enabled = false;
             this.textBoxTableAdditional.Location = new System.Drawing.Point(10, 328);
-            this.textBoxTableAdditional.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxTableAdditional.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxTableAdditional.Name = "textBoxTableAdditional";
             this.textBoxTableAdditional.Size = new System.Drawing.Size(90, 23);
             this.textBoxTableAdditional.TabIndex = 15;
@@ -314,7 +310,7 @@
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(634, 4);
-            this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(76, 20);
             this.button3.TabIndex = 18;
@@ -325,7 +321,7 @@
             // textBoxFieldName
             // 
             this.textBoxFieldName.Location = new System.Drawing.Point(50, 53);
-            this.textBoxFieldName.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxFieldName.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxFieldName.Name = "textBoxFieldName";
             this.textBoxFieldName.Size = new System.Drawing.Size(104, 23);
             this.textBoxFieldName.TabIndex = 21;
@@ -353,7 +349,7 @@
             // textBoxColumnAlias
             // 
             this.textBoxColumnAlias.Location = new System.Drawing.Point(201, 53);
-            this.textBoxColumnAlias.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxColumnAlias.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxColumnAlias.Name = "textBoxColumnAlias";
             this.textBoxColumnAlias.Size = new System.Drawing.Size(104, 23);
             this.textBoxColumnAlias.TabIndex = 24;
@@ -372,7 +368,7 @@
             // 
             this.textBoxTableName.Enabled = false;
             this.textBoxTableName.Location = new System.Drawing.Point(69, 77);
-            this.textBoxTableName.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxTableName.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxTableName.Name = "textBoxTableName";
             this.textBoxTableName.Size = new System.Drawing.Size(85, 23);
             this.textBoxTableName.TabIndex = 26;
@@ -380,7 +376,7 @@
             // textBoxTableAlias
             // 
             this.textBoxTableAlias.Location = new System.Drawing.Point(201, 78);
-            this.textBoxTableAlias.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxTableAlias.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxTableAlias.Name = "textBoxTableAlias";
             this.textBoxTableAlias.Size = new System.Drawing.Size(104, 23);
             this.textBoxTableAlias.TabIndex = 28;
@@ -415,7 +411,7 @@
             this.columnHeader11});
             this.listViewVariableList.FullRowSelect = true;
             this.listViewVariableList.Location = new System.Drawing.Point(331, 66);
-            this.listViewVariableList.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.listViewVariableList.Margin = new System.Windows.Forms.Padding(2);
             this.listViewVariableList.MultiSelect = false;
             this.listViewVariableList.Name = "listViewVariableList";
             this.listViewVariableList.Size = new System.Drawing.Size(381, 78);
@@ -446,7 +442,7 @@
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(553, 45);
-            this.button4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button4.Margin = new System.Windows.Forms.Padding(2);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(76, 20);
             this.button4.TabIndex = 31;
@@ -458,7 +454,7 @@
             // 
             this.textBoxEtlDescr.Enabled = false;
             this.textBoxEtlDescr.Location = new System.Drawing.Point(400, 6);
-            this.textBoxEtlDescr.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxEtlDescr.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxEtlDescr.Name = "textBoxEtlDescr";
             this.textBoxEtlDescr.Size = new System.Drawing.Size(232, 23);
             this.textBoxEtlDescr.TabIndex = 32;
@@ -467,7 +463,7 @@
             // button5
             // 
             this.button5.Location = new System.Drawing.Point(358, 6);
-            this.button5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button5.Margin = new System.Windows.Forms.Padding(2);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(38, 20);
             this.button5.TabIndex = 33;
@@ -479,7 +475,7 @@
             // 
             this.comboBoxPackage.FormattingEnabled = true;
             this.comboBoxPackage.Location = new System.Drawing.Point(400, 26);
-            this.comboBoxPackage.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.comboBoxPackage.Margin = new System.Windows.Forms.Padding(2);
             this.comboBoxPackage.Name = "comboBoxPackage";
             this.comboBoxPackage.Size = new System.Drawing.Size(233, 23);
             this.comboBoxPackage.TabIndex = 34;
@@ -489,7 +485,7 @@
             // 
             this.buttonEditCondition.Enabled = false;
             this.buttonEditCondition.Location = new System.Drawing.Point(348, 325);
-            this.buttonEditCondition.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonEditCondition.Margin = new System.Windows.Forms.Padding(2);
             this.buttonEditCondition.Name = "buttonEditCondition";
             this.buttonEditCondition.Size = new System.Drawing.Size(40, 20);
             this.buttonEditCondition.TabIndex = 35;
@@ -501,7 +497,7 @@
             // 
             this.buttonEditField.Enabled = false;
             this.buttonEditField.Location = new System.Drawing.Point(95, 98);
-            this.buttonEditField.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonEditField.Margin = new System.Windows.Forms.Padding(2);
             this.buttonEditField.Name = "buttonEditField";
             this.buttonEditField.Size = new System.Drawing.Size(76, 20);
             this.buttonEditField.TabIndex = 36;
@@ -512,7 +508,7 @@
             // button6
             // 
             this.button6.Location = new System.Drawing.Point(633, 45);
-            this.button6.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button6.Margin = new System.Windows.Forms.Padding(2);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(76, 20);
             this.button6.TabIndex = 37;
@@ -523,7 +519,7 @@
             // buttonDelete
             // 
             this.buttonDelete.Location = new System.Drawing.Point(358, 25);
-            this.buttonDelete.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonDelete.Margin = new System.Windows.Forms.Padding(2);
             this.buttonDelete.Name = "buttonDelete";
             this.buttonDelete.Size = new System.Drawing.Size(38, 20);
             this.buttonDelete.TabIndex = 38;
@@ -550,31 +546,6 @@
             this.button8.Text = "button8";
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.panel1.AutoScroll = true;
-            this.panel1.Controls.Add(this.webView21);
-            this.panel1.Cursor = System.Windows.Forms.Cursors.NoMoveVert;
-            this.panel1.Location = new System.Drawing.Point(10, 403);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(706, 420);
-            this.panel1.TabIndex = 42;
-            // 
-            // webView21
-            // 
-            this.webView21.AllowExternalDrop = true;
-            this.webView21.CreationProperties = null;
-            this.webView21.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.webView21.Location = new System.Drawing.Point(0, 163);
-            this.webView21.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.webView21.Name = "webView21";
-            this.webView21.Size = new System.Drawing.Size(706, 23);
-            this.webView21.TabIndex = 0;
-            this.webView21.ZoomFactor = 1D;
             // 
             // comboBoxDestTable
             // 
@@ -608,13 +579,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(718, 599);
-            this.Controls.Add(this.listViewAddCondition);
+            this.ClientSize = new System.Drawing.Size(718, 706);
             this.Controls.Add(this.tableViewControl1);
+            this.Controls.Add(this.listViewAddCondition);
             this.Controls.Add(this.textBoxFromSrc);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.comboBoxDestTable);
-            this.Controls.Add(this.panel1);
             this.Controls.Add(this.button8);
             this.Controls.Add(this.button7);
             this.Controls.Add(this.buttonDelete);
@@ -649,12 +619,10 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "FormEtlCreator";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.webView21)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -711,8 +679,6 @@
         private ColumnHeader columnHeader13;
         private Button button7;
         private Button button8;
-        private Panel panel1;
-        private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
         private ColumnHeader columnHeader14;
         private ComboBox comboBoxDestTable;
         private Label label5;
