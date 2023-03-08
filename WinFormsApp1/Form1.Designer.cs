@@ -602,7 +602,7 @@
             this.textBoxFromSrc.Name = "textBoxFromSrc";
             this.textBoxFromSrc.Size = new System.Drawing.Size(87, 39);
             this.textBoxFromSrc.TabIndex = 45;
-            this.textBoxFromSrc.Text = "2";
+            this.textBoxFromSrc.Text = "1";
             // 
             // Form1
             // 

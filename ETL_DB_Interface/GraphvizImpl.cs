@@ -27,7 +27,16 @@ digraph {
             
             var src = package.tables.Select(ii => ii.src_id).ToList();
             src.Add(package.dest_id);
-
+            List<GenerateStatement.ItemTable> addList = new List<GenerateStatement.ItemTable>();
+            foreach(var tableName in package.outputTable.Split(','))
+            {
+                var table=new GenerateStatement.ItemTable() { Name = tableName, src_id = package.dest_id, src_name="output", columns = new List<GenerateStatement.ItemTable.ColumnItem>() };                
+                foreach(var tab in package.allTables)
+                    table.columns.AddRange(tab.SelectList.Where(ii=>ii.outputTable==tableName).Select(ii=>new GenerateStatement.ItemTable.ColumnItem() {  Name=ii.alias}));
+                addList.Add(table);
+                
+            }
+            package.allTables.AddRange(addList);
             foreach (var item in src.Distinct().OrderBy(ii => ii))
             {
                 var tab = package.allTables.FirstOrDefault(ii => ii.src_id == item);
@@ -42,13 +51,13 @@ digraph {
                 content += $"subgraph cluster_{zoneName} {{\r\n    label={zoneName};\r\n    style=filled;\r\n    color={color};\r\n";
                 foreach (var table in package.tables.Where(ii => ii.src_id == item))
                 {
-                    content += $"{table.Name} [label=<\r\n<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">\r\n  <tr><td bgcolor=\"white\"><b><i>{table.Name}</i></b></td></tr>";
+                    content += $"{item}{table.Name} [label=<\r\n<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">\r\n  <tr><td bgcolor=\"white\"><b><i>{table.Name}</i></b></td></tr>";
                     foreach (var col in table.columns)
                         content += $"<tr><td port=\"{col.Name}\">{col.Name}</td></tr>";
                     content += "</table>>];";
                     foreach (var opt in table.optionalRelItems)
                     {
-                        addCont += $"{opt.srcTable.Name}:{opt.colSrc.Name} -> {table.Name}:{opt.colDst.Name} ;\r\n";
+                        addCont += $"{item}{opt.srcTable.Name}:{opt.colSrc.Name} -> {package.dest_id}{opt.colDst.OutputTable}:{opt.colDst.Name} ;\r\n";
                     }
                 }
                 content += "}";
@@ -66,7 +75,7 @@ digraph {
                     for (int i = 0; i < cols1.Length; i++)
                     {
                         var st = (package.allTables.First(ii => ii.Name == rel.Name1Table).src_id == package.allTables.First(ii => ii.Name == rel.Name2Table).src_id) ? ("[constraint=false,style=\"dotted\"]") : ("");
-                        addCont += $"{rel.Name1Table}:{cols1[i]} -> {rel.Name2Table}:{cols2[i]} {st} ;\r\n";
+                        addCont += $"{package.allTables.First(ii => ii.Name == rel.Name1Table).src_id}{rel.Name1Table}:{cols1[i]} -> {package.allTables.First(ii => ii.Name == rel.Name2Table).src_id}{rel.Name2Table}:{cols2[i]} {st} ;\r\n";
                     }
                 }
 

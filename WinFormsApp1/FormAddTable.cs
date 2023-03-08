@@ -101,7 +101,7 @@ namespace WinFormsApp1
 
         private async Task<string> GetNodeName(Int64 id)
         {
-            var command = "select name from md_Node where nodeid=@id";
+            var command = "select name,srcid from md_Node where nodeid=@id";
             await using (var cmd = new NpgsqlCommand(command, conn))
             {
                 cmd.Parameters.AddWithValue("@id",id);
@@ -109,7 +109,7 @@ namespace WinFormsApp1
                 {
                     while (await reader.ReadAsync())
                     {
-                        return reader.GetString(0);
+                        return reader.GetString(0)+"("+reader.GetInt32(1)+")";
                     }
                 }
             }

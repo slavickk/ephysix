@@ -63,9 +63,13 @@ namespace WinFormsApp1
 //            throw new NotImplementedException();
         }
 
+        public ETL_Package.ItemTable getTable(out bool isNew,string Name, string Alias, long id)
+        {
+            isNew = package.allTables.Count(ii => ii.table_name == Name && ii.alias == Alias)==0;
+            return getTable(Name, Alias, id);
+        }
 
-
-        public ETL_Package.ItemTable getTable(string Name,string Alias,long id)
+            public ETL_Package.ItemTable getTable(string Name,string Alias,long id)
         {
             var item=package.allTables.FirstOrDefault(ii => ii.table_name == Name && ii.alias == Alias);
             if(item == null)
@@ -104,21 +108,28 @@ namespace WinFormsApp1
   
         private async void button2_Click(object sender, EventArgs e)
         {
-            var cols= comboBox1.SelectedItem as ETL_Package.ItemColumn;
+            var cols = comboBox1.SelectedItem as ETL_Package.ItemColumn;
+            bool isNew;
+            var table = getTable(out isNew, textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id);
+            await AddCols(cols, new ETL_Package.ItemSelectedList() { sourceColumn = new ETL_Package.ItemColumn() { table = table, alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }, outputTable = package.TableOutputName.First() },isNew,package.allTables.Last().table_name);
+        }
+
+        private async Task AddCols(ETL_Package.ItemColumn? cols, ETL_Package.ItemSelectedList newItem,bool isNew,string newTableName)
+        {
             if (cols != null)
             {
                 if (package.selectedFields.Count < 1)
                 {
                     //add new table and new column
-                    package.selectedFields.Add(new ETL_Package.ItemSelectedList() { sourceColumn = new ETL_Package.ItemColumn() { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }, outputTable =((comboBoxDestTable.SelectedIndex<0)? package.TableOutputName.First() : comboBoxDestTable.Items[comboBoxDestTable.SelectedIndex].ToString()) });
+                    package.selectedFields.Add(newItem);
                     RefreshListViewTablesSelected();
                 }
                 else
                 {
-                    if (package.allTables.Count(ii => ii.table_name == textBoxTableName.Text && ii.alias == textBoxTableAlias.Text) > 0)
+                    if (!isNew && package.allTables.Count(ii => ii.table_name ==cols.table.table_name && ii.alias == cols.table.alias) > 0)
                     {
                         //add column in existing table
-                        package.selectedFields.Add(new ETL_Package.ItemSelectedList() { sourceColumn = new ETL_Package.ItemColumn() { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }, outputTable = package.TableOutputName.First() });
+                        package.selectedFields.Add(newItem);
                         RefreshListViewTablesSelected();
 
                     }
@@ -126,7 +137,7 @@ namespace WinFormsApp1
                     {
                         try
                         {
-                            await AddNewTableRel(cols);
+                            await AddNewTableRel(cols,newTableName);
                         }
                         catch (Exception e77)
                         {
@@ -137,11 +148,13 @@ namespace WinFormsApp1
             }
         }
 
-        private async Task AddNewTableRel(ETL_Package.ItemColumn? cols)
+        private async Task AddNewTableRel(ETL_Package.ItemColumn? cols,string newTableName)
         {
             FormAddTable frm = new FormAddTable(package.selectedFields.First().sourceColumn.table.table_id, cols.table.table_id, conn);
             if (frm.ShowDialog() == DialogResult.OK)
             {
+               // package.allTables.Add(cols.table);
+
                 foreach (var item in frm.returnedItems)
                 {
                     if (item.itemName == "Table")
@@ -154,7 +167,8 @@ namespace WinFormsApp1
                             {
                                 sourceColumn ={ col_id = cols.col_id,alias=textBoxColumnAlias.Text,
                                                 col_name = cols.col_name,
-                                                table = new  ETL_Package.ItemTable() { alias = alias, table_id = cols.table.table_id, table_name = cols.table.table_name } }
+                                                table =getTable(cols.table.table_name,alias,cols.table.table_id)/* new  ETL_Package.ItemTable() { alias = alias, table_id = cols.table.table_id, table_name = cols.table.table_name } }*/
+                                }
                             });
                         }
                         else
@@ -162,14 +176,14 @@ namespace WinFormsApp1
                             if (cols.table.table_id != item.itemId)
                                 // add relation
                                 package.selectedFields.Add(new ETL_Package.ItemSelectedList()
-                                { sourceColumn = { col_id = -1, col_name = "", table = new ETL_Package.ItemTable() { alias = "", table_id = item.itemId, table_name = await GetNodeName(item.itemId) } } });
+                                { sourceColumn = new ETL_Package.ItemColumn() { col_id = -1, col_name = "", table =getTable(await GetNodeName(item.itemId),"", item.itemId)/* new ETL_Package.ItemTable() { alias = "", table_id = item.itemId, table_name = await GetNodeName(item.itemId) }*/ } });
                             else
                                 //add new fileld in new table
                                 package.selectedFields.Add(new ETL_Package.ItemSelectedList()
                                 {
-                                    sourceColumn = { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }
+                                    sourceColumn =new ETL_Package.ItemColumn() { table = getTable(cols.table.table_name, cols.table.alias, cols.table.table_id), alias =cols.alias/* textBoxColumnAlias.Text*/, col_name =cols.col_name/* textBoxFieldName.Text*/ }
                                     ,
-                                    outputTable = package.TableOutputName.First()
+                                    outputTable = newTableName
                                 });
                             //                                            selectedFields.Add(cols);
                         }
@@ -302,7 +316,8 @@ namespace WinFormsApp1
         ETL_Package package= new ETL_Package();
         private async void button3_Click(object sender, EventArgs e)
         {
-            if(package.ETLName == "")
+//            await DBInterface.GetAllRelation(conn);
+            if (package.ETLName == "")
             {
                 MessageBox.Show(" Не заполнены параметры ETL пакета");
                 return;
@@ -348,7 +363,7 @@ namespace WinFormsApp1
         {
             FormDefineETL frm = new FormDefineETL(conn);
             frm.ETLName= package.ETLName;
-             frm.OutputTableName= package.TableOutputName;
+             frm.OutputTableName= package.TableOutputName.ToList();
              frm.ETLDescription= package.ETLDescription;
             frm.ETL_dest_id= package.ETL_dest_id;
             frm.ETLAddPar = package.ETL_add_par;
@@ -357,25 +372,30 @@ namespace WinFormsApp1
             {
                 package.ETLName = frm.ETLName;
                 package.ETL_dest_id = frm.ETL_dest_id;
-                if (frm.OutputTableName.Count > 1 && string.IsNullOrEmpty(textBoxFromSrc.Text))
+                if (frm.OutputTableName.Count > 0 && !string.IsNullOrEmpty(textBoxFromSrc.Text))
                 {
                     var src_id = Convert.ToInt32(textBoxFromSrc.Text);
                     var diff = frm.OutputTableName.Except(package.TableOutputName);// Intersect
+                    package.TableOutputName=frm.OutputTableName.ToList();
                     foreach(var item in diff ) 
                     {
                         var items=await DBInterface.getSrcForTable(conn, item, package.ETL_dest_id,src_id);
                         string lastTableName = "";
                         foreach (var it1 in items)
                         {
-                            if (lastTableName != it1.table_name)
+                            //if (lastTableName != it1.table_name)
                             {
                                 lastTableName = it1.table_name;
                                 bool isFirst = true;
                                 foreach (var cols in it1.columns)
                                 {
-                                    var col = new ETL_Package.ItemColumn() { col_id = cols.source_col_id, alias = cols.source_col_name, col_name = cols.source_col_name, table = new ETL_Package.ItemTable() { table_name = it1.table_name, alias = "", src_id = src_id, table_id = it1.table_id } };
+                                    bool isNew;
+                                    var table=getTable(out isNew,it1.table_name, "", it1.table_id);
+                                    var col = new ETL_Package.ItemColumn() { col_id = cols.source_col_id, alias = cols.source_col_name, col_name = cols.source_col_name, table = table /*new ETL_Package.ItemTable() { table_name = it1.table_name, alias = "", src_id = src_id, table_id = it1.table_id }*/ };
+                                    table.src_id = src_id;
 //                                    cols.source_col_id
-                                        await AddNewTableRel(col);
+                                    await AddCols(col, new ETL_Package.ItemSelectedList() { outputTable=it1.table_name, sourceColumn= col},isNew,item);
+                                    //getTable(it1.table_name, "", it1.table_id);
                                 }
                             }
                         }

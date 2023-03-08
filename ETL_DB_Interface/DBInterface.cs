@@ -1,6 +1,8 @@
 ﻿using BlazorAppCreateETL.Shared;
 using Npgsql;
 using System.Data;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using YamlDotNet.Core.Tokens;
 
 namespace ETL_DB_Interface
@@ -113,7 +115,10 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
                             for (int i=0;i <selListSplit.Length;i++)
                             {
                                 var it = selListSplit[i];
-                                GenerateStatement.ItemTable.SelectListItem selectItem = new GenerateStatement.ItemTable.SelectListItem(it);
+                                var outTable = "";// package.TableOutputName.First();
+                                if(outTables?.Length>i)
+                                    outTable= outTables[i];
+                                GenerateStatement.ItemTable.SelectListItem selectItem = new GenerateStatement.ItemTable.SelectListItem(it,outTable);
 
                                 package.selectedFields.Add(new ETL_Package.ItemSelectedList()
                                 {
@@ -268,7 +273,7 @@ order by t1.nodeid
                             lastId=src_table_id;
                             retValue.Add(new SourceTableItem { table_id = src_table_id, table_name = srcTableName });
                         }
-                        retValue.Last().columns.Add(new SourceTableItem.ItemColumnRef() {  source_col_id=src_column_id, source_col_name= srcTableName, dest_col_id=dest_column_id, dest_col_name=destColumnName });
+                        retValue.Last().columns.Add(new SourceTableItem.ItemColumnRef() {  source_col_id=src_column_id, source_col_name= srcColumnName , dest_col_id=dest_column_id, dest_col_name=destColumnName });
                     }
                 }
             }
@@ -379,7 +384,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
             {
                 cmd.Parameters.AddWithValue("@id", package.idPackage);
                 cmd.Parameters.AddWithValue("@title", package.ETLName);
-                cmd.Parameters.AddWithValue("@output_name", package.TableOutputName.First());
+                cmd.Parameters.AddWithValue("@output_name", string.Join(",",package.TableOutputName));
                 cmd.Parameters.AddWithValue("@description", package.ETLDescription);
                 cmd.Parameters.AddWithValue("@dest_id", package.ETL_dest_id);
                 cmd.Parameters.AddWithValue("@add_par", package.ETL_add_par);
@@ -392,13 +397,15 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                     }
                 }
             }
-            if(package.TableOutputName.Count>1)
+            /*if(package.TableOutputName.Count>1)
             {
                 for(int i=1; i < package.TableOutputName.Count;i++)
                 {
                     await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_dest_table(@id,@output_name)", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", package.idPackage);
+//                        cmd.Parameters.AddWithValue("@scema_id", package.idPackage);
+
                         cmd.Parameters.AddWithValue("@output_name", package.TableOutputName[i]);
                     
                         await using (var reader = await cmd.ExecuteReaderAsync())
@@ -412,7 +419,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
 
                 }
             }
-
+            */
             foreach (var item in package.variables)
             {
                 await using (var cmd = new NpgsqlCommand(@"select * from ccfa_add_etl_variable(5,@id,@name,@description,@type,@defaultValue)", conn))
@@ -441,6 +448,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
 
 
             string selectList = "";
+            string outputList = "";
 
             string lastKey = "";
             ETL_Package.ItemSelectedList lastItem = null;
@@ -449,14 +457,16 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                 if (item.sourceColumn.table.table_name + item.sourceColumn.table.alias != lastKey)
                 {
                     lastKey = item.sourceColumn.table.table_name + item.sourceColumn.table.alias;
-                    await SaveItem(conn, package.idPackage, selectList, lastItem);
+                    await SaveItem(conn, package.idPackage, selectList, lastItem,outputList);
                     selectList = "";
+                    outputList = "";
 
                 }
                 selectList += ((selectList == "") ? "" : ",") + item.sourceColumn.col_name + " " + item.sourceColumn.alias;
+                outputList += ((string.IsNullOrEmpty(outputList)) ? "" : ",") + item.outputTable;
                 lastItem = item;
             }
-            await SaveItem(conn, package.idPackage, selectList, lastItem);
+            await SaveItem(conn, package.idPackage, selectList, lastItem,outputList);
 
 
             /*                foreach (var group in selectedFields.GroupBy(ii => ii.table.table_name + ii.table.alias,i1=>i1.).Select(i1=>i1.Key.)
@@ -506,19 +516,79 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                         }
                     }
                 }
+            var options = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
+            using (StreamWriter sw = new StreamWriter(@"c:\d\pack.json"))
+            {
+                sw.Write(JsonSerializer.Serialize<ETL_Package>(package,options));
+            }
             await GenerateStatement.Generate(conn, package.idPackage);
         }
+        public class TableRelsItem
+        {
+            public string MainTable;
+            public string SecondTable;
+            public string ColumnSecond;
+        }
+        public static async Task<IEnumerable<TableRelsItem>> GetAllRelation(NpgsqlConnection conn, string[] tables,int srcid)
+        {
+            List<TableRelsItem> retValue= new List<TableRelsItem>();
+            /*string[] tables = new string[] { "card", "account","customer","branch" };
+            int srcid = 5;*/
+            await using (var cmd = new NpgsqlCommand(@"
+select distinct lt.name,rt.name,rk.name from md_node a,md_node b,md_arc lc,md_arc rc--,md_node lk,md_node rk
+,md_arc fkl,md_arc fkr,
+md_node lt,md_node rt ,md_node rk
+where a.name  =any(@arr)
+and a.typeid=1 and a.isdeleted=false and a.srcid=@srcid
+and b.name =any(@arr)
+and b.typeid=1  and b.isdeleted=false  and b.srcid=@srcid
+and ((lc.toid=a.nodeid or lc.toid=b.nodeid) and lc.typeid=9 and lc.isdeleted=false)
+and ((rc.toid=a.nodeid or rc.toid=b.nodeid) and rc.typeid=9 and rc.isdeleted=false)
+--and lc.fromid=lk.nodeid
+--and rc.fromid=rk.nodeid
+and fkl.typeid=6
+and fkl.fromid=lc.fromid
+--and fkl.toid=fkn.nodeid
+and fkr.fromid=fkl.toid
+and fkr.toid=rc.fromid
+and lt.nodeid=lc.toid
+and rt.nodeid=rc.toid
+and rk.nodeid=rc.fromid
+", conn))
+            {
+                cmd.Parameters.AddWithValue("@arr", tables);
+                cmd.Parameters.AddWithValue("@srcid", srcid);
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        retValue.Add(new TableRelsItem() { MainTable = reader.GetString(1), SecondTable = reader.GetString(0), ColumnSecond = reader.GetString(2) });
+                        /* var mainTable=reader.GetString(0);
+                       var secondTable = reader.GetString(1);
+                       var thirdTable = reader.GetString(2);
+                        */
+                        //                            lastItem.sourceColumn.table.etl_id = reader.GetInt64(0);
+                    }
+                }
+            }
+            return retValue;
+        }
 
-        private static async Task SaveItem(NpgsqlConnection conn, long idPackage, string selectList, ETL_Package.ItemSelectedList lastItem)
+
+
+        private static async Task SaveItem(NpgsqlConnection conn, long idPackage, string selectList, ETL_Package.ItemSelectedList lastItem,string outputList)
         {
             if (lastItem != null)
             {
-                await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetltable(5,@etlid,@tableid,@alias,@select_list)", conn))
+                await using (var cmd = new NpgsqlCommand(@"select * from md_addetltable(5,@etlid,@tableid,@alias,@select_list,@output_list)", conn))
                 {
                     cmd.Parameters.AddWithValue("@etlid", idPackage);
                     cmd.Parameters.AddWithValue("@tableid", lastItem.sourceColumn.table.table_id);
                     cmd.Parameters.AddWithValue("@alias", lastItem.sourceColumn.table.alias);
+        
                     cmd.Parameters.AddWithValue("@select_list", selectList);
+                    cmd.Parameters.AddWithValue("@output_list", outputList);
                     await using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())

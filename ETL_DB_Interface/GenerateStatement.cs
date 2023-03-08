@@ -388,8 +388,10 @@ namespace ETL_DB_Interface
                 public string expression = "";
                 public string alias = "";
                 public bool fromOriginalSelect = false;
-                public SelectListItem(string Expression)
+                public string outputTable;
+                public SelectListItem(string Expression,string OutputTable)
                 {
+                    outputTable=OutputTable;
                     Expression = Expression.Trim();
                     if(Expression =="")
                     {
@@ -475,7 +477,12 @@ namespace ETL_DB_Interface
                 public string Name;
                 public string Type;
                 public int Lengtn;
+                public string OutputTable;
                 public string SensitiveData = "";
+                public override string ToString()
+                {
+                    return $"{Name}:{OutputTable}";
+                }
             }
             public List<ColumnItem> columns= new List<ColumnItem>();
 
@@ -502,7 +509,7 @@ namespace ETL_DB_Interface
                 {
                     if (item.SelectList.Count >0 )
                     {
-                        foreach (var srcCol in item.SelectList.Where(ii => columns1.Count(ii1 => ii1.Name == ii.expression) == 0 && ii.alias != "" && ii.expression != "").Select(ii => new ItemTable.ColumnItem() { Name = ii.alias, Type = ii.getAllColumnsFromExpression(item).First().Type, Lengtn = ii.getAllColumnsFromExpression(item).First().Lengtn }))
+                        foreach (var srcCol in item.SelectList.Where(ii => columns1.Count(ii1 => ii1.Name == ii.expression) == 0 && ii.alias != "" && ii.expression != "").Select(ii => new ItemTable.ColumnItem() { Name = ii.alias, OutputTable=ii.outputTable, Type = ii.getAllColumnsFromExpression(item).First().Type, Lengtn = ii.getAllColumnsFromExpression(item).First().Lengtn }))
                         {
                             columns1.Add(srcCol);
                             relColumns.Add(new RelItem() { srcTable = item, colSrc = srcCol, colDst = srcCol });                    
@@ -1110,9 +1117,9 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
                                     if (t1.src_id != t2.src_id)
                                     {
                                         t1.needed_indexes = columns1.Split(',').Select(ii => t1.columns.First(i1 => i1.Name == ii.Trim())).ToList();//
-                                        t1.SelectList.AddRange(columns1.Split(',').Select(ii => new ItemTable.SelectListItem(ii)));
+                                        t1.SelectList.AddRange(columns1.Split(',').Select(ii => new ItemTable.SelectListItem(ii,"")));
                                         t2.needed_indexes = columns2.Split(',').Select(ii => t2.columns.First(i1 => i1.Name == ii.Trim())).ToList();//
-                                        t2.SelectList.AddRange(columns2.Split(',').Select(ii => new ItemTable.SelectListItem(ii)));
+                                        t2.SelectList.AddRange(columns2.Split(',').Select(ii => new ItemTable.SelectListItem(ii,"")));
                                     }
                                 }
                             }
@@ -1159,11 +1166,12 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
         private static async Task FillTableInfo(NpgsqlConnection conn, List<ItemTable> allTables, ItemRel item,long id)
         {
             {
-                string command = @"select at.val,n.name,st.val,st1.val,a1.toid,n.srcid
-,au.val url,asq.val isql,asi.val intrval,src.descr,true
+                string command = @"select at.val,n.name,st.val,st1.val,a1.toid,torig.srcid
+,au.val url,asq.val isql,asi.val intrval,src.descr,true,st9.val
 from md_arc a
 inner join md_node n on(n.nodeid = a.toid and n.typeid = md_get_type('ETLTable') and n.isdeleted=false)
 inner join md_arc a1 on (n.nodeid=a1.fromid  and a1.isdeleted=false)
+inner join md_node torig on(torig.nodeid=a1.toid)
 
 left join md_node_attr_val au on (a1.toid=au.nodeid and au.attrid=107 and au.isdeleted=false)
 left join md_node_attr_val asq on (a1.toid=asq.nodeid and asq.attrid=108 and asq.isdeleted=false)
@@ -1171,8 +1179,9 @@ left join md_node_attr_val asi on (a1.toid=asi.nodeid and asi.attrid=109 and asi
 
 left join md_node_attr_val at on(at.nodeid = n.nodeid and at.attrid = 39/*md_get_attr('Alias')*/)
 left join md_node_attr_val st on(st.nodeid = n.nodeid and st.attrid = 41/*md_get_attr('SelectList')*/)
+left join md_node_attr_val st9 on(st9.nodeid = n.nodeid and st9.attrid = 115/*md_get_attr('SelectList')*/)
 left join md_node_attr_val st1 on(st1.nodeid = n.nodeid and st1.attrid =40/* md_get_attr('Condition')*/)
-left join md_src src on( src.srcid=n.srcid)
+left join md_src src on( src.srcid=torig.srcid)
 where a.fromid = @id  and a.isdeleted=false";
                 await using (var cmd = new NpgsqlCommand(command, conn))
                 {
@@ -1211,10 +1220,15 @@ where a.fromid = @id  and a.isdeleted=false";
                             bool pci_dss_zone = false;
                             if (!reader.IsDBNull(10))
                                 pci_dss_zone = reader.GetBoolean(10);
+                            string outputTables = "";
+                            if (!reader.IsDBNull(11))
+                                outputTables = reader.GetString(11);
 
                             if (allTables.Count(ii => ii.Name == table && ii.Alias == alias) == 0)
                             {
-                                allTables.Add(new ItemTable() { src_name=src_name, pci_dss_zone=pci_dss_zone, url=url, sqlurl=sqlurl, IntervalUpdateInSec=interval, src_id=src_id, Name = table, Alias = alias, Condition = condition, SelectList = selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).Select(ii => new ItemTable.SelectListItem(ii) { fromOriginalSelect = true }).ToList(), TableId = table_id });
+                                var sel1= selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).ToArray();
+                                var out1=outputTables.Split(',');
+                                allTables.Add(new ItemTable() { src_name=src_name, pci_dss_zone=pci_dss_zone, url=url, sqlurl=sqlurl, IntervalUpdateInSec=interval, src_id=src_id, Name = table, Alias = alias, Condition = condition, SelectList =Enumerable.Range(0,sel1.Length).Select(ii => new ItemTable.SelectListItem(sel1[ii], ((out1.Length > ii) ? out1[ii]:"")) { fromOriginalSelect = true }).ToList(), TableId = table_id });
                             }
                             if (item != null)
                             {
@@ -1277,7 +1291,7 @@ where a.fromid = @id  and a.isdeleted=false";
             List<ItemTable.ColumnItem> columns;
 //            List<RelItem> outCols; 
             task.sqlExec = formSQLStatement(list.Where(ii => ii.seq_id == i), allTables.Where(ii => ii.seq_id == i), out columns, variables, task.dest_id,out outCols);
-            task.outputTable = new ItemTable() { Name = task.outputPath, columns = columns, seq_id = i, SelectList = columns.Select(ii => new ItemTable.SelectListItem(ii.Name)).ToList() };
+            task.outputTable = new ItemTable() { Name = task.outputPath, columns = columns, seq_id = i, SelectList = columns.Select(ii => new ItemTable.SelectListItem(ii.Name,"")).ToList() };
             return columns;
         }
 
@@ -1314,7 +1328,7 @@ where a.fromid = @id  and a.isdeleted=false";
                     }
                 }
 
-                outputTable.SelectList.AddRange(table2.SelectList.Where(i1 => i1.fromOriginalSelect).Select(ii => new ItemTable.SelectListItem(ii.alias)));// += ((outputTable.SelectList == "") ? "" : ",") + table2.SelectList;
+                outputTable.SelectList.AddRange(table2.SelectList.Where(i1 => i1.fromOriginalSelect).Select(ii => new ItemTable.SelectListItem(ii.alias,"")));// += ((outputTable.SelectList == "") ? "" : ",") + table2.SelectList;
                                                                                                                                                            //                Columns += ((Columns == "") ? "" : ",") + table2.SelectList.Se;
             }
         }
@@ -1529,6 +1543,8 @@ where a.fromid = @id  and a.isdeleted=false";
                 }
                 else
                 {
+                   
+
 
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SDSN", src.dsn));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SLogin", src.login));
@@ -1541,7 +1557,7 @@ where a.fromid = @id  and a.isdeleted=false";
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("TDriver", dest.driver));
 
 
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLTable", this.outputPath));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLTable", JsonSerializer.Serialize<List<JsonItem>>( await getJsonDefs(conn,columnList,dest_id) /*this.outputPath*/)));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLParams", ""));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLText", sqlExec));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Oper", "Refill"));
@@ -1553,7 +1569,54 @@ where a.fromid = @id  and a.isdeleted=false";
                 listValue.Add(retValue);
                 return listValue;
             }
+            
+
+            public class JsonItem
+            {
+                public class ExtID
+                {
+                    public string Column { get; set; }
+                    public string Table { get; set; }
+                }
+                public string Table { get; set; }
+                public List<int> Columns { get; set; }
+                public List<ExtID> ExtIDs { get; set; }
+            }
+            async Task<List<JsonItem>> getJsonDefs(NpgsqlConnection conn, List<ItemTable.ColumnItem> columnList,int dest_id)
+            {
+                List<JsonItem> retValue = new List<JsonItem>();
+                var items=await DBInterface.GetAllRelation(conn, outputPath.Split(','), dest_id);
+                var allTables=items.Select(ii=>ii.MainTable).Union(items.Select(ii=>ii.SecondTable)).Distinct().ToList();
+                var allTablesOutput = allTables.ToList();
+                for(int i=0; i< allTables.Count;i++)
+                {
+                    var table = allTables[i];
+                    foreach(var table1 in items.Where(ii=>ii.SecondTable==table).Select(i1=>i1.MainTable))
+                    {
+                        int index1=allTablesOutput.IndexOf(table);
+                        int index2 = allTablesOutput.IndexOf(table1);
+                        if(index1<index2)
+                        {
+
+                            allTablesOutput.Insert(index1, table1);
+                            allTablesOutput.RemoveAt(index2+1);
+                        }
+                    }
+
+                }
+                foreach(var table in allTablesOutput)
+                {
+                    JsonItem newItem= new JsonItem();
+                    newItem.Columns = columnList.Where(ii => ii.OutputTable == table).Select(ii => columnList.IndexOf(ii) + 1).ToList();
+                    newItem.ExtIDs = items.Where(ii => ii.SecondTable == table).Select(ii => new JsonItem.ExtID() { Table = ii.MainTable, Column = ii.ColumnSecond }).ToList();
+                    newItem.Table = table;
+                    retValue.Add(newItem);
+                }
+                return retValue;
+            }
+
         }
+         
 
         static void test()
         {
@@ -1587,7 +1650,7 @@ where pan>:pan and orderedstatustime > to_date(:ost, 'DD.MM.YYYY Hh24:Mi:SS') an
             var kvalPrefix = ItemRel.getKvalPrefix(item.Name, item.Alias);
             foreach (var col in item.columns)
             {
-                val = Regex.Replace(val, @"(?<!\.)\b" + col.Name + @"\b", kvalPrefix + col.Name);
+                val = Regex.Replace(val, @"(?<![\.:])\b" + col.Name + @"\b", kvalPrefix + col.Name);
 //                val = Regex.Replace(val, @"\b^(.){0}" + col + @"\b", kvalPrefix + col);
 //                val = val.Replace(col, kvalPrefix + col);
             }

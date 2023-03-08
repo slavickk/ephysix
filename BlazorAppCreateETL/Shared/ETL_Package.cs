@@ -11,7 +11,7 @@ namespace BlazorAppCreateETL.Shared
         public string ETLName { get; set; } = "";
         public string ETLDescription { get; set; }
         public int ETL_dest_id { get; set; }
-        public List<string>  TableOutputName { get; set; }
+        public List<string>  TableOutputName { get; set; }= new List<string>();
         public long idPackage { get; set; } = -1;
         public string ETL_add_par { get; set; } = "";
         public class VariableItem
@@ -33,7 +33,23 @@ namespace BlazorAppCreateETL.Shared
             public string scema { get; set; }
             public long table_id { get; set; }
             public string alias { get; set; } = "";
-            public long etl_id { get; set; }
+
+            long ei;
+            public long etl_id 
+            { 
+                get
+                {
+                    return ei;
+                }
+                set
+                {
+                    if(value==0)
+                    {
+                        int yy = 0;
+                    }
+                    ei = value;
+                }
+            }
             public override string ToString()
             {
                 if (alias != "")
@@ -81,8 +97,8 @@ namespace BlazorAppCreateETL.Shared
 
         public class ItemSelectedList
         {
-            public ItemColumn sourceColumn;
-            public string outputTable;
+            public ItemColumn sourceColumn { get; set; }
+            public string outputTable { get; set; } 
 //            public string outpu
         }
         public List<ItemSelectedList> selectedFields { get; set; } = new List<ItemSelectedList>();
