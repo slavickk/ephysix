@@ -148,11 +148,11 @@
             this.columnHeader8,
             this.columnHeader14});
             this.listViewSelectedField.FullRowSelect = true;
-            this.listViewSelectedField.Location = new System.Drawing.Point(10, 140);
+            this.listViewSelectedField.Location = new System.Drawing.Point(10, 151);
             this.listViewSelectedField.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.listViewSelectedField.MultiSelect = false;
             this.listViewSelectedField.Name = "listViewSelectedField";
-            this.listViewSelectedField.Size = new System.Drawing.Size(311, 138);
+            this.listViewSelectedField.Size = new System.Drawing.Size(311, 153);
             this.listViewSelectedField.TabIndex = 5;
             this.listViewSelectedField.UseCompatibleStateImageBehavior = false;
             this.listViewSelectedField.View = System.Windows.Forms.View.Details;
@@ -190,11 +190,11 @@
             this.columnHeader4,
             this.columnHeader5});
             this.listViewLinks.FullRowSelect = true;
-            this.listViewLinks.Location = new System.Drawing.Point(331, 140);
+            this.listViewLinks.Location = new System.Drawing.Point(331, 151);
             this.listViewLinks.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.listViewLinks.MultiSelect = false;
             this.listViewLinks.Name = "listViewLinks";
-            this.listViewLinks.Size = new System.Drawing.Size(385, 138);
+            this.listViewLinks.Size = new System.Drawing.Size(385, 153);
             this.listViewLinks.TabIndex = 6;
             this.listViewLinks.UseCompatibleStateImageBehavior = false;
             this.listViewLinks.View = System.Windows.Forms.View.Details;
@@ -217,7 +217,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 118);
+            this.label2.Location = new System.Drawing.Point(10, 132);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(36, 15);
@@ -237,7 +237,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(10, 280);
+            this.label4.Location = new System.Drawing.Point(10, 311);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(178, 15);
@@ -246,7 +246,7 @@
             // 
             // textBoxCondition
             // 
-            this.textBoxCondition.Location = new System.Drawing.Point(103, 297);
+            this.textBoxCondition.Location = new System.Drawing.Point(103, 328);
             this.textBoxCondition.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBoxCondition.Name = "textBoxCondition";
             this.textBoxCondition.Size = new System.Drawing.Size(198, 23);
@@ -255,7 +255,7 @@
             // buttonAddCondition
             // 
             this.buttonAddCondition.Enabled = false;
-            this.buttonAddCondition.Location = new System.Drawing.Point(304, 294);
+            this.buttonAddCondition.Location = new System.Drawing.Point(304, 325);
             this.buttonAddCondition.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.buttonAddCondition.Name = "buttonAddCondition";
             this.buttonAddCondition.Size = new System.Drawing.Size(40, 20);
@@ -270,7 +270,7 @@
             this.columnHeader6,
             this.columnHeader7});
             this.listViewAddCondition.FullRowSelect = true;
-            this.listViewAddCondition.Location = new System.Drawing.Point(10, 323);
+            this.listViewAddCondition.Location = new System.Drawing.Point(10, 354);
             this.listViewAddCondition.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.listViewAddCondition.MultiSelect = false;
             this.listViewAddCondition.Name = "listViewAddCondition";
@@ -296,7 +296,7 @@
             this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tableViewControl1.AutoSize = true;
-            this.tableViewControl1.Location = new System.Drawing.Point(389, 300);
+            this.tableViewControl1.Location = new System.Drawing.Point(389, 331);
             this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1, 1, 1, 1);
             this.tableViewControl1.Name = "tableViewControl1";
             this.tableViewControl1.Size = new System.Drawing.Size(314, 262);
@@ -305,7 +305,7 @@
             // textBoxTableAdditional
             // 
             this.textBoxTableAdditional.Enabled = false;
-            this.textBoxTableAdditional.Location = new System.Drawing.Point(10, 297);
+            this.textBoxTableAdditional.Location = new System.Drawing.Point(10, 328);
             this.textBoxTableAdditional.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBoxTableAdditional.Name = "textBoxTableAdditional";
             this.textBoxTableAdditional.Size = new System.Drawing.Size(90, 23);
@@ -488,7 +488,7 @@
             // buttonEditCondition
             // 
             this.buttonEditCondition.Enabled = false;
-            this.buttonEditCondition.Location = new System.Drawing.Point(348, 294);
+            this.buttonEditCondition.Location = new System.Drawing.Point(348, 325);
             this.buttonEditCondition.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.buttonEditCondition.Name = "buttonEditCondition";
             this.buttonEditCondition.Size = new System.Drawing.Size(40, 20);
@@ -588,7 +588,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(201, 118);
+            this.label5.Location = new System.Drawing.Point(201, 129);
             this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(49, 15);
@@ -597,7 +597,7 @@
             // 
             // textBoxFromSrc
             // 
-            this.textBoxFromSrc.Location = new System.Drawing.Point(256, 118);
+            this.textBoxFromSrc.Location = new System.Drawing.Point(256, 125);
             this.textBoxFromSrc.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.textBoxFromSrc.Name = "textBoxFromSrc";
             this.textBoxFromSrc.Size = new System.Drawing.Size(49, 23);
