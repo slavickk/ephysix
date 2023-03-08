@@ -130,6 +130,11 @@ namespace WinFormsApp1
 
         }
 
+        private void comboBoxSrc_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
         private async void button1_Click(object sender, EventArgs e)
         {
             button2.Enabled = false;
