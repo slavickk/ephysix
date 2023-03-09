@@ -97,30 +97,37 @@ digraph {
             {
                 await DBInterface.enrichTable(conn, table);
             }
+            var outputTables =await DBInterface.GetOutputTables(conn, package);
             var src = package.allTables.Select(ii => ii.src_id).ToList();
             src.Add(package.ETL_dest_id);
 
             foreach (var item in src.Distinct().OrderBy(ii => ii))
             {
-                var tab = package.allTables.FirstOrDefault(ii => ii.src_id == item);
-                string zoneName = "unknown";
+                var tablesStep=package.allTables.Where(ii => ii.src_id == item).Union(outputTables.Where(i1=>i1.src_id == item)).ToList();
+                var tab = tablesStep.First(); ;
+                string zoneName = tab.scema;
                 var color = "lightgray";
                 if (tab != null)
                 {
-                    if ((bool)tab.pci_dss_zone)
+                    if (tab.pci_dss_zone != null && (bool)tab.pci_dss_zone)
                         color = "lightgreen";
                     zoneName = tab.scema.Replace(" ", "_");
                 }
                 content += $"subgraph cluster_{zoneName} {{\r\n    label={zoneName};\r\n    style=filled;\r\n    color={color};\r\n";
-                foreach (var table in package.allTables.Where(ii => ii.src_id == item))
+                foreach (var table in tablesStep)
                 {
-                    content += $"{table.table_name} [label=<\r\n<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">\r\n  <tr><td bgcolor=\"white\"><b><i>{table.table_name}</i></b></td></tr>";
+                    content += $"{table.table_name}__{table.src_id} [label=<\r\n<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">\r\n  <tr><td bgcolor=\"white\"><b><i>{table.table_name}</i></b></td></tr>";
                     foreach (var col in table.columns)
                         content += $"<tr><td port=\"{col.col_name}\">{col.col_name}</td></tr>";
                     content += "</table>>];";
                     foreach (var it in package.selectedFields.Where(ii => ii.sourceColumn.table.table_name == table.table_name))
                     {
-                        addCont += $"{table.table_name}:{it.sourceColumn.col_name} -> {it.outputTable}:{it.sourceColumn.alias} ;\r\n";
+                        if(table.src_id == package.ETL_dest_id)
+                        {
+                            int yy = 0;
+                        }
+                        if(!((table.src_id == package.ETL_dest_id && table.table_name == it.outputTable) || string.IsNullOrEmpty(it.sourceColumn.col_name)))
+                        addCont += $"{table.table_name}__{table.src_id}:{it.sourceColumn.col_name} -> {it.outputTable}__{package.ETL_dest_id}:{it.sourceColumn.alias} ;\r\n";
 
                     }
 
@@ -141,7 +148,7 @@ digraph {
                     for (int i = 0; i < cols1.Count; i++)
                     {
                         var st = (package.allTables.First(ii => ii.table_name == rel.table1.table_name).src_id == package.allTables.First(ii => ii.table_name== rel.table2.table_name).src_id) ? ("[constraint=false,style=\"dotted\"]") : ("");
-                        addCont += $"{rel.table1.table_name}:{cols1[i]} -> {rel.table2.table_name}:{cols2[i]} {st} ;\r\n";
+                        addCont += $"{rel.table1.table_name}__{rel.table1.src_id}:{cols1[i]} -> {rel.table2.table_name}__{rel.table2.src_id}:{cols2[i]} {st} ;\r\n";
                     }
                 }
 

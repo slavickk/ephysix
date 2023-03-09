@@ -11,7 +11,7 @@ namespace BlazorAppCreateETL.Shared
         public string ETLName { get; set; } = "";
         public string ETLDescription { get; set; }
         public int ETL_dest_id { get; set; }
-        public List<string>  TableOutputName { get; set; }= new List<string>();
+        public List<string>  OutputTables { get; set; }= new List<string>();
         public long idPackage { get; set; } = -1;
         public string ETL_add_par { get; set; } = "";
         public class VariableItem

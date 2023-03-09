@@ -1,5 +1,6 @@
 ﻿using BlazorAppCreateETL.Shared;
 using Npgsql;
+using System.Collections.Generic;
 using System.Data;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -28,7 +29,7 @@ left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
                         {
                             package.ETLName = reader.GetString(0);
                             if (!reader.IsDBNull(1))
-                                package.TableOutputName.Add( reader.GetString(1));
+                                package.OutputTables.AddRange(reader.GetString(1).Split(','));
                             if (!reader.IsDBNull(2))
                                 package.ETLDescription = reader.GetString(2);
                             if (reader.FieldCount > 3 && !reader.IsDBNull(3))
@@ -125,7 +126,7 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
                                     sourceColumn = new ETL_Package.ItemColumn()
                                     { table = table, col_name = selectItem.expression, alias = selectItem.alias }
                                     ,
-                                    outputTable = ((outTables == null) ? package.TableOutputName.First() : outTables[i])
+                                    outputTable = ((outTables == null) ? package.OutputTables.First() : outTables[i])
                                 });
                             }
                             if (!reader.IsDBNull(5))
@@ -378,13 +379,64 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
             return packages;
         }
 
+        public static async Task<List<ETL_Package.ItemTable>> GetOutputTables(NpgsqlConnection conn, ETL_Package package)
+        {
+            List<ETL_Package.ItemTable> retValue = new List<ETL_Package.ItemTable>();
+            var command = @"select n1.NodeID, n1.Name, n2.NodeID, n2.Name, a2.key, s.name, s.srcid, s.pci_dss_zone
+    from md_node n1 inner join md_src s on (n1.srcid= s.srcid), md_arc a1, md_node n2, md_node_attr_val nav2, md_attr a2
+
+    where (n1.typeid=md_get_type('Table') or n1.typeid=md_get_type('Dictionary') ) and a1.toid=n1.nodeid and a1.fromid=n2.nodeid and a1.typeid=md_get_type('Column2Table')
+      and (n2.typeid=md_get_type('Column') or n2.typeid=md_get_type('DictionaryColumn'))
+      and n2.NodeID=nav2.NodeID
+      and nav2.AttrID=a2.AttrID
+  and a2.attrPID=1
+  and n2.isdeleted=false and n1.isdeleted=false
+      and n1.name=ANY(@names) and n1.srcid=@srcid
+";
+            string tableName = "";
+            long lastId = -1;
+            ETL_Package.ItemTable lastTable=null;
+            await using (var cmd = new NpgsqlCommand(command, conn))
+            {
+                cmd.Parameters.AddWithValue("@names", package.OutputTables);
+                cmd.Parameters.AddWithValue("@srcid", package.ETL_dest_id);
+
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var id=reader.GetInt64(0);
+                        if(id != lastId)
+                        {
+                            lastTable = new ETL_Package.ItemTable();
+                            lastTable.table_name = reader.GetString(1);
+                            lastTable.src_id = package.ETL_dest_id;
+                            lastTable.scema = reader.GetString(5);
+                            lastTable.columns = new List<ETL_Package.ItemColumn>();
+                            retValue.Add(lastTable);
+                            lastId= id;
+                            //                            var idCol = reader.GetInt64(2);
+                        }
+
+                        var idCol = reader.GetInt64(2);
+                        var column = reader.GetString(3);
+                        var type = reader.GetString(4);
+                        lastTable.columns.Add(new ETL_Package.ItemColumn() { col_name = column,  col_id = idCol, table=lastTable });
+                    }
+                }
+
+
+            }
+            return retValue;
+        }
+
         public static async Task SaveAndExecuteETL(NpgsqlConnection conn, ETL_Package package)
         {
             await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(5,@id,@title,@output_name,@description,@dest_id,@add_par)", conn))
             {
                 cmd.Parameters.AddWithValue("@id", package.idPackage);
                 cmd.Parameters.AddWithValue("@title", package.ETLName);
-                cmd.Parameters.AddWithValue("@output_name", string.Join(",",package.TableOutputName));
+                cmd.Parameters.AddWithValue("@output_name", string.Join(",",package.OutputTables));
                 cmd.Parameters.AddWithValue("@description", package.ETLDescription);
                 cmd.Parameters.AddWithValue("@dest_id", package.ETL_dest_id);
                 cmd.Parameters.AddWithValue("@add_par", package.ETL_add_par);
