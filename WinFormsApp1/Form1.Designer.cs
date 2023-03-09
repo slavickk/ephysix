@@ -81,12 +81,13 @@
             this.comboBoxDestTable = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
             this.textBoxFromSrc = new System.Windows.Forms.TextBox();
+            this.checkBoxFindTable = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(7, 4);
+            this.label1.Location = new System.Drawing.Point(7, -2);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(126, 15);
@@ -96,7 +97,7 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(138, 4);
+            this.textBox1.Location = new System.Drawing.Point(138, 1);
             this.textBox1.Margin = new System.Windows.Forms.Padding(2);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(104, 23);
@@ -105,7 +106,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(243, 4);
+            this.button1.Location = new System.Drawing.Point(243, 1);
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(76, 20);
@@ -292,10 +293,10 @@
             this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.tableViewControl1.AutoSize = true;
             this.tableViewControl1.ForeColor = System.Drawing.SystemColors.ControlLight;
-            this.tableViewControl1.Location = new System.Drawing.Point(392, 308);
+            this.tableViewControl1.Location = new System.Drawing.Point(338, 200);
             this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tableViewControl1.Name = "tableViewControl1";
-            this.tableViewControl1.Size = new System.Drawing.Size(318, 358);
+            this.tableViewControl1.Size = new System.Drawing.Size(372, 466);
             this.tableViewControl1.TabIndex = 14;
             // 
             // textBoxTableAdditional
@@ -575,11 +576,22 @@
             this.textBoxFromSrc.TabIndex = 45;
             this.textBoxFromSrc.Text = "1";
             // 
+            // checkBoxFindTable
+            // 
+            this.checkBoxFindTable.AutoSize = true;
+            this.checkBoxFindTable.Location = new System.Drawing.Point(10, 10);
+            this.checkBoxFindTable.Name = "checkBoxFindTable";
+            this.checkBoxFindTable.Size = new System.Drawing.Size(115, 19);
+            this.checkBoxFindTable.TabIndex = 46;
+            this.checkBoxFindTable.Text = "Искать таблицы";
+            this.checkBoxFindTable.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(718, 706);
+            this.Controls.Add(this.checkBoxFindTable);
             this.Controls.Add(this.tableViewControl1);
             this.Controls.Add(this.listViewAddCondition);
             this.Controls.Add(this.textBoxFromSrc);
@@ -683,5 +695,6 @@
         private ComboBox comboBoxDestTable;
         private Label label5;
         private TextBox textBoxFromSrc;
+        private CheckBox checkBoxFindTable;
     }
 }
