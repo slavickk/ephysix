@@ -45,8 +45,9 @@ namespace BlazorAppCreateETL.Server.Controllers
                 conn = await getConn();
                 /*            ItemPackage pack = new ItemPackage() { id = id };
                             var package1 = await DBInterface.FillPackageContent(conn, pack);*/
-                var package = await GenerateStatement.getPackage(conn, id);
-                ret = GraphvizImpl.drawContent(package);
+                var package=await DBInterface.FillPackageContent(conn, new ItemPackage() { id = id });
+//                var package = await GenerateStatement.getPackage(conn, id);
+                ret = await GraphvizImpl.drawContent(conn,package);
             }
             catch(Exception ex)
             {

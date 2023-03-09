@@ -111,7 +111,7 @@ namespace WinFormsApp1
             var cols = comboBox1.SelectedItem as ETL_Package.ItemColumn;
             bool isNew;
             var table = getTable(out isNew, textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id);
-            await AddCols(cols, new ETL_Package.ItemSelectedList() { sourceColumn = new ETL_Package.ItemColumn() { table = table, alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }, outputTable = package.TableOutputName.First() },isNew,package.allTables.Last().table_name);
+            await AddCols(cols, new ETL_Package.ItemSelectedList() { sourceColumn = new ETL_Package.ItemColumn() { table = table, alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text }, outputTable = package.OutputTables.First() },isNew,package.allTables.Last().table_name);
         }
 
         private async Task AddCols(ETL_Package.ItemColumn? cols, ETL_Package.ItemSelectedList newItem,bool isNew,string newTableName)
@@ -356,14 +356,14 @@ namespace WinFormsApp1
         void RefreshComboBoxDestTables()
         {
             comboBoxDestTable.Items.Clear();
-            comboBoxDestTable.Items.AddRange(package.TableOutputName.ToArray());
+            comboBoxDestTable.Items.AddRange(package.OutputTables.ToArray());
         }
 
         private async void button5_Click(object sender, EventArgs e)
         {
             FormDefineETL frm = new FormDefineETL(conn);
             frm.ETLName= package.ETLName;
-             frm.OutputTableName= package.TableOutputName.ToList();
+             frm.OutputTableName= package.OutputTables.ToList();
              frm.ETLDescription= package.ETLDescription;
             frm.ETL_dest_id= package.ETL_dest_id;
             frm.ETLAddPar = package.ETL_add_par;
@@ -375,8 +375,8 @@ namespace WinFormsApp1
                 if (frm.OutputTableName.Count > 0 && !string.IsNullOrEmpty(textBoxFromSrc.Text))
                 {
                     var src_id = Convert.ToInt32(textBoxFromSrc.Text);
-                    var diff = frm.OutputTableName.Except(package.TableOutputName);// Intersect
-                    package.TableOutputName=frm.OutputTableName.ToList();
+                    var diff = frm.OutputTableName.Except(package.OutputTables);// Intersect
+                    package.OutputTables=frm.OutputTableName.ToList();
                     foreach(var item in diff ) 
                     {
                         var items=await DBInterface.getSrcForTable(conn, item, package.ETL_dest_id,src_id);
@@ -403,10 +403,10 @@ namespace WinFormsApp1
                 }
                 
 
-                package.TableOutputName=(frm.OutputTableName);
+                package.OutputTables=(frm.OutputTableName);
                 package.ETLDescription = frm.ETLDescription;
                 package.ETL_add_par = frm.ETLAddPar;
-                textBoxEtlDescr.Text = $"Etl:{package.ETLName} outFile:{package.TableOutputName}";
+                textBoxEtlDescr.Text = $"Etl:{package.ETLName} outFile:{package.OutputTables}";
                 RefreshComboBoxDestTables();
             }
         }
@@ -422,7 +422,7 @@ namespace WinFormsApp1
                 isBusy = true;
                 var pack = comboBoxPackage.SelectedItem as ItemPackage;
                 package=await DBInterface.FillPackageContent(conn,pack);
-                textBoxEtlDescr.Text = $"Etl:{package.ETLName} outFile:{package.TableOutputName}";
+                textBoxEtlDescr.Text = $"Etl:{package.ETLName} outFile:{package.OutputTables}";
 
                 RefreshVariableList();
                 RefreshListViewLinksSelected();
@@ -458,7 +458,7 @@ namespace WinFormsApp1
                 package.selectedFields[index] = new ETL_Package.ItemSelectedList()
                 {
                     sourceColumn = { table = getTable(textBoxTableName.Text, textBoxTableAlias.Text, package.selectedFields[index].sourceColumn.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text },
-                    outputTable = ((comboBoxDestTable.SelectedIndex < 0) ? package.TableOutputName.First() : comboBoxDestTable.Items[comboBoxDestTable.SelectedIndex].ToString())
+                    outputTable = ((comboBoxDestTable.SelectedIndex < 0) ? package.OutputTables.First() : comboBoxDestTable.Items[comboBoxDestTable.SelectedIndex].ToString())
                 }  ;
                 RefreshListViewTablesSelected();
             }
