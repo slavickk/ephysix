@@ -25,7 +25,7 @@ namespace WebApiConsoleUtility
         public static int RequestQueueLimit = -1;
         static Pipeline pip;
         static bool IgnoreAll = false;
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             /*            var req = Environment.GetEnvironmentVariable("MAX_CONCURRENT_REQUEST");
                         if (req != null)
@@ -130,10 +130,11 @@ namespace WebApiConsoleUtility
                     else
                         Log.Information($"jaeger host not set");
 
-                    Log.Information("... Parsing " + YamlPath);
+                    var yamlFullPath = Path.GetFullPath(YamlPath);
+                    Log.Information("... Parsing " + yamlFullPath);
                     try
                     {
-                        pip = Pipeline.load(YamlPath);
+                        pip = Pipeline.load(yamlFullPath);
                     }
                     catch(Exception e66) 
                     {
@@ -163,24 +164,37 @@ namespace WebApiConsoleUtility
                         }
                     }
 
-
-                    Log.Information("Parsing done.Making self test.");
-                    var suc = pip.SelfTest().GetAwaiter().GetResult();
-                    if (suc)
+                    Log.Information("Parsing done");
+                    if (!pip.skipSelfTest)
                     {
-                        Log.Information("Self test OK. Run pipeline.");
-                        pip.run().ContinueWith((runner) =>
-                            {
-                                Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
-                                System.Diagnostics.Process.GetCurrentProcess().Kill();
-                                return;
-                            });
+                        Log.Information("Making self test.");
+                        var suc = await pip.SelfTest();
+                        if (suc)
+                        {
+                            Log.Information("Self test OK. Run pipeline.");
+                            pip.run().ContinueWith((runner) =>
+                                {
+                                    Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
+                                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                                    return;
+                                });
+                        }
+                        else
+                        {
+                            Log.Error("Self test failed. Pipeline won't be started. Running just the Integration Utility web host.");
+    //                        return;
+
+                        }
                     }
                     else
                     {
-                        Log.Error("Self test failed. Pipeline execution not possible.");
-//                        return;
-
+                        // TODO: deduplicate the code that runs the pipeline
+                        Log.Information("Running the pipeline without self-test because SkipSelfTest is true.");
+                        pip.run().ContinueWith((runner) =>
+                        {
+                            Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...", runner.IsFaulted, runner.Exception?.ToString());
+                            System.Diagnostics.Process.GetCurrentProcess().Kill();
+                        });
                     }
 
                     Log.Information("Starting Integrity Utility web host ");
@@ -188,7 +202,7 @@ namespace WebApiConsoleUtility
                         Log.Information("Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
                     else
                         Log.Information("Logging to " + LogPath + ".");
-                    CreateHostBuilder(args).Build().Run();
+                    await CreateHostBuilder(args).Build().RunAsync();
 
                 }
                 catch (Exception ex)
@@ -203,8 +217,7 @@ namespace WebApiConsoleUtility
             } else
             {
                 Log.Information("Starting Integrity Utility web host ");
-                CreateHostBuilder(args).Build().Run();
-
+                await CreateHostBuilder(args).Build().RunAsync();
             }
 
 
