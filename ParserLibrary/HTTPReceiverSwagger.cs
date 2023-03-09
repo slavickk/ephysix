@@ -32,6 +32,14 @@ namespace ParserLibrary
 {
     public partial class HTTPReceiverSwagger : Receiver
     {
+        /// <summary>
+        /// Address to listen on. If not set, the server listens on localhost.
+        /// </summary>
+        public string address = "localhost";
+        
+        /// <summary>
+        /// Port to listen on. If not set, the server listens on port 8080.
+        /// </summary>
         public int port = 8080;
 
         public string swaggerSpecPath = null;
@@ -83,7 +91,7 @@ namespace ParserLibrary
             _hostBuilder = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseKestrel()
+                    webBuilder
                         .ConfigureServices(services =>
                         {
                             services.AddSwaggerGen(c =>
@@ -121,19 +129,37 @@ namespace ParserLibrary
             var requestHandler = new RequestHandler(this);
             var controllerImplAssembly = requestHandler.ImplementController(serverPart.Assembly);
 
-            var host = _hostBuilder.ConfigureWebHostDefaults(webBuilder =>
+            var host = _hostBuilder.ConfigureWebHost(webBuilder =>
             {
+                // Parse this.address to IPAddress
+                IPAddress ipAddress;
+                if (string.IsNullOrEmpty(address))
+                {
+                    Logger.log("HTTPReceiverSwagger: address is not set, listening on localhost");
+                    ipAddress = IPAddress.Loopback;
+                }
+                else
+                {
+                    if (address == "localhost")
+                        ipAddress = IPAddress.Loopback;
+                    else if (!IPAddress.TryParse(address, out ipAddress))
+                        throw new Exception("Invalid IP address to listen on: " + address);
+                }
+                
                 if (certSubject != null)
                 {
                     Logger.log("HTTPReceiverSwagger: Configuring HTTPS with certificate subject " + certSubject);
                     webBuilder.UseKestrel(opt =>
-                        opt.Listen(IPAddress.Any, port,
+                        opt.Listen(ipAddress, port,
                             options => options.UseHttps(FindMatchingCertificateBySubject(certSubject))));
                 }
                 else
-                    Logger.log("HTTPReceiverSwagger: Not using HTTPS because certSubject has not been given in pipeline definition.");
+                {
+                    webBuilder.UseKestrel(opt => opt.Listen(ipAddress, port));
+                    Logger.log(
+                        "HTTPReceiverSwagger: Not using HTTPS because certSubject has not been given in pipeline definition.");
+                }
 
-                webBuilder.UseUrls("http://localhost:" + port);
                 webBuilder.ConfigureServices(services =>
                 {
                     services.AddControllers()

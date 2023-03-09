@@ -9,6 +9,7 @@ steps:
   iDResponsedReceiverStep: ''
   description: Check registration extract
   receiver: !HTTPReceiverSwagger
+    address: localhost
     port: 8080
     responseType: text/xml
     cantTryParse: true
