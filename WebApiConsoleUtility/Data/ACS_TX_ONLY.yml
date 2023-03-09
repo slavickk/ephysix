@@ -1,21 +1,23 @@
 pipelineDescription: Pipeline ACS-CCFA-TX
 traceSaveDirectory: /CONTEXT
 hashWord: {#SECRET_WORD#}
+skipSelfTest: true
 steps:
 - isBridge: false
   isHandleSenderError: true
   maxSavedLimitInMB: 10
-  saveErrorSendDirectory: '/CACHE'
+  saveErrorSendDirectory: Data/Restore
   iDStep: Step_0
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
   description: Check registration extract
-  receiver: !HTTPReceiver
+  receiver: !HTTPReceiverSwagger
     port: 8080
     responseType: text/xml
     cantTryParse: true
-    mocFile: C:\D\OutACS_TX\e2soyscy.diz
+    mocFile: Data/OutACS_TX/e2soyscy.diz
     mocBody: ''
+    swaggerSpecPath: Data/swagger.json  # standard Swagger file format
   converters:
   - name: FilterToTW
     filter: !ConditionFilter

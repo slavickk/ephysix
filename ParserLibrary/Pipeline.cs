@@ -88,6 +88,14 @@ public class Pipeline
         }
     }
 
+    /// <summary>
+    /// If true, then the self test should be skipped.
+    /// skipSelfTest does not affect the behavior of the pipeline,
+    /// it is supposed to be used by upstream code that controls the pipeline
+    /// and decides whether to call SelfTest() or not.
+    /// </summary>
+    public bool skipSelfTest = false;
+
     //public AbstrParser.UniEl rootElement = null;
     public async Task<bool> SelfTest()
     {
