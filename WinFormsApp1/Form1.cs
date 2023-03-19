@@ -514,5 +514,10 @@ namespace WinFormsApp1
             FormAddCustomTables frm = new FormAddCustomTables(conn);
             frm.ShowDialog();
         }
+
+        private void buttonDelField_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

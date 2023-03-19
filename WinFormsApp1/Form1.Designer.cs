@@ -82,6 +82,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.textBoxFromSrc = new System.Windows.Forms.TextBox();
             this.checkBoxFindTable = new System.Windows.Forms.CheckBox();
+            this.buttonDelField = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -292,17 +293,10 @@
             // 
             this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.tableViewControl1.ForeColor = System.Drawing.SystemColors.ControlLight;
-<<<<<<< HEAD
             this.tableViewControl1.Location = new System.Drawing.Point(411, 307);
             this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tableViewControl1.Name = "tableViewControl1";
             this.tableViewControl1.Size = new System.Drawing.Size(299, 389);
-=======
-            this.tableViewControl1.Location = new System.Drawing.Point(402, 330);
-            this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1);
-            this.tableViewControl1.Name = "tableViewControl1";
-            this.tableViewControl1.Size = new System.Drawing.Size(310, 348);
->>>>>>> b4249d5fae74c2baec979a982ca8f5675b11922f
             this.tableViewControl1.TabIndex = 14;
             // 
             // textBoxTableAdditional
@@ -592,11 +586,22 @@
             this.checkBoxFindTable.Text = "Искать таблицы";
             this.checkBoxFindTable.UseVisualStyleBackColor = true;
             // 
+            // buttonDelField
+            // 
+            this.buttonDelField.Location = new System.Drawing.Point(96, 121);
+            this.buttonDelField.Name = "buttonDelField";
+            this.buttonDelField.Size = new System.Drawing.Size(75, 23);
+            this.buttonDelField.TabIndex = 47;
+            this.buttonDelField.Text = "Del Field";
+            this.buttonDelField.UseVisualStyleBackColor = true;
+            this.buttonDelField.Click += new System.EventHandler(this.buttonDelField_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(718, 706);
+            this.Controls.Add(this.buttonDelField);
             this.Controls.Add(this.checkBoxFindTable);
             this.Controls.Add(this.tableViewControl1);
             this.Controls.Add(this.listViewAddCondition);
@@ -702,5 +707,6 @@
         private Label label5;
         private TextBox textBoxFromSrc;
         private CheckBox checkBoxFindTable;
+        private Button buttonDelField;
     }
 }
