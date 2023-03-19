@@ -1,0 +1,146 @@
+{
+  "Name": "AReq",
+  "Description": "AReq transaction",
+  "fields": [
+    {
+      "Name": "deviceInfo_SDKAppID",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "dsTransID",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "mcc",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "destCardNum",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "purchaseAmount",
+      "Type": "Double",
+      "Detail": ""
+    },
+    {
+      "Name": "purchaseCurrency",
+      "Type": "Double",
+      "Detail": ""
+    },
+    {
+      "Name": "purchaseDate",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "shipAddrCity",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "shipAddrCountry",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "shipAddrLine1",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "shipAddrLine2",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "shipAddrLine3",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "shipAddrPostCode",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "shipAddrState",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "browserIP",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "stream",
+      "Type": "String",
+      "Detail": "Name of stream"
+    },
+    {
+      "Name": "originalTime",
+      "Type": "String",
+      "Detail": "Time of stream"
+    },
+    {
+      "Name": "acctNumber",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "cardExpiryDate",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "acquirerBIN",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "acquirerMerchantID",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "browserAcceptHeader",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "browserLanguage",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "browserTZ",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "browserUserAgent",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "deviceInfo_Latitude",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "deviceInfo_Longitude",
+      "Type": "String",
+      "Detail": ""
+    },
+    {
+      "Name": "mbr",
+      "Type": "String",
+      "Detail": ""
+    }
+  ]
+}

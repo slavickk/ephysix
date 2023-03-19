@@ -240,7 +240,7 @@ namespace TestJsonRazbor
             rec.stringReceived = proxyRec;
             Task taskA = Task.Run(async () =>
             {
-                await rec.startInternal();
+                await rec.start();
             });
         }
         Sender sender1;

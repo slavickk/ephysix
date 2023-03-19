@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,7 +45,13 @@ namespace TestJsonRazbor
         private void RefreshProps()
         {
             comboBox1.Items.Clear();
-            foreach (var t in Assembly.GetAssembly(typeof(Pipeline)).GetTypes().Where(ii => ii.IsAssignableTo(tDefine) && !ii.IsAbstract))
+       //     ttypes[240]
+            var ttypes = PluginsInterface.getAllTypes();
+//            var act=Activator.CreateInstance(ttypes[240].Assembly.FullName, ttypes[240].Name);
+            var tt = ttypes.Where(ii => ii.IsAssignableTo(tDefine) && !ii.IsAbstract).ToList();
+
+
+            foreach (var t in PluginsInterface.getAllTypes().Where(ii => ii.IsAssignableTo(tDefine) && !ii.IsAbstract))
             {
                 comboBox1.Items.Add(new TypeDefiner(t));
             }
@@ -175,7 +182,7 @@ namespace TestJsonRazbor
         }
         private Type GetTypeOfForm(Type t)
         {
-            return Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t1 => t1.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute)) > 0 && t1.GetConstructor(new Type[] { t }) != null);
+            return PluginsInterface.getAllTypes().FirstOrDefault(t1 => t1.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute)) > 0 && t1.GetConstructor(new Type[] { t }) != null);
         }
 
         private void button2_Click(object sender, EventArgs e)

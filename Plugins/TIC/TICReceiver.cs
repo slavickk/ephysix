@@ -43,13 +43,13 @@ namespace ParserLibrary
             pushProperty.Dispose();
         }
 
-        public override async Task sendResponseInternal(string response, object context)
+        protected override async Task sendResponseInternal(string response, object context)
         {
             NetworkStream networkStream = context as NetworkStream;
             await Frame.SerializeFromJson(networkStream, response);
         }
 
-        public override async Task startInternal()
+        protected override async Task startInternal()
         {
             Frame = TICFrame.GetFrame(ticFrame);
             endpoint = new IPEndPoint(IPAddress.Any, port);

@@ -181,7 +181,7 @@ OutputValue fillOutput()
         }
         private Type GetTypeOfForm()
         {
-            return Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute) /*&& ii.ConstructorArguments[0].ArgumentType == currentStep.sender.GetType()*/) > 0);
+            return PluginsInterface.getAllTypes().FirstOrDefault(t => t.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute) /*&& ii.ConstructorArguments[0].ArgumentType == currentStep.sender.GetType()*/) > 0);
         }
 
     }

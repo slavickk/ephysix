@@ -20,8 +20,8 @@ namespace ParserLibrary.Tests
             };
 
 
-            tipReciever.stringReceived = (s, o) => tipReciever.sendResponseInternal(s, o);
-            tipReciever.startInternal();
+            tipReciever.stringReceived = (s, o) => tipReciever.sendResponse(s, o);
+            tipReciever.start();
         }
 
         [Test]

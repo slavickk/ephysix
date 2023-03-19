@@ -21,8 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CCFAProtocols\CCFAProtocols.csproj" />
+    <ProjectReference Include="..\ETL_DB_Interface\ETL_DB_Interface.csproj" />
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
+    <ProjectReference Include="..\Plugins\Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>
