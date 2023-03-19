@@ -6,8 +6,36 @@ using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
 
+
 public abstract class Receiver
 {
+    /// <summary>
+    /// Abstract and virtual methods
+    /// </summary>
+    public virtual void Init(Pipeline owner)
+    {
+        metricUpTime = new Metrics.MetricHistogram("iu_inbound_request_duration_msec", "handle performance receiver");
+        metricUpTimeError = new Metrics.MetricHistogram("iu_inbound_errors_total", "handle performance receiver", new double[] { 30, 100, 500, 1000, 5000, 10000 });
+        metricUpTime.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
+    }
+    protected virtual async Task sendResponseInternal(string response, object context)
+    {
+        if (debugMode)
+            Logger.log("Responcer do nothing, mocMode^{MocMode}!!!", Serilog.Events.LogEventLevel.Debug, MocMode);
+    }
+
+    public delegate void StringReceived(string input);
+    public delegate void BytesReceived(byte[] input);
+
+    [YamlIgnore]
+    public Func<string, object, Task> stringReceived;
+
+
+
+
+
+
+
     [YamlIgnore]
 
     public Metrics.MetricHistogram metricUpTime;
@@ -20,12 +48,6 @@ public abstract class Receiver
             return false;
         }*/
 
-    public virtual void Init(Pipeline owner)
-    {
-        metricUpTime = new Metrics.MetricHistogram("iu_inbound_request_duration_msec", "handle performance receiver");
-        metricUpTimeError=new Metrics.MetricHistogram("iu_inbound_errors_total", "handle performance receiver",new double[] {30,100,500,1000,5000,10000});
-        metricUpTime.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
-    }
 
     [YamlIgnore]
     public bool MocMode = false;
@@ -53,10 +75,6 @@ public abstract class Receiver
     [YamlIgnore]
     Step owner_internal;
 
-    public delegate  void StringReceived(string input);
-    public delegate void BytesReceived(byte[] input);
-    [YamlIgnore]
-    public Func<string,object,Task> stringReceived;
     public async Task signal(string input,object context)
     {
         DateTime time1= DateTime.Now;
@@ -92,11 +110,6 @@ public abstract class Receiver
             await sendResponseInternal(response, context);
     }
 
-    public virtual async Task sendResponseInternal(string response,object context)
-    {
-        if(debugMode)
-            Logger.log("Responcer do nothing, mocMode^{MocMode}!!!", Serilog.Events.LogEventLevel.Debug,MocMode);
-    }
 
     public async Task start()
     {
@@ -115,7 +128,7 @@ public abstract class Receiver
     }
 
 
-    public async virtual Task startInternal()
+    protected async virtual Task startInternal()
     { 
         
     }

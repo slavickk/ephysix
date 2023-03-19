@@ -14,7 +14,7 @@ namespace ParserLibrary
     public class PacketBeatReceiver : Receiver
     {
         public int port = 15001;
-        public async override Task startInternal()
+        protected async override Task startInternal()
         {
             Start(port);
         }
