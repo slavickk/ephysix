@@ -17,8 +17,8 @@ namespace ParserLibrary.Tests
             {
                 port = port, dummyProtocol1Frame = 6
             };
-            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponseInternal(s, o);
-            dummyProtocol1Receiver.startInternal();
+            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponse(s, o);
+            dummyProtocol1Receiver.start();
         }
 
         [Test]

@@ -20,8 +20,8 @@ namespace ParserLibrary.Tests
             };
 
 
-            dummyProtocol2Receiver.stringReceived = (s, o) => dummyProtocol2Receiver.sendResponseInternal(s, o);
-            dummyProtocol2Receiver.startInternal();
+            dummyProtocol2Receiver.stringReceived = (s, o) => dummyProtocol2Receiver.sendResponse(s, o);
+            dummyProtocol2Receiver.start();
         }
 
         [Test]

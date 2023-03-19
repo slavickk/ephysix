@@ -9,7 +9,7 @@ public class FileReceiver : Receiver
 
     public string file_name = @"C:\Data\scratch_1.txt";
 
-    public async override Task startInternal()
+    protected async override Task startInternal()
     {
         int ind = 0;
         using (StreamReader sr = new StreamReader(file_name))

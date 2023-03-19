@@ -10,7 +10,7 @@ public class TestReceiver:Receiver
 
 
 
-    public async override Task startInternal()
+    protected async override Task startInternal()
     {
 
         foreach (var file_name in ((pattern == "") ? new string[] { path } : Directory.GetFiles(path, pattern)))

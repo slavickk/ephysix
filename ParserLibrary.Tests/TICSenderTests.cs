@@ -16,8 +16,8 @@ namespace ParserLibrary.Tests
                 port = _port,
                 dummyProtocol1Frame = _senderDummyProtocol1Frame
             };
-            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponseInternal(s, o);
-            dummyProtocol1Receiver.startInternal();
+            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponse(s, o);
+            dummyProtocol1Receiver.start();
         }
 
         private int _port = 5000;

@@ -41,7 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DummySystem1Protocols\DummySystem1Protocols.csproj" />
     <ProjectReference Include="..\DMN_lib\DMN_lib.csproj" />
     <ProjectReference Include="..\StandaloneKestrel\StandaloneKestrel.csproj" />
   </ItemGroup>
