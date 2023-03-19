@@ -9,8 +9,141 @@ Service has some calls:
  - /health
  - /metrics
 
-Скрипт регистрируется в текущей Camunda. Ждет сообщения с тегом "LoginDB". Выполняет SQL по копированию данных из базы SRC в DST 
+Скрипт регистрируется в текущей Camunda. Ждет сообщения с тегом TOPIC="LoginDB". Выполняет SQLText по копированию данных из базы SRC в DST.
+На стороне DST возможно использование нескольких таблиц. В случае операции ExecSQL, используется идентификатор SRC базы.  
+## Переменные в процессе Camunda
+| NAME               | EXAMPLE   | POSSIBLE VALUES | DESCRIPTION                                                                                                                                                                                                                                                                                            |
+|--------------------|-----------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Oper               | None      | Refill          | сделать Truncate Target tables и только затем залить в неё данные                                                                                                                                                                                                                                      |
+|                    |           | Recreate        | пересоздать Target tables, если hash в MD_Camunda_Hash отличается                                                                                                                                                                                                                                      |
+|                    |           | ExecSQL         | Выполнить SQL на SName и вернуть результаты в виде JSON. Insert'ы делаются как обычно, вызов процедур делается в стиле ```select app_add_alert(jsonb_build_object('Stream',:expdate), jsonb_build_object('RexResult',:pan))```. Результат придет в Camunda Activities как ```{"Result": execresult}``` |
+| SName              | DummySystem3      | md.md_src.name  | md_src.name источника данных (из него возьмем SDriver, SDSN, SLogin, SPassword)                                                                                                                                                                                                                        |
+| TName              | DATAMART  | md.md_src.name  | md_src.name целевой БД (из него возьмем TDriver, TDSN, TLogin, TPassword)                                                                                                                                                                                                                              |
+| SQLTable           | см. далее | см. далее       | Target таблицы массив JSON. Порядок важен, относительно него заполняются таблицы, связанные ключами.                                                                                                                                                                                                   |
+| SQLText            | см. далее | см. далее       | SQL текст-выражение для выборки из источника или вызов функции через select                                                                                                                                                                                                                            |
+| Передача в процесс | см. далее | см. далее       | Динамическая передача параметров в процесс                                                                                                                                                                                                                                                             |
 
+## SQLTable
+```JSON
+[
+	{
+		"Table": "branch",
+		"Columns": [
+			{"ind": 20, "Name": "phone3", 		"Type": "VARCHAR"},
+			{"ind": 21, "Name": "phone2", 		"Type": "VARCHAR"},
+			{"ind": 22, "Name": "phone1", 		"Type": "VARCHAR"},
+			{"ind": 23, "Name": "address3",		"Type": "VARCHAR"},
+			{"ind": 24, "Name": "contactname2",	"Type": "VARCHAR"},
+			{"ind": 25, "Name": "contactname1",	"Type": "VARCHAR"},
+			{"ind": 26, "Name": "address2",		"Type": "VARCHAR"},
+			{"ind": 27, "Name": "address1",		"Type": "VARCHAR"},
+			{"ind": 28, "Name": "city",		"Type": "VARCHAR"},
+			{"ind": 29, "Name": "region",		"Type": "VARCHAR"},
+			{"ind": 30, "Name": "country",		"Type": "NUMBER"},
+			{"ind": 31, "Name": "title",		"Type": "VARCHAR"},
+			{"ind": 32, "Name": "institutionid",    "Type": "NUMBER"},
+			{"ind": 33, "Name": "externalid",	"Type": "VARCHAR"},
+			{"ind": 34, "Name": "contactname3",	"Type": "VARCHAR"}
+		],
+		"ExtIDs": [],
+		"Indexes": [
+			[22,23],
+			[18,19]
+		]
+	},
+	{
+		"Table": "customer",
+		"Columns": [
+			{"ind": 35, "Name": "status",		"Type": "NUMBER"},
+			{"ind": 36, "Name": "othernames",	"Type": "VARCHAR"},
+			{"ind": 37, "Name": "startdate",	"Type": "DATE"},
+			{"ind": 38, "Name": "institutionid",    "Type": "NUMBER"},
+			{"ind": 39, "Name": "branchid",		"Type": "NUMBER"},
+			{"ind": 40, "Name": "externalid",	"Type": "VARCHAR"},
+			{"ind": 41, "Name": "phone1",		"Type": "VARCHAR"},
+			{"ind": 42, "Name": "address1",		"Type": "VARCHAR"},
+			{"ind": 43, "Name": "city",		"Type": "VARCHAR"},
+			{"ind": 44, "Name": "country",		"Type": "NUMBER"},
+			{"ind": 45, "Name": "inn",		"Type": "VARCHAR"},
+			{"ind": 46, "Name": "gender",		"Type": "VARCHAR"},
+			{"ind": 47, "Name": "lastname",		"Type": "VARCHAR"},
+			{"ind": 48, "Name": "firstname",	"Type": "VARCHAR"},
+			{"ind": 49, "Name": "birthdate",	"Type": "DATE"},
+			{"ind": 50, "Name": "statustime",	"Type": "DATE"},
+			{"ind": 51, "Name": "email",		"Type": "VARCHAR"}
+		],
+		"ExtIDs": [
+			{"Column": "branchid",	"Table": "branch"}
+		],
+		"Indexes": []
+	},
+	{
+		"Table": "account",
+		"Columns": [
+			{"ind":  1, "Name": "statustime",	"Type": "DATE"},
+			{"ind":  2, "Name": "customerid",	"Type": "NUMBER"},
+			{"ind":  3, "Name": "orignumber",	"Type": "VARCHAR"},
+			{"ind":  4, "Name": "branchid",		"Type": "NUMBER"},
+			{"ind":  5, "Name": "externalid",	"Type": "VARCHAR"},
+			{"ind":  6, "Name": "currency",		"Type": "NUMBER"},
+			{"ind":  7, "Name": "closedate",	"Type": "DATE"},
+			{"ind":  8, "Name": "opendate",		"Type": "DATE"},
+			{"ind":  9, "Name": "status",		"Type": "NUMBER"},
+			{"ind": 11, "Name": "accountid",	"Type": "NUMBER"}
+		],
+		"ExtIDs": [
+			{"Column": "branchid",	"Table": "branch"},
+			{"Column": "customerid","Table": "customer"}
+		]
+	},
+	{
+		"Table": "card",
+		"Columns": [
+			{"ind": 10, "Name": "accountid",	"Type": "NUMBER"},
+			{"ind": 12, "Name": "closedate",	"Type": "DATE"},
+			{"ind": 13, "Name": "firstusedate",	"Type": "DATE"},
+			{"ind": 14, "Name": "statustime",	"Type": "DATE"},
+			{"ind": 15, "Name": "expirationdate",   "Type": "DATE"},
+			{"ind": 16, "Name": "mbr",		"Type": "NUMBER"},
+			{"ind": 17, "Name": "pan",		"Type": "VARCHAR"},
+			{"ind": 18, "Name": "status",		"Type": "NUMBER"},
+			{"ind": 19, "Name": "branchid",		"Type": "NUMBER"}
+		],
+		"ExtIDs": [
+			{"Column": "accountid",	"Table": "account"},
+			{"Column": "branchid",	"Table": "branch"}
+		]
+	}
+]
+```
+### SQLText
+```SQL
+select account.statustime statustime,account.customerid customerid,account.orignumber orignumber,account.branchid branchid,account.externalid externalid,account.currency currency,account.closedate closedate,account.opendate opendate,account.status status
+      ,account2card.accountid accountid,account2card.accountid accountid
+	  ,card.closedate closedate,card.firstusedate firstusedate,card.statustime statustime,card.expirationdate expirationdate,card.mbr mbr,card.pan pan,card.status status,card.branchid branchid
+	  ,branch.phone3 phone3,branch.phone2 phone2,branch.phone1 phone1,branch.address3 address3,branch.contactname2 contactname2,branch.contactname1 contactname1,branch.address2 address2,branch.address1 address1,branch.city city,branch.region region,branch.country country,branch.title title,branch.institutionid institutionid,branch.externalid externalid,branch.contactname3 contactname3
+	  ,customer.status status,customer.othernames othernames,customer.startdate startdate,customer.institutionid institutionid,customer.branchid branchid,customer.externalid externalid,customer.phone1 phone1,customer.address1 address1,customer.city city,customer.country country,customer.inn inn,customer.gender gender,customer.lastname lastname,customer.firstname firstname,customer.birthdate birthdate,customer.statustime statustime,customer.email email 
+ from account   
+ inner join   account2card  on (account.id=account2card.accountid)  
+ inner join   card  on (account2card.pan=card.pan AND account2card.mbr=card.mbr)  
+ inner join  branch  on (branch.id=card.branchid)  
+ inner join   customer  on (card.customerid=customer.id)  
+ where card.pan = :pan
+  AND card.expirationdate = TO_DATE (:expdate, 'DD.MM.YYYY')
+```
+### Передача в процесс
+```JSON
+{
+	"pan": {
+		"value": "676280519001970406",
+		"type": "String"
+	},
+	"expdate": {
+		"value": "01.06.2020",
+		"type": "String"
+	}
+}
+```
 ## Deployment
 ### Environments
 | ENV_NAME               | DEFAULT_VALUE                                  | POSSIBLE VALUES | IS NECCESARY | DEPENDENT VARIABLES | DESCRIPTION                                                                                                                                                                                                                                                                                                                                                               |
@@ -25,7 +158,7 @@ Service has some calls:
 | DBUSER                 | md                                             |                 | *            |                     | Логин сервисного подключения                                                                                                                                                                                                                                                                                                                                              |
 | DBPASSWORD             | xxx                                            |                 | *            |                     | Пароль сервисного подключения                                                                                                                                                                                                                                                                                                                                             |
 | DSN                    | master.pgsqlanomaly01.service.consul:5432/fpdb |                 | *            |                     | DSN сервисного подключения                                                                                                                                                                                                                                                                                                                                                |
-| CONSUL_ADDR            | 172.17.0.1                                     |                 | *            |                     | Внутренний адрес Consul                                                                                                                                                                                                                                                                                                                                                   |
+| CONSUL_ADDR            | 172.17.0.1                                     |                 | *            |                     | Внутренний адрес Consul (нужен только для DNS)                                                                                                                                                                                                                                                                                                                            |
 | TOPIC                  | LoginDB                                        |                 | *            |                     | Имя топика в Camunda                                                                                                                                                                                                                                                                                                                                                      |
 
 ### Ports

@@ -1,0 +1,12 @@
+select account.statustime statustime,account.customerid customerid,account.orignumber orignumber,account.branchid branchid,account.externalid externalid,account.currency currency,account.closedate closedate,account.opendate opendate,account.status status
+      ,account2card.accountid accountid,account2card.accountid accountid
+	  ,card.closedate closedate,card.firstusedate firstusedate,card.statustime statustime,card.expirationdate expirationdate,card.mbr mbr,card.pan pan,card.status status,card.branchid branchid
+	  ,branch.phone3 phone3,branch.phone2 phone2,branch.phone1 phone1,branch.address3 address3,branch.contactname2 contactname2,branch.contactname1 contactname1,branch.address2 address2,branch.address1 address1,branch.city city,branch.region region,branch.country country,branch.title title,branch.institutionid institutionid,branch.externalid externalid,branch.contactname3 contactname3
+	  ,customer.status status,customer.othernames othernames,customer.startdate startdate,customer.institutionid institutionid,customer.branchid branchid,customer.externalid externalid,customer.phone1 phone1,customer.address1 address1,customer.city city,customer.country country,customer.inn inn,customer.gender gender,customer.lastname lastname,customer.firstname firstname,customer.birthdate birthdate,customer.statustime statustime,customer.email email 
+ from account   
+ inner join   account2card  on (account.id=account2card.accountid)  
+ inner join   card  on (account2card.pan=card.pan AND account2card.mbr=card.mbr)  
+ inner join  branch  on (branch.id=card.branchid)  
+ inner join   customer  on (card.customerid=customer.id)  
+ where card.pan = :pan
+  AND card.expirationdate = TO_DATE (:expdate, 'DD.MM.YYYY')

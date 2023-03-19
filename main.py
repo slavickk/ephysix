@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-
 from camunda.external_task.external_task import ExternalTask, TaskResult
 from camunda.external_task.external_task_worker import ExternalTaskWorker
 from sqlalchemy import *
-#from sqlalchemy.schema import DropTable, CreateTable, CreateIndex
+from sqlalchemy.schema import DropTable, CreateTable, CreateIndex
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql.expression import func
 import json
 import hashlib
 import re
@@ -21,9 +22,7 @@ import dns.message
 import dns.query
 import dns.flags
 
-
-
-logger.info(f'Start service version=0.0.3 ({__name__})')
+logger.info(f'Start service version=0.0.4 ({__name__})')
 
 def getenv(cfg):
     cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else int(os.environ['MAX_TASKS'])
@@ -101,15 +100,60 @@ def web(h, st):
 def db2db(task: ExternalTask) -> TaskResult:
     """
     Основной процесс, который вызывается по каждому заданию с определенным топиком, подписка идет в main
+
+     Параметры Camunda task:
+     Oper      : Refill - сделать Truncate Target tables и только затем залить в неё данные
+                 Recreate - пересоздать Target tables, если hash в MD_Camunda_Hash отличается
+                 ExecSQL - Выполнить SQL на SName и вернуть результаты в виде JSON
+     SName     : md_src.name источника данных (из него возьмем SDriver, SDSN, SLogin, SPassword).
+                 Например: 'DummySystem3'
+     TName     : md_src.name целевой БД (из него возьмем TDriver, TDSN, TLogin, TPassword)
+                 Например: 'DATAMART'
+     SQLTable  : Target таблицы массив JSON. Порядок важен, относительно него заполняются таблицы, связанные ключами.
+                 Например: '[{"Table":"branch1","Columns":[{"ind":18,"Name":"phone3","Type":"VARCHAR"},{"ind":19,"Name":"phone2","Type":"VARCHAR"},{"ind":20,"Name":"phone1","Type":"VARCHAR"},{"ind":21,"Name":"address3","Type":"VARCHAR"},{"ind":22,"Name":"contactname2","Type":"VARCHAR"},{"ind":23,"Name":"contactname1","Type":"VARCHAR"},{"ind":24,"Name":"address2","Type":"VARCHAR"},{"ind":25,"Name":"address1","Type":"VARCHAR"},{"ind":26,"Name":"city","Type":"VARCHAR"},{"ind":27,"Name":"region","Type":"VARCHAR"},{"ind":28,"Name":"country","Type":"NUMBER"},{"ind":29,"Name":"title","Type":"VARCHAR"},{"ind":30,"Name":"institutionid","Type":"NUMBER"},{"ind":31,"Name":"externalid","Type":"VARCHAR"},{"ind":32,"Name":"contactname3","Type":"VARCHAR"}],"ExtIDs":[],"Indexes":[[22,23],[18,19]]},{"Table":"customer1","Columns":[{"ind":33,"Name":"status","Type":"NUMBER"},{"ind":34,"Name":"othernames","Type":"VARCHAR"},{"ind":35,"Name":"startdate","Type":"DATE"},{"ind":36,"Name":"institutionid","Type":"NUMBER"},{"ind":37,"Name":"branchid","Type":"NUMBER"},{"ind":38,"Name":"externalid","Type":"VARCHAR"},{"ind":39,"Name":"phone1","Type":"VARCHAR"},{"ind":40,"Name":"address1","Type":"VARCHAR"},{"ind":41,"Name":"city","Type":"VARCHAR"},{"ind":42,"Name":"country","Type":"NUMBER"},{"ind":43,"Name":"inn","Type":"VARCHAR"},{"ind":44,"Name":"gender","Type":"VARCHAR"},{"ind":45,"Name":"lastname","Type":"VARCHAR"},{"ind":46,"Name":"firstname","Type":"VARCHAR"},{"ind":47,"Name":"birthdate","Type":"DATE"},{"ind":48,"Name":"statustime","Type":"DATE"},{"ind":49,"Name":"email","Type":"VARCHAR"}],"ExtIDs":[{"Column":"branchid","Table":"branch1"}],"Indexes":[]},{"Table":"account1","Columns":[{"ind":1,"Name":"statustime","Type":"DATE"},{"ind":2,"Name":"customerid","Type":"NUMBER"},{"ind":3,"Name":"orignumber","Type":"VARCHAR"},{"ind":4,"Name":"branchid","Type":"NUMBER"},{"ind":5,"Name":"externalid","Type":"VARCHAR"},{"ind":6,"Name":"currency","Type":"NUMBER"},{"ind":7,"Name":"closedate","Type":"DATE"},{"ind":8,"Name":"opendate","Type":"DATE"},{"ind":9,"Name":"status","Type":"NUMBER"}],"ExtIDs":[{"Column":"branchid","Table":"branch1"},{"Column":"customerid","Table":"customer1"}]},{"Table":"card1","Columns":[{"ind":10,"Name":"closedate","Type":"DATE"},{"ind":11,"Name":"firstusedate","Type":"DATE"},{"ind":12,"Name":"statustime","Type":"DATE"},{"ind":13,"Name":"expirationdate","Type":"DATE"},{"ind":14,"Name":"mbr","Type":"NUMBER"},{"ind":15,"Name":"pan","Type":"VARCHAR"},{"ind":16,"Name":"status","Type":"NUMBER"},{"ind":17,"Name":"branchid","Type":"NUMBER"}],"ExtIDs":[{"Column":"accountid","Table":"account1"},{"Column":"branchid","Table":"branch1"}]}]'
+     SQLText   : SQL текст-выражение для выборки из источника.
+                 Например 'select card.pan pan,card.mbr mbr from card'
+     Переданные значения параметров: '{"VAR_pan":{"value":"4550000000000006","type":"String"},"VAR_ost":{"value":"03.06.2022 15:06:49","type":"String"},"VAR_num":{"value":546,"type":"Integer"},"VAR_db":{"value":"@1@","type":"String"}}'
     """
-    global engine_src, engine_ser, engine_dst
+    global engine_src, engine_ser, engine_dst, columns, table, indexes, insert, Oper
     # Не нашел как передать параметры в процедуру, заполняю cfg еще раз.
     cfg = {}
     cfg = getenv(cfg)
+    dtypes = {"NUMBER": Numeric, "NUMERIC": Numeric, "DECIMAL": Numeric, "SMALLINT": SmallInteger,
+              "INT": Integer, "INTEGER": Integer, "BIGINT": BigInteger, "BOOLEAN": Boolean,
+              "DATETIME": DateTime, "ENUM": Enum, "FLOAT": Float,
+              "REAL": Float, "INTERVAL": Interval, "UNICODE": Unicode, "CLOB": Text,
+              "TEXT": Text, "CHAR": String, "JSON": String, "NCHAR": String,
+              "NVARCHAR": String, "VARCHAR": String, "DATE": DateTime, "TIMESTAMP": DateTime,
+              "BLOB": LargeBinary, "BYTEA": LargeBinary
+              }
+
+    logger.debug(f'Process Instance ID = {task.get_process_instance_id()}')
+    logger.debug(f'Activity ID = {task.get_activity_id()}')
+
     try:
+        vars = task.get_variables()
+        SQLTable = str(vars['SQLTable'] or '{}')
+        SQLText = vars['SQLText']
+        Oper = vars['Oper']
+
+        # Connect к базе МетаДанных, собираем и забираем строки коннекта к источнику и к цели
         engine_ser = create_engine(cfg['DBDriver'] + '://'+cfg['DBUser']+':'+cfg['DBPassword']+'@'+cfg['DSN'])
         engine_ser.execution_options(stream_results=True)
-        vars = task.get_variables()
+
+        (dsn_src) = (engine_ser.execute(text("""
+            select d.driver||'://'||s.login||':'||s.pass||'@'||s.dsn from md_src s, md_src_driver d where s.driverid=d.driverid and s.name=:name
+            """),{"name": vars['SName']}).fetchone())[0]
+        engine_src = create_engine(dsn_src)
+        engine_src.execution_options(stream_results=True, isolation_level='AUTOCOMMIT')
+        # Для ExecSQL переменная TName не определена
+        if Oper != 'ExecSQL':
+            (dsn_dst) = (engine_ser.execute(text("""
+                select d.driver||'://'||s.login||':'||s.pass||'@'||s.dsn from md_src s, md_src_driver d where s.driverid=d.driverid and s.name=:name
+                """),{"name": vars['TName']}).fetchone())[0]
+            engine_dst = create_engine(dsn_dst)
+            engine_dst.execution_options(stream_results=True, isolation_level='AUTOCOMMIT')
+        # Обходим все входные переменные процесса и при обнаружении значения переменной '^@\d+@$' заменяем его значением из базы
         for i in vars:
             if not ((vars[i]) is None):
                 if re.search(r'^@\d+@$',str((vars[i]))):
@@ -117,10 +161,6 @@ def db2db(task: ExternalTask) -> TaskResult:
                     logger.debug(f'Search variable "{i}" in DB {id = }')
                     (vars[i]) = (engine_ser.execute(text("select val from MD_Camunda_CLOB where id=:id"), {"id": id}).fetchone())[0]
             logger.debug(f'Variable {i} = {(vars[i])}')
-        engine_src = create_engine(vars['SDriver'] + '://' + vars['SLogin'] + ':' + vars['SPassword'] + '@' + vars['SDSN'])
-        engine_dst = create_engine(vars['TDriver'] + '://' + vars['TLogin'] + ':' + vars['TPassword'] + '@' + vars['TDSN'])
-        engine_src.execution_options(stream_results=True)
-        engine_dst.execution_options(stream_results=True)
 
 # Если содержимое Camunda переменной соответствует шаблону '^\@\d+\@$', то его надо искать в базе src, в таблице MD_Camunda_CLOB, по идентификатору \d+
 # create table MD_Camunda_CLOB (
@@ -128,7 +168,7 @@ def db2db(task: ExternalTask) -> TaskResult:
 #       val text not null,
 #       constraint md_camunda_CLOB_pk primary key (id)
 # );
-# Каждый выполнявшийся запрос укладывается в базу под определенным HASH=hashlib.md5((SQLIndexes + SQLTable + SQLText + SQLColumns).encode()).hexdigest()
+# Каждый выполнявшийся запрос укладывается в базу под определенным HASH=hashlib.md5((SQLTable + SQLText ).encode()).hexdigest()
 # Требуется для определения "новых/измененных" запросов и перестройки таблиц в соответствии с этим
 #  create table MD_Camunda_Hash(
 #     key  varchar not null,
@@ -136,78 +176,121 @@ def db2db(task: ExternalTask) -> TaskResult:
 #     constraint md_camunda_hash_pk primary key(key)
 # );
 
-        dtypes = {"NUMBER"   : Numeric    , "NUMERIC" : Numeric    , "DECIMAL" : Numeric   , "SMALLINT" : SmallInteger,
-                  "INT"      : Integer    , "INTEGER" : Integer    , "BIGINT"  : BigInteger, "BOOLEAN"  : Boolean,
-                  "DATETIME" : DateTime   , "ENUM"    : Enum      , "FLOAT"    : Float   ,
-                  "REAL"     : Float      , "INTERVAL": Interval   , "UNICODE" : Unicode   , "CLOB"     : Text      ,
-                  "TEXT"     : Text       , "CHAR"    : String     , "JSON"    : String    , "NCHAR"    : String     ,
-                  "NVARCHAR" : String     , "VARCHAR" : String     , "DATE"    : DateTime  , "TIMESTAMP": DateTime,
-                  "BLOB"     : LargeBinary, "BYTEA"   : LargeBinary
-                 }
 
-        if vars['SQLIndexes']==None:
-            SQLIndexes = '{}'
-        else:
-            SQLIndexes = vars['SQLIndexes']
+        #vars['SQLTable']=[{"Table":"branch1","Columns":[{"ind":18,"Name":"phone3","Type":"VARCHAR"},{"ind":19,"Name":"phone2","Type":"VARCHAR"},{"ind":20,"Name":"phone1","Type":"VARCHAR"},{"ind":21,"Name":"address3","Type":"VARCHAR"},{"ind":22,"Name":"contactname2","Type":"VARCHAR"},{"ind":23,"Name":"contactname1","Type":"VARCHAR"},{"ind":24,"Name":"address2","Type":"VARCHAR"},{"ind":25,"Name":"address1","Type":"VARCHAR"},{"ind":26,"Name":"city","Type":"VARCHAR"},{"ind":27,"Name":"region","Type":"VARCHAR"},{"ind":28,"Name":"country","Type":"NUMBER"},{"ind":29,"Name":"title","Type":"VARCHAR"},{"ind":30,"Name":"institutionid","Type":"NUMBER"},{"ind":31,"Name":"externalid","Type":"VARCHAR"},{"ind":32,"Name":"contactname3","Type":"VARCHAR"}],"ExtIDs":[],"Indexes":[[22,23],[18,19]]},{"Table":"customer1","Columns":[{"ind":33,"Name":"status","Type":"NUMBER"},{"ind":34,"Name":"othernames","Type":"VARCHAR"},{"ind":35,"Name":"startdate","Type":"DATE"},{"ind":36,"Name":"institutionid","Type":"NUMBER"},{"ind":37,"Name":"branchid","Type":"NUMBER"},{"ind":38,"Name":"externalid","Type":"VARCHAR"},{"ind":39,"Name":"phone1","Type":"VARCHAR"},{"ind":40,"Name":"address1","Type":"VARCHAR"},{"ind":41,"Name":"city","Type":"VARCHAR"},{"ind":42,"Name":"country","Type":"NUMBER"},{"ind":43,"Name":"inn","Type":"VARCHAR"},{"ind":44,"Name":"gender","Type":"VARCHAR"},{"ind":45,"Name":"lastname","Type":"VARCHAR"},{"ind":46,"Name":"firstname","Type":"VARCHAR"},{"ind":47,"Name":"birthdate","Type":"DATE"},{"ind":48,"Name":"statustime","Type":"DATE"},{"ind":49,"Name":"email","Type":"VARCHAR"}],"ExtIDs":[{"Column":"branchid","Table":"branch1"}],"Indexes":[]},{"Table":"account1","Columns":[{"ind":1,"Name":"statustime","Type":"DATE"},{"ind":2,"Name":"customerid","Type":"NUMBER"},{"ind":3,"Name":"orignumber","Type":"VARCHAR"},{"ind":4,"Name":"branchid","Type":"NUMBER"},{"ind":5,"Name":"externalid","Type":"VARCHAR"},{"ind":6,"Name":"currency","Type":"NUMBER"},{"ind":7,"Name":"closedate","Type":"DATE"},{"ind":8,"Name":"opendate","Type":"DATE"},{"ind":9,"Name":"status","Type":"NUMBER"}],"ExtIDs":[{"Column":"branchid","Table":"branch1"},{"Column":"customerid","Table":"customer1"}]},{"Table":"card1","Columns":[{"ind":10,"Name":"closedate","Type":"DATE"},{"ind":11,"Name":"firstusedate","Type":"DATE"},{"ind":12,"Name":"statustime","Type":"DATE"},{"ind":13,"Name":"expirationdate","Type":"DATE"},{"ind":14,"Name":"mbr","Type":"NUMBER"},{"ind":15,"Name":"pan","Type":"VARCHAR"},{"ind":16,"Name":"status","Type":"NUMBER"},{"ind":17,"Name":"branchid","Type":"NUMBER"}],"ExtIDs":[{"Column":"accountid","Table":"account1"},{"Column":"branchid","Table":"branch1"}]}]
+        COLUMNS = {} #{'branch1': {18: {'phone3': 'VARCHAR'}, 19: {'phone2': 'VARCHAR'}, 20: {'phone1': 'VARCHAR'}, 21: {'address3': 'VARCHAR'}, 22: {'contactname2': 'VARCHAR'}, 23: {'contactname1': 'VARCHAR'}, 24: {'address2': 'VARCHAR'}, 25: {'address1': 'VARCHAR'}, 26: {'city': 'VARCHAR'}, 27: {'region': 'VARCHAR'}, 28: {'country': 'NUMBER'}, 29: {'title': 'VARCHAR'}, 30: {'institutionid': 'NUMBER'}, 31: {'externalid': 'VARCHAR'}, 32: {'contactname3': 'VARCHAR'}}, 'customer1': {33: {'status': 'NUMBER'}, 34: {'othernames': 'VARCHAR'}, 35: {'startdate': 'DATE'}, 36: {'institutionid': 'NUMBER'}, 37: {'branchid': 'NUMBER'}, 38: {'externalid': 'VARCHAR'}, 39: {'phone1': 'VARCHAR'}, 40: {'address1': 'VARCHAR'}, 41: {'city': 'VARCHAR'}, 42: {'country': 'NUMBER'}, 43: {'inn': 'VARCHAR'}, 44: {'gender': 'VARCHAR'}, 45: {'lastname': 'VARCHAR'}, 46: {'firstname': 'VARCHAR'}, 47: {'birthdate': 'DATE'}, 48: {'statustime': 'DATE'}, 49: {'email': 'VARCHAR'}}, 'account1': {1: {'statustime': 'DATE'}, 2: {'customerid': 'NUMBER'}, 3: {'orignumber': 'VARCHAR'}, 4: {'branchid': 'NUMBER'}, 5: {'externalid': 'VARCHAR'}, 6: {'currency': 'NUMBER'}, 7: {'closedate': 'DATE'}, 8: {'opendate': 'DATE'}, 9: {'status': 'NUMBER'}}, 'card1': {10: {'closedate': 'DATE'}, 11: {'firstusedate': 'DATE'}, 12: {'statustime': 'DATE'}, 13: {'expirationdate': 'DATE'}, 14: {'mbr': 'NUMBER'}, 15: {'pan': 'VARCHAR'}, 16: {'status': 'NUMBER'}, 17: {'branchid': 'NUMBER'}}}
+        EXTIDS = {}  #{'branch1': {}, 'customer1': {'branchid': 'branch1'}, 'account1': {'branchid': 'branch1', 'customerid': 'customer1'}, 'card1': {'accountid': 'account1', 'branchid': 'branch1'}}
+        INDEXES = {} #{'branch1': [[22, 23], [18, 19]], 'customer1': [], 'account1': [], 'card1': []}
+        TABKEY = {}
+        for row in json.loads(SQLTable):
+            COLUMNS[row['Table']] = {}
+            EXTIDS[row['Table']] = {}
+            INDEXES[row['Table']] = {}
+            TABKEY[row['Table']] = {}
+            for col in row['Columns']:
+                # Вырезаем поля с идентификатором как PK для данной таблицы
+                if col['Name']==row['Table']+'id':
+                    continue
+                COLUMNS[row['Table']][col['ind']] = {'Name': col['Name'], 'Type': col['Type']}
+                if col['Name']=='externalid':
+                    TABKEY[row['Table']]['externalid'] = ' on conflict (externalid) do update set externalid=excluded.externalid '
 
-        SQLParams = {}
-        if vars['SQLParams']!=None:
-            for j in (vars['SQLParams']).split(','):
-                SQLParams[j.strip()] = vars[j.strip()]
+            try:
+                for ext in row['ExtIDs']:
+                    EXTIDS[row['Table']][ext['Column']] = ext['Table']
+            except KeyError:
+                EXTIDS[row['Table']] = []
+
+            try:
+                INDEXES[row['Table']] = row['Indexes']
+            except KeyError:
+                INDEXES[row['Table']] = []
+
+        # Получаем список параметров (:bla_bla_123) из SQLText и сопоставляем со значениями параметрами, которые были переданы.
+        # Если в SQLText есть параметр, а значения для него нет - ошибка.
+        # Если в SQLText нет параметров, а значение есть для него нет - тогда ничего
+        SQLParams      = {}
+        param_pattern  = re.compile(r':\w+')
+        SQLText_params = param_pattern.findall(SQLText)
+        if SQLText_params:
+            for j in SQLText_params:
+                try:
+                    SQLParams[j[1:]] = vars[j[1:]]
+                except KeyError as ex:
+                    logger.error(f'SQLText params parse and matching error: {ex}')
         logger.debug(f'All SQLParams = {SQLParams}')
 
-        SQLTable   = vars['SQLTable']
-        SQLText    = vars['SQLText']
-        SQLColumns = vars['SQLColumns']
 
-        hash_ = hashlib.md5((SQLIndexes + SQLTable + SQLText + SQLColumns).encode()).hexdigest()
-        recreate_flag = engine_ser.execute(text(
+        hash_ = hashlib.md5((SQLTable + SQLText).encode()).hexdigest()
+        # Если HASH такого запроса в базе не обнаружен - выставляем флаг, что запрос изменился
+        logger.debug(f"Select Camunda_Hash: key={(SQLTable + cfg['TOPIC'])}, hash={hash_}")
+        norecreate_flag = engine_ser.execute(text(
                 "select 1 from MD_Camunda_Hash where key=:key and hash=:hash"
                 ), {"key": SQLTable + cfg['TOPIC'], "hash": hash_}).fetchone()
 
-        if vars['Oper'] == 'Refill':
+        if Oper == 'Refill':
             try:
                 logger.debug(f'Oper==Refill => truncate table {SQLTable}')
                 engine_dst.execute(text("truncate table "+SQLTable))
             except BaseException as ex:
                 logger.error(f'Exception truncate: {ex}')
-                recreate_flag = None
+                norecreate_flag = None
 
-        if recreate_flag is None:
-            # Если HASH такого запроса в базе не обнаружен - пересоздаем целевые таблицы
-            logger.debug(f'Recreate table {SQLTable}')
-            cols=[]
-            jcols=json.loads(SQLColumns)
-            for i in jcols:
-                cols.append(Column(i, dtypes[jcols[i]]))
-            idx_count=0
-            for i in json.loads(SQLIndexes):
-                idx_count += 1
-                idx = []
-                idx.append(f'{SQLTable}_{idx_count}')
-                for j in i.split(','):
-                    idx.append(j)
-                cols.append(Index(*idx))
-            sql_meta = MetaData(engine_dst)
-            table = Table(SQLTable, sql_meta, *cols)
-            engine_dst.execute('drop table if exists {}'.format(SQLTable))
-            sql_meta.create_all()
-#            table_creation_sql = CreateTable(table)
-#            engine_dst.execute(table_creation_sql)
-            engine_ser.execute(text(
-                "insert into MD_Camunda_Hash (key, hash) values(:key, :hash) on conflict (key) do update set hash=:hash"
-                 ), {"key": SQLTable + cfg['TOPIC'], "hash": hash_})
+        if norecreate_flag is None and Oper == 'Recreate':
+            # Если запрос изменился и Выставлена операция на разрешение пересоздания таблицы - пересоздаем целевые таблицы
+            logger.debug(f'Recreate tables: {SQLTable}')
+            for table in COLUMNS:
+                logger.debug(f'For table: {table}')
+                # cols = []
+                # Первая колонка автоматически создаваемой таблицы должна иметь имя {table}+id и тип BIGINT
+                cols = [Column(table + 'id', dtypes["BIGINT"], primary_key=True, server_default=text("nextval('dm.dm_seq')"))]
+                for colind in COLUMNS[table]:
+                    logger.debug(f"Add column (colind): {COLUMNS[table][colind]['Name']}  {dtypes[COLUMNS[table][colind]['Type']]}")
+                    if COLUMNS[table][colind]['Name'] == 'externalid':
+                        cols.append(Column(COLUMNS[table][colind]['Name'], dtypes[COLUMNS[table][colind]['Type']], unique=True))
+                    else:
+                        cols.append(Column(COLUMNS[table][colind]['Name'], dtypes[COLUMNS[table][colind]['Type']]))
+                # Если есть индексы - создаем их
+                if INDEXES[table]:
+                    idx_count = 0
+                    for idxind in INDEXES[table]:  # [[14, 16],[18, 19]]
+                        idx_count += 1
+                        idx = []
+                        idx.append(f'{table}_{idx_count}')
+                        for colind in idxind:
+                            idx.append(COLUMNS[table][colind]['Name'])
+                        logger.debug(f'Add Index: {idx}')
+                        cols.append(Index(*idx))
 
-        ins=''
-        val=''
-        for c in json.loads(SQLColumns):
-            ins += c + ','
-            val += ':' + c + ','
-        ins = ins[:-1]
-        val = val[:-1]
-        insert = f'insert into {SQLTable} ({ins}) values({val})'
-        logger.debug(f'Insert: {insert}')
-        result = engine_src.execute(text(SQLText), SQLParams)
+                sql_meta = MetaData(engine_dst)
+                tab = Table(table, sql_meta, *cols)
+                engine_dst.execute('drop table if exists {}'.format(table))
+                sql_meta.create_all()
+                table_creation_sql = CreateTable(tab)
+                logger.debug(f'Create table SQL: {table_creation_sql}')
+                #            engine_dst.execute(table_creation_sql)
+                logger.debug(f"Insert Camunda_Hash: key={(SQLTable + cfg['TOPIC'])}, hash={hash_}")
+                engine_ser.execute(text(
+                    "insert into MD_Camunda_Hash (key, hash) values(:key, :hash) on conflict (key) do update set hash=:hash"
+                ), {"key": SQLTable + cfg['TOPIC'], "hash": hash_})
+
+# Сформировать следующий SQL
+# insert into {table}({ins}) values({val}) on conflict do nothing return {table}+id
+#   INSERT INTO dm.account1 (statustime, customerid, orignumber, branchid, externalid, currency, closedate, opendate, status)
+#       VALUES (1, 1, '111', 1, 12, 123, '2023-03-12 16:01:04.000000', '2023-03-12 16:01:09.000000', 1)
+#       on conflict (externalid) do update set externalid=excluded.externalid returning account1id into id_;
+
+        if Oper == 'ExecSQL':
+            logger.debug(f'Start ExecSQL')
+            with engine_src.begin() as conn:
+                result = conn.execute(text(SQLText), SQLParams)
+            execresult = json.dumps([dict(r) for r in result])
+            logger.debug(f'ExecSQL Result: {execresult}')
+            return task.complete({"Result": execresult})
+        else:
+            logger.debug(f'Start Inserts')
+            result = engine_src.execute(text(SQLText), SQLParams)
+
         count = 0
         errors = 0
         while True:
@@ -215,16 +298,58 @@ def db2db(task: ExternalTask) -> TaskResult:
             if not chunk:
                 break
             for src in chunk:
+                # LegacyRow: (datetime.datetime(2021, 12, 2, 17, 34, 39), 61, None, 1, 'MEGA~410810002', 840, None, None, 1, datetime.datetime(2021, 7, 27, 0, 0), datetime.datetime(2020, 6, 1, 0, 0), 2, '676280519001970406', None, None, None, None, None, None, None, None, 'sdf', None, 50, 'MEGA_Branch', 1, None, 'Igorevich', None, None, None, 'Mironec', 'Igor', None, 'twa@mailtest, igor@mail.hru')
+                logger.debug(f'Source: {src}')
                 count+=1
-                params = {}
-                for i in range(len(src)):
-                    params[src._fields[i]] = src[i]
-                example=json.dumps(params, ensure_ascii=False, default=str)
-                logger.debug(f'insert value: {example}')
-                try:
-                    engine_dst.execute(text(insert), params)
-                except:
-                    errors+=1
+                TABID = {}
+                for table in COLUMNS:
+                    ins = ''
+                    val = ''
+                    params = {}
+                    for colind in COLUMNS[table]:
+                        ins += COLUMNS[table][colind]['Name'] + ','
+                        val += ':' + COLUMNS[table][colind]['Name'] + ','
+                        try:
+                            # Если нужна подстановка значения ColumntID из ранее вставленной записи, берем это значение из TABID[table]
+                            params[COLUMNS[table][colind]['Name']] = TABID[EXTIDS[table][COLUMNS[table][colind]['Name']]]
+                        except KeyError:
+                            params[COLUMNS[table][colind]['Name']] = src[colind-1]
+                    ins = ins[:-1]
+                    val = val[:-1]
+                    # insert = f"insert into {table} ({ins}) values({val}) on conflict (externalid) do update set externalid=excluded.externalid returning {table}id"
+                    try:
+                        insert = f"insert into {table} ({ins}) values({val}) {TABKEY[table]['externalid']} returning {table}id"
+                    except:
+                        insert = f"insert into {table} ({ins}) values({val}) returning {table}id"
+                    logger.debug(f'Insert: {insert}')
+                    try:
+                        result_dst = engine_dst.execute(text(insert), params)
+                        result_id = (result_dst.fetchone())[0]
+                    except IntegrityError as ie:
+                        logger.debug(f'Insert Error: {ie}')
+                        err = ie.args[0]
+                        # Если не заполнен справочник верхнего уровня - берем следующую строку
+                        if re.search(r'violates foreign key constraint', err):
+                            logger.error(f'Foreign Key for table {table} is not found: {err}')
+                            errors += 1
+                            break
+                        # Если наткнулись на уникальность по какому-то другому ключу, делаем фиктивный инсерт для получения ID этой записи
+                        pattern = r'DETAIL:  Key ([^\)]*\))'
+                        constraint = (re.findall(pattern, err, re.MULTILINE))[0]
+                        def rep(obj):
+                            return f'excluded.{obj.group(0)}'
+                        excluded = re.sub(r'(\w+)', rep, constraint)
+                        insert = f"insert into {table} ({ins}) values({val}) on conflict {constraint} do update set {constraint}={excluded} returning {table}id"
+                        logger.debug(f'Insert NEW: {insert}')
+                        try:
+                            result_dst = engine_dst.execute(text(insert), params)
+                            result_id = (result_dst.fetchone())[0]
+                        except:
+                            errors += 1
+                            result_id = None
+                    TABID[table] = result_id
+                    logger.debug(f"Returning {table}ID={TABID[table]}")
+
     except BaseException as ex:
         logger.error(f'Exception: {ex}')
 #        return task.bpmn_error(error_code="BPMN_ERROR_CODE", error_message="BPMN Vsio Herovo",variables={"var1": "value1", "success": False})
@@ -232,8 +357,9 @@ def db2db(task: ExternalTask) -> TaskResult:
     finally:
         if engine_src:
             engine_src.dispose()
-        if engine_dst:
-            engine_dst.dispose()
+        if Oper != 'ExecSQL':
+            if engine_dst:
+                engine_dst.dispose()
         if engine_ser:
             engine_ser.dispose()
     logger.info(f'Task completed: Count={count}, Errors={errors}')
