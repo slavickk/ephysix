@@ -33,13 +33,13 @@ namespace ParserLibrary
         {
             server = new KestrelServer(this);
         }
-        public override async Task startInternal()
+        protected override async Task startInternal()
         {
             await server.Start(port,1000);
            // return base.startInternal();
         }
         //namespace Kestrel;
-        public override async Task sendResponseInternal(string response, object context)
+        protected override async Task sendResponseInternal(string response, object context)
         {
             if (debugMode)
             {

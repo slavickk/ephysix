@@ -21,6 +21,8 @@ using YamlDotNet.Core.Events;
 using YamlDotNet.Core;
 using System.Net;
 using System.Net.Sockets;
+using ETL_DB_Interface;
+using CamundaInterface;
 
 namespace TestJsonRazbor
 {
@@ -169,14 +171,17 @@ namespace TestJsonRazbor
                 }
             }
         }
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
+            GenerateStatement.camundaAddr = Resolver.ResolveConsulAddr("Camunda");
+
             Step.Test();
 //            Pipeline
 //            var pip=Pipeline.load(@"C:\Users\User\Documents\model.yml");
             Pipeline pip = new Pipeline();
             pip.steps.First().sender = new HTTPSender();
             pip.Save(@"C:\Users\User\Documents\aa3.yml");
+ 
 /*            var pip2 = Pipeline.load();// (@"C:\D\aa1.yml");
             var pip1 = new Pipeline();
             pip1.Save();*/

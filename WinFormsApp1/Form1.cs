@@ -33,7 +33,7 @@ namespace WinFormsApp1
            // this.webView21.Source = new Uri(Path.GetFullPath(@"HTML/testInteractive.html"));
 //            this.pictureBox1.Image = GraphvizTest.toGraphviz(body);
             runner =CamundaExecutor.runCycle();
-
+            await GenerateStatement.SendTest();
             conn = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
             conn.Open();
             tableViewControl1.OnTableDoubleClicked += TableViewControl1_OnTableDoubleClicked;
@@ -101,13 +101,23 @@ namespace WinFormsApp1
         {
             comboBox1.Items.Clear();
             var findString = textBox1.Text;
-            List<ETL_Package.ItemColumn> list = await DBInterface.GetColumnsForPattern(conn,findString);
+            List<ETL_Package.ItemColumn> list;
+            if (!checkBoxFindTable.Checked)
+                list = await DBInterface.GetColumnsForPattern(conn,findString);
+            else
+                list = await DBInterface.GetColumnsForTablePattern(conn, findString);
+
             comboBox1.Items.AddRange(list.ToArray());
         }
 
   
         private async void button2_Click(object sender, EventArgs e)
         {
+            if (package.OutputTables.Count == 0)
+            {
+                MessageBox.Show("No output table enter!");
+                return;
+            }
             var cols = comboBox1.SelectedItem as ETL_Package.ItemColumn;
             bool isNew;
             var table = getTable(out isNew, textBoxTableName.Text, textBoxTableAlias.Text, cols.table.table_id);
@@ -174,14 +184,36 @@ namespace WinFormsApp1
                         else
                         {
                             if (cols.table.table_id != item.itemId)
+                            {
+
+                                string tName = await GetNodeName(item.itemId);
+                                bool found = false;
+                                var destTable = getTable(await GetNodeName(item.itemId), "", item.itemId);
+
+                                foreach (var item1 in package.OutputTables)
+                                {
+                                    List<string> columnsOutput = package.selectedFields.Where(ii => ii.outputTable == item1).Select(ii => ii.sourceColumn.alias).ToList();
+                                    var items1 = await DBInterface.getSrcForTable(conn, item1, package.ETL_dest_id, (int)(package.allTables.First().src_id), tName);
+                                    foreach(var iti in items1.First().columns.Where(ii=>!columnsOutput.Contains(ii.dest_col_name)))
+                                    {
+                                        found = true;
+                                        package.selectedFields.Add(new ETL_Package.ItemSelectedList()
+                                        { outputTable=item1, sourceColumn = new ETL_Package.ItemColumn() { col_id = iti.source_col_id, col_name = iti.source_col_name, alias= iti.dest_col_name, table = destTable, } });
+
+                                    }
+                                }
+
                                 // add relation
+                                if(!found)
                                 package.selectedFields.Add(new ETL_Package.ItemSelectedList()
-                                { sourceColumn = new ETL_Package.ItemColumn() { col_id = -1, col_name = "", table =getTable(await GetNodeName(item.itemId),"", item.itemId)/* new ETL_Package.ItemTable() { alias = "", table_id = item.itemId, table_name = await GetNodeName(item.itemId) }*/ } });
+                                { sourceColumn = new ETL_Package.ItemColumn() { col_id = -1, col_name = "", table = destTable } });
+
+                            }
                             else
                                 //add new fileld in new table
                                 package.selectedFields.Add(new ETL_Package.ItemSelectedList()
                                 {
-                                    sourceColumn =new ETL_Package.ItemColumn() { table = getTable(cols.table.table_name, cols.table.alias, cols.table.table_id), alias =cols.alias/* textBoxColumnAlias.Text*/, col_name =cols.col_name/* textBoxFieldName.Text*/ }
+                                    sourceColumn = new ETL_Package.ItemColumn() { table = getTable(cols.table.table_name, cols.table.alias, cols.table.table_id), alias = cols.alias/* textBoxColumnAlias.Text*/, col_name = cols.col_name/* textBoxFieldName.Text*/ }
                                     ,
                                     outputTable = newTableName
                                 });
@@ -379,7 +411,7 @@ namespace WinFormsApp1
                     package.OutputTables=frm.OutputTableName.ToList();
                     foreach(var item in diff ) 
                     {
-                        var items=await DBInterface.getSrcForTable(conn, item, package.ETL_dest_id,src_id);
+                        var items=await DBInterface.getSrcForTable(conn, item, package.ETL_dest_id,src_id,item);
                         string lastTableName = "";
                         foreach (var it1 in items)
                         {

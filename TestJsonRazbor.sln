@@ -43,13 +43,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiCamundaExecutors", "W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphVizWrapper", "GraphVizWrapper\GraphVizWrapper.csproj", "{CFEC60DC-14E0-47E4-A60E-8919FB5FEF5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorAppCreateETL.Server", "BlazorAppCreateETL\Server\BlazorAppCreateETL.Server.csproj", "{F58E1599-6DB0-43CF-9D0F-54147E854AEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorAppCreateETL.Server", "BlazorAppCreateETL\Server\BlazorAppCreateETL.Server.csproj", "{F58E1599-6DB0-43CF-9D0F-54147E854AEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorAppCreateETL.Client", "BlazorAppCreateETL\Client\BlazorAppCreateETL.Client.csproj", "{460688F2-7746-4B12-9129-39E0B050B4C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorAppCreateETL.Client", "BlazorAppCreateETL\Client\BlazorAppCreateETL.Client.csproj", "{460688F2-7746-4B12-9129-39E0B050B4C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorAppCreateETL.Shared", "BlazorAppCreateETL\Shared\BlazorAppCreateETL.Shared.csproj", "{8D442154-6667-42BA-AD34-BECCD3032144}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorAppCreateETL.Shared", "BlazorAppCreateETL\Shared\BlazorAppCreateETL.Shared.csproj", "{8D442154-6667-42BA-AD34-BECCD3032144}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETL_DB_Interface", "ETL_DB_Interface\ETL_DB_Interface.csproj", "{EDE9E80F-FDBC-4CBB-810E-9F5E5A5EA7E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ETL_DB_Interface", "ETL_DB_Interface\ETL_DB_Interface.csproj", "{EDE9E80F-FDBC-4CBB-810E-9F5E5A5EA7E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins", "Plugins\Plugins.csproj", "{A7129F53-2E97-4194-B0A8-739E564C544E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,6 +155,10 @@ Global
 		{EDE9E80F-FDBC-4CBB-810E-9F5E5A5EA7E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDE9E80F-FDBC-4CBB-810E-9F5E5A5EA7E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDE9E80F-FDBC-4CBB-810E-9F5E5A5EA7E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7129F53-2E97-4194-B0A8-739E564C544E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7129F53-2E97-4194-B0A8-739E564C544E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7129F53-2E97-4194-B0A8-739E564C544E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7129F53-2E97-4194-B0A8-739E564C544E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

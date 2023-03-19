@@ -94,7 +94,7 @@ namespace CamundaInterface
             {
                 try
                 {
-                    await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler" });
+                    await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler", "to_exec_proc" });
                 }
                 catch (Exception e)
                 {
@@ -109,6 +109,7 @@ namespace CamundaInterface
             if (string.IsNullOrEmpty(camundaPath))
             {
                 var addr = Resolver.ResolveConsulAddr("Camunda");
+//                addr = "localhost:8080";
                 camundaPath = $"http://{addr}/engine-rest/";
             }
             ExternalTaskAnswer it1 = null;
@@ -172,6 +173,32 @@ namespace CamundaInterface
                                                                 { 
                                                                     Log.Error(e77.ToString()); 
                                                                 }*/
+                                dictOutput.Add("All", new CamundaCompleteItem.Variable() { value = itog.all });
+                                dictOutput.Add("Errors", new CamundaCompleteItem.Variable() { value = itog.errors });
+                            }
+                            if (item.topicName == "to_exec_proc")
+                            {
+                                Log.Information("Send to exec proc");
+
+
+                                var params1=item.variables["ProcJson"].value;
+                                var connString= item.variables["connectionString"].value;
+                                SendToRefDataLoader.ExportItem itog = new SendToRefDataLoader.ExportItem();
+                                itog=await ExecProcExecutor.execRequestProcedure(client);
+                                /*   try
+                                   {*/
+                                /*var itog = await SendToRefDataLoader.putRequestToRefDataLoader(client, item.processDefinitionId + ":" + item.topicName
+                                     , item.variables["ConnSelect"].value.ToString(), item.variables["ConnAdm"].value.ToString(), item.variables["DictName"].value.ToString(), "TEST", item.variables["SQLText"].value.ToString()
+                                     , Convert.ToInt32(item.variables["MaxRecords"].value.ToString()), item.variables["DictAddr"].value.ToString(), item.variables["SensitiveData"].value.ToString(), Convert.ToInt32(item.variables["CountInKey"]?.value));
+                                */
+                                Log.Information("Send to dict end");
+                                /*                                } 
+                                                                catch(Exception e77)
+                                                                { 
+                                                                    Log.Error(e77.ToString()); 
+                                                                }*/
+                                itog.all = 1;
+                                itog.errors = 0;
                                 dictOutput.Add("All", new CamundaCompleteItem.Variable() { value = itog.all });
                                 dictOutput.Add("Errors", new CamundaCompleteItem.Variable() { value = itog.errors });
                             }

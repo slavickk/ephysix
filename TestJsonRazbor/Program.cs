@@ -20,6 +20,7 @@ namespace TestJsonRazbor
         {
             if(args.Length >0)
                 ExecutedPath = args[0];
+            var assm=ParserLibrary.PluginsInterface.loadPlugins(new string[] { @"C:\Users\User\source\repos\projectx\Plugins\bin\Debug\net6.0\CCFAProtocols.dll" , @"C:\Users\User\source\repos\projectx\Plugins\bin\Debug\net6.0\UAMP.dll",  @"C:\Users\User\source\repos\projectx\Plugins\bin\Debug\net6.0\Plugins.dll" });
             /*object s = "2.2";
             var t= double.Parse((s as string).Replace(".",","));
             */

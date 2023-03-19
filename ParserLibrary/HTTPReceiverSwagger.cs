@@ -118,7 +118,7 @@ namespace ParserLibrary
                 });
         }
 
-        public override async Task startInternal()
+        protected override async Task startInternal()
         {
             // Finish the host configuration
             Logger.log("HTTPReceiverSwagger: finish building the host");
@@ -183,7 +183,7 @@ namespace ParserLibrary
             await host.RunAsync();
         }
 
-        public override async Task sendResponseInternal(string response, object context)
+        protected override async Task sendResponseInternal(string response, object context)
         {
             if (debugMode)
             {

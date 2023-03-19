@@ -237,7 +237,7 @@ where nt.nodeid=@id and nc.isdeleted=false
         }
 
         
-        public static async Task<List<SourceTableItem>> getSrcForTable(NpgsqlConnection conn, string tableName,int dest_id,int src_id)
+        public static async Task<List<SourceTableItem>> getSrcForTable(NpgsqlConnection conn, string tableName,int dest_id,int src_id,string srcTableNameOrig)
         {
             List<SourceTableItem> retValue = new List<SourceTableItem>();
             await using (var cmd = new NpgsqlCommand(@"
@@ -249,13 +249,14 @@ inner join md_node nt on (l2.toid=nt.nodeid )
 inner join md_node snode on (snode.synonym = c.synonym and snode.srcid=@srcid)
 inner join md_arc l1 on (l1.fromid = snode.nodeid and l1.typeid=md_get_type('Column2Table'))
 inner join md_node t1 on (l1.toid=t1.nodeid)
-where c.srcid=@destid and nt.name=@tablename
+where c.srcid=@destid and nt.name=@tablename and t1.name=@srctablename
 order by t1.nodeid
  ", conn))
             {
                 cmd.Parameters.AddWithValue("@srcid", src_id);
                 cmd.Parameters.AddWithValue("@destid", dest_id);
                 cmd.Parameters.AddWithValue("@tablename", tableName);
+                cmd.Parameters.AddWithValue("@srctablename", srcTableNameOrig);
                 long lastId = -1;
                 await using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -334,6 +335,27 @@ inner join md_src s on (nt.srcid=s.srcid)
 
 
 where nc.name like '%" + findString + "%' and nc.isdeleted=false", conn))
+            await using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    list.Add(new ETL_Package.ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), scema = reader.GetString(4) } });
+                }
+            }
+
+            return list;
+        }
+        public static async Task<List<ETL_Package.ItemColumn>> GetColumnsForTablePattern(NpgsqlConnection conn, string findString)
+        {
+            List<ETL_Package.ItemColumn> list = new List<ETL_Package.ItemColumn>();
+            await using (var cmd = new NpgsqlCommand(@"select nc.name colname,nc.nodeid colid,nt.name tablename,nt.nodeid tableid,s.name from MD_node nc 
+inner join MD_type tc on nc.typeid = tc.typeid and tc.key = 'Column'
+inner join MD_arc ac on (ac.fromid = nc.nodeid  and ac.isdeleted=false)
+inner join md_Node nt on ac.toid = nt.nodeid  and nt.typeid = 1 and nt.isdeleted=false
+inner join md_src s on (nt.srcid=s.srcid)
+
+
+where nt.name like '%" + findString + "%' and nc.isdeleted=false", conn))
             await using (var reader = await cmd.ExecuteReaderAsync())
             {
                 while (await reader.ReadAsync())

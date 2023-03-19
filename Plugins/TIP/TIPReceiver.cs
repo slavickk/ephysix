@@ -99,7 +99,7 @@ namespace ParserLibrary.TIP
         /// <summary>
         /// Start watcher
         /// </summary>
-        public override async Task startInternal()
+        protected override async Task startInternal()
         {
             WorkDir = tracking_dir;
             Directory.CreateDirectory(upload_dir);

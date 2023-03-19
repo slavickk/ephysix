@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WinFormsETLPackagedCreator": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "CAMUNDA_ADDR": "192.168.75.217:23536"
+      }
+    }
+  }
+}

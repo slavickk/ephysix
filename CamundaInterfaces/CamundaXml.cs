@@ -70,21 +70,27 @@ namespace CamundaInterfaces
                 public string Name { get; set; }
                 public List<string> listValues = null;
                 public string Value = "";
-                public Parameter(string name, List<string> listValues)
+                public string description;
+                public Parameter(string name, List<string> listValues, string description="")
                 {
                     Name = name;
                     this.listValues = listValues;
+                    this.description = description;
                 }
-                public Parameter(string name, string value)
+                public Parameter(string name, string value, string description = "")
                 {
                     Name = name;
                     Value = value;
+                    this.description = description;
                 }
             }
             public List<Parameter> parameters { get; set; } = new List<Parameter>() { new Parameter("PAN","457"), new Parameter("Val",new List<string>() { "aa","bb"})};
             public string id;
             public string name;
             public string topic="PythonExporter";
+            public string description;
+            public string author;
+            public string service_location;
         }
 
 
