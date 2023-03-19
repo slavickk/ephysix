@@ -1889,7 +1889,7 @@ where a.fromid = @id  and a.isdeleted=false";
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLTable", JsonSerializer.Serialize<List<JsonItem>>( await getJsonDefs(conn,columnList,dest_id) /*this.outputPath*/)));
 //                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLParams", ""));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLText", sqlExec));
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Oper", ""));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Oper", "None"));
  //                   retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLIndexes", indexesDescription()));
 //                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLColumns", columnsDescription(columnList)));
  //                   retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLParams", String.Join(", ",variables.Select(ii=>ii.Name))));
@@ -2033,7 +2033,7 @@ and b.srcid=@id
                         retValue.login = reader.GetString(2);
                         retValue.password = reader.GetString(3);
                         retValue.description = reader.GetString(4);
-                        retValue.name = reader.GetString(5);
+                        retValue.name = reader.GetString(6);
                     }
                 }
 
