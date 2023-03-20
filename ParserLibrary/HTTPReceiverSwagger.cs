@@ -27,6 +27,8 @@ using NSwag.CodeGeneration.CSharp;
 using Serilog.Events;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ParserLibrary
 {
@@ -55,6 +57,11 @@ namespace ParserLibrary
         /// When omitted, Kestrel is not configured to use HTTPS.
         /// </summary>
         public string certSubject;
+        
+        /// <summary>
+        /// JWT issuer signing key that the server uses to verify the JWT token.
+        /// </summary>
+        public string jwtIssueSigningKey;
 
         IHostBuilder _hostBuilder;
         
@@ -112,7 +119,12 @@ namespace ParserLibrary
                                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Integration Utility v1");
                             });
                             app.UseRouting();
-                            app.UseEndpoints(ep => ep.MapControllers());
+                            if (jwtIssueSigningKey != null)
+                            {
+                                app.UseAuthentication();
+                                app.UseAuthorization();
+                            }
+                            app.UseEndpoints(ep => ep.MapControllers().RequireAuthorization());
                         });
 
                 });
@@ -176,6 +188,25 @@ namespace ParserLibrary
                     
                     // Register the RequestHandler in the service container
                     services.AddSingleton(requestHandler);
+                    
+                    // Configure JWT validation if jwtIssueSigningKey is provided
+                    if (jwtIssueSigningKey != null)
+                    {
+                        Logger.log("HTTPReceiverSwagger: jwtIssueSigningKey is given in pipeline definition, configuring JWT validation.");
+                        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                            .AddJwtBearer(options =>
+                            {
+                                options.TokenValidationParameters = new TokenValidationParameters
+                                {
+                                    ValidateAudience = false,
+                                    ValidateIssuer = false,  // but the signature is still validated
+                                    ValidateIssuerSigningKey = true,
+                                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtIssueSigningKey))
+                                };
+                            });
+                    }
+                    else
+                        Logger.log("HTTPReceiverSwagger: Not using JWT validation because jwtIssueSigningKey has not been given in pipeline definition.");
                 });
             }).Build();
 
