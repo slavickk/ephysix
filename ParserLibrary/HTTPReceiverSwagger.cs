@@ -69,25 +69,16 @@ namespace ParserLibrary
         
         private X509Certificate2 FindMatchingCertificateBySubject(string subjectCommonName)
         {
-            // This is a bit reworked copy of the example from
-            // https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-tutorial-dotnet-app-enable-https-endpoint
+            // Find the signing certificate by common name in the local certificate store
             using var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-            
             store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
+            var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, subjectCommonName, false);
+            
+            // Ensure we have found exactly one certificate
+            if (certificates.Count != 1)
+                throw new Exception($"Found {certificates.Count} certificates with subject 'CN={subjectCommonName}'. Expected exactly one.");
 
-            // TODO: clarify the order in which the certificates are enumerated;
-            // if it is not deterministic, consider sorting the certificates by expiration date.
-            foreach (var cert in store.Certificates)
-            {
-                if (StringComparer.OrdinalIgnoreCase.Equals(subjectCommonName, cert.GetNameInfo(X509NameType.SimpleName, forIssuer: false))
-                    && DateTime.Now < cert.NotAfter
-                    && DateTime.Now >= cert.NotBefore)
-                {
-                    return cert;
-                }
-            }
-
-            throw new Exception($"Could not find a match for a certificate with subject 'CN={subjectCommonName}'.");
+            return certificates[0];
         }
         
         public HTTPReceiverSwagger()
