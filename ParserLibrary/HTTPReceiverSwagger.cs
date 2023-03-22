@@ -59,9 +59,9 @@ namespace ParserLibrary
         public string certSubject;
         
         /// <summary>
-        /// JWT issuer signing key that the server uses to verify the JWT token.
+        /// JWT issuer signing certificate subject name that the server uses to verify the JWT token.
         /// </summary>
-        public string jwtIssueSigningKey;
+        public string jwtIssueSigningCertSubject;
 
         IHostBuilder _hostBuilder;
         
@@ -119,7 +119,7 @@ namespace ParserLibrary
                                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Integration Utility v1");
                             });
                             app.UseRouting();
-                            if (jwtIssueSigningKey != null)
+                            if (jwtIssueSigningCertSubject != null)
                             {
                                 app.UseAuthentication();
                                 app.UseAuthorization();
@@ -190,7 +190,7 @@ namespace ParserLibrary
                     services.AddSingleton(requestHandler);
                     
                     // Configure JWT validation if jwtIssueSigningKey is provided
-                    if (jwtIssueSigningKey != null)
+                    if (jwtIssueSigningCertSubject != null)
                     {
                         Logger.log("HTTPReceiverSwagger: jwtIssueSigningKey is given in pipeline definition, configuring JWT validation.");
                         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -201,7 +201,7 @@ namespace ParserLibrary
                                     ValidateAudience = false,
                                     ValidateIssuer = false,  // but the signature is still validated
                                     ValidateIssuerSigningKey = true,
-                                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtIssueSigningKey))
+                                    IssuerSigningKey = new X509SecurityKey(FindMatchingCertificateBySubject(jwtIssueSigningCertSubject))
                                 };
                             });
                     }
