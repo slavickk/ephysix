@@ -1,6 +1,9 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
@@ -17,8 +20,9 @@ public class JWTTests
     [Test]
     public void GenerateToken()
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("1234123412341234"));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        // The sample self-signed-jwt-cert.p12 is generated below using GenerateSelfSignedCertificate()
+        var key = new X509SecurityKey(new X509Certificate2("self-signed-jwt-cert.p12", "qwerty"));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256Signature);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[] { new Claim("sub", "slavickk") }),
@@ -30,5 +34,41 @@ public class JWTTests
         var token = handler.CreateToken(tokenDescriptor);
 
         Console.WriteLine("Generated token: " + handler.WriteToken(token));
+    }
+    
+    /// <summary>
+    /// Sample code to generate a self-signed certificate that can be used to sign JWT tokens.
+    /// </summary>
+    [Test]
+    public void GenerateSelfSignedCertificate()
+    {
+        var rsa = RSA.Create();
+        var req = new CertificateRequest("CN=jwtSigner", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        var cert = req.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1));
+        var certBytes = cert.Export(X509ContentType.Pfx, "qwerty");
+        
+        // Export the certificate as PKCS#12 (includes the private key)
+        File.WriteAllBytes("self-signed-jwt-cert.p12", certBytes);
+        
+        // Export the certificate as PEM without the private key
+        var pem = ExportCertificateAsPemWithoutPrivateKey(cert);
+        File.WriteAllText("self-signed-jwt-cert.pem", pem);
+    }
+
+    /// <summary>
+    /// Export a certificate as PEM without the private key.
+    /// </summary>
+    /// <param name="certificate"></param>
+    /// <returns></returns>
+    private static string ExportCertificateAsPemWithoutPrivateKey(X509Certificate2 certificate)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine("-----BEGIN CERTIFICATE-----");
+        builder.AppendLine(
+            Convert.ToBase64String(
+                certificate.Export(X509ContentType.Cert),
+                Base64FormattingOptions.InsertLineBreaks));
+        builder.AppendLine("-----END CERTIFICATE-----");
+        return builder.ToString();
     }
 }
