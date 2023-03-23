@@ -144,6 +144,36 @@ select account.statustime statustime,account.customerid customerid,account.orign
 	}
 }
 ```
+### Примеры вызова для разных Activities Camunda (Topic=LoginDB):
+| Camunda Activities Name | Inputs Variables   | Type    | Value                         | DESCRIPTION                                                                                                                                        |
+|-------------------------|--------------------|---------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| app_parse_alert         | Oper               | String  | ExecSQL                       | Запуск SQL функции и получение ответа в виде {"Result": True} или {"Result": {"Count": 5, "Errors":3}} или {"Result": ["Rule1", "Rule2", "Rule3"]} |
+|                         | SName              | String  | FP                            | Источник данных в MetaData md.md_src.Name                                                                                                          |
+|                         | SQLText            | String  | select alert_enrich(:alertid) | Вызов функции в БД. Функция запустит несколько отдельных Camunda процессов с одним GroupID==AlertID. У данной функции нет return параметров        |
+|                         | alertid            | String  | \<AlertID>                    | Значение AlertID, которое проходит через весь процесс                                                                                              |
+
+| Camunda Activities Name | Inputs Variables | Type   | Value                                       | DESCRIPTION                                                                                                                           |
+|-------------------------|------------------|--------|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| app_check_task          | Oper             | String | ExecSQL                                     | Запуск SQL функции и получение ответа в виде {"Result": "Wait"} или {"Result": "OK"} или {"Result": "Error"}                          |
+|                         | SName            | String | FP                                          | Источник данных в MetaData md.md_src.Name                                                                                             |
+|                         | SQLText          | String | select app_check_actions_by_group(:alertid) | Вызов функции в БД. Функция проверяет есть ли еще работающие app_actions с групповым ID=AlertID. Данная функция возвращает true/false |
+|                         | alertid          | String | \<AlertID>                                  | Значение AlertID, которое проходит через весь процесс                                                                                 |
+
+| Camunda Activities Name | Inputs Variables | Type   | Value                       | DESCRIPTION                                                                                                                              |
+|-------------------------|------------------|--------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| app_alert_link          | Oper             | String | ExecSQL                     | Запуск SQL функции и получение ответа в виде {"Result": "Wait"} или {"Result": "OK"} или {"Result": "Error"}                             |
+|                         | SName            | String | FP                          | Источник данных в MetaData md.md_src.Name                                                                                                |
+|                         | SQLText          | String | select alert_link(:alertid) | Вызов функции в БД. Функция линкует текущий алерт с объектами, полученными в процессе обогащения. У данной функции нет return параметров |
+|                         | alertid          | String | \<AlertID>                  | Значение AlertID, которое проходит через весь процесс                                                                                    |
+
+| Camunda Activities Name | Inputs Variables | Type   | Value                                               | DESCRIPTION                                                                                                       |
+|-------------------------|------------------|--------|-----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| app_check_alert         | Oper             | String | ExecSQL                                             | Запуск SQL функции и получение ответа в виде {"Result": "Wait"} или {"Result": "OK"} или {"Result": "Error"}      |
+|                         | SName            | String | FP                                                  | Источник данных в MetaData md.md_src.Name                                                                         |
+|                         | SQLText          | String | select app_check_alert_status(:alertid, <StatusID>) | Вызов функции в БД. Функция проверяет есть ли такой статус у алерта AlertID. Данная функция возвращает true/false |
+|                         | alertid          | String | \<AlertID>                                          | Значение AlertID, которое проходит через весь процесс                                                             |
+
+
 ## Deployment
 ### Environments
 | ENV_NAME               | DEFAULT_VALUE                                  | POSSIBLE VALUES | IS NECCESARY | DEPENDENT VARIABLES | DESCRIPTION                                                                                                                                                                                                                                                                                                                                                               |

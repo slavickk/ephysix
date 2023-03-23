@@ -22,7 +22,7 @@ import dns.message
 import dns.query
 import dns.flags
 
-logger.info(f'Start service version=0.0.4 ({__name__})')
+logger.info(f'Start service version=0.0.5 ({__name__})')
 
 def getenv(cfg):
     cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else int(os.environ['MAX_TASKS'])
@@ -105,6 +105,9 @@ def db2db(task: ExternalTask) -> TaskResult:
      Oper      : Refill - сделать Truncate Target tables и только затем залить в неё данные
                  Recreate - пересоздать Target tables, если hash в MD_Camunda_Hash отличается
                  ExecSQL - Выполнить SQL на SName и вернуть результаты в виде JSON
+                 CloseAction - закрыть задачу на SName в app_actions. Если есть непустой параметр ErrorMessage,
+                               то задача помечается как error. Поиск задачи в app_actions происходит по
+                               app_actions.camunda_task_id=task.get_process_instance_id()
      SName     : md_src.name источника данных (из него возьмем SDriver, SDSN, SLogin, SPassword).
                  Например: 'DummySystem3'
      TName     : md_src.name целевой БД (из него возьмем TDriver, TDSN, TLogin, TPassword)
@@ -133,9 +136,20 @@ def db2db(task: ExternalTask) -> TaskResult:
 
     try:
         vars = task.get_variables()
-        SQLTable = str(vars['SQLTable'] or '{}')
-        SQLText = vars['SQLText']
-        Oper = vars['Oper']
+        try:
+            Oper = vars['Oper']
+        except KeyError:
+            Oper = ''
+
+        try:
+            SQLTable = vars['SQLTable']
+        except KeyError:
+            SQLTable = '{}'
+
+        try:
+            SQLText = vars['SQLText']
+        except KeyError:
+            SQLText = ''
 
         # Connect к базе МетаДанных, собираем и забираем строки коннекта к источнику и к цели
         engine_ser = create_engine(cfg['DBDriver'] + '://'+cfg['DBUser']+':'+cfg['DBPassword']+'@'+cfg['DSN'])
@@ -146,8 +160,16 @@ def db2db(task: ExternalTask) -> TaskResult:
             """),{"name": vars['SName']}).fetchone())[0]
         engine_src = create_engine(dsn_src)
         engine_src.execution_options(stream_results=True, isolation_level='AUTOCOMMIT')
+        if Oper == 'CloseAction':
+            logger.debug(f'Start CloseAction')
+            with engine_src.begin() as conn:
+                result = conn.execute(text("select app_change_status_actions(pcamundaid=>:camundaid, pstatus=>'completed') as actionid"),
+                                      {'camundaid':task.get_process_instance_id()})
+            execresult = json.dumps([dict(r) for r in result])
+            logger.debug(f'CloseAction Result: {execresult}')
+            return task.complete({"Result": execresult})
         # Для ExecSQL переменная TName не определена
-        if Oper != 'ExecSQL':
+        if Oper != 'ExecSQL' and Oper != 'ExecSQLBool':
             (dsn_dst) = (engine_ser.execute(text("""
                 select d.driver||'://'||s.login||':'||s.pass||'@'||s.dsn from md_src s, md_src_driver d where s.driverid=d.driverid and s.name=:name
                 """),{"name": vars['TName']}).fetchone())[0]
@@ -161,6 +183,8 @@ def db2db(task: ExternalTask) -> TaskResult:
                     logger.debug(f'Search variable "{i}" in DB {id = }')
                     (vars[i]) = (engine_ser.execute(text("select val from MD_Camunda_CLOB where id=:id"), {"id": id}).fetchone())[0]
             logger.debug(f'Variable {i} = {(vars[i])}')
+
+
 
 # Если содержимое Camunda переменной соответствует шаблону '^\@\d+\@$', то его надо искать в базе src, в таблице MD_Camunda_CLOB, по идентификатору \d+
 # create table MD_Camunda_CLOB (
@@ -209,13 +233,18 @@ def db2db(task: ExternalTask) -> TaskResult:
         # Получаем список параметров (:bla_bla_123) из SQLText и сопоставляем со значениями параметрами, которые были переданы.
         # Если в SQLText есть параметр, а значения для него нет - ошибка.
         # Если в SQLText нет параметров, а значение есть для него нет - тогда ничего
+        from dateutil import parser
+
         SQLParams      = {}
         param_pattern  = re.compile(r':\w+')
         SQLText_params = param_pattern.findall(SQLText)
         if SQLText_params:
             for j in SQLText_params:
                 try:
-                    SQLParams[j[1:]] = vars[j[1:]]
+                    if j[1:]=='expDate':
+                        SQLParams[j[1:]] = parser.parse(vars[j[1:]])
+                    else:
+                        SQLParams[j[1:]] = vars[j[1:]]
                 except KeyError as ex:
                     logger.error(f'SQLText params parse and matching error: {ex}')
         logger.debug(f'All SQLParams = {SQLParams}')
@@ -280,15 +309,26 @@ def db2db(task: ExternalTask) -> TaskResult:
 #       VALUES (1, 1, '111', 1, 12, 123, '2023-03-12 16:01:04.000000', '2023-03-12 16:01:09.000000', 1)
 #       on conflict (externalid) do update set externalid=excluded.externalid returning account1id into id_;
 
-        if Oper == 'ExecSQL':
-            logger.debug(f'Start ExecSQL')
-            with engine_src.begin() as conn:
-                result = conn.execute(text(SQLText), SQLParams)
-            execresult = json.dumps([dict(r) for r in result])
-            logger.debug(f'ExecSQL Result: {execresult}')
-            return task.complete({"Result": execresult})
+        if Oper == 'ExecSQL' or Oper == 'ExecSQLBool':
+            logger.debug(f'Start {Oper}')
+            try:
+                with engine_src.begin() as conn:
+                    result = conn.execute(text(SQLText), SQLParams)
+                if result.rowcount > 1 or Oper == 'ExecSQL':
+                    execresult = json.dumps([dict(r) for r in result])
+                    logger.debug(f'ExecSQL Result(Arr): {execresult}')
+                    return task.complete({"Result": execresult})
+                else:
+                    for i in result:
+                        logger.debug(f'ExecSQLBool Result: {i[0]}')
+                        return task.complete({"Result": i[0]})
+            except Exception as ex:
+                logger.debug(f'ExecSQL Except: {ex}')
+                return task.failure(error_message="db2db task failed", error_details=f'Exec Fail', max_retries=1,
+                                    retry_timeout=1)
         else:
             logger.debug(f'Start Inserts')
+#expDate
             result = engine_src.execute(text(SQLText), SQLParams)
 
         count = 0
@@ -357,7 +397,7 @@ def db2db(task: ExternalTask) -> TaskResult:
     finally:
         if engine_src:
             engine_src.dispose()
-        if Oper != 'ExecSQL':
+        if Oper != 'ExecSQL' and Oper != 'ExecSQLBool':
             if engine_dst:
                 engine_dst.dispose()
         if engine_ser:

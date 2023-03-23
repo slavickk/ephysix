@@ -1,5 +1,5 @@
 camunda-external-task-client-python3==4.3.0
-SQLAlchemy==1.4.39
+SQLAlchemy==1.4.47
 python-json-logger==2.0.4
 prometheus_client==0.15.0
 Flask==2.2.2
