@@ -44,19 +44,13 @@ public class Step
     public async Task run()
     {
 
-        if (receiver != null)
-            receiver.owner = this;
         if (sender != null)
             sender.owner = this;
-        receiver.stringReceived = Receiver_stringReceived;
-        try
+        if (receiver != null)
         {
+            receiver.owner = this;
+            receiver.stringReceived = Receiver_stringReceived;
             await receiver.start();
-        }
-        catch (Exception e88)
-        {
-            throw;
-            //               MessageBox.Show(e88.ToString());
         }
     }
     public string IDStep { get; set; } = "Example";
@@ -347,6 +341,13 @@ public class Step
         }
     }
 
+    /// <summary>
+    /// Tries available parsers one by one to parse input string
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="context"></param>
+    /// <param name="rootElement"></param>
+    /// <returns></returns>
     private bool tryParse(string input, ContextItem context, AbstrParser.UniEl rootElement)
     {
         bool cantTryParse = false;
@@ -358,7 +359,6 @@ public class Step
                 return true;
             }
         return false;
-
     }
     public async Task FilterInfo(string input, DateTime time2, ContextItem context, AbstrParser.UniEl rootElement)
     {
