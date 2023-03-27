@@ -19,13 +19,23 @@ namespace ParserLibrary
         {
             return Description;
         }
+        public Item getStepItem(Step step)
+        {
+            var stepItem = mocs.FirstOrDefault(ii => ii.IDStep == step.IDStep);
+            if (stepItem == null) 
+            {
+                stepItem = new Item() { IDStep = step.IDStep };
+                mocs.Add(stepItem);
+            }
+            return stepItem;
+        }
         public class Item
         { 
             public string IDStep { get; set; }
-            public bool isMocReceiverEnabled { get; set; }
+//            public bool isMocReceiverEnabled { get; set; }
             public string MocFileReceiver { get; set; }
-            public bool isMocSenderEnabled { get; set; }
-            public string MocFileSender { get; set; }
+//            public bool isMocSenderEnabled { get; set; }
+            public string MocFileResponce { get; set; }
         }
     }
 }

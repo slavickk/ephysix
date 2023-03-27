@@ -24,6 +24,8 @@ namespace ParserLibrary;
 
 public class Pipeline
 {
+    public ReplaySaver saver = null;
+
     private static readonly ActivitySource Activity = new("Pipeline");
     [YamlIgnore]
     public AbstrParser.UniEl lastExecutedEl = null;
