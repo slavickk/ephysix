@@ -176,6 +176,27 @@ where r.isdeleted = false
             }
             return package;
         }
+
+
+        public static async Task<int> GetSrcIdForNodeId(NpgsqlConnection conn,long nodeid)
+        {
+            List<ItemPackage> packages = new List<ItemPackage>();
+            await using (var cmd = new NpgsqlCommand(@"select srcid from md_node where nodeid=@nodeid", conn))
+            {
+                cmd.Parameters.AddWithValue("@nodeid", nodeid);
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        return reader.GetInt32(0);
+//                        packages.Add(new ItemPackage() { Name = reader.GetString(1), id = reader.GetInt64(0) });
+                    }
+                }
+            }
+            return -1;
+  //          return packages;
+        }
+
         public static async Task<List<ItemPackage>> GetSrcItems(NpgsqlConnection conn)
         {
             List<ItemPackage> packages = new List<ItemPackage>();
@@ -220,9 +241,19 @@ where nt.nodeid=@id and nc.isdeleted=false
 
             return table;
         }
-       
 
-        public class SourceTableItem
+        public class SourceTableItemAgg
+        {
+            public long table_id;
+            public string table_name;
+            public int countFields;
+            public string fields;
+            public override string ToString()
+            {
+                return $"{table_name}:{countFields}({fields})";
+            }
+        }
+            public class SourceTableItem
         {
             public long table_id;
             public string table_name;
@@ -236,7 +267,38 @@ where nt.nodeid=@id and nc.isdeleted=false
             public List<ItemColumnRef> columns= new List<ItemColumnRef>();
         }
 
-        
+        public static async Task<List<SourceTableItemAgg>> getSrcForTableAgg(NpgsqlConnection conn, string tableName, int dest_id, int src_id)
+        {
+            List<SourceTableItemAgg> retValue = new List<SourceTableItemAgg>();
+            await using (var cmd = new NpgsqlCommand(@"
+select t1.name src_table,t1.nodeid,count(*),STRING_AGG ( snode.name, ',' )
+from md_node c
+inner join md_arc l2 on (l2.fromid = c.nodeid and l2.typeid=md_get_type('Column2Table'))
+inner join md_node nt on (l2.toid=nt.nodeid )
+inner join md_node snode on (snode.synonym = c.synonym and snode.srcid=@srcid)
+inner join md_arc l1 on (l1.fromid = snode.nodeid and l1.typeid=md_get_type('Column2Table'))
+inner join md_node t1 on (l1.toid=t1.nodeid)
+where c.srcid=@destid and nt.name=@tablename
+GROUP BY t1.name,t1.nodeid
+order by count(*) desc
+", conn))
+            {
+                cmd.Parameters.AddWithValue("@srcid", src_id);
+                cmd.Parameters.AddWithValue("@destid", dest_id);
+                cmd.Parameters.AddWithValue("@tablename", tableName);
+                long lastId = -1;
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                            retValue.Add(new SourceTableItemAgg { table_id = reader.GetInt64(1), table_name = reader.GetString(0), countFields=reader.GetInt32(2), fields=reader.GetString(3) });
+                    }
+                }
+            }
+
+            return retValue;
+        }
+
         public static async Task<List<SourceTableItem>> getSrcForTable(NpgsqlConnection conn, string tableName,int dest_id,int src_id,string srcTableNameOrig)
         {
             List<SourceTableItem> retValue = new List<SourceTableItem>();

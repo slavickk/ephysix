@@ -128,7 +128,7 @@ var ans=@"{""Fields"": {
             };
 
 
-            tipReciever.stringReceived = (s, o) => tipReciever.sendResponse(s, o);
+            tipReciever.stringReceived = (s, o) => tipReciever.sendResponse(s, new Step.ContextItem() { context = o });
             tipReciever.start();
         }
 

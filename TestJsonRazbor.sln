@@ -53,6 +53,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ETL_DB_Interface", "ETL_DB_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins", "Plugins\Plugins.csproj", "{A7129F53-2E97-4194-B0A8-739E564C544E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleDotLiquid", "ConsoleDotLiquid\ConsoleDotLiquid.csproj", "{120D5658-B751-4F37-B560-3B66CA017489}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewParserLibraryShablon", "NewParserLibraryShablon\NewParserLibraryShablon.csproj", "{FD1CC163-39E4-4E2C-83BB-A7D4089A73B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,6 +163,14 @@ Global
 		{A7129F53-2E97-4194-B0A8-739E564C544E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7129F53-2E97-4194-B0A8-739E564C544E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7129F53-2E97-4194-B0A8-739E564C544E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{120D5658-B751-4F37-B560-3B66CA017489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{120D5658-B751-4F37-B560-3B66CA017489}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{120D5658-B751-4F37-B560-3B66CA017489}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{120D5658-B751-4F37-B560-3B66CA017489}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD1CC163-39E4-4E2C-83BB-A7D4089A73B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD1CC163-39E4-4E2C-83BB-A7D4089A73B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD1CC163-39E4-4E2C-83BB-A7D4089A73B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD1CC163-39E4-4E2C-83BB-A7D4089A73B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

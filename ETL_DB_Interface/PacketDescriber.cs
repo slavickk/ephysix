@@ -19,7 +19,7 @@ namespace ETL_DB_Interface
                 sw.Write(package.DescribePackage());
             }
 
-            foreach(var task in package.usedExternalTasks)
+            foreach(var task in package.usedExternalTasks.Where(ii=>!ii.noDescribe))
             {
                 using (StreamWriter sw = new StreamWriter($"{GenerateStatement.pathToSaveExternalTask}{task.topic}.md"))
                 {
@@ -95,6 +95,9 @@ to zone
 
 _Objects:_
  - " + string.Join("\r\n - ", package.outputTable.Split(',')) + @"
+
+For execute ETL process call SQL statement :
+``` select * from fp.etlpackage_" + package.NamePacket.ToLower()+@"("+string.Join(',',package.variables.Select(ii=> "@" + ii.Name.ToLower()))+ ",[idexternalobj])```\r\n" + @"
 
 
 ## Input parameters description

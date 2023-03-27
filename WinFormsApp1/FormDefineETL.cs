@@ -70,7 +70,7 @@ namespace WinFormsApp1
             refreshOutputTables();
             textBox1.Text=ETLDescription;
             if(!string.IsNullOrEmpty(ETLAddPar))
-                numericUpDown1.Value =Convert.ToInt32(ETLAddPar);   
+                textBoxAddPar.Text =(ETLAddPar);   
          
         }
         void refreshOutputTables()

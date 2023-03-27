@@ -35,6 +35,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBoxAddPar = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
@@ -147,8 +148,23 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(216, 32);
             this.label3.TabIndex = 31;
-            this.label3.Text = "Key element count";
+            this.label3.Text = "Additional par ";
             this.label3.Visible = false;
+
+            // 
+            // textBox1
+            // 
+            this.textBoxAddPar.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxAddPar.Location = new System.Drawing.Point(615, 221);
+            this.textBoxAddPar.Multiline = true;
+            this.textBoxAddPar.Name = "textBoxAddPar";
+            this.textBoxAddPar.Size = new System.Drawing.Size(72, 39);
+            this.textBoxAddPar.TabIndex = 30;
+
+
+
             // 
             // comboBoxDestTables
             // 
@@ -215,6 +231,7 @@
         private Button button1;
         private Label label1;
         private TextBox textBox1;
+        private TextBox textBoxAddPar;
         private Label label2;
         private ComboBox comboBox1;
         private NumericUpDown numericUpDown1;

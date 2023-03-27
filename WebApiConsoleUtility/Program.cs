@@ -147,14 +147,14 @@ namespace WebApiConsoleUtility
                         Log.Information("Set debugMode ");
                     }
 
-                    var recForSaver = pip.steps.FirstOrDefault(ii => ii.receiver != null && ii.receiver.saver != null);
-                    if (recForSaver != null)
+//                    var recForSaver = pip.steps.FirstOrDefault(ii => ii.receiver != null && ii.receiver.saver != null);
+                    if (pip.saver != null)
                     {
-                        if (!Directory.Exists(recForSaver.receiver.saver.path))
+                        if (!Directory.Exists(pip.saver.path))
                         {
                             try
                             {
-                                Directory.CreateDirectory(recForSaver.receiver.saver.path);
+                                Directory.CreateDirectory(pip.saver.path);
                             }
                             catch (Exception e67)
                             {

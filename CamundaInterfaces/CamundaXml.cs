@@ -64,6 +64,7 @@ namespace CamundaInterfaces
 
         public class ExternalTask
         {
+            public bool noDescribe = false;
             public string Annotation = "It's example annotation";
             public class Parameter
             {
