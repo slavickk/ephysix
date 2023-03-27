@@ -34,7 +34,7 @@ public abstract class Receiver
 
 
 
-
+    public object saver;
 
     [YamlIgnore]
 
@@ -57,7 +57,6 @@ public abstract class Receiver
     [YamlIgnore]
     public bool debugMode = false;
 
-    public ReplaySaver saver = null;
     [YamlIgnore]
 
     public Step owner
@@ -84,8 +83,6 @@ public abstract class Receiver
             {
                 Logger.log("Receive step:{o} {input} {thr}", Serilog.Events.LogEventLevel.Debug, "any", owner, input, Thread.CurrentThread.ManagedThreadId);
             }
-            if (saver != null)
-                saver.save(input);
             if (stringReceived != null)
                 await stringReceived(input, context);
 
@@ -99,15 +96,15 @@ public abstract class Receiver
     }
 
 
-    public async Task sendResponse(string response, object context)
+    public async Task sendResponse(string response,Step.ContextItem  contextItem)
     {
         if (debugMode)
             Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any",owner, response);
-        if (saver != null)
-            saver.save(response);
+        if (owner.owner.saver != null)
+            contextItem.currentScenario.getStepItem(this.owner).MocFileResponce=owner.owner.saver.save(response);
 
         if (!MocMode)
-            await sendResponseInternal(response, context);
+            await sendResponseInternal(response, contextItem.context);
     }
 
 

@@ -87,7 +87,7 @@ public class SwaggerStubGenTests
         {
             Console.WriteLine("(test) stringReceived:");
             Console.WriteLine(input);
-            await parentReceiver.sendResponse(DummyPetAnswer, context);
+            await parentReceiver.sendResponse(DummyPetAnswer,new Step.ContextItem() { context = context });
         };
         var requestHandler = new HTTPReceiverSwagger.RequestHandler(parentReceiver);
 
