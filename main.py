@@ -22,7 +22,7 @@ import dns.message
 import dns.query
 import dns.flags
 
-logger.info(f'Start service version=0.0.5 ({__name__})')
+logger.info(f'Start service version=0.0.6 ({__name__})')
 
 def getenv(cfg):
     cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else int(os.environ['MAX_TASKS'])
@@ -169,7 +169,7 @@ def db2db(task: ExternalTask) -> TaskResult:
             logger.debug(f'CloseAction Result: {execresult}')
             return task.complete({"Result": execresult})
         # Для ExecSQL переменная TName не определена
-        if Oper != 'ExecSQL' and Oper != 'ExecSQLBool':
+        if Oper != 'ExecSQL' and Oper != 'ExecSQLBool' and Oper != 'CloseAction':
             (dsn_dst) = (engine_ser.execute(text("""
                 select d.driver||'://'||s.login||':'||s.pass||'@'||s.dsn from md_src s, md_src_driver d where s.driverid=d.driverid and s.name=:name
                 """),{"name": vars['TName']}).fetchone())[0]
@@ -321,11 +321,11 @@ def db2db(task: ExternalTask) -> TaskResult:
                 else:
                     for i in result:
                         logger.debug(f'ExecSQLBool Result: {i[0]}')
-                        return task.complete({"Result": i[0]})
+                        return task.complete(i[0])
             except Exception as ex:
                 logger.debug(f'ExecSQL Except: {ex}')
-                return task.failure(error_message="db2db task failed", error_details=f'Exec Fail', max_retries=1,
-                                    retry_timeout=1)
+                return task.bpmn_error('656598','Error in ExternalTask')
+#                return task.failure(error_message="db2db task failed", error_details=f'Exec Fail', max_retries=1,retry_timeout=1)
         else:
             logger.debug(f'Start Inserts')
 #expDate
@@ -397,7 +397,7 @@ def db2db(task: ExternalTask) -> TaskResult:
     finally:
         if engine_src:
             engine_src.dispose()
-        if Oper != 'ExecSQL' and Oper != 'ExecSQLBool':
+        if Oper != 'ExecSQL' and Oper != 'ExecSQLBool'  and Oper != 'CloseAction':
             if engine_dst:
                 engine_dst.dispose()
         if engine_ser:
