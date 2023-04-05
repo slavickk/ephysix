@@ -33,11 +33,26 @@ namespace NewParserLibraryShablon
         }
 
         public IFilter child;
+
+      //  public NodeComparer? comparer;
         
         public IEnumerable<AbstrParser.UniEl> filter()
         {
             throw new NotImplementedException();
         }
+    }
+
+    public interface Sender
+    {
+        public bool IsAsync
+        {
+            get;
+        }
+        public Task<string> Send(string,object context);
+
+        public Task SendRequest(SemaphoreSlim sem, string, object context);
+        public Task<(string,object)> 
+
     }
     
 
