@@ -1,4 +1,5 @@
 # Integration tools
+About WebCamundaExecutors see [CamundaExecutors](WebCamundaExecutors/to_dict_sender.md)
 ## Functionality
  The main function of integration tool - easy and fast transformation of real-time streams between different sources and destinations without programming(Low-Code system).
  
