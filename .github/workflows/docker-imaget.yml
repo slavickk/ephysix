@@ -19,7 +19,7 @@ jobs:
     - name: set global env
       id: global_env
       run: |
-        echo "::set-output name=IMAGE_NAME::${GITHUB_REPOSITORY#*/}"
+        echo "::set-output name=IMAGE_NAME::${IMAGE_NAME#*/}"
         echo "::set-output name=DOCKERHUB_IMAGE_NAME::docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY#*/}"
 #        echo "::set-output name=TAGS::556"
     
