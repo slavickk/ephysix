@@ -19,8 +19,8 @@ jobs:
     - name: set global env
       id: global_env
       run: |
-        echo "::set-output name=IMAGE_NAME::CamundaExecutors"
-        echo "::set-output name=DOCKERHUB_IMAGE_NAME::docker.pkg.github.com/${GITHUB_REPOSITORY}/CamundaExecutors"
+        echo "::set-output name=IMAGE_NAME::camundaexec"
+        echo "::set-output name=DOCKERHUB_IMAGE_NAME::docker.pkg.github.com/${GITHUB_REPOSITORY}/camundaexec"
 #        echo "::set-output name=TAGS::556"
     
     - name: Build the Docker image
@@ -34,7 +34,7 @@ jobs:
 #     Publish image to github package repository:
     - name: Publish image
       env:
-        IMAGE_NAME: CamundaExecutors
+        IMAGE_NAME: camundaexec
       run: docker push "docker.pkg.github.com/$GITHUB_REPOSITORY/${{ steps.global_env.outputs.IMAGE_NAME }}"     
 #      with:
 #        tags: ${{ steps.global_env.outputs.tags }}
