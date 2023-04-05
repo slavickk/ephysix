@@ -105,13 +105,13 @@ digraph {
             {
                 var tablesStep=package.allTables.Where(ii => ii.src_id == item).Union(outputTables.Where(i1=>i1.src_id == item)).ToList();
                 var tab = tablesStep.First(); ;
-                string zoneName = tab.scema;
+                string zoneName = tab.src_name;
                 var color = "lightgray";
                 if (tab != null)
                 {
                     if (tab.pci_dss_zone != null && (bool)tab.pci_dss_zone)
                         color = "lightgreen";
-                    zoneName = tab.scema.Replace(" ", "_");
+                    zoneName = tab.src_name.Replace(" ", "_");
                 }
                 content += $"subgraph cluster_{zoneName} {{\r\n    label={zoneName};\r\n    style=filled;\r\n    color={color};\r\n";
                 foreach (var table in tablesStep)

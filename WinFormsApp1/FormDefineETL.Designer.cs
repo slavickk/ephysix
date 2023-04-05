@@ -163,6 +163,9 @@
             0,
             0});
             this.numericUpDown1.Visible = false;
+            this.numericUpDown1.Maximum = 100;
+
+            this.numericUpDown1.ValueChanged += NumericUpDown1_ValueChanged;
             // 
             // label3
             // 
@@ -253,6 +256,7 @@
             this.PerformLayout();
 
         }
+
 
         #endregion
 

@@ -26,7 +26,7 @@ namespace ETL_DB_Interface
     public class GenerateStatement
     {
        static HttpClient client;
-        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;";
+        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;";
         public class CamundaAnswer1
         {
             public class Link
@@ -313,8 +313,9 @@ namespace ETL_DB_Interface
                 case "DATE":
                     return $"\"'||to_char({var}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')||'\"";
                 case "INTEGER":
+                case "LONG":
                 case "BOOLEAN":
-                    return $"\"'||to_char({var})||'\"";
+                    return $"\"'||{var}||'\"";
                 default:
                     return $"\"'||{var}||'\"";
             }
@@ -324,6 +325,8 @@ namespace ETL_DB_Interface
         {
             switch (type.ToUpper())
             {
+                case "LONG":
+                    return "bigint";
                 case "DATE":
                 case "INTEGER":
                 case "BOOLEAN":
@@ -336,6 +339,7 @@ namespace ETL_DB_Interface
         {
             switch (type.ToUpper())
             {
+
 //                case "DATE":
                 case "INTEGER":
                 case "BOOLEAN":
@@ -523,6 +527,8 @@ $BODY$;
             public bool is2Skip = false;
             public string Name1Table = "";
             public string Alias1Table="";
+            public ItemTable table1;
+            public ItemTable table2;
             public string Name2Table="";
             public string Alias2Table="";
             public string NameColumns1="";
@@ -558,6 +564,7 @@ $BODY$;
         {
             public int src_id;
             public string src_name;
+            public string scema;
             public bool pci_dss_zone;
             public int seq_id;
             public string Name = "";
@@ -567,7 +574,8 @@ $BODY$;
             public string sqlurl = "";
             public int IntervalUpdateInSec = 0;
             public List<RelItem> optionalRelItems = new List<RelItem>();
-            public class SelectListItem
+
+        public class SelectListItem
             {
                 public string expression = "";
                 public string alias = "";
@@ -727,9 +735,10 @@ $BODY$;
                     {
                         foreach (var srcCol in item.Item1.SelectList.Where(ii => columns1.Count(ii1 => ii1.Name == ii.expression && ii1.OutputTable== ii.outputTable) == 0 && ii.alias != "" && ii.expression != "").Select(ii => new ItemTable.ColumnItem() 
                         {
-                            Name = ii.alias, OutputTable=ii.outputTable, Type = ii.getAllColumnsFromExpression(item.Item1).First().Type, Lengtn = ii.getAllColumnsFromExpression(item.Item1).First().Lengtn
+                            Name = ii.alias, OutputTable=ii.outputTable, Type = ii.getAllColumnsFromExpression(item.Item1).First().Type,SensitiveData= ((ii.getAllColumnsFromExpression(item.Item1).Count(i6=>i6.SensitiveData!="")>0)? ii.getAllColumnsFromExpression(item.Item1).First(i6 => i6.SensitiveData != "").SensitiveData:""), Lengtn = ii.getAllColumnsFromExpression(item.Item1).First().Lengtn
                         }))
                         {
+                            
                             columns1.Add(srcCol);
                             relColumns.Add(new RelItem() { srcTable = item.Item1, colSrc = srcCol, colDst = srcCol });                    
                         }
@@ -749,13 +758,13 @@ $BODY$;
                 }
 
                 if(item.Item2 == null)
-                    returnValue1 += $"{item.Item1.Name}  {item.Item1.Alias} \r\n";
+                    returnValue1 += $"{item.Item1.scema}.{item.Item1.Name}  {item.Item1.Alias} \r\n";
                 else
                 {
                     if (!(item.Item2.Name2Table==item.Item1.Name && item.Item2.Alias2Table== item.Item1.Alias))
-                        returnValue1 += $" inner join  {item.Item2.Name1Table} {item.Item2.Alias1Table} on ({item.Item2.getOnClause()})  \r\n";
+                        returnValue1 += $" inner join  {item.Item2.table1.scema}.{item.Item2.Name1Table} {item.Item2.Alias1Table} on ({item.Item2.getOnClause()})  \r\n";
                     else
-                        returnValue1 += $" inner join   {item.Item2.Name2Table} {item.Item2.Alias2Table} on ({item.Item2.getOnClause()})  \r\n";
+                        returnValue1 += $" inner join   {item.Item2.table2.scema}.{item.Item2.Name2Table} {item.Item2.Alias2Table} on ({item.Item2.getOnClause()})  \r\n";
 
                 }
 
@@ -886,6 +895,7 @@ $BODY$;
                     task.outputPath = $"tmp_table{i}_{this.packet_id}";
                 task.indexes.AddRange(allTables.Where(ii => ii.seq_id == i && ii.needed_indexes.Count > 0).Select(ii => ii.needed_indexes));
                 task.source_id = allTables.First().src_id;
+                task.scema= allTables.First().scema;
                 if (isFinishTask && i > 1)
                     task.source_id = 5; //Temp decision
                 else
@@ -893,6 +903,7 @@ $BODY$;
                 List<RelItem> outCols;
                 List<ItemTable.ColumnItem> columns = getColumnsForStep(list, allTables, i, variables, task,out outCols);
                 task.outputTable.src_id = task.source_id;
+                task.outputTable.scema = task.scema;
                 task.outputTable.optionalRelItems= outCols; 
                 return task.outputTable;
             }
@@ -945,7 +956,7 @@ $BODY$;
 
             int countTask = fillInitSeqID(package);
             //            string outputPath = "outputTable";
-            bool isExternalDest = countTask == 1 /*&& list[0].srcId != 2*/ && package.dest_id != 5;
+            bool isExternalDest = countTask == 1 /*&& list[0].srcId != 2*/ && package.dest_id != 5 && package.dest_id != 11;
             for (int i = 1; i <= countTask; i++)
             {
                 await AddTask(package,conn, process, package.list, package.allTables, tasks, (countTask == 1 && !isExternalDest), package.outputTable, i, package.dest_id, id, package.variables, package.ETL_add_par);
@@ -1445,8 +1456,9 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
         private static async Task FillTableInfo(NpgsqlConnection conn, List<ItemTable> allTables, ItemRel item,long id)
         {
             {
+                long oldid = -1;
                 string command = @"select at.val,n.name,st.val,st1.val,a1.toid,torig.srcid
-,au.val url,asq.val isql,asi.val intrval,src.descr,true,st9.val
+,au.val url,asq.val isql,asi.val intrval,src.descr,true,st9.val,src.schema,n.nodeid
 from md_arc a
 inner join md_node n on(n.nodeid = a.toid and n.typeid = md_get_type('ETLTable') and n.isdeleted=false)
 inner join md_arc a1 on (n.nodeid=a1.fromid  and a1.isdeleted=false)
@@ -1461,7 +1473,9 @@ left join md_node_attr_val st on(st.nodeid = n.nodeid and st.attrid = 41/*md_get
 left join md_node_attr_val st9 on(st9.nodeid = n.nodeid and st9.attrid = 115/*md_get_attr('SelectList')*/)
 left join md_node_attr_val st1 on(st1.nodeid = n.nodeid and st1.attrid =40/* md_get_attr('Condition')*/)
 left join md_src src on( src.srcid=torig.srcid)
-where a.fromid = @id  and a.isdeleted=false";
+where a.fromid = @id  and a.isdeleted=false
+order by n.nodeid
+";
                 await using (var cmd = new NpgsqlCommand(command, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
@@ -1502,22 +1516,34 @@ where a.fromid = @id  and a.isdeleted=false";
                             string outputTables = "";
                             if (!reader.IsDBNull(11))
                                 outputTables = reader.GetString(11);
+                            string scema = reader.GetString(12);
+                            long etlid=reader.GetInt64(13);
 
-                            if (allTables.Count(ii => ii.Name == table && ii.Alias == alias) == 0)
+
+                            ItemTable tab = allTables.FirstOrDefault(ii => ii.Name == table && ii.Alias == alias);
+                            if (tab==null)
                             {
                                 var sel1= selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).ToArray();
                                 var out1=outputTables.Split(',');
-                                allTables.Add(new ItemTable() { src_name=src_name, pci_dss_zone=pci_dss_zone, url=url, sqlurl=sqlurl, IntervalUpdateInSec=interval, src_id=src_id, Name = table, Alias = alias, Condition = condition, SelectList =Enumerable.Range(0,sel1.Length).Select(ii => new ItemTable.SelectListItem(sel1[ii], ((out1.Length > ii) ? out1[ii]:"")) { fromOriginalSelect = true }).ToList(), TableId = table_id });
+                                tab = new ItemTable() { scema = scema, src_name = src_name, pci_dss_zone = pci_dss_zone, url = url, sqlurl = sqlurl, IntervalUpdateInSec = interval, src_id = src_id, Name = table, Alias = alias, Condition = condition, SelectList = Enumerable.Range(0, sel1.Length).Select(ii => new ItemTable.SelectListItem(sel1[ii], ((out1.Length > ii) ? out1[ii] : "")) { fromOriginalSelect = true }).ToList(), TableId = table_id };
+                                allTables.Add(tab);
+                            }  else
+                            {
+                                
+                                if (condition != "" && !tab.Condition.Contains(condition))
+                                    tab.Condition += " AND " + condition;
                             }
                             if (item != null)
                             {
                                 if (item.Name1Table == "")
                                 {
+                                    item.table1 = tab;
                                     item.Name1Table = table;
                                     item.Alias1Table = alias;
                                 }
                                 else
                                 {
+                                    item.table2 = tab;
                                     item.Name2Table = table;
                                     item.Alias2Table = alias;
 
@@ -1544,9 +1570,10 @@ where a.fromid = @id  and a.isdeleted=false";
                 task.outputPath = $"tmp_table{i}_{package_id}";
             task.indexes.AddRange(allTables.Where(ii => ii.seq_id == i && ii.needed_indexes.Count > 0).Select(ii => ii.needed_indexes));
             task.source_id = allTables.First().src_id;
+            task.scema = allTables.First().scema;
             if (isFinishTask && i > 1)
                 task.source_id = 5; //Temp decision
-            if (isFinishTask && i > 1)
+            if (isFinishTask /*&& i > 1*/  )
                 task.dest_id = dest_id; //Temp decision
                                         //            List<ItemTable.ColumnItem> selectList;
             List<RelItem> outCols;
@@ -1570,7 +1597,7 @@ where a.fromid = @id  and a.isdeleted=false";
             List<ItemTable.ColumnItem> columns;
 //            List<RelItem> outCols; 
             task.sqlExec = formSQLStatement(list.Where(ii => ii.seq_id == i), allTables.Where(ii => ii.seq_id == i), out columns, variables, task.dest_id,out outCols);
-            task.outputTable = new ItemTable() { Name = task.outputPath, columns = columns, seq_id = i, SelectList = columns.Select(ii => new ItemTable.SelectListItem(ii.Name,"")).ToList() };
+            task.outputTable = new ItemTable() {  scema=task.scema,Name = task.outputPath, columns = columns, seq_id = i, SelectList = columns.Select(ii => new ItemTable.SelectListItem(ii.Name,"")).ToList() };
             return columns;
         }
 
@@ -1732,6 +1759,7 @@ where a.fromid = @id  and a.isdeleted=false";
         {
             public int seq_id;
             public int source_id = 1;
+            public string scema;
             public int dest_id = 5;
             public string outputPath;
             public List<List<ItemTable.ColumnItem>> indexes =  new List<List<ItemTable.ColumnItem>>();
@@ -1891,10 +1919,11 @@ where a.fromid = @id  and a.isdeleted=false";
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("DictAddr", dest.dsn, "Connection string of target kv database"));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("MaxRecords","1000","Count of one moment count of transferred records"));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLText", sqlExec,"SQL statement"));
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SensitiveData",String.Join(", " ,columnList.Select(ii=>ii.SensitiveData),"Names of columns with sensitive data (',' delimiter)")));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SensitiveData",String.Join(", " ,columnList.Select(ii=>ii.SensitiveData)),"Names of columns with sensitive data (',' delimiter)"));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("CountInKey", keyCount.ToString(),"Count of first columns, which includes to kv key(by concatenation)"));
-                    
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Variables", String.Join(", ", variables.Select(ii => ii.Name),"List of package variables(',' delimiter)")));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Fields", string.Join(',', def.Fields.Select(ii=>ii.Name)), "Fields of dictionary(delimiter ',')"));
+
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Variables", String.Join(", ", variables.Select(ii => ii.Name)),"List of package variables(',' delimiter)"));
 
                     retValue.topic = "to_dict_sender";
                 }
@@ -2075,7 +2104,7 @@ and b.srcid=@id
         public static async Task<List<ItemTable.ColumnItem>> getColumns(long id, NpgsqlConnection conn)
         {
             List<ItemTable.ColumnItem> retValue = new List<ItemTable.ColumnItem>();
-            var command = @"select  n2.Name,a2.key,nav3.val,n2.synonym,sens.val
+            var command = @"select  n2.Name,a2.key,nav3.val,n2.synonym,md.md_find_sensitive(n2.nodeid)
     from md_node n1, md_arc a1, 
 md_node n2 
 left join md_node_attr_val nav3 on(n2.NodeID=nav3.NodeID and nav3.AttrID=29 )
@@ -2100,6 +2129,10 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                     {
                         var item = new ItemTable.ColumnItem();
                         item.Name=reader.GetString(0);
+                        if(item.Name=="pan")
+                        {
+                            int yy = 0;
+                        }
                         item.Type=reader.GetString(1);
                         item.Lengtn = 1;
                         if(!reader.IsDBNull(2))

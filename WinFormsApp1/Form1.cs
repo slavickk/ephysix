@@ -5,6 +5,7 @@ using MaxMind.Db;
 using Microsoft.Web.WebView2.Core;
 using Npgsql;
 using System;
+using System.Windows.Documents;
 using WinFormsETLPackagedCreator;
 //using Graphviz;
 
@@ -75,8 +76,8 @@ namespace WinFormsApp1
             var item=package.allTables.FirstOrDefault(ii => ii.table_name == Name && ii.alias == Alias);
             if(item == null)
             {
-                var src_id=await DBInterface.GetSrcIdForNodeId(conn,id);
-                item = new ETL_Package. ItemTable() {  table_name=Name, alias=Alias, table_id=id, src_id=src_id };
+                var src_info=await DBInterface.GetSrcIdForNodeId(conn,id);
+                item = new ETL_Package. ItemTable() {  table_name=Name, alias=Alias, table_id=id, src_id=src_info.Item1,scema=src_info.Item2 };
                 package.allTables.Add(item);
             }
             return item;
@@ -434,7 +435,7 @@ namespace WinFormsApp1
 
         private async void button5_Click(object sender, EventArgs e)
         {
-            FormDefineETL frm = new FormDefineETL(conn);
+            FormDefineETL frm = new FormDefineETL(conn,package);
             frm.ETLName= package.ETLName;
              frm.OutputTableName= package.OutputTables.ToList();
              frm.ETLDescription= package.ETLDescription;
@@ -540,9 +541,10 @@ namespace WinFormsApp1
             if (listViewSelectedField.SelectedIndices.Count > 0)
             {
                 int index = listViewSelectedField.SelectedIndices[0];
+                var table = await getTable(textBoxTableName.Text, textBoxTableAlias.Text, package.selectedFields[index].sourceColumn.table.table_id);
                 package.selectedFields[index] = new ETL_Package.ItemSelectedList()
                 {
-                    sourceColumn = { table = await getTable(textBoxTableName.Text, textBoxTableAlias.Text, package.selectedFields[index].sourceColumn.table.table_id), alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text },
+                    sourceColumn =new ETL_Package.ItemColumn() { table = table, alias = textBoxColumnAlias.Text, col_name = textBoxFieldName.Text },
                     outputTable = ((comboBoxDestTable.SelectedIndex < 0) ? package.OutputTables.First() : comboBoxDestTable.Items[comboBoxDestTable.SelectedIndex].ToString())
                 }  ;
                 RefreshListViewTablesSelected();

@@ -40,6 +40,9 @@ static void Prepare()
 {
     /*AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
     AssemblyLoadContext.Default.Unloading += Default_Unloading;*/
+    ConsulKV.CONSUL_ADDR = (Environment.GetEnvironmentVariable("CONSUL_ADDR") == null) ? "http://127.0.0.1:8500" : Environment.GetEnvironmentVariable("CONSUL_ADDR");
+
+//    ConsulKV.CONSUL_ADDR=
     string LogPath = Environment.GetEnvironmentVariable("LOG_PATH");
     //string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
     string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");

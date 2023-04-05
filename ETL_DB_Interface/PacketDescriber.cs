@@ -80,7 +80,7 @@ Make  data export form next sources:
                 {
                     lastPCI = tableItem.pci_dss_zone;
                     lastSrc = tableItem.src_name;
-                    retValue += @"**" + tableItem.src_name + @"**
+                    retValue += "\r\n\r\n"+ @"**" + tableItem.src_name + @"**
 
  _Objects:_
 ";

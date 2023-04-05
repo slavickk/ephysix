@@ -1,3 +1,5 @@
+saver: 
+limitOfSavedContextInMB: 10
 traceSaveDirectory: /CONTEXT
 pipelineDescription: Pipeline ACS-CCFA-TWO
 metricsBuilder:
@@ -83,7 +85,7 @@ steps:
     swaggerSpecPath: 
     responseType: text/xml
     cantTryParse: true
-    mocFile: C:\D\OutACS\xz2r4dkb.mbg
+    mocFile: C:\D\OutACS\xz2r4dkb.aaa
     mocBody: ''
     saver: 
   converters:
@@ -587,6 +589,19 @@ steps:
       conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
       conditionCalcer: 
       valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/RuleIDVersion
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/nameWithVersion
+      conditionCalcer: 
+      valuePath: ''
   - name: FilterDataField
     filter: !ConditionFilter
       conditionPath: Step_0/Send/To/*
@@ -821,15 +836,15 @@ steps:
     filter: !AndOrFilter
       filters:
       - !ConditionFilter
-        conditionPath: Step_0/Step_DMN/Step_ToTWFA/Step_2/Rec/ItemList/Name
+        conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
         conditionCalcer: !ComparerForValue
           isNegative: false
           valueForCompare: SaveAlert
       - !ConditionFilter
-        conditionPath: Step_0/Step_DMN/Step_2/Rec/ItemList/Value
+        conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
         conditionCalcer: !ComparerForValue
           isNegative: false
-          valueForCompare: true
+          valueForCompare: 1
       action: AND
     outputFields:
     - !ExtractFromInputValue
@@ -860,6 +875,6 @@ steps:
       valuePath: ''
   sender: !PostgresExecutorSender
     connectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=fp;
-    statement: select * from fp.add_alert(@stream,@rex_result)
+    statement: select * from fp.app_add_alert(@stream,@rex_result)
     mocFile: ''
     mocBody: ''
