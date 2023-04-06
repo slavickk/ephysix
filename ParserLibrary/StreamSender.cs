@@ -142,7 +142,7 @@ public class StreamSender:HTTPSender,ISelfTested
     Dictionary<string, Stream> streams = new Dictionary<string, Stream>();  
 
 
-    public string db_connection_string = "User ID=fp;Password=rav1234;Host=192.168.75.219;Port=5432;Database=fpdb;SearchPath=md;";
+    public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;";
     public override string getTemplate(string key)
     {
         return formJson(getStream(streamName));

@@ -48,10 +48,10 @@ namespace NewParserLibraryShablon
         {
             get;
         }
-        public Task<string> Send(string,object context);
+        public Task<string> Send(string a,object context);
 
         public Task SendRequest(SemaphoreSlim sem, string, object context);
-        public Task<(string,object)> 
+      //  public Task<(string,object)> 
 
     }
     
