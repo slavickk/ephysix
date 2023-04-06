@@ -98,6 +98,8 @@ public partial class Step
             }
         }
 
+        public string IDStep => this.owner.IDStep;
+
 
         /// <summary>
         /// Send response to client
