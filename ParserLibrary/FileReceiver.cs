@@ -20,8 +20,9 @@ public class FileReceiver : IReceiver
     }
 
     public bool cantTryParse; // This one comes from the YAML definition of the receiver
-    
-    bool IReceiver.cantTryParse { get; } // This one is exposed to the host machinery
+
+    bool IReceiver.cantTryParse => this.cantTryParse; // This one is exposed to the host machinery
+
     public bool debugMode { get; set; }
 
     public async Task start()
