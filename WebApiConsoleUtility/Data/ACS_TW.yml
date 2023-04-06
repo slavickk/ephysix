@@ -2,6 +2,7 @@ saver:
 limitOfSavedContextInMB: 10
 traceSaveDirectory: /CONTEXT
 pipelineDescription: Pipeline ACS-CCFA-TWO
+skipSelfTest: false
 metricsBuilder:
 - name: HOST_ANSWER
   description: Host Result answer of auth
@@ -75,7 +76,8 @@ steps:
 - isBridge: false
   isHandleSenderError: true
   maxSavedLimitInMB: 10
-  saveErrorSendDirectory: /CACHE
+  saveErrorSendDirectory: /CACHE1
+  saveScenariousDirectory: C:\d\Scenarious\
   iDStep: Step_0
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
@@ -84,10 +86,10 @@ steps:
     port: 8080
     swaggerSpecPath: 
     responseType: text/xml
+    saver: 
     cantTryParse: true
     mocFile: C:\D\OutACS\xz2r4dkb.aaa
     mocBody: ''
-    saver: 
   converters:
   - name: FilterToTW
     filter: !ConditionFilter
@@ -280,7 +282,7 @@ steps:
       valuePath: ''
   sender: !StreamSender
     streamName: AReq
-    dbConnectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;
+    dbConnectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;
     streamSender:
       name: AReq
       description: AReq transaction
@@ -514,7 +516,7 @@ steps:
     certPassword: ''
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
-    timeoutSendInSeconds: 10
+    timeoutSendInSeconds: 5
     headers: 
     responseType: application/json
     urls:
@@ -528,6 +530,7 @@ steps:
   isHandleSenderError: false
   maxSavedLimitInMB: 0
   saveErrorSendDirectory: ''
+  saveScenariousDirectory: C:\d\Scenarious\
   iDStep: Step_DMN
   iDPreviousStep: Step_0
   iDResponsedReceiverStep: ''
@@ -682,6 +685,7 @@ steps:
   isHandleSenderError: false
   maxSavedLimitInMB: 0
   saveErrorSendDirectory: ''
+  saveScenariousDirectory: C:\d\Scenarious\
   iDStep: Step_ToTWO
   iDPreviousStep: Step_DMN
   iDResponsedReceiverStep: Step_0
@@ -826,6 +830,7 @@ steps:
   isHandleSenderError: false
   maxSavedLimitInMB: 0
   saveErrorSendDirectory: ''
+  saveScenariousDirectory: C:\d\Scenarious\
   iDStep: Step_SaveAlert
   iDPreviousStep: Step_ToTWO
   iDResponsedReceiverStep: ''
@@ -874,7 +879,7 @@ steps:
       conditionCalcer: 
       valuePath: ''
   sender: !PostgresExecutorSender
-    connectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=fp;
+    connectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=fp;
     statement: select * from fp.app_add_alert(@stream,@rex_result)
     mocFile: ''
     mocBody: ''
