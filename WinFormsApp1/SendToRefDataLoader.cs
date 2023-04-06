@@ -79,7 +79,7 @@ namespace WinFormsApp1
 
             }*/
             ;
-
+             
             var conn = new NpgsqlConnection(connectionStringBase/*"User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;"*/);
             conn.Open();
 
