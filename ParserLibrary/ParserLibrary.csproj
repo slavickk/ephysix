@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DMN_lib\DMN_lib.csproj" />
+    <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
     <ProjectReference Include="..\StandaloneKestrel\StandaloneKestrel.csproj" />
   </ItemGroup>
 

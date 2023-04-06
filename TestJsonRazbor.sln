@@ -53,6 +53,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ETL_DB_Interface", "ETL_DB_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins", "Plugins\Plugins.csproj", "{A7129F53-2E97-4194-B0A8-739E564C544E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginBase", "PluginBase\PluginBase.csproj", "{1CEDE574-50C3-468B-9C8D-70FF9494DD60}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreadTests", "ThreadTests\ThreadTests.csproj", "{8F6CB9E5-6DD0-4555-912A-16CC5BD13D2A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,6 +163,14 @@ Global
 		{A7129F53-2E97-4194-B0A8-739E564C544E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7129F53-2E97-4194-B0A8-739E564C544E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7129F53-2E97-4194-B0A8-739E564C544E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CEDE574-50C3-468B-9C8D-70FF9494DD60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CEDE574-50C3-468B-9C8D-70FF9494DD60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CEDE574-50C3-468B-9C8D-70FF9494DD60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CEDE574-50C3-468B-9C8D-70FF9494DD60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F6CB9E5-6DD0-4555-912A-16CC5BD13D2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F6CB9E5-6DD0-4555-912A-16CC5BD13D2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F6CB9E5-6DD0-4555-912A-16CC5BD13D2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F6CB9E5-6DD0-4555-912A-16CC5BD13D2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

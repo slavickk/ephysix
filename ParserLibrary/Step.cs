@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using PluginBase;
 using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 
@@ -14,7 +15,7 @@ namespace ParserLibrary;
 /// <summary>
 /// Step is a sequence of steps that includes (optionally) Sender, Receiver and a set of filters for selecting information
 /// </summary>
-public class Step
+public partial class Step
 {
 
     public static void Test()
@@ -48,9 +49,7 @@ public class Step
             sender.owner = this;
         if (receiver != null)
         {
-            receiver.owner = this;
-            receiver.stringReceived = Receiver_stringReceived;
-            await receiver.start();
+            await _receiverHost.start();
         }
     }
     public string IDStep { get; set; } = "Example";
@@ -62,9 +61,34 @@ public class Step
 
 
     public string description { get; set; } = "Some comments in this place";
+    
     [YamlIgnore]
-    public bool debugMode { get; set; } = true;
-    public Receiver receiver { get; set; } = null;// new PacketBeatReceiver();
+    public bool debugMode
+    {
+        get => this._debugMode;
+        set
+        {
+            this._debugMode = value;
+            if (this.receiver != null)
+                this.receiver.debugMode = value;
+        }
+    }
+    private bool _debugMode = true;
+
+    // The actual receiver object as specified in the pipeline definition file
+    public IReceiver receiver
+    {
+        get => this._receiverHost?.Receiver;
+        set
+        {
+            if (this._receiverHost != null)
+                this._receiverHost.Release();
+            this._receiverHost = new ReceiverHost(this, value);
+            this._receiverHost.Init(owner);
+        }
+    }
+    private ReceiverHost _receiverHost;
+
     public class ItemFilter
     {
 
@@ -102,7 +126,13 @@ public class Step
     {
         this.owner = owner;
         this.sender?.Init(owner);
-        this.receiver?.Init(owner);
+
+        if (this.receiver != null)
+        {
+            _receiverHost = new ReceiverHost(this, receiver);
+            _receiverHost.Init(owner);
+        }
+        
         if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
         {
             // Ensure the save error directory exists
@@ -199,7 +229,7 @@ public class Step
                     }*/
                 var ans = await sender?.send(input,contextItem);
 
-                await receiver.sendResponse(ans, context);
+                await _receiverHost.sendResponse(ans, context);
                 if(saveAllResponses)
                 {
                     Scenario.Item item= contextItem.currentScenario.mocs.FirstOrDefault(ii=>ii.IDStep== this.IDStep);

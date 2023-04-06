@@ -1,0 +1,18 @@
+pipelineDescription: Pipeline example
+hashWord: aaa
+steps:
+- isBridge: true
+  isHandleSenderError: true
+  saveErrorSendDirectory: Data/Restore
+  iDStep: Step_0
+  iDPreviousStep: ''
+  iDResponsedReceiverStep: ''
+  description: Check registration extract
+  receiver: !FileReceiver
+    fileName: Data/items_file.txt
+  sender: !DummySender
+    responseToReturn: getPet  # key to get the response from the below dictionary of dummy responses
+    dummyResponses:
+      getPet: '{"Id":1,"Category":{"Id":2,"Name":"Dummy category"}, "Name":"Dummy Name","PhotoUrls":["url1"],"Tags":[{"Id":0,"Name":"tag1"}],"Status":"Available"}'
+      getPet_invalid: '{"Id":1,"Category":{"Id":2,"Name":"Dummy category"}, "Name123":"Dummy Name","PhotoUrls":["url1"],"Tags":[{"Id":0,"Name":"tag1"}],"Status":"Available"}'
+      getInventory: '{"1": 250, "2": 22, "5": 2}'

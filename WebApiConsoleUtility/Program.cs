@@ -147,23 +147,6 @@ namespace WebApiConsoleUtility
                         Log.Information("Set debugMode ");
                     }
 
-                    var recForSaver = pip.steps.FirstOrDefault(ii => ii.receiver != null && ii.receiver.saver != null);
-                    if (recForSaver != null)
-                    {
-                        if (!Directory.Exists(recForSaver.receiver.saver.path))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(recForSaver.receiver.saver.path);
-                            }
-                            catch (Exception e67)
-                            {
-                                Log.Fatal(e67, "can't create replay directory");
-                                return;
-                            }
-                        }
-                    }
-
                     Log.Information("Parsing done");
                     if (!pip.skipSelfTest)
                     {
@@ -174,7 +157,8 @@ namespace WebApiConsoleUtility
                             Log.Information("Self test OK. Run pipeline.");
                             pip.run().ContinueWith((runner) =>
                                 {
-                                    Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
+                                    Log.Information("Pipeline execution stopped with result {a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
+                                    Console.WriteLine(runner.Exception?.ToString());
                                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                                     return;
                                 });
@@ -192,7 +176,8 @@ namespace WebApiConsoleUtility
                         Log.Information("Running the pipeline without self-test because SkipSelfTest is true.");
                         pip.run().ContinueWith((runner) =>
                         {
-                            Log.Information("Pipeline execution stopped with result{a} exception {exc}.Terminating application...", runner.IsFaulted, runner.Exception?.ToString());
+                            Log.Information("Pipeline execution stopped with result {a} exception {exc}.Terminating application...", runner.IsFaulted, runner.Exception?.ToString());
+                            Console.WriteLine(runner.Exception?.ToString());
                             System.Diagnostics.Process.GetCurrentProcess().Kill();
                         });
                     }
