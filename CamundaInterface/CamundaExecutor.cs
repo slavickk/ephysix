@@ -115,7 +115,7 @@ namespace CamundaInterface
             ExternalTaskAnswer it1 = null;
             if (client == null)
                 client = new HttpClient();
-            Log.Information("Start fetching");
+            Log.Information("Start fetching on addr {camundaPath}", camundaPath);
 
             while (0 == 0)
             {
@@ -132,6 +132,7 @@ namespace CamundaInterface
                         foreach (var item in ret)
                         {
                             it1 = item;
+                            Log.Information("topic {item.topicName}", item.topicName);
                             var dictOutput = new Dictionary<string, CamundaCompleteItem.Variable>();
                             /*                            if (item.topicName == "rest_executor1")
                                                         {
