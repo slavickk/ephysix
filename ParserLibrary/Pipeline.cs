@@ -361,8 +361,9 @@ public class Pipeline
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
-        // TODO: Make the code work for arbitrary types, not just for FileReceiver
+        // TODO: Make the code work for arbitrary types, not just for the ones that are explicitly registered
         .WithTagMapping("!FileReceiver", typeof(FileReceiver))
+        .WithTagMapping("!HTTPReceiverSwagger", typeof(HTTPReceiverSwagger))
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .WithNodeDeserializer(new YamlIncludeNodeDeserializer(ser.Build()), s => s.OnTop())
         .Build();

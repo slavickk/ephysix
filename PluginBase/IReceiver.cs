@@ -12,4 +12,5 @@ public interface IReceiver
 public interface IReceiverHost
 {
     Task signal(string input, object context);
+    string IDStep { get; }
 }
