@@ -80,8 +80,6 @@ public class Pipeline
             foreach (Step step in steps)
             {
                 step.debugMode = value;
-                if(step.receiver!= null)
-                    step.receiver.debugMode = value;
                 /*if (step.sender != null)
                         step.sender.debugMode = value;*/
             }
@@ -187,8 +185,6 @@ public class Pipeline
 
             foreach (var step in steps)
         {
-            if (step.receiver != null)
-                step.receiver.owner = step;
             if (step.sender != null)
                 step.sender.owner = step;
             step.Init(this);
@@ -365,6 +361,8 @@ public class Pipeline
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
+        // TODO: Make the code work for arbitrary types, not just for FileReceiver
+        .WithTagMapping("!FileReceiver", typeof(FileReceiver))
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .WithNodeDeserializer(new YamlIncludeNodeDeserializer(ser.Build()), s => s.OnTop())
         .Build();
