@@ -42,4 +42,9 @@ public class ReplaySaver
         queue.Enqueue(input);
     }
 
+    public void Init()
+    {
+        if (!Directory.Exists(path))
+            Directory.CreateDirectory(path);
+    }
 }
