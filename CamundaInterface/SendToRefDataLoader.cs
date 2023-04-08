@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ParserLibrary;
 using System.IO;
+using System.Xml.Linq;
 
 namespace CamundaInterface
 {
@@ -97,7 +98,12 @@ namespace CamundaInterface
         public static async Task<ExportItem> putRequestToRefDataLoader(HttpClient client, string processId = "asdfa", string connectionStringBase = "User ID=postgres;Password=test;Host=localhost;Port=5432;", string connectionStringAdmin = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;",
             string dictName = "People", string FID = "TEST", string command = "SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person", int maxRecord = 500, string baseAddr = "http://192.168.75.212:20226",string sensitiveDataArray="",int CountInKey=1,string columns="" )
         {
-            var columnList=columns.Split(',');
+
+       /*     connectionStringAdmin = connectionStringAdmin.Replace("service.consul", "service.dc1.consul");
+            connectionStringBase = connectionStringBase.Replace("service.consul", "service.dc1.consul");
+            baseAddr = baseAddr.Replace("service.consul", "service.dc1.consul");
+            sensitiveDataArray = ", , , , PAN";*/
+            var columnList =columns.Split(',');
             if (columnList.Length == 0)
                 return null;
             NpgsqlConnection conn = null, connAdm = null;

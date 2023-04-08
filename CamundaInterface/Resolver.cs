@@ -10,7 +10,9 @@ namespace CamundaInterface
 {
     public class ConsulKV
     {
-        public static  string CONSUL_ADDR= "http://192.168.75.204:8500";
+//        http://10.74.30.21/
+        public static string CONSUL_ADDR = "http://10.74.30.21:8500";
+//        public static  string CONSUL_ADDR= "http://192.168.75.204:8500";
     }
     public class Resolver
     {

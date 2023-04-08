@@ -5,8 +5,8 @@
       "commandLineArgs": "C:\\Users\\User\\source\\repos\\Polygons\\ACS_TWO_TX\\IntegrationTools\\ACS_TW.yml",
       "environmentVariables": {
         "SECRET_WORD": "QWE123",
-        "REX_URL": "http://192.168.75.214",
-        "AUTH_HOST_URL": "http://192.168.75.173:30212"
+        "REX_URL": "http://nginx.service.consul",
+        "AUTH_HOST_URL": "http://10.74.28.30:30212"
       }
     }
   }
