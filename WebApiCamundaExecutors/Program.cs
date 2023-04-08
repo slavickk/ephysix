@@ -83,12 +83,14 @@ static void Prepare()
     try
     {
         Log.Information(" Run executors.");
-        Action action = async () =>
+        Task.Run( async () =>
         {
             while (0 == 0)
             {
                 try
                 {
+                    Log.Information(" Fetching...");
+
                     await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler" });
                 }
                 catch (Exception e)
@@ -97,7 +99,8 @@ static void Prepare()
                     Log.Information("Restart fetch");
                 }
             }
-        };
+        });
+        
      //   new TaskFactory().StartNew(action, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default).ContinueWith((runner) => { Log.Information("Camunda  execurs stopped.Terminating application..."); System.Diagnostics.Process.GetCurrentProcess().Kill(); });
 
         Log.Information("Starting camunda executors web host ");
