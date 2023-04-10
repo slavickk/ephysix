@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using ParserLibrary;
 using System.IO;
 using System.Xml.Linq;
+using System.Globalization;
 
 namespace CamundaInterface
 {
@@ -94,6 +95,7 @@ namespace CamundaInterface
                         yield return i;
             }
         }
+        static IFormatProvider formatter = new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "" };
 
         public static async Task<ExportItem> putRequestToRefDataLoader(HttpClient client, string processId = "asdfa", string connectionStringBase = "User ID=postgres;Password=test;Host=localhost;Port=5432;", string connectionStringAdmin = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;",
             string dictName = "People", string FID = "TEST", string command = "SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person", int maxRecord = 500, string baseAddr = "http://192.168.75.212:20226",string sensitiveDataArray="",int CountInKey=1,string columns="" )
@@ -243,7 +245,17 @@ namespace CamundaInterface
                                                                 { 
                                                                     if(type=="bigint")*/
                                     i2++;
-                                    var val = reader.GetValue(i).ToString();
+                                    string val;
+                                    if(reader.GetFieldType(i) == typeof(double) )
+                                        val = reader.GetDouble(i).ToString("F4",formatter);
+                                    else
+                                    if ( reader.GetFieldType(i) == typeof(decimal))
+                                        val = reader.GetDecimal(i).ToString("F4", formatter);
+                                    else
+                                    if (reader.GetFieldType(i) == typeof(float))
+                                        val = reader.GetFloat(i).ToString("F4", formatter);
+                                    else
+                                        val = reader.GetValue(i).ToString();
                                     if (type == "timestamp with time zone")
                                         val = reader.GetTimeStamp(i).ToDateTime().ToString("O");
                                     if (val=="840")
