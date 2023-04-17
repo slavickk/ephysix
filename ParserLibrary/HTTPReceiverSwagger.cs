@@ -224,7 +224,7 @@ namespace ParserLibrary
                 Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug, response);
             }
 
-            if (context is SyncroItem item)
+            if (context is Step.ContextItem { context: SyncroItem item })
             {
                 item.answer = response;
                 Interlocked.Increment(ref item.srabot);
