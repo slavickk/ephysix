@@ -55,7 +55,7 @@ public class SwaggerStubGenTests
             Console.WriteLine("Input: " + input);
             Console.WriteLine("Context: " + context);
             
-            await _receiver.sendResponse(DummyPetAnswer, context);
+            await _receiver.sendResponse(DummyPetAnswer, new Step.ContextItem() { context = context });
         }
         
         public string IDStep => "DummyStep";
