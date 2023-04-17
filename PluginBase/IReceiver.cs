@@ -1,5 +1,9 @@
 namespace PluginBase;
 
+/// <summary>
+/// A receiver is a component that receives messages from an external source and sends them
+/// to the owning step through the receiver host.
+/// </summary>
 public interface IReceiver
 {
     Task start();
@@ -9,6 +13,9 @@ public interface IReceiver
     bool debugMode { get; set; }
 }
 
+/// <summary>
+/// A receiver host is part of a step and is responsible for handling the input messages from the receiver.
+/// </summary>
 public interface IReceiverHost
 {
     Task signal(string input, object context);
