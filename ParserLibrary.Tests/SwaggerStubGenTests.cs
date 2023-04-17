@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using Microsoft.CSharp;
 using NSwag.CodeGeneration.CSharp;
+using PluginBase;
 
 namespace ParserLibrary.Tests;
 
@@ -27,6 +28,37 @@ public class SwaggerStubGenTests
             Console.WriteLine(parameter);
 
         return null;
+    }
+
+    /// <summary>
+    /// Mock receiver host implementation that responds with a dummy answer to every request. 
+    /// </summary>
+    private class ReceiverHostMock : IReceiverHost
+    {
+        public ReceiverHostMock(IReceiver receiver)
+        {
+            this._receiver = receiver;
+        }
+        
+        private readonly IReceiver _receiver;
+
+        /// <summary>
+        /// The signal method is called by the receiver when a new message is received.
+        /// This dummy implementation just prints the input and context to the console
+        /// and sends a dummy response back to the receiver.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="context"></param>
+        public async Task signal(string input, object context)
+        {
+            Console.WriteLine("Test signal");
+            Console.WriteLine("Input: " + input);
+            Console.WriteLine("Context: " + context);
+            
+            await _receiver.sendResponse(DummyPetAnswer, context);
+        }
+        
+        public string IDStep => "DummyStep";
     }
 
     // Test the compilation of the generated server code
@@ -82,13 +114,15 @@ public class SwaggerStubGenTests
         Assert.NotNull(controllerAssembly);
 
         var parentReceiver = new HTTPReceiverSwagger();
-        parentReceiver.Init(null);
-        parentReceiver.stringReceived = async (input, context) =>
-        {
-            Console.WriteLine("(test) stringReceived:");
-            Console.WriteLine(input);
-            await parentReceiver.sendResponse(DummyPetAnswer, context);
-        };
+        
+        // The full request handling chain is:
+        // Dynamically generated Controller -> HTTPReceiverSwagger.RequestHandler -> HTTPReceiverSwagger -> ReceiverHost -> Step
+        
+        // Create a receiver host that will handle messages from the receiver.
+        var receiverHost = new ReceiverHostMock(parentReceiver);
+        ((IReceiver)parentReceiver).host = receiverHost;
+
+        // Create a request handler that will handle actual requests from the controller.
         var requestHandler = new HTTPReceiverSwagger.RequestHandler(parentReceiver);
 
         var controllerImplAssembly = requestHandler.ImplementController(controllerAssembly);
