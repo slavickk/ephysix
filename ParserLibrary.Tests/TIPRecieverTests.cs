@@ -20,7 +20,7 @@ namespace ParserLibrary.Tests
             };
 
 
-            dummyProtocol2Receiver.stringReceived = (s, o) => dummyProtocol2Receiver.sendResponse(s, o);
+            dummyProtocol2Receiver.stringReceived = (s, o) => dummyProtocol2Receiver.sendResponse(s, new Step.ContextItem() { context = o });
             dummyProtocol2Receiver.start();
         }
 
