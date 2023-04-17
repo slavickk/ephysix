@@ -100,7 +100,7 @@ public abstract class Receiver
     {
         if (debugMode)
             Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any",owner, response);
-        if (owner.owner.saver != null)
+        if (owner?.owner.saver != null)
             contextItem.currentScenario.getStepItem(this.owner).MocFileResponce=owner.owner.saver.save(response);
 
         if (!MocMode)
