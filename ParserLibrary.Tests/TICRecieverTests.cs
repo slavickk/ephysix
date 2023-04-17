@@ -17,7 +17,7 @@ namespace ParserLibrary.Tests
             {
                 port = port, ticFrame = 6
             };
-            ticReciever.stringReceived = (s, o) => ticReciever.sendResponse(s, o);
+            ticReciever.stringReceived = (s, o) => ticReciever.sendResponse(s,new Step.ContextItem() { context = o });
             ticReciever.start();
         }
 

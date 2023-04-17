@@ -64,6 +64,8 @@
             this.Controls.Add(this.checkedListBox1);
             this.Name = "FormSelectSynonymLink";
             this.Text = "Таблицы, связанные с ";
+            this.Load += new System.EventHandler(this.FormSelectSynonymLink_Load);
+
             this.ResumeLayout(false);
 
         }

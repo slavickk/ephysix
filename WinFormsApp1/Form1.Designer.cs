@@ -297,12 +297,10 @@
             this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tableViewControl1.Name = "tableViewControl1";
             this.tableViewControl1.Size = new System.Drawing.Size(299, 389);
-=======
             this.tableViewControl1.Location = new System.Drawing.Point(402, 330);
             this.tableViewControl1.Margin = new System.Windows.Forms.Padding(1);
             this.tableViewControl1.Name = "tableViewControl1";
-            this.tableViewControl1.Size = new System.Drawing.Size(310, 348);
->>>>>>> b4249d5fae74c2baec979a982ca8f5675b11922f
+            this.tableViewControl1.Size = new System.Drawing.Size(310, 330);
             this.tableViewControl1.TabIndex = 14;
             // 
             // textBoxTableAdditional
@@ -591,6 +589,9 @@
             this.checkBoxFindTable.TabIndex = 46;
             this.checkBoxFindTable.Text = "Искать таблицы";
             this.checkBoxFindTable.UseVisualStyleBackColor = true;
+
+
+            listViewSelectedField.KeyDown += ListViewSelectedField_KeyDown;
             // 
             // buttonDelField
             // 
@@ -656,6 +657,7 @@
             this.PerformLayout();
 
         }
+
 
         #endregion
 

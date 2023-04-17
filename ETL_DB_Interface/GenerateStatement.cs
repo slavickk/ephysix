@@ -26,7 +26,7 @@ namespace ETL_DB_Interface
     public class GenerateStatement
     {
        static HttpClient client;
-        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=192.168.75.219;Port=5432;Database=fpdb;SearchPath=md;";
+        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;";
         public class CamundaAnswer1
         {
             public class Link
@@ -313,8 +313,9 @@ namespace ETL_DB_Interface
                 case "DATE":
                     return $"\"'||to_char({var}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')||'\"";
                 case "INTEGER":
+                case "LONG":
                 case "BOOLEAN":
-                    return $"\"'||to_char({var})||'\"";
+                    return $"\"'||{var}||'\"";
                 default:
                     return $"\"'||{var}||'\"";
             }
@@ -324,6 +325,8 @@ namespace ETL_DB_Interface
         {
             switch (type.ToUpper())
             {
+                case "LONG":
+                    return "bigint";
                 case "DATE":
                 case "INTEGER":
                 case "BOOLEAN":
@@ -336,6 +339,7 @@ namespace ETL_DB_Interface
         {
             switch (type.ToUpper())
             {
+
 //                case "DATE":
                 case "INTEGER":
                 case "BOOLEAN":
@@ -378,10 +382,10 @@ where n.nodeid=@id and n.isdeleted=false and a.name is not null";
                 }
             }
 
+//            select('{"+string.Join(', ',jsons)+ $",\"extProcId\":{{\"value\":\"{CamundaID}\""+ @",""type"":""String""},' || command || '}')::jsonb into params;
 
-                string body = @"CREATE OR REPLACE FUNCTION fp.etlpackage_"+packageName+@"(
-	"+string.Join(',',arguments)+((arguments.Count>0)?",":"")+ @"
-	command text)
+            string body = @"CREATE OR REPLACE FUNCTION fp.etlpackage_"+packageName+@"(
+	"+string.Join(',',arguments)+((arguments.Count>0)?",":"")+ @"pgroupid bigint DEFAULT NULL::bigint)
     RETURNS bigint
     LANGUAGE 'plpgsql'
     COST 100
@@ -390,7 +394,7 @@ AS $BODY$
 DECLARE
     params jsonb;
 BEGIN
-    select ('{"+string.Join(',',jsons)+ $",\"extProcId\":{{\"value\":\"{CamundaID}\""+ @",""type"":""String""},'||command||'}')::jsonb into params;
+    select ('{" + string.Join(',',jsons)+ $",\"extProcId\":{{\"value\":\"{CamundaID}\""+ @",""type"":""String""}}')::jsonb into params;
     /*
       Автоматически создаваемая задача исполнения ETL "+$"{packageName} {packageDescription}"+ @".
       Входные параметры:
@@ -401,7 +405,7 @@ BEGIN
       Выходные параметры:
         id_ - идентификатор запущенного задания
     */
-    return app_insert_actions(pjparam := params, pcamunda_proc_id := 'main_etl_job');
+    return app_insert_actions(pjparam := params, pcamunda_proc_id := 'main_etl_job',pgroupid := pgroupid);
 END
 $BODY$;
 ";
@@ -523,6 +527,8 @@ $BODY$;
             public bool is2Skip = false;
             public string Name1Table = "";
             public string Alias1Table="";
+            public ItemTable table1;
+            public ItemTable table2;
             public string Name2Table="";
             public string Alias2Table="";
             public string NameColumns1="";
@@ -558,6 +564,7 @@ $BODY$;
         {
             public int src_id;
             public string src_name;
+            public string scema;
             public bool pci_dss_zone;
             public int seq_id;
             public string Name = "";
@@ -567,7 +574,8 @@ $BODY$;
             public string sqlurl = "";
             public int IntervalUpdateInSec = 0;
             public List<RelItem> optionalRelItems = new List<RelItem>();
-            public class SelectListItem
+
+        public class SelectListItem
             {
                 public string expression = "";
                 public string alias = "";
@@ -720,16 +728,17 @@ $BODY$;
             string returnValue1 = "";
             foreach (var item in out_tables1)// itemTables)
             {
-                usedTables.Add(item.Item1);
+        
 //                if (onlyOneTable || items.Count(ii => (!ii.is1Skip && ii.Name1Table == item.Name && ii.Alias1Table == item.Alias) || (!ii.is2Skip && ii.Name2Table == item.Name && ii.Alias2Table == item.Alias)) > 0)
                 {
                     if (item.Item1.SelectList.Count >0 )
                     {
                         foreach (var srcCol in item.Item1.SelectList.Where(ii => columns1.Count(ii1 => ii1.Name == ii.expression && ii1.OutputTable== ii.outputTable) == 0 && ii.alias != "" && ii.expression != "").Select(ii => new ItemTable.ColumnItem() 
                         {
-                            Name = ii.alias, OutputTable=ii.outputTable, Type = ii.getAllColumnsFromExpression(item.Item1).First().Type, Lengtn = ii.getAllColumnsFromExpression(item.Item1).First().Lengtn
+                            Name = ii.alias, OutputTable=ii.outputTable, Type = ii.getAllColumnsFromExpression(item.Item1).First().Type,SensitiveData= ((ii.getAllColumnsFromExpression(item.Item1).Count(i6=>i6.SensitiveData!="")>0)? ii.getAllColumnsFromExpression(item.Item1).First(i6 => i6.SensitiveData != "").SensitiveData:""), Lengtn = ii.getAllColumnsFromExpression(item.Item1).First().Lengtn
                         }))
                         {
+                            
                             columns1.Add(srcCol);
                             relColumns.Add(new RelItem() { srcTable = item.Item1, colSrc = srcCol, colDst = srcCol });                    
                         }
@@ -745,15 +754,17 @@ $BODY$;
                         whereCondition += "(" + prepareSQLString(item.Item1.Condition, item.Item1) + ")";
 
                     }
+                    usedTables.Add(item.Item1);
                 }
+
                 if(item.Item2 == null)
-                    returnValue1 += $"{item.Item1.Name}  {item.Item1.Alias} \r\n";
+                    returnValue1 += $"{item.Item1.scema}.{item.Item1.Name}  {item.Item1.Alias} \r\n";
                 else
                 {
                     if (!(item.Item2.Name2Table==item.Item1.Name && item.Item2.Alias2Table== item.Item1.Alias))
-                        returnValue1 += $" inner join  {item.Item2.Name1Table} {item.Item2.Alias1Table} on ({item.Item2.getOnClause()})  \r\n";
+                        returnValue1 += $" inner join  {item.Item2.table1.scema}.{item.Item2.Name1Table} {item.Item2.Alias1Table} on ({item.Item2.getOnClause()})  \r\n";
                     else
-                        returnValue1 += $" inner join   {item.Item2.Name2Table} {item.Item2.Alias2Table} on ({item.Item2.getOnClause()})  \r\n";
+                        returnValue1 += $" inner join   {item.Item2.table2.scema}.{item.Item2.Name2Table} {item.Item2.Alias2Table} on ({item.Item2.getOnClause()})  \r\n";
 
                 }
 
@@ -867,7 +878,7 @@ $BODY$;
             public string description = "";
             public int dest_id = 2;
             public string dest_name;
-            public int keyCount = 1;
+            public string ETL_add_par;
             public List<ItemTable> allTables = new List<ItemTable>();
             public List<CamundaProcess.ExternalTask> usedExternalTasks= new List<CamundaProcess.ExternalTask>();
             ItemTable getTable(int i,int countAll)
@@ -884,6 +895,7 @@ $BODY$;
                     task.outputPath = $"tmp_table{i}_{this.packet_id}";
                 task.indexes.AddRange(allTables.Where(ii => ii.seq_id == i && ii.needed_indexes.Count > 0).Select(ii => ii.needed_indexes));
                 task.source_id = allTables.First().src_id;
+                task.scema= allTables.First().scema;
                 if (isFinishTask && i > 1)
                     task.source_id = 5; //Temp decision
                 else
@@ -891,6 +903,7 @@ $BODY$;
                 List<RelItem> outCols;
                 List<ItemTable.ColumnItem> columns = getColumnsForStep(list, allTables, i, variables, task,out outCols);
                 task.outputTable.src_id = task.source_id;
+                task.outputTable.scema = task.scema;
                 task.outputTable.optionalRelItems= outCols; 
                 return task.outputTable;
             }
@@ -943,14 +956,14 @@ $BODY$;
 
             int countTask = fillInitSeqID(package);
             //            string outputPath = "outputTable";
-            bool isExternalDest = countTask == 1 /*&& list[0].srcId != 2*/ && package.dest_id != 5;
+            bool isExternalDest = countTask == 1 /*&& list[0].srcId != 2*/ && package.dest_id != 5 && package.dest_id != 11;
             for (int i = 1; i <= countTask; i++)
             {
-                await AddTask(package,conn, process, package.list, package.allTables, tasks, (countTask == 1 && !isExternalDest), package.outputTable, i, package.dest_id, id, package.variables, package.keyCount);
+                await AddTask(package,conn, process, package.list, package.allTables, tasks, (countTask == 1 && !isExternalDest), package.outputTable, i, package.dest_id, id, package.variables, package.ETL_add_par);
             }
             if (countTask == 0)
             {
-                await AddTask(package,conn, process, package.list, package.allTables, tasks, false, package.outputTable, 1, package.dest_id, id, package.variables, package.keyCount);
+                await AddTask(package,conn, process, package.list, package.allTables, tasks, false, package.outputTable, 1, package.dest_id, id, package.variables, package.ETL_add_par);
                 countTask = 1;
                 isExternalDest = countTask == 1 && package.dest_id != 5;
             }
@@ -973,7 +986,7 @@ $BODY$;
                         //                        rel.isExternal = true; //No!!!!
                         package.list.Add(rel);
 
-                        await AddTask(package,conn, process, package.list, package.allTables, tasks, true, package.outputTable, rel.seq_id, package.dest_id, id, package.variables, package.keyCount);
+                        await AddTask(package,conn, process, package.list, package.allTables, tasks, true, package.outputTable, rel.seq_id, package.dest_id, id, package.variables, package.ETL_add_par);
 
                     }
 
@@ -983,7 +996,7 @@ $BODY$;
             {
                 tasks[0].seq_id = 1;
                 tasks[0].outputTable.seq_id = 2;
-                await AddTask(package, conn, process, new List<ItemRel>() { }, new List<ItemTable>() { tasks[0].outputTable }, tasks, true, package.outputTable, 2, package.dest_id, id, package.variables, package.keyCount);
+                await AddTask(package, conn, process, new List<ItemRel>() { }, new List<ItemTable>() { tasks[0].outputTable }, tasks, true, package.outputTable, 2, package.dest_id, id, package.variables, package.ETL_add_par);
 
             }
 
@@ -1253,7 +1266,7 @@ left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
                             {
                                 var val1 = reader.GetString(4);
                                 if (!string.IsNullOrEmpty(val1))
-                                    package.keyCount = Convert.ToInt32(reader.GetString(4));
+                                    package.ETL_add_par = (reader.GetString(4));
                             }
                         }
                     }
@@ -1443,8 +1456,9 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
         private static async Task FillTableInfo(NpgsqlConnection conn, List<ItemTable> allTables, ItemRel item,long id)
         {
             {
+                long oldid = -1;
                 string command = @"select at.val,n.name,st.val,st1.val,a1.toid,torig.srcid
-,au.val url,asq.val isql,asi.val intrval,src.descr,true,st9.val
+,au.val url,asq.val isql,asi.val intrval,src.descr,true,st9.val,src.schema,n.nodeid
 from md_arc a
 inner join md_node n on(n.nodeid = a.toid and n.typeid = md_get_type('ETLTable') and n.isdeleted=false)
 inner join md_arc a1 on (n.nodeid=a1.fromid  and a1.isdeleted=false)
@@ -1459,7 +1473,9 @@ left join md_node_attr_val st on(st.nodeid = n.nodeid and st.attrid = 41/*md_get
 left join md_node_attr_val st9 on(st9.nodeid = n.nodeid and st9.attrid = 115/*md_get_attr('SelectList')*/)
 left join md_node_attr_val st1 on(st1.nodeid = n.nodeid and st1.attrid =40/* md_get_attr('Condition')*/)
 left join md_src src on( src.srcid=torig.srcid)
-where a.fromid = @id  and a.isdeleted=false";
+where a.fromid = @id  and a.isdeleted=false
+order by n.nodeid
+";
                 await using (var cmd = new NpgsqlCommand(command, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
@@ -1500,22 +1516,34 @@ where a.fromid = @id  and a.isdeleted=false";
                             string outputTables = "";
                             if (!reader.IsDBNull(11))
                                 outputTables = reader.GetString(11);
+                            string scema = reader.GetString(12);
+                            long etlid=reader.GetInt64(13);
 
-                            if (allTables.Count(ii => ii.Name == table && ii.Alias == alias) == 0)
+
+                            ItemTable tab = allTables.FirstOrDefault(ii => ii.Name == table && ii.Alias == alias);
+                            if (tab==null)
                             {
                                 var sel1= selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).ToArray();
                                 var out1=outputTables.Split(',');
-                                allTables.Add(new ItemTable() { src_name=src_name, pci_dss_zone=pci_dss_zone, url=url, sqlurl=sqlurl, IntervalUpdateInSec=interval, src_id=src_id, Name = table, Alias = alias, Condition = condition, SelectList =Enumerable.Range(0,sel1.Length).Select(ii => new ItemTable.SelectListItem(sel1[ii], ((out1.Length > ii) ? out1[ii]:"")) { fromOriginalSelect = true }).ToList(), TableId = table_id });
+                                tab = new ItemTable() { scema = scema, src_name = src_name, pci_dss_zone = pci_dss_zone, url = url, sqlurl = sqlurl, IntervalUpdateInSec = interval, src_id = src_id, Name = table, Alias = alias, Condition = condition, SelectList = Enumerable.Range(0, sel1.Length).Select(ii => new ItemTable.SelectListItem(sel1[ii], ((out1.Length > ii) ? out1[ii] : "")) { fromOriginalSelect = true }).ToList(), TableId = table_id };
+                                allTables.Add(tab);
+                            }  else
+                            {
+                                
+                                if (condition != "" && !tab.Condition.Contains(condition))
+                                    tab.Condition += " AND " + condition;
                             }
                             if (item != null)
                             {
                                 if (item.Name1Table == "")
                                 {
+                                    item.table1 = tab;
                                     item.Name1Table = table;
                                     item.Alias1Table = alias;
                                 }
                                 else
                                 {
+                                    item.table2 = tab;
                                     item.Name2Table = table;
                                     item.Alias2Table = alias;
 
@@ -1532,9 +1560,9 @@ where a.fromid = @id  and a.isdeleted=false";
             }
         }
 
-        private static async Task AddTask(ETL_Package package,NpgsqlConnection conn, CamundaProcess process, List<ItemRel> list, List<ItemTable> allTables, List<ItemTask> tasks, bool isFinishTask, string outputPath, int i,int dest_id,long package_id,List<ItemVar> variables,int keyCount)
+        private static async Task AddTask(ETL_Package package,NpgsqlConnection conn, CamundaProcess process, List<ItemRel> list, List<ItemTable> allTables, List<ItemTask> tasks, bool isFinishTask, string outputPath, int i,int dest_id,long package_id,List<ItemVar> variables,string addPar)
         {
-            ItemTask task = new ItemTask() { keyCount = keyCount };
+            ItemTask task = new ItemTask() { addPar = addPar };
             task.seq_id = i;
             if (isFinishTask)
                 task.outputPath = outputPath.ToLower();
@@ -1542,9 +1570,10 @@ where a.fromid = @id  and a.isdeleted=false";
                 task.outputPath = $"tmp_table{i}_{package_id}";
             task.indexes.AddRange(allTables.Where(ii => ii.seq_id == i && ii.needed_indexes.Count > 0).Select(ii => ii.needed_indexes));
             task.source_id = allTables.First().src_id;
+            task.scema = allTables.First().scema;
             if (isFinishTask && i > 1)
                 task.source_id = 5; //Temp decision
-            if (isFinishTask && i > 1)
+            if (isFinishTask /*&& i > 1*/  )
                 task.dest_id = dest_id; //Temp decision
                                         //            List<ItemTable.ColumnItem> selectList;
             List<RelItem> outCols;
@@ -1568,7 +1597,7 @@ where a.fromid = @id  and a.isdeleted=false";
             List<ItemTable.ColumnItem> columns;
 //            List<RelItem> outCols; 
             task.sqlExec = formSQLStatement(list.Where(ii => ii.seq_id == i), allTables.Where(ii => ii.seq_id == i), out columns, variables, task.dest_id,out outCols);
-            task.outputTable = new ItemTable() { Name = task.outputPath, columns = columns, seq_id = i, SelectList = columns.Select(ii => new ItemTable.SelectListItem(ii.Name,"")).ToList() };
+            task.outputTable = new ItemTable() {  scema=task.scema,Name = task.outputPath, columns = columns, seq_id = i, SelectList = columns.Select(ii => new ItemTable.SelectListItem(ii.Name,"")).ToList() };
             return columns;
         }
 
@@ -1730,12 +1759,13 @@ where a.fromid = @id  and a.isdeleted=false";
         {
             public int seq_id;
             public int source_id = 1;
+            public string scema;
             public int dest_id = 5;
             public string outputPath;
             public List<List<ItemTable.ColumnItem>> indexes =  new List<List<ItemTable.ColumnItem>>();
             public string sqlExec;
             public ItemTable outputTable;
-            public int keyCount = 1;
+            public string addPar;
             string indexesDescription()
             {
                 if (indexes.Count == 0)
@@ -1799,7 +1829,11 @@ where a.fromid = @id  and a.isdeleted=false";
             }
 
             
-
+            public class BriefDictionaryDef
+            {
+                public string[] keys { get; set; }
+                public string[] otherfield { get; set; }
+            }
             public class DictionaryDefiner
             {
                 public class Field
@@ -1839,12 +1873,36 @@ where a.fromid = @id  and a.isdeleted=false";
 
                 if (dest_id == 11)
                 {
-                    DictionaryDefiner def= new DictionaryDefiner();
+                    BriefDictionaryDef defOut = null;
+                    if (!string.IsNullOrEmpty(package.ETL_add_par))
+                        defOut = JsonSerializer.Deserialize<BriefDictionaryDef>(package.ETL_add_par);
+                    retValue.author = "Yury Gasnikov";
+                    DictionaryDefiner def = new DictionaryDefiner();
                     def.Name = this.outputPath;
-                    def.Key = string.Join(',', columnList.GetRange(0, this.keyCount));
-                    def.Fields = new List<DictionaryDefiner.Field>();
-                    foreach( var col in columnList)
-                        def.Fields.Add( new DictionaryDefiner.Field() {  Name=col.Name, Type=col.Type, SensData=col.SensitiveData, synonym=col.synonym });
+                    int keyCount = 1;
+                    if (defOut != null)
+                    {
+                        keyCount = defOut.keys.Length;
+                        def.Key = string.Join(",", defOut.keys);
+                        def.Fields = new List<DictionaryDefiner.Field>();
+                        foreach (var col1 in defOut.keys)
+                        {
+                            var col = columnList.First(ii => ii.Name == col1);
+                            def.Fields.Add(new DictionaryDefiner.Field() { Name = col.Name, Type = col.Type, SensData = col.SensitiveData, synonym = col.synonym });
+                        }
+                        foreach (var col1 in defOut.otherfield)
+                        {
+                            var col = columnList.First(ii => ii.Name == col1);
+                            def.Fields.Add(new DictionaryDefiner.Field() { Name = col.Name, Type = col.Type, SensData = col.SensitiveData, synonym = col.synonym });
+                        }
+                    }
+                    else
+                    {
+                        def.Key = string.Join(',', columnList.GetRange(0, 1));
+                        def.Fields = new List<DictionaryDefiner.Field>();
+                        foreach (var col in columnList)
+                            def.Fields.Add(new DictionaryDefiner.Field() { Name = col.Name, Type = col.Type, SensData = col.SensitiveData, synonym = col.synonym });
+                    }
                     await SaveDictionaryMeta(dest_id, def,conn);
                     int posBase = src.dsn.LastIndexOf("/");
                     int posPort = src.dsn.LastIndexOf(":");
@@ -1861,20 +1919,21 @@ where a.fromid = @id  and a.isdeleted=false";
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("DictAddr", dest.dsn, "Connection string of target kv database"));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("MaxRecords","1000","Count of one moment count of transferred records"));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLText", sqlExec,"SQL statement"));
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SensitiveData",String.Join(", " ,columnList.Select(ii=>ii.SensitiveData),"Names of columns with sensitive data (',' delimiter)")));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SensitiveData",String.Join(", " ,columnList.Select(ii=>ii.SensitiveData)),"Names of columns with sensitive data (',' delimiter)"));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("CountInKey", keyCount.ToString(),"Count of first columns, which includes to kv key(by concatenation)"));
-                    
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Variables", String.Join(", ", variables.Select(ii => ii.Name),"List of package variables(',' delimiter)")));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Fields", string.Join(',', def.Fields.Select(ii=>ii.Name)), "Fields of dictionary(delimiter ',')"));
+
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Variables", String.Join(", ", variables.Select(ii => ii.Name)),"List of package variables(',' delimiter)"));
 
                     retValue.topic = "to_dict_sender";
                 }
                 else
                 {
 
+                    retValue.noDescribe = true;
 
-
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SNAME", src.name));
-                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("TNAME", dest.name));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SName", src.name));
+                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("TName", dest.name));
 /*                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SDSN", src.dsn));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SLogin", src.login));
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SPassword", src.password));
@@ -2045,7 +2104,7 @@ and b.srcid=@id
         public static async Task<List<ItemTable.ColumnItem>> getColumns(long id, NpgsqlConnection conn)
         {
             List<ItemTable.ColumnItem> retValue = new List<ItemTable.ColumnItem>();
-            var command = @"select  n2.Name,a2.key,nav3.val,n2.synonym,sens.val
+            var command = @"select  n2.Name,a2.key,nav3.val,n2.synonym,md.md_find_sensitive(n2.nodeid)
     from md_node n1, md_arc a1, 
 md_node n2 
 left join md_node_attr_val nav3 on(n2.NodeID=nav3.NodeID and nav3.AttrID=29 )
@@ -2070,6 +2129,10 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                     {
                         var item = new ItemTable.ColumnItem();
                         item.Name=reader.GetString(0);
+                        if(item.Name=="pan")
+                        {
+                            int yy = 0;
+                        }
                         item.Type=reader.GetString(1);
                         item.Lengtn = 1;
                         if(!reader.IsDBNull(2))

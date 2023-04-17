@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:scripter="http://scripti.com/modeler7654" id="exampleSum" name="Summator" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
   <extensionElements>
-    <scripter:script name="ToIndy">    
-            using BlazorDmnInterface.Client.Pages;
-            public string TransformToIndy(SignalledRule[]  rules)
-          {
-              return "FFFFFFFDDDD";
-          }
-      </scripter:script>
+    <scripter:script name="ToIndy">
+      using BlazorDmnInterface.Client.Pages;
+      public string TransformToIndy(SignalledRule[]  rules)
+      {
+      return "FFFFFFFDDDD";
+      }
+    </scripter:script>
     <scripter:script name="row1">1005</scripter:script>
   </extensionElements>
   <inputData id="dayType_id" name="InputRecord">
@@ -26,6 +26,9 @@
     <informationRequirement id="InformationRequirement_0bxln69">
       <requiredDecision href="#Decision_11jgy39" />
     </informationRequirement>
+    <informationRequirement id="InformationRequirement_1fldmw1">
+      <requiredDecision href="#Decision_0htz6p0" />
+    </informationRequirement>
     <decisionTable id="DecisionTable_0b99csc" hitPolicy="FIRST">
       <input id="InputClause_04lbz3d">
         <inputExpression id="LiteralExpression_0twiv3p" typeRef="number">
@@ -42,10 +45,80 @@
           <text>CountOfInactiveRules</text>
         </inputExpression>
       </input>
+      <input id="InputClause_03bh4kz">
+        <inputExpression id="LiteralExpression_0vsn8o6" typeRef="string">
+          <text>SignalledRules.Count(jj=&gt;jj.Result=="decline")</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_1b7f38t">
+        <inputExpression id="LiteralExpression_1uxbmsr" typeRef="string">
+          <text>CountWhiteList</text>
+        </inputExpression>
+      </input>
       <output id="OutputClause_021evse" label="OutResult" name="OutResult" typeRef="number" />
       <output id="OutputClause_1p2uajf" name="v3ds" typeRef="string" />
       <output id="OutputClause_1epw2zy" name="SaveAlert" typeRef="number" />
       <output id="OutputClause_0aeuras" name="OutComment" typeRef="string" />
+      <rule id="DecisionRule_1of1brv">
+        <description>White list rule signalled</description>
+        <inputEntry id="UnaryTests_1f80w2n">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1kxatsj">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1xw1bxl">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_054vca1">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_00eb3sp">
+          <text>&gt;0</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_103a0l8">
+          <text>1</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_1froodt">
+          <text>"frictionless"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0557b4b">
+          <text>1</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0q753dl">
+          <text>"White list rule signalled"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1hkkpvt">
+        <description>Abnormal behavior signalled</description>
+        <inputEntry id="UnaryTests_18hwkmh">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1vhsgc2">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_18x1igf">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0dknl0a">
+          <text>&gt;0</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_196cotk">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0y3ugyk">
+          <text>1</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_1havsj0">
+          <text>"decline"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_1px53bb">
+          <text>1</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_09v1at7">
+          <text>"Abnormal behavior signalled"</text>
+        </outputEntry>
+      </rule>
       <rule id="DecisionRule_1l0l4bi">
         <description>Inactive rules detected</description>
         <inputEntry id="UnaryTests_0v383ug">
@@ -57,8 +130,14 @@
         <inputEntry id="UnaryTests_0tekjdw">
           <text>&gt;0</text>
         </inputEntry>
+        <inputEntry id="UnaryTests_1csjp6e">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_13mem0k">
+          <text></text>
+        </inputEntry>
         <outputEntry id="LiteralExpression_1ye1uto">
-          <text>1</text>
+          <text>0</text>
         </outputEntry>
         <outputEntry id="LiteralExpression_04i30os">
           <text>"challenge"</text>
@@ -81,8 +160,14 @@
         <inputEntry id="UnaryTests_0kxmwhb">
           <text></text>
         </inputEntry>
+        <inputEntry id="UnaryTests_1t2yu6n">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1fsb65o">
+          <text></text>
+        </inputEntry>
         <outputEntry id="LiteralExpression_0zg0bkk">
-          <text>1</text>
+          <text>0</text>
         </outputEntry>
         <outputEntry id="LiteralExpression_1u24zqq">
           <text>"challenge"</text>
@@ -103,6 +188,12 @@
           <text></text>
         </inputEntry>
         <inputEntry id="UnaryTests_1p7noi0">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1jvimjh">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0lfsclk">
           <text></text>
         </inputEntry>
         <outputEntry id="LiteralExpression_11o20v3">
@@ -129,8 +220,14 @@
         <inputEntry id="UnaryTests_18tyh1m">
           <text></text>
         </inputEntry>
+        <inputEntry id="UnaryTests_0joyqye">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0zw4z27">
+          <text></text>
+        </inputEntry>
         <outputEntry id="LiteralExpression_0m707he">
-          <text>1</text>
+          <text>0</text>
         </outputEntry>
         <outputEntry id="LiteralExpression_0vj8lhh">
           <text>"challenge"</text>
@@ -170,6 +267,15 @@
     </informationRequirement>
     <literalExpression id="LiteralExpression_0snx4pp">
       <text>InactiveRules.Count()</text>
+    </literalExpression>
+  </decision>
+  <decision id="Decision_0htz6p0" name="Count signalledВ  white list rules">
+    <variable id="InformationItem_00jmihf" name="CountWhiteList" typeRef="integer" />
+    <informationRequirement id="InformationRequirement_0qllzdm">
+      <requiredInput href="#temperature_id" />
+    </informationRequirement>
+    <literalExpression id="LiteralExpression_1e4d3oj">
+      <text>SignalledRules.Count(jj=&gt;jj.RuleID=="CheckWhiteListEcom")</text>
     </literalExpression>
   </decision>
   <textAnnotation id="TextAnnotation_1">
@@ -245,27 +351,40 @@
         <di:waypoint x="660" y="230" />
       </dmndi:DMNEdge>
       <dmndi:DMNShape id="DMNShape_05tv9m2" dmnElementRef="InputData_1x6w4j4">
-        <dc:Bounds height="45" width="125" x="297" y="287" />
+        <dc:Bounds height="45" width="125" x="277" y="457" />
       </dmndi:DMNShape>
       <dmndi:DMNShape id="DMNShape_102zdy4" dmnElementRef="TextAnnotation_1enhxao">
-        <dc:Bounds height="80" width="100" x="160" y="270" />
+        <dc:Bounds height="80" width="100" x="160" y="440" />
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="DMNEdge_1vdpzhv" dmnElementRef="Association_0sag1i7">
-        <di:waypoint x="260" y="307" />
-        <di:waypoint x="297" y="314" />
+        <di:waypoint x="260" y="477" />
+        <di:waypoint x="277" y="484" />
       </dmndi:DMNEdge>
       <dmndi:DMNShape id="DMNShape_0s67clu" dmnElementRef="Decision_11jgy39">
-        <dc:Bounds height="80" width="180" x="450" y="280" />
+        <dc:Bounds height="80" width="180" x="470" y="440" />
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="DMNEdge_116w6gk" dmnElementRef="InformationRequirement_1rkpk2d">
-        <di:waypoint x="422" y="310" />
-        <di:waypoint x="430" y="320" />
-        <di:waypoint x="450" y="320" />
+        <di:waypoint x="402" y="480" />
+        <di:waypoint x="450" y="480" />
+        <di:waypoint x="470" y="480" />
       </dmndi:DMNEdge>
       <dmndi:DMNEdge id="DMNEdge_1pi7j8f" dmnElementRef="InformationRequirement_0bxln69">
-        <di:waypoint x="540" y="280" />
-        <di:waypoint x="750" y="290" />
-        <di:waypoint x="750" y="270" />
+        <di:waypoint x="560" y="440" />
+        <di:waypoint x="780" y="290" />
+        <di:waypoint x="780" y="270" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNShape id="DMNShape_0lucl39" dmnElementRef="Decision_0htz6p0">
+        <dc:Bounds height="80" width="180" x="450" y="290" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_0lle5yc" dmnElementRef="InformationRequirement_0qllzdm">
+        <di:waypoint x="360" y="242" />
+        <di:waypoint x="540" y="270" />
+        <di:waypoint x="540" y="290" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_0ws2ik1" dmnElementRef="InformationRequirement_1fldmw1">
+        <di:waypoint x="540" y="290" />
+        <di:waypoint x="720" y="290" />
+        <di:waypoint x="720" y="270" />
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

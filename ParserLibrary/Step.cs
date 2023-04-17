@@ -206,11 +206,19 @@ public partial class Step
         //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
-        if(saveAllResponses)
+        if(owner.saver != null)
         {
             contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
-            contextItem.currentScenario.mocs.Add(new Scenario.Item() { IDStep = this.IDStep, isMocReceiverEnabled = true, MocFileReceiver = input });
+            if (owner.saver != null)
+                contextItem.currentScenario.getStepItem(this).MocFileReceiver=owner.saver.save(input);
+
         }
+
+        /*        if (saveAllResponses)
+                {
+                    contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
+                    contextItem.currentScenario.mocs.Add(new Scenario.Item() { IDStep = this.IDStep, isMocReceiverEnabled = true, MocFileReceiver = input });
+                }*/
         owner.lastExecutedEl = rootElement;
         if (!isBridge)
         {
@@ -229,8 +237,13 @@ public partial class Step
                     }*/
                 var ans = await sender?.send(input,contextItem);
 
-                await _receiverHost.sendResponse(ans, context);
-                if(saveAllResponses)
+                await _receiverHost.sendResponse(ans, contextItem);
+
+                if (contextItem?.currentScenario != null)
+                {
+                    owner.saver.save(JsonSerializer.Serialize<Scenario>(contextItem?.currentScenario), ".scn");
+                }
+   /*             if(saveAllResponses)
                 {
                     Scenario.Item item= contextItem.currentScenario.mocs.FirstOrDefault(ii=>ii.IDStep== this.IDStep);
                     if (item == null)
@@ -243,6 +256,7 @@ public partial class Step
                         item.isMocSenderEnabled = true;
                         item.MocFileSender = ans;   
                     }
+                    
                     this.owner.scenarios.Enqueue(contextItem.currentScenario);
                     if (saveScenarious == null)
                         saveScenarious = Task.Run( () => 
@@ -269,7 +283,7 @@ public partial class Step
                         }
                         );
 
-                }
+                }*/
             }
             catch (Exception e66)
             {
@@ -674,7 +688,7 @@ public partial class Step
                 content = local_rootOutput.toJSON();
             else
                 content= await sender.send(local_rootOutput,context);
-            await step.receiver.sendResponse(content, context.context);
+            await step.receiver.sendResponse(content, context);
             foreach (var node in local_rootOutput.childs)
             {
                 node.ancestor = toNode;

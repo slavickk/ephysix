@@ -70,6 +70,7 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
             }
 
             {
+                long oldId = -1;
                 await using (var cmd = new NpgsqlCommand(@"select t1.name,at1.val alias1, at2.val selectList1, att1.toid idTable, t1.nodeid idetlTable,f.val as condition,at3.val from md_node t1 
  inner join md_arc a1 on (a1.fromid = @id and t1.nodeid = a1.toid)
      inner join md_arc att1 on(att1.fromid = t1.nodeid)
@@ -78,6 +79,7 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
      left join md_node_attr_val at3 on(t1.nodeid = at3.nodeid and at3.attrid = 115)
      left join md_node_attr_val f on (t1.nodeid = f.nodeid and f.attrid = 40)
      where t1.typeid = md_get_type('ETLTable') and t1.isdeleted=false
+	 order by t1.nodeid
 ", conn))
                 {
                     package.conditions.Clear();
@@ -103,32 +105,36 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
                                 table = new ETL_Package.ItemTable() { alias = alias, table_name = table_name, etl_id = etl_id, table_id = table_id };
                                 package.allTables.Add(table);
                             }
-                            string outTablesList = "";
-                            string[] outTables = null;
-                            if (!reader.IsDBNull(6))
+                            if (etl_id != oldId)
                             {
-                                outTablesList = reader.GetString(6);
-                                outTables = outTablesList.Split(',');
-                            }
-
-                            var selectList = reader.GetString(2);
-                            var selListSplit = selectList.Split(",");
-                            for (int i=0;i <selListSplit.Length;i++)
-                            {
-                                var it = selListSplit[i];
-                                var outTable = "";// package.TableOutputName.First();
-                                if(outTables?.Length>i)
-                                    outTable= outTables[i];
-                                GenerateStatement.ItemTable.SelectListItem selectItem = new GenerateStatement.ItemTable.SelectListItem(it,outTable);
-
-                                package.selectedFields.Add(new ETL_Package.ItemSelectedList()
+                                string outTablesList = "";
+                                string[] outTables = null;
+                                if (!reader.IsDBNull(6))
                                 {
-                                    sourceColumn = new ETL_Package.ItemColumn()
-                                    { table = table, col_name = selectItem.expression, alias = selectItem.alias }
-                                    ,
-                                    outputTable = ((outTables == null) ? package.OutputTables.First() : outTables[i])
-                                });
+                                    outTablesList = reader.GetString(6);
+                                    outTables = outTablesList.Split(',');
+                                }
+
+                                var selectList = reader.GetString(2);
+                                var selListSplit = selectList.Split(",");
+                                for (int i = 0; i < selListSplit.Length; i++)
+                                {
+                                    var it = selListSplit[i];
+                                    var outTable = "";// package.TableOutputName.First();
+                                    if (outTables?.Length > i)
+                                        outTable = outTables[i];
+                                    GenerateStatement.ItemTable.SelectListItem selectItem = new GenerateStatement.ItemTable.SelectListItem(it, outTable);
+
+                                    package.selectedFields.Add(new ETL_Package.ItemSelectedList()
+                                    {
+                                        sourceColumn = new ETL_Package.ItemColumn()
+                                        { table = table, col_name = selectItem.expression, alias = selectItem.alias }
+                                        ,
+                                        outputTable = ((outTables == null) ? package.OutputTables.First() : outTables[i])
+                                    });
+                                }
                             }
+                            oldId = etl_id;
                             if (!reader.IsDBNull(5))
                             {
                                 package.conditions.Add(new ETL_Package.ItemAddCondition() { condition = reader.GetString(5), table = table });
@@ -176,6 +182,28 @@ where r.isdeleted = false
             }
             return package;
         }
+
+
+        public static async Task<(int,string)> GetSrcIdForNodeId(NpgsqlConnection conn,long nodeid)
+        {
+            List<ItemPackage> packages = new List<ItemPackage>();
+            await using (var cmd = new NpgsqlCommand(@"select n.srcid,s.schema from md_node n,md_src s 
+where n.srcid=s.srcid and n.nodeid=@nodeid", conn))
+            {
+                cmd.Parameters.AddWithValue("@nodeid", nodeid);
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        return (reader.GetInt32(0),reader.GetString(1));
+//                        packages.Add(new ItemPackage() { Name = reader.GetString(1), id = reader.GetInt64(0) });
+                    }
+                }
+            }
+            return (-1,"");
+  //          return packages;
+        }
+
         public static async Task<List<ItemPackage>> GetSrcItems(NpgsqlConnection conn)
         {
             List<ItemPackage> packages = new List<ItemPackage>();
@@ -210,7 +238,7 @@ where nt.nodeid=@id and nc.isdeleted=false
                     {
                         table.columns.Add(new ETL_Package.ItemColumn() { table = table, col_name = reader.GetString(0), col_id = reader.GetInt64(1) });
                         table.table_name= reader.GetString(2);
-                        table.scema= reader.GetString(3);
+                        table.src_name= reader.GetString(3);
                         table.src_id=reader.GetInt32(4);
                         table.pci_dss_zone= reader.GetBoolean(5);
 //                        list.Add(new ETL_Package.ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), scema = reader.GetString(4) } });
@@ -220,9 +248,19 @@ where nt.nodeid=@id and nc.isdeleted=false
 
             return table;
         }
-       
 
-        public class SourceTableItem
+        public class SourceTableItemAgg
+        {
+            public long table_id;
+            public string table_name;
+            public int countFields;
+            public string fields;
+            public override string ToString()
+            {
+                return $"{table_name}:{countFields}({fields})";
+            }
+        }
+            public class SourceTableItem
         {
             public long table_id;
             public string table_name;
@@ -236,7 +274,38 @@ where nt.nodeid=@id and nc.isdeleted=false
             public List<ItemColumnRef> columns= new List<ItemColumnRef>();
         }
 
-        
+        public static async Task<List<SourceTableItemAgg>> getSrcForTableAgg(NpgsqlConnection conn, string tableName, int dest_id, int src_id)
+        {
+            List<SourceTableItemAgg> retValue = new List<SourceTableItemAgg>();
+            await using (var cmd = new NpgsqlCommand(@"
+select t1.name src_table,t1.nodeid,count(*),STRING_AGG ( snode.name, ',' )
+from md_node c
+inner join md_arc l2 on (l2.fromid = c.nodeid and l2.typeid=md_get_type('Column2Table'))
+inner join md_node nt on (l2.toid=nt.nodeid )
+inner join md_node snode on (snode.synonym = c.synonym and snode.srcid=@srcid)
+inner join md_arc l1 on (l1.fromid = snode.nodeid and l1.typeid=md_get_type('Column2Table'))
+inner join md_node t1 on (l1.toid=t1.nodeid)
+where c.srcid=@destid and nt.name=@tablename
+GROUP BY t1.name,t1.nodeid
+order by count(*) desc
+", conn))
+            {
+                cmd.Parameters.AddWithValue("@srcid", src_id);
+                cmd.Parameters.AddWithValue("@destid", dest_id);
+                cmd.Parameters.AddWithValue("@tablename", tableName);
+                long lastId = -1;
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                            retValue.Add(new SourceTableItemAgg { table_id = reader.GetInt64(1), table_name = reader.GetString(0), countFields=reader.GetInt32(2), fields=reader.GetString(3) });
+                    }
+                }
+            }
+
+            return retValue;
+        }
+
         public static async Task<List<SourceTableItem>> getSrcForTable(NpgsqlConnection conn, string tableName,int dest_id,int src_id,string srcTableNameOrig)
         {
             List<SourceTableItem> retValue = new List<SourceTableItem>();
@@ -339,7 +408,7 @@ where nc.name like '%" + findString + "%' and nc.isdeleted=false", conn))
             {
                 while (await reader.ReadAsync())
                 {
-                    list.Add(new ETL_Package.ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), scema = reader.GetString(4) } });
+                    list.Add(new ETL_Package.ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), src_name = reader.GetString(4) } });
                 }
             }
 
@@ -360,7 +429,7 @@ where nt.name like '%" + findString + "%' and nc.isdeleted=false", conn))
             {
                 while (await reader.ReadAsync())
                 {
-                    list.Add(new ETL_Package.ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), scema = reader.GetString(4) } });
+                    list.Add(new ETL_Package.ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), src_name = reader.GetString(4) } });
                 }
             }
 
@@ -433,7 +502,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                             lastTable = new ETL_Package.ItemTable();
                             lastTable.table_name = reader.GetString(1);
                             lastTable.src_id = package.ETL_dest_id;
-                            lastTable.scema = reader.GetString(5);
+                            lastTable.src_name = reader.GetString(5);
                             lastTable.columns = new List<ETL_Package.ItemColumn>();
                             retValue.Add(lastTable);
                             lastId= id;

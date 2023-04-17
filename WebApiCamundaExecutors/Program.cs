@@ -19,7 +19,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -40,6 +40,9 @@ static void Prepare()
 {
     /*AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
     AssemblyLoadContext.Default.Unloading += Default_Unloading;*/
+    ConsulKV.CONSUL_ADDR = (Environment.GetEnvironmentVariable("CONSUL_ADDR") == null) ? "http://127.0.0.1:8500" : Environment.GetEnvironmentVariable("CONSUL_ADDR");
+
+//    ConsulKV.CONSUL_ADDR=
     string LogPath = Environment.GetEnvironmentVariable("LOG_PATH");
     //string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
     string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
@@ -80,12 +83,14 @@ static void Prepare()
     try
     {
         Log.Information(" Run executors.");
-        Action action = async () =>
+        Task.Run( async () =>
         {
             while (0 == 0)
             {
                 try
                 {
+                    Log.Information(" Fetching...");
+
                     await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler" });
                 }
                 catch (Exception e)
@@ -94,7 +99,8 @@ static void Prepare()
                     Log.Information("Restart fetch");
                 }
             }
-        };
+        });
+        
      //   new TaskFactory().StartNew(action, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default).ContinueWith((runner) => { Log.Information("Camunda  execurs stopped.Terminating application..."); System.Diagnostics.Process.GetCurrentProcess().Kill(); });
 
         Log.Information("Starting camunda executors web host ");

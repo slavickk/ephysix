@@ -54,7 +54,7 @@ namespace TestJsonRazbor
             listView1.Items.Clear();
             foreach (var it in scen.mocs)
             {
-                listView1.Items.Add(new ListViewItem(new string[] { it.IDStep, (it.isMocReceiverEnabled ? "Y" : "N"), it.MocFileReceiver, (it.isMocSenderEnabled ? "Y" : "N"), it.MocFileSender }));
+//???                listView1.Items.Add(new ListViewItem(new string[] { it.IDStep, (it.isMocReceiverEnabled ? "Y" : "N"), it.MocFileReceiver, (it.isMocSenderEnabled ? "Y" : "N"), it.MocFileSender }));
             }
         }
         int currentListItemSelection = -1;
@@ -68,10 +68,10 @@ namespace TestJsonRazbor
                 string[] arr = new string[comboBoxStep.Items.Count];
                 comboBoxStep.Items.CopyTo(arr, 0);
                 comboBoxStep.SelectedIndex = arr.ToList().IndexOf(currentScenarion.mocs[index].IDStep);
-                checkBoxRec.Checked = currentScenarion.mocs[index].isMocReceiverEnabled;
-                checkBoxSendEnable.Checked = currentScenarion.mocs[index].isMocSenderEnabled;
+//                checkBoxRec.Checked = currentScenarion.mocs[index].isMocReceiverEnabled;
+              //  checkBoxSendEnable.Checked = currentScenarion.mocs[index].isMocSenderEnabled;
                 textBox2.Text = currentScenarion.mocs[index].MocFileReceiver;
-                textBox3.Text = currentScenarion.mocs[index].MocFileSender;
+                textBox3.Text = currentScenarion.mocs[index].MocFileResponce;
             }
         }
 
@@ -81,11 +81,11 @@ namespace TestJsonRazbor
             {
                 var it = currentScenarion.mocs[currentListItemSelection];
                 it.IDStep = comboBoxStep.SelectedItem.ToString();
-                it.isMocReceiverEnabled = checkBoxRec.Checked;
-                it.isMocSenderEnabled = checkBoxSendEnable.Checked;
+//                it.isMocReceiverEnabled = checkBoxRec.Checked;//
+//                it.isMocSenderEnabled = checkBoxSendEnable.Checked;
                 it.MocFileReceiver = textBox2.Text;
-                it.MocFileSender = textBox3.Text;
-                listView1.Items[currentListItemSelection] = new ListViewItem(new string[] { it.IDStep, (it.isMocReceiverEnabled ? "Y" : "N"), it.MocFileReceiver, (it.isMocSenderEnabled ? "Y" : "N"), it.MocFileSender });
+                it.MocFileResponce = textBox3.Text;
+                listView1.Items[currentListItemSelection] = new ListViewItem(new string[] { it.IDStep, (!string.IsNullOrEmpty(it.MocFileReceiver) ? "Y" : "N"), it.MocFileReceiver, (!string.IsNullOrEmpty(it.MocFileResponce) ? "Y" : "N"), it.MocFileResponce });
 
 
 

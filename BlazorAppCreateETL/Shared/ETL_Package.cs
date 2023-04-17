@@ -30,6 +30,7 @@ namespace BlazorAppCreateETL.Shared
             public string table_name { get; set; }
             public int? src_id { get; set; }
             public bool? pci_dss_zone { get; set; }
+            public string src_name { get; set; }
             public string scema { get; set; }
             public long table_id { get; set; }
             public string alias { get; set; } = "";
@@ -53,9 +54,9 @@ namespace BlazorAppCreateETL.Shared
             public override string ToString()
             {
                 if (alias != "")
-                    return $"{table_name}({alias}) -{scema}";
+                    return $"{table_name}({alias}) -{src_name}";
                 else
-                    return $"{table_name}-{scema}";
+                    return $"{table_name}-{src_name}";
             }
         }
         public class ItemColumn

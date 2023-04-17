@@ -104,6 +104,7 @@
             this.comboBoxVarType.Items.AddRange(new object[] {
             "String",
             "Integer",
+            "Long",
             "Boolean","DATE"});
             this.comboBoxVarType.Location = new System.Drawing.Point(125, 57);
             this.comboBoxVarType.Name = "comboBoxVarType";

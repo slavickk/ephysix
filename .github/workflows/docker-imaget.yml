@@ -1,0 +1,40 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+#     Set global environment variables:
+    - name: set global env
+      id: global_env
+      run: |
+        echo "::set-output name=IMAGE_NAME::camundaexec"
+        echo "::set-output name=DOCKERHUB_IMAGE_NAME::docker.pkg.github.com/${GITHUB_REPOSITORY}/camundaexec"
+#        echo "::set-output name=TAGS::556"
+    
+    - name: Build the Docker image
+#      if: github.repository == 'octo-org/octo-repo-prod'
+      run: docker build . --file WebApiCamundaExecutors/Dockerfile -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:latest" -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:${GITHUB_SHA::8}"
+#      run: docker build . --file WebApiConsoleUtility/Dockerfile --tag my-image-name:$(date +%s)
+#  docker build -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:latest" -t "${{ steps.global_env.outputs.DOCKERHUB_IMAGE_NAME }}:${GITHUB_SHA::8}" .
+    - name: Docker login
+      run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p ${{secrets.GITHUB_TOKEN}}
+
+#     Publish image to github package repository:
+    - name: Publish image
+      env:
+        IMAGE_NAME: camundaexec
+      run: docker push "docker.pkg.github.com/$GITHUB_REPOSITORY/${{ steps.global_env.outputs.IMAGE_NAME }}"     
+#      with:
+#        tags: ${{ steps.global_env.outputs.tags }}

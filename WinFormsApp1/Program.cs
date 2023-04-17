@@ -11,6 +11,10 @@ namespace WinFormsApp1
         [STAThread]
         static void Main()
         {
+           /* var localTime = DateTime.Now;
+            DateTimeOffset localTimeAndOffset = new DateTimeOffset(localTime, TimeZoneInfo.Local.GetUtcOffset(localTime));
+
+            var q = localTime.ToString("o", System.Globalization.CultureInfo.InvariantCulture);*/
             GenerateStatement.camundaAddr = Environment.GetEnvironmentVariable("CAMUNDA_ADDR");
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.

@@ -9,6 +9,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ParserLibrary;
+using System.IO;
+using System.Xml.Linq;
+using System.Globalization;
 
 namespace CamundaInterface
 {
@@ -33,12 +36,21 @@ namespace CamundaInterface
             {
                 public string Name { get; set; }
                 public string Type { get; set; }
-                public string Detail { get; set; } = "Especcially for Ilya!";
+                public string Detail { get; set; } = "Exported from ETL package";
 
                 public static string ConvertType(string type)
                 {
+                    int index1=type.IndexOf('(');
+                    if(index1>=0)
+                        type=type.Substring(0, index1);
                     switch (type)
                     {
+                        case "timestamp":
+                        case "timestamp with time zone":
+                        case "date":
+                            return "DateTime";
+                        case "boolean":
+                            return "Boolean";
                         case "character varying":
                             return "String";
                             break;
@@ -55,7 +67,7 @@ namespace CamundaInterface
             }
 
             public string Name { get; set; }
-            public string Description { get; set; } = "!!!";
+            public string Description { get; set; } = "Dictionary exported from ETL";
             public List<Field> Fields { get; set; } = new List<Field>();
             public string Key { get; set; } = "";
 
@@ -74,10 +86,28 @@ namespace CamundaInterface
 
 
         static CryptoHash cryptoHash = new CryptoHash();
+        static IEnumerable<int> getColIndex(string[] columns,NpgsqlDataReader reader)
+        {
+            foreach (var col in columns)
+            {
+                for(int i=0; i < reader.FieldCount;i++)
+                    if(reader.GetName(i)== col)
+                        yield return i;
+            }
+        }
+        static IFormatProvider formatter = new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "" };
 
         public static async Task<ExportItem> putRequestToRefDataLoader(HttpClient client, string processId = "asdfa", string connectionStringBase = "User ID=postgres;Password=test;Host=localhost;Port=5432;", string connectionStringAdmin = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;",
-            string dictName = "People", string FID = "TEST", string command = "SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person", int maxRecord = 500, string baseAddr = "http://192.168.75.212:20226",string sensitiveDataArray="",int CountInKey=1)
+            string dictName = "People", string FID = "TEST", string command = "SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person", int maxRecord = 500, string baseAddr = "http://192.168.75.212:20226",string sensitiveDataArray="",int CountInKey=1,string columns="" )
         {
+
+       /*     connectionStringAdmin = connectionStringAdmin.Replace("service.consul", "service.dc1.consul");
+            connectionStringBase = connectionStringBase.Replace("service.consul", "service.dc1.consul");
+            baseAddr = baseAddr.Replace("service.consul", "service.dc1.consul");
+            sensitiveDataArray = ", , , , PAN";*/
+            var columnList =columns.Split(',');
+            if (columnList.Length == 0)
+                return null;
             NpgsqlConnection conn = null, connAdm = null;
 
             try
@@ -144,22 +174,28 @@ namespace CamundaInterface
                         {
                             string headerString = "";
                             Dictionary dict = new Dictionary() { Name = dictName };
-                            for (int i = 0; i < reader.FieldCount; i++)
+                            int i1 = 0;
+                            foreach(var i in getColIndex(columnList,reader))
+//                            for (int i = 0; i < reader.FieldCount; i++)
                             {
+                               // int i=reader.
                                 var type = reader.GetDataTypeName(i);
                                 var name = reader.GetName(i);
-                                if (i < CountInKey)
+                                if (i1 < CountInKey)
                                 {
-                                    dict.Key = (String.IsNullOrEmpty(dict.Key) ? "" : "+") + name;
+                                    dict.Key += (String.IsNullOrEmpty(dict.Key) ? "" : "+") + name;
                                     name = dict.Key;
                                 }
                                 else
                                     headerString += separator;
-                                if (i >= CountInKey - 1)
+                                if (i1 >= CountInKey - 1)
                                 {
                                     headerString += name;
+                                    if (i1 == CountInKey - 1)
+                                        type = "character varying";
                                     dict.Fields.Add(new Dictionary.Field() { Name = name, Type = Dictionary.Field.ConvertType(type) });
                                 }
+                                i1++;
                             }
                             sw.WriteLine(headerString);
                             if (hash != new_hash)
@@ -195,18 +231,34 @@ namespace CamundaInterface
                             while (await reader.ReadAsync())
                             {
                                 string bodyString = "";
-                                for (int i = 0; i < reader.FieldCount; i++)
+                                int i2 = 0;
+                                foreach (var i in getColIndex(columnList, reader))
+
+//                                    for (int i = 0; i < reader.FieldCount; i++)
                                 {
                                     var type = reader.GetDataTypeName(i);
-                                    if (i >= CountInKey)
+                                    if (i2 >= CountInKey)
                                         bodyString += separator;
                                     /*                            if(Dictionary.Field.ConvertType(type) == "String")
                                                                     bodyString+=reader.GetString(i);
                                                                 else
                                                                 { 
                                                                     if(type=="bigint")*/
-                                    var val = reader.GetValue(i).ToString();
-                                    if(val=="840")
+                                    i2++;
+                                    string val;
+                                    if(reader.GetFieldType(i) == typeof(double) )
+                                        val = reader.GetDouble(i).ToString("F4",formatter);
+                                    else
+                                    if ( reader.GetFieldType(i) == typeof(decimal))
+                                        val = reader.GetDecimal(i).ToString("F4", formatter);
+                                    else
+                                    if (reader.GetFieldType(i) == typeof(float))
+                                        val = reader.GetFloat(i).ToString("F4", formatter);
+                                    else
+                                        val = reader.GetValue(i).ToString();
+                                    if (type == "timestamp with time zone")
+                                        val = reader.GetTimeStamp(i).ToDateTime().ToString("O");
+                                    if (val=="840")
                                     {
                                         int y = 0;
                                     }
@@ -276,7 +328,7 @@ namespace CamundaInterface
             {
                 sw1.Write(sw.GetStringBuilder());
             }
-            if (kolRecord != 0)
+           // if (kolRecord != 0)
             {
                 Log.Information("Send record to" + kolRecord);
                 var str = sw.GetStringBuilder().ToString();
@@ -379,12 +431,18 @@ namespace CamundaInterface
                 //   File.OpenRead(path).CopyTo(sw);
                 using (var multiPartFormContent = new MultipartFormDataContent())
                 {
-                    var sc = new StreamContent(sw);
+                    sw.Position = 0;
+//                    sw.Flush();
+                    var sc = new StreamContent(sw,kol);
+//                    sc.
+                   
                     //                    var sc = new StreamContent(File.OpenRead(path));
                     sc.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+                    //sc.Headers.ContentLength = kol;
                     multiPartFormContent.Add(sc, "file", "people.csv");
 
-                    var response = await client.PostAsync($"{baseAddr}/api/v0/referencedata/{FID}/{dictName}/append?delimeter=;", multiPartFormContent);
+                    var response = await client.PostAsync($"{baseAddr}/api/v0/referencedata/{FID}/{dictName}/reload?delimiter=;", multiPartFormContent);
+                    //var response = await client.PostAsync($"{baseAddr}/api/v0/referencedata/{FID}/{dictName}/append?delimiter=;", multiPartFormContent);
                     try
                     {
                         response.EnsureSuccessStatusCode();

@@ -115,7 +115,7 @@ namespace CamundaInterface
             ExternalTaskAnswer it1 = null;
             if (client == null)
                 client = new HttpClient();
-            Log.Information("Start fetching");
+            Log.Information("Start fetching on addr {camundaPath}", camundaPath);
 
             while (0 == 0)
             {
@@ -132,6 +132,7 @@ namespace CamundaInterface
                         foreach (var item in ret)
                         {
                             it1 = item;
+                            Log.Information("topic {item.topicName}", item.topicName);
                             var dictOutput = new Dictionary<string, CamundaCompleteItem.Variable>();
                             /*                            if (item.topicName == "rest_executor1")
                                                         {
@@ -166,7 +167,7 @@ namespace CamundaInterface
                                    {*/
                                 var itog = await SendToRefDataLoader.putRequestToRefDataLoader(client, item.processDefinitionId + ":" + item.topicName
                                      , item.variables["ConnSelect"].value.ToString(), item.variables["ConnAdm"].value.ToString(), item.variables["DictName"].value.ToString(), "TEST", item.variables["SQLText"].value.ToString()
-                                     , Convert.ToInt32(item.variables["MaxRecords"].value.ToString()), item.variables["DictAddr"].value.ToString(), item.variables["SensitiveData"].value.ToString() ,Convert.ToInt32(item.variables["CountInKey"]?.value));
+                                     , Convert.ToInt32(item.variables["MaxRecords"].value.ToString()), item.variables["DictAddr"].value.ToString(), item.variables["SensitiveData"].value.ToString() ,Convert.ToInt32(item.variables["CountInKey"]?.value), item.variables["Fields"].value.ToString());
                                 Log.Information("Send to dict end");
                                 /*                                } 
                                                                 catch(Exception e77)

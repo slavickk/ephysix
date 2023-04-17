@@ -182,6 +182,7 @@ namespace TestJsonRazbor
         }
         private Type GetTypeOfForm(Type t)
         {
+//            var tt=PluginsInterface.getAllTypes().FirstOrDefault(t1 => t1.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute)) > 0);
             return PluginsInterface.getAllTypes().FirstOrDefault(t1 => t1.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute)) > 0 && t1.GetConstructor(new Type[] { t }) != null);
         }
 
