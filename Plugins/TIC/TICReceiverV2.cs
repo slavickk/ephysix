@@ -9,7 +9,7 @@ using Serilog.Context;
 namespace ParserLibrary;
 
 /// <summary>
-/// A drop-in replacement for the TICReceiver class above, but using the new IReceiver interface.
+/// A drop-in replacement for the TICReceiver class, but using the new IReceiver interface.
 /// </summary>
 public class TICReceiverV2 : IReceiver
 {
