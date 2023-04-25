@@ -114,6 +114,12 @@ namespace ParserLibrary
            // List<Header> headers = new List<Header>();
             public override async Task ReceiveRequest(HttpContext httpContext)
             {
+                if (httpContext.Request.Path.Value.Contains("/healthcheck"))
+                {
+                    SetResponseType(httpContext, "text/plain");
+                    await SetResponseContent(httpContext, "OK");
+                    return;
+                }
                 if (httpContext.Request.Path.Value.Contains("/metrics"))
                 {
                     SetResponseType(httpContext, "text/plain");
