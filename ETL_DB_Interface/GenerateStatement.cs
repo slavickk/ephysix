@@ -26,7 +26,7 @@ namespace ETL_DB_Interface
     public class GenerateStatement
     {
        static HttpClient client;
-        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;";
+        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;";
         public class CamundaAnswer1
         {
             public class Link
