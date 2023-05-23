@@ -22,7 +22,7 @@ import dns.message
 import dns.query
 import dns.flags
 
-logger.info(f'Start service version=0.0.6 ({__name__})')
+logger.info(f'Start service version=0.0.8 ({__name__})')
 
 def getenv(cfg):
     cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else int(os.environ['MAX_TASKS'])
@@ -35,9 +35,9 @@ def getenv(cfg):
     cfg['DBUser']               = 'md' if 'DBUSER' not in os.environ else os.environ['DBUSER']
     cfg['DBPassword']           = 'rav1234' if 'DBPASSWORD' not in os.environ else os.environ['DBPASSWORD']
     cfg['DSN']                  = 'master.pgsqlanomaly01.service.consul:5432/fpdb' if 'DSN' not in os.environ else os.environ['DSN']
-    cfg['CONSUL_ADDR']          = '192.168.75.205' if 'CONSUL_ADDR' not in os.environ else os.environ['CONSUL_ADDR']
-    cfg['CAMUNDA_NAME']         = 'camunda.service.consul' if 'CAMUNDA_NAME' not in os.environ else os.environ['CAMUNDA_NAME']
-    cfg['TOPIC']                = 'LoginDB' if 'TOPIC' not in os.environ else os.environ['TOPIC']
+    cfg['CONSUL_ADDR']          = '10.74.30.22' if 'CONSUL_ADDR' not in os.environ else os.environ['CONSUL_ADDR']
+    cfg['CAMUNDA_NAME']         = 'camunda.service.dc1.consul' if 'CAMUNDA_NAME' not in os.environ else os.environ['CAMUNDA_NAME']
+    cfg['TOPIC']                = 'TEST' if 'TOPIC' not in os.environ else os.environ['TOPIC'] #'LoginDB'
 #    cfg[''] =  if '' not in os.environ else  os.environ['']
     return cfg
 
@@ -60,7 +60,8 @@ def get_camunda_address(cfg):
     val = response.additional[0].to_text().strip().rstrip('.').split(' ')
     ip = val[4]
     logger.info(f'Camunda has address = {ip}:{port}')
-    return 'http://' + ip + ':' + port + '/engine-rest'
+#    return 'http://' + ip + ':' + port + '/engine-rest'
+    return 'http://' + cfg['CAMUNDA_NAME'] + ':' + port + '/engine-rest'
 
 
 def web(h, st):
@@ -117,6 +118,19 @@ def db2db(task: ExternalTask) -> TaskResult:
      SQLText   : SQL текст-выражение для выборки из источника.
                  Например 'select card.pan pan,card.mbr mbr from card'
      Переданные значения параметров: '{"VAR_pan":{"value":"4550000000000006","type":"String"},"VAR_ost":{"value":"03.06.2022 15:06:49","type":"String"},"VAR_num":{"value":546,"type":"Integer"},"VAR_db":{"value":"@1@","type":"String"}}'
+     return task.bpmn_error(
+            error_code='656590',
+            error_message='Error in ExternalTask',
+            variables={"var1": "value1", "success": False}
+            ) - Вызывает Business ошибку (т.н. Error Boundary Event - Молния) в которой нужно определить переменные в блоке
+                Error: "Code variable", куда попадет "error_code" и "Message variable", куда попадет "error_message".
+                Переменные из variables просто появятся в процессе
+     return task.failure(
+            error_message="db2db task failed",
+            error_details=f'gggrrr',
+            max_retries=2,
+            retry_timeout=50
+            ) - будет происходить бесконечная попытка выполнить блок.
     """
     global engine_src, engine_ser, engine_dst, columns, table, indexes, insert, Oper
     # Не нашел как передать параметры в процедуру, заполняю cfg еще раз.
@@ -324,7 +338,7 @@ def db2db(task: ExternalTask) -> TaskResult:
                         return task.complete(i[0])
             except Exception as ex:
                 logger.debug(f'ExecSQL Except: {ex}')
-                return task.bpmn_error('656598','Error in ExternalTask')
+                return task.bpmn_error(error_code='CAMUNDA-00001', error_message=f'{ex}')
 #                return task.failure(error_message="db2db task failed", error_details=f'Exec Fail', max_retries=1,retry_timeout=1)
         else:
             logger.debug(f'Start Inserts')

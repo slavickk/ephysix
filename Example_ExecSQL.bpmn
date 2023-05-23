@@ -8,6 +8,7 @@
     </startEvent>
     <sequenceFlow id="Item_0" sourceRef="Start_1" targetRef="Id1" />
     <serviceTask id="Id1" name="ETL_Task_1" p5:type="external" p5:topic="LoginDB">
+    <documentation>TEST2</documentation>
       <extensionElements>
         <p5:inputOutput>
           <p5:inputParameter name="SName">FP</p5:inputParameter>
