@@ -16,3 +16,12 @@ which is enabled by setting `serverCodePath` to the file name in the pipeline co
 
 HTTPS is supported and can be enabled by setting `certSubject` to certificate subject to use in the pipeline configuration.
 The certificate is loaded from the local machine store.
+
+## JWT verification
+
+The signer's certificate used for JWT verification is loaded
+from the **local machine store** by its subject name
+specified in `jwtIssueSigningCertSubject` in the pipeline configuration.
+
+For development purposes, you can generate a self-signed certificate and a JWT token
+by executing the `JWTTests.GenerateSelfSignedCertificate()` and `JWTTests.GenerateToken()` tests.
