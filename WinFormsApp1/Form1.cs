@@ -1,10 +1,12 @@
 ﻿using BlazorAppCreateETL.Shared;
 using CamundaInterface;
+using DotLiquid;
 using ETL_DB_Interface;
 using MaxMind.Db;
 using Microsoft.Web.WebView2.Core;
 using Npgsql;
 using System;
+using System.IO.Pipelines;
 using System.Windows.Documents;
 using WinFormsETLPackagedCreator;
 //using Graphviz;
@@ -18,8 +20,9 @@ namespace WinFormsApp1
             InitializeComponent();
         }
         NpgsqlConnection conn;
+        //NpgsqlConnection connAdm;
 
- 
+
         Task runner;
         private async void Form1_Load(object sender, EventArgs e)
 
@@ -37,6 +40,8 @@ namespace WinFormsApp1
             await GenerateStatement.SendTest();
             conn = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
             conn.Open();
+           /* connAdm = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
+            connAdm.Open();*/
             tableViewControl1.OnTableDoubleClicked += TableViewControl1_OnTableDoubleClicked;
             //            GenerateStatement.Generate(conn, 315721);
 //last            await GenerateStatement.Generate(conn, 532746);
@@ -388,6 +393,94 @@ namespace WinFormsApp1
         
     
         ETL_Package package= new ETL_Package();
+
+        string GetUML(GenerateStatement.ETL_Package package)
+        {
+            string TemplateBody3 = @"
+# 
+
+## File {{package.Name}}
+
+## Functionality description 
+### {{package.Description}}
+
+Make  data export form next sources:
+
+
+{% for zone in package.Zones %}
+**{{zone.Name}}**
+
+ _Objects:_
+
+{% for table in package.InputTables %}{% if table.Zone == zone.Name %}
+ - {{table.Name}}{% endif %}{% endfor %}{% endfor %}
+
+to zone 
+
+{% for item in package.OutputTables limit: 1 %}
+**{{item.Zone}}**{% endfor %}
+
+_Objects:_
+{% for table in package.OutputTables %}
+ - {{table.Name}}{% endfor %}
+
+For execute ETL process call SQL statement :
+```{{package.Usage}}```
+
+## Input parameters description
+
+
+
+| Name | Type | Description | Example |  
+| ------ | ------ |------ |------ |{% for par in package.Parameters %}
+|{{par.Name}}|{{par.Type}}|{{par.Description}}|{{par.DefaultValue}}|{% endfor %}
+
+## Flow diagram
+
+## {{table.Name}}
+```plantuml
+@startuml
+
+
+legend left{% for zone in package.Zones %}
+<#FFFFFF,#FFFFFF>|<#{{zone.Color}}>   | {{zone.Name}}|   |{% endfor %}
+endlegend
+
+{% for table in package.InputTables %}
+class ""{{table.Name}}"" as {{table.Name}}_S << (S,{{table.Color}}) >>
+{
+{% for fld in table.ColumnsNames %}
++ {{fld}}{% endfor %}
+--
+{{table.Condition}}
+}
+{% endfor %}
+
+{% for table in package.OutputTables %}
+class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
+{
+{% for fld in table.Columns %}
++ {{fld}}{% endfor %}
+}
+{% endfor %}
+
+{% for table in package.InputTables %}
+{% for fld in table.Columns %}
+{{table.Name}}_S::{{fld.Name}}->{{fld.OutTable}}_D::{{fld.OutTableColumn}}{% endfor %}{% for rel in table.Relations %}
+{{table.Name}}_S::{{rel.FromColumn}} .. {{rel.ToTable}}_S::{{rel.ToColumn}}{% endfor %}{% endfor %}
+@enduml
+```
+";
+            //        RenderParameters param1= new RenderParameters()
+            Template template = Template.Parse(TemplateBody3); // Parses and compiles the template
+                                                               //        Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
+            var res = template.Render((DotLiquid.Hash.FromDictionary(new Dictionary<string, object>() { { "package", package } }))); // => "hi tobi"
+                                                                                                                                  //        var res = template.Render((Hash.FromDictionary(new Dictionary<string, object>() { { "products", new Product[] {new Product(1),new Product(2) } }, { "products1", 2 } }))); // => "hi tobi"
+                                                                                                                                  // var res =template.Render((Hash.FromAnonymousObject(new { name = "tobi" }))); // => "hi tobi"
+            Console.WriteLine($"Hello, World! {res}");
+            return res;
+        }
+
         private async void button3_Click(object sender, EventArgs e)
         {
 //            await DBInterface.GetAllRelation(conn);
@@ -399,7 +492,11 @@ namespace WinFormsApp1
             }
             try
             {
-                await DBInterface.SaveAndExecuteETL(conn,package);
+                var pack=await DBInterface.SaveAndExecuteETL(conn,package);
+                if (pack != null)
+                {
+                    //GetUML(pack);
+                }
             }
             catch (Exception e88)
             {

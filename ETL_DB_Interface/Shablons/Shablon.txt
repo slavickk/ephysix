@@ -1,0 +1,82 @@
+﻿# {{package.Description}}
+
+## File {{package.Name}}
+
+## Functionality description 
+
+Make  data export form next sources:
+
+
+{% for zone in package.Zones %}{% if zone.Name != package.Zones.last.Name %}
+**{{zone.Name}}**
+
+ _Objects:_
+
+{% for table in package.InputTables %}{% if table.Zone == zone.Name %}
+ - {{table.Name}}{% endif %}{% endfor %}
+{% endif %}{% endfor %}
+
+to zone 
+
+{% for item in package.OutputTables limit: 1 %}
+**{{item.Zone}}**{% endfor %}
+
+_Objects:_
+{% for table in package.OutputTables %}
+ - {{table.Name}}{% endfor %}
+
+For execute ETL process call SQL statement :
+```{{package.Usage}}```
+
+## Input parameters description
+
+
+
+| Name | Type | Description | Example |  
+| ------ | ------ |------ |------ |{% for par in package.Parameters %}
+|{{par.Name}}|{{par.Type}}|{{par.Description}}|{{par.DefaultValue}}|{% endfor %}
+
+## Used external tasks
+
+{% for et in package.UsedExternalTasks %}
+[{{et.topic}}](../../ExternalTasks/{{et.topic}}.md)
+{% endfor %}
+
+## Flow diagram
+
+## {{table.Name}}
+```plantuml
+@startuml
+
+
+legend left{% for zone in package.Zones %}
+<#D3D3D3,#D3D3D3>|<#{{zone.Color}}>   | {{zone.Name}}|   |{% endfor %}
+<color:black><size:18><&arrow-right></size></color>  transfer data 
+<color:red><size:18><&arrow-right></size></color>  transfer sensitive data  
+<color:green><size:18><U+21E2></size></color>  relation
+endlegend
+
+{% for table in package.InputTables %}
+class "{{table.Name}}" as {{table.Name}}_S << (S,{{table.Color}}) >>
+{
+{% for fld in table.ColumnsNames %}
++ {{fld}}{% endfor %}
+--
+{{table.Condition}}
+}
+{% endfor %}
+
+{% for table in package.OutputTables %}
+class "{{table.Name}}" as {{table.Name}}_D << (D,{{table.Color}}) >>
+{
+{% for fld in table.Columns %}
++ {{fld}}{% endfor %}
+}
+{% endfor %}
+
+{% for table in package.InputTables %}
+{% for fld in table.Columns %}
+{{table.Name}}_S::{{fld.Name}}-{% if fld.IsSensitive == true %}[#red]{% endif %}>{{fld.OutTable}}_D::{{fld.OutTableColumn}}{% endfor %}{% for rel in table.Relations %}
+{{table.Name}}_S::{{rel.FromColumn}} .[dotted,#green]. {{rel.ToTable}}_S::{{rel.ToColumn}}{% endfor %}{% endfor %}
+@enduml
+```

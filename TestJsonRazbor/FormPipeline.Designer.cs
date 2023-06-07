@@ -41,6 +41,7 @@ namespace TestJsonRazbor
             this.buttonSavePipeline = new System.Windows.Forms.Button();
             this.buttonYaml = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.buttonPlantUml = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.textBoxRestorePath = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -99,6 +100,7 @@ namespace TestJsonRazbor
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.buttonOpen);
+            this.splitContainer1.Panel2.Controls.Add(this.buttonPlantUml);
             this.splitContainer1.Panel2.Controls.Add(this.buttonNew);
             this.splitContainer1.Panel2.Controls.Add(this.buttonSavePipeline);
             this.splitContainer1.Panel2.Controls.Add(this.buttonYaml);
@@ -163,6 +165,16 @@ namespace TestJsonRazbor
             this.buttonOpen.UseVisualStyleBackColor = true;
             this.buttonOpen.Click += new System.EventHandler(this.buttonOpen_Click);
             // 
+            // buttonPlantUml
+            // 
+            this.buttonPlantUml.Location = new System.Drawing.Point(702, 41);
+            this.buttonPlantUml.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonPlantUml.Name = "buttonPlantUml";
+            this.buttonPlantUml.Size = new System.Drawing.Size(89, 47);
+            this.buttonPlantUml.TabIndex = 33;
+            this.buttonPlantUml.Text = "ToMd";
+            this.buttonPlantUml.UseVisualStyleBackColor = true;
+            this.buttonPlantUml.Click += new System.EventHandler(this.buttonPlantUml_Click);          // 
             // buttonNew
             // 
             this.buttonNew.Location = new System.Drawing.Point(230, 41);
@@ -658,5 +670,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.TextBox textBoxRestorePath;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button buttonPlantUml;
     }
 }

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotLiquid" Version="2.2.692" />
     <PackageReference Include="Npgsql" Version="6.0.7" />
   </ItemGroup>
 
@@ -14,6 +15,29 @@
     <ProjectReference Include="..\BlazorAppCreateETL\Shared\BlazorAppCreateETL.Shared.csproj" />
     <ProjectReference Include="..\CamundaInterfaces\CamundaDefinitionInterfaces.csproj" />
     <ProjectReference Include="..\CamundaInterface\CamundaInterface.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Shablons\Describe.txt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Describe.cs</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Shablons\Shablon.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Shablons\Describe.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Describe.txt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

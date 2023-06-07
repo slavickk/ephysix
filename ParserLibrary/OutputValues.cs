@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CSScriptLib;
 using YamlDotNet.Serialization;
-
+using DotLiquid;
 namespace ParserLibrary;
 
 public class ExtractFromInputValueWithScript: ExtractFromInputValue
@@ -48,7 +48,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
     }
 }
 
-public abstract class OutputValue
+public abstract class OutputValue:ILiquidizable
 {
     public bool viewAsJsonString = false;
     public string outputPath;
@@ -222,6 +222,15 @@ public abstract class OutputValue
     {
         el1.copy(el);
     }
+
+    public virtual Dictionary<string, object> getLiquidDict()
+    {
+        return new Dictionary<string, object>();
+    }
+public object ToLiquid()
+    {
+        return getLiquidDict();
+    }
 }
 
 public class TemplateSenderOutputValue : OutputValue
@@ -334,8 +343,41 @@ public class TemplateOutputValue : OutputValue
     }
 }
 
-public class ExtractFromInputValue : OutputValue
+public class ExtractFromInputValue : OutputValue,ILiquidizable
 {
+    public string preoPath(string path)
+    {
+        var path1 = path.Replace("/#text", "").Replace("@","");
+
+        int pos=path1.LastIndexOf('/');
+        if (pos > 0)
+        {
+            if(path1.Substring(pos + 1)=="*")
+            {
+                path1= path1.Substring(0, pos);
+                pos=path1.LastIndexOf("/");
+                path1 += "_All";
+            }
+            path1 = path1.Substring(pos + 1).Replace("-", "");
+            if (string.IsNullOrEmpty(path1))
+            {
+                int yy = 0;
+            }
+            return path1;
+        }
+        if (string.IsNullOrEmpty(path1))
+        {
+            int yy = 0;
+        }
+        return path1;
+    }
+    public override Dictionary<string, object> getLiquidDict()
+    {
+        if (!string.IsNullOrEmpty(this.conditionPath) && !string.IsNullOrEmpty(this.outputPath))
+            return new Dictionary<string, object>() { { "Input", preoPath(this.conditionPath) }, { "Output", preoPath(this.outputPath) } };
+        else
+            return new Dictionary<string, object>();
+    }
     protected override void CopyNode(AbstrParser.UniEl el1, AbstrParser.UniEl el)
     {
         if (this.copyChildsOnly)

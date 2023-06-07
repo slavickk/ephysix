@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.IO;
+using DotLiquid;
 
 namespace CamundaInterfaces
 {
@@ -62,8 +63,13 @@ namespace CamundaInterfaces
         public string versionTag { get; set; } = "1.0.0";
         public List<ExternalTask> tasks { get; set; } = new List<ExternalTask>() { new ExternalTask() { id="Id1",name="Name1"}, new ExternalTask() { id = "Id2", name = "Name2" }, new ExternalTask() { id = "Id3", name = "Name3" }, new ExternalTask() { id = "Id4", name = "Name4" } };
 
-        public class ExternalTask
+        public class ExternalTask:ILiquidizable
         {
+            public object ToLiquid()
+            {
+                return new Dictionary<string, object> { { "topic", this.topic } };
+            }
+
             public bool noDescribe = false;
             public string Annotation = "It's example annotation";
             public class Parameter

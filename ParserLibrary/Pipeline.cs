@@ -19,10 +19,12 @@ using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Collections.Concurrent;
+using DotLiquid;
+using System.Xml.Linq;
 
 namespace ParserLibrary;
 
-public class Pipeline
+public class Pipeline:ILiquidizable
 {
     public ReplaySaver saver = null;
 
@@ -486,6 +488,70 @@ public class Pipeline
 
     }
 
+    public class LiquidPoint:ILiquidizable
+    {
+        public static List<LiquidPoint> All = new List<LiquidPoint>();
+        public string Name { get; set; }
+        public int nOrder;
+        public bool isFirst=false;
+        public string Protocol="Http";
+        public List<LiquidPoint> child = new List<LiquidPoint>();
+        Step currentStep;
+        public LiquidPoint(Step[] steps,int index, Sender sender,ref int nOrder)
+        {
+            Name = sender.GetType().Name;
+            if (index >= 0)
+            {
+                All.Add(this);
+                nOrder = AddChilds(steps, index, nOrder);
+                currentStep = steps[index];
+            }
+        }
+
+        private int AddChilds(Step[] steps, int index, int nOrder)
+        {
+            if (nOrder >= 0)
+            {
+                this.nOrder = nOrder;
+                if (!string.IsNullOrEmpty(steps[index].IDResponsedReceiverStep))
+                    child.Add(All.First());
+                if (index < steps.Length - 1)
+                {
+                    nOrder++;
+                    child.Add(new LiquidPoint(steps, index + 1, steps[index + 1].sender, ref nOrder));
+                }
+
+            }
+
+            return nOrder;
+        }
+
+        public LiquidPoint(Step[] steps, int index, Receiver rec,ref int nOrder)
+        {
+            if(index>=0)
+                All.Add(this);
+            Name = rec.GetType().Name;
+            this.nOrder=nOrder;
+            nOrder = AddChilds(steps, index, nOrder);
+            isFirst= true;
+            currentStep = steps[index];
+
+        }
+        public object ToLiquid()
+        {
+            return new Dictionary<string, object> { { "Name", this.Name }, { "nOrder", this.nOrder }, { "Childs", this.child},{ "isFirst",this.isFirst }, { "Protocol", this.Protocol },{ "Step", currentStep } };
+        }
+    }
+
+    public object ToLiquid()
+    {
+        LiquidPoint.All.Clear();
+        List<LiquidPoint> senders = new List<LiquidPoint>();
+        int nOrder = 1;
+        senders.Add(new LiquidPoint(this.steps, 0, steps[0].receiver,ref nOrder));
+
+        return new Dictionary<string, object> { { "Name", this.fileName }, { "Description", this.pipelineDescription }, { "Steps", this.steps },{ "Childs",LiquidPoint.All} };
+    }
 
     public List<MetricBuilder> metricsBuilder = new List<MetricBuilder>();
 

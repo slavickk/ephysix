@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CamundaInterface;
 using CamundaInterfaces;
+using DotLiquid;
 using MaxMind.Db;
 using Npgsql;
 using YamlDotNet.Core.Tokens;
@@ -27,6 +28,9 @@ namespace ETL_DB_Interface
     {
        static HttpClient client;
         public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;";
+        //public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;";
+        //        public static string ConnectionStringAdm = "User ID=md;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;";
+        //        public static string ConnectionString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=fp;";
         public class CamundaAnswer1
         {
             public class Link
@@ -560,8 +564,10 @@ $BODY$;
 
         }
 
-        public class ItemTable
+        public class ItemTable:ILiquidizable
         {
+            public ETL_Package owner;
+            public string liquidColor;
             public int src_id;
             public string src_name;
             public string scema;
@@ -575,14 +581,16 @@ $BODY$;
             public int IntervalUpdateInSec = 0;
             public List<RelItem> optionalRelItems = new List<RelItem>();
 
-        public class SelectListItem
+        public class SelectListItem:ILiquidizable
             {
                 public string expression = "";
                 public string alias = "";
                 public bool fromOriginalSelect = false;
                 public string outputTable;
+                public ItemTable owner;
                 public SelectListItem(string Expression,string OutputTable)
                 {
+//                    this.owner = owner;
                     outputTable=OutputTable;
                     Expression = Expression.Trim();
                     if(Expression =="")
@@ -652,6 +660,11 @@ $BODY$;
                     return retValue;
                 }
 
+                public object ToLiquid()
+                {
+                    return new Dictionary<string, object> { {"IsSensitive", (this.getColumns(owner).Count(ii => !string.IsNullOrEmpty(ii.SensitiveData)) > 0) },{ "Name", this.expression}, { "OutTable", this.outputTable}, { "OutTableColumn", this.alias} };
+
+                }
             }
 
             public List<SelectListItem> SelectList = new List<SelectListItem>();
@@ -669,6 +682,37 @@ $BODY$;
                 }
                 return retValue;
             }
+            public class OptionalTypeListItem : ILiquidizable
+            {
+                ItemTable owner;
+                ItemRel item;
+                int index;
+                public OptionalTypeListItem(ItemTable owner,ItemRel item,int index)
+                {
+                    this.owner = owner;
+                    this.item = item;
+                    this.index = index;
+                     
+                }
+                public object ToLiquid()
+                {
+                    bool first = false;
+                    if (this.item.Name1Table == owner.Name)
+                        first = true;
+                    return new Dictionary<string, object> { { first ? "FromTable" : "ToTable", this.item.Name1Table }, { first ? "FromColumn" : "ToColumn", this.item.NameColumns1.Split(',')[index] }, { !first ? "FromTable" : "ToTable", this.item.Name2Table }, { !first ? "FromColumn" : "ToColumn", this.item.NameColumns2.Split(',')[index] } };
+//                    throw new NotImplementedException();
+                }
+            }
+            public object ToLiquid()
+            {
+                foreach(var sel in SelectList)
+                    sel.owner = this;
+                //this.SelectList.Select(ii=>ii.expression).Union(this.owner.list.Where(i2 => i2.Name1Table == this.Name).Select(ii=>ii.NameColumns1).Union(this.owner.list.Where(i2 => i2.Name2Table == this.Name).Select(ii => ii.NameColumns2))).Distinct();
+//                this.optionalRelItems
+                return new Dictionary<string, object> { { "Name", this.Name }, { "Zone",this.src_name}, { "ColumnsNames", this.SelectList.Select(ii => ii.expression).Union(this.owner.list.Where(i2 => i2.Name1Table == this.Name).SelectMany(ii => ii.NameColumns1.Split(',')).Union(this.owner.list.Where(i2 => i2.Name2Table == this.Name).SelectMany(ii => ii.NameColumns2.Split(',')))).Distinct().ToList() }, { "Columns", this.SelectList }, { "Relations",this.owner.list.Where(i2=>i2.Name1Table==this.Name || i2.Name2Table == this.Name).SelectMany(ii=>ii.NameColumns1.Split(',').Select((i2,index)=> new OptionalTypeListItem(this,ii,index))).ToList() }, { "Color", this.liquidColor },{ "Condition",this.Condition } };
+
+            }
+
             public long TableId;
             public class ColumnItem
             {
@@ -838,7 +882,7 @@ $BODY$;
             return where;
         }
 
-        public class ItemVar
+        public class ItemVar:ILiquidizable
         {
             public string Name;
             public string Type;
@@ -866,8 +910,13 @@ $BODY$;
                 }
             }
 
+            public object ToLiquid()
+            {
+                return new Dictionary<string, object> { { "Name", this.Name }, { "Type", this.Type }, { "Description", this.Description }, { "DefaultValue", this.DefaultValue } };
+
+            }
         }
-        public class ETL_Package
+        public class ETL_Package:ILiquidizable
         {
             public long packet_id;
             public List<ItemVar> variables = new List<ItemVar>();
@@ -907,7 +956,72 @@ $BODY$;
                 task.outputTable.optionalRelItems= outCols; 
                 return task.outputTable;
             }
-           public IEnumerable<ItemTable> tables
+
+            public class OutTableToLiquid:ILiquidizable
+            {
+                public string Color;
+                public string Name { get; set; }
+                public string Zone;
+                public List<string> Columns { get; set; }=new List<string>();
+
+                public object ToLiquid()
+                {
+                    return new Dictionary<string, object> { { "Name", this.Name }, { "Zone", this.Zone }, { "Columns", this.Columns },{ "Color" ,this.Color} };
+                }
+            }
+            public class ZoneToLiquid : ILiquidizable
+            {
+                public string Name { get; set; }
+                public string Color { get;set; }
+                public object ToLiquid()
+                {
+                    return new Dictionary<string, object> { { "Name", this.Name }, { "Color", this.Color } };
+                }
+            }
+            public object ToLiquid()
+            {
+                string[] colors = { "orchid", "blue", "magenta", "yellow", "red" };
+                List<OutTableToLiquid> outTables = new List<OutTableToLiquid>();
+                List<ZoneToLiquid> zones = allTables.Select(i1=>i1.src_name).Distinct().Select((ii, index) => new ZoneToLiquid() { Name = ii, Color = colors[index] }).ToList();
+                zones.Add(new ZoneToLiquid() { Name = this.dest_name, Color = colors[zones.Count ] });
+                foreach (var table in allTables)
+                {
+                    table.liquidColor = zones.First(ii => ii.Name == table.src_name).Color;
+                    table.owner = this;
+                }
+                var outputTables=this.outputTable.Split(',');
+                foreach (var tab in allTables)
+                {
+                    var sel = tab.SelectList;
+                    foreach (var col in sel)
+                    {
+                        var ot = outTables.FirstOrDefault(ii => (ii.Name == col.outputTable && outputTables.Contains(col.outputTable)) || (outputTables.Length== 1 && outputTables.First() ==ii.Name ));
+                        col.outputTable = CorrectOutTab(outputTables, col);
+                        if (ot == null)
+                        {
+                            ot = new OutTableToLiquid() { Zone = zones.Last().Name, Name = col.outputTable, Color = zones.Last().Color };
+                            outTables.Add(ot);
+                        }
+                        if (!ot.Columns.Contains(col.alias))
+                            ot.Columns.Add(col.alias);
+                    }
+                }
+
+//                this.allTables.Select(ii=>ii.SelectList)
+                return new Dictionary<string, object> { { "Name", this.NamePacket}, { "Description", this.description }, { "InputTables", this.allTables }, { "OutputTables", outTables },{ "Zones", zones },{ "Parameters",this.variables},{ "Usage", $"select * from fp.etlpackage_{NamePacket.ToLower()}({string.Join(',',variables.Select(ii=> "@" + ii.Name.ToLower()))},[idexternalobj])" },{ "UsedExternalTasks", this.usedExternalTasks} };
+
+//                throw new NotImplementedException();
+            }
+
+            private static string CorrectOutTab(string[] outputTables, ItemTable.SelectListItem col)
+            {
+                var outTab = col.outputTable;
+                if (outputTables.Length == 1 && !outputTables.Contains(outTab))
+                    outTab = outputTables.First();
+                return outTab;
+            }
+
+            public IEnumerable<ItemTable> tables
             {
                 get
                 {
@@ -922,7 +1036,7 @@ $BODY$;
             }
 
         }
-        public static async Task Generate(NpgsqlConnection conn, long id)
+        public static async Task<ETL_Package> Generate(NpgsqlConnection conn, long id)
         {
             CamundaProcess process = new CamundaProcess();
             string CamundaID= $"ETL_Process{id}";
@@ -950,7 +1064,7 @@ $BODY$;
                 {
                     throw new Exception($"The package {id} is empty");
                     //                    MessageBox.Show($"The package {id} is empty");
-                    return;
+                    return null;
                 }
             }
 
@@ -1008,7 +1122,7 @@ $BODY$;
             //            await SendToCamunda(@"C:\Camunda\Temp6.bpmn", "ETL_Process532730");
 
             await SendToCamunda(path1, process.ProcessID, package.variables);
-
+            return package;
         }
         public static string pathToSaveETL = @"C:\CamundaTopics\camundatopics\BPMN\ETL\";
         public static string pathToSaveExternalTask = @"C:\CamundaTopics\camundatopics\ExternalTasks\";
@@ -1032,7 +1146,7 @@ $BODY$;
                     }
                 }
             }*/
-            await using (var cmd = new NpgsqlCommand(body, connAdm))
+            await using (var cmd = new NpgsqlCommand(body,conn))
             {
                 //cmd.Parameters.AddWithValue("@id_packet", NamePacket);
                 await using (var reader = await cmd.ExecuteReaderAsync())
