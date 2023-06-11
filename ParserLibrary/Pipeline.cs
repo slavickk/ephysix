@@ -19,6 +19,8 @@ using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Collections.Concurrent;
+using PluginBase;
+using UniElLib;
 
 namespace ParserLibrary;
 
@@ -123,9 +125,39 @@ public class Pipeline
         }
         return retValue;
     }
+    
+    /// <summary>
+    /// Returns the list of all plugin types that must be available during pipeline deserialization.
+    /// </summary>
+    /// <returns></returns>
+    static List<Type> getAllPluginTypes()
+    {
+        // Predicate to determine whether a type should be available during pipeline deserialization 
+        bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t);
+
+        // TODO: make the list of plugin assemblies configurable
+        var pluginAssemblyNames = new[] { "Plugins.dll" };
+        var pluginAssemblies = pluginAssemblyNames.Select(Assembly.LoadFrom).ToList();
+
+        // Find all types that must be accessible during pipeline deserialization
+        var pluginClasses = pluginAssemblies.SelectMany(a => a.GetTypes()).Where(TypeShouldbBeRegistered).ToList();
+        
+        // There are some plugin classes defined as part of the ParserLibrary itself.
+        // List them too.
+        var internalPluginClasses = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t))
+            .ToList();
+        
+        return pluginClasses.Concat(internalPluginClasses).ToList();
+    }
+
     static List<Type> getAllRegTypes()
     {
-        return Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) || t.IsSubclassOf(typeof(Receiver)) || t.IsSubclassOf(typeof(Filter)) || t.IsSubclassOf(typeof(Sender)) || t.IsSubclassOf(typeof(OutputValue)) || t.IsAssignableTo(typeof(AliasProducer)) || t.IsAssignableTo(typeof(HashConverter))).ToList();
+        return Assembly.GetExecutingAssembly().GetTypes().Where(t =>
+            t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) ||
+            t.IsSubclassOf(typeof(Filter)) ||
+            t.IsSubclassOf(typeof(OutputValue)) || t.IsAssignableTo(typeof(AliasProducer)) ||
+            t.IsAssignableTo(typeof(HashConverter))).ToList();
 
         //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
     }
@@ -185,17 +217,10 @@ public class Pipeline
             IV= Encoding.UTF8.GetBytes(initialisationVector);
             //aes.IV = iv;
 
-            foreach (var step in steps)
-        {
-            if (step.sender != null)
-                step.sender.owner = step;
+        foreach (var step in steps)
             step.Init(this);
-
-        }
         foreach(var mb in this.metricsBuilder)
-        {
             mb.Init();
-        }
 //            step.owner = this;
         var entryStep = steps.First(ii => ii.IDPreviousStep == "" && ii.receiver != null);
 
@@ -346,6 +371,27 @@ public class Pipeline
         }
     }
 
+    /// <summary>
+    /// A node deserializer for assemblies. It will load the assembly from the given path.
+    /// </summary>
+    // public class AssemblyNodeDeserializer : INodeDeserializer
+    // {
+    //     bool INodeDeserializer.Deserialize(IParser parser, Type expectedType,
+    //         Func<IParser, Type, object> nestedObjectDeserializer, out object value)
+    //     {
+    //         // if expected type is Assembly
+    //         if (expectedType == typeof(Assembly))
+    //         {
+    //             // get the scalar value
+    //             var scalar = parser.Consume<Scalar>();
+    //             // load the assembly
+    //             value = Assembly.LoadFrom(scalar.Value);
+    //             return true;
+    //         }
+    //         value = null;
+    //         return false;
+    //     }
+    // }
 
     public class occurencyItem
     {
@@ -361,11 +407,11 @@ public class Pipeline
         var ser = new DeserializerBuilder();
         foreach (var type in getAllRegTypes())
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        // Now register the plugins, but use their FullName for tags
+        foreach (var type in getAllPluginTypes())
+            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
-        // TODO: Make the code work for arbitrary types, not just for the ones that are explicitly registered
-        .WithTagMapping("!FileReceiver", typeof(FileReceiver))
-        .WithTagMapping("!HTTPReceiverSwagger", typeof(HTTPReceiverSwagger))
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .WithNodeDeserializer(new YamlIncludeNodeDeserializer(ser.Build()), s => s.OnTop())
         .Build();

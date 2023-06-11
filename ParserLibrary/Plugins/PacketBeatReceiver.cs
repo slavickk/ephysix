@@ -8,16 +8,19 @@ using System.Net.Sockets;
 using zlib;
 using System.Collections.Concurrent;
 using System.Threading;
+using ParserLibrary;
+using PluginBase;
 
-namespace ParserLibrary
+namespace Plugins
 {
-    public class PacketBeatReceiver : Receiver
+    // TODO: finish the IReceiver-based PacketBeatReceiver named PacketBeatReceiver
+    public class PacketBeatReceiver : IReceiver
     {
         public int port = 15001;
-        protected async override Task startInternal()
-        {
-            Start(port);
-        }
+        // protected async override Task startInternal()
+        // {
+        //     Start(port);
+        // }
         public PacketBeatReceiver()
         {
 //            this.saver = new ReplaySaver() { path = @"C:\D\Out" };
@@ -37,10 +40,10 @@ namespace ParserLibrary
             }
         }
 
-        ConcurrentBag<LumberJackHandler> handlers = new ConcurrentBag<LumberJackHandler>();
-        LumberJackHandler getHandler()
+        ConcurrentBag<LumberJackHandlerV2> handlers = new ConcurrentBag<LumberJackHandlerV2>();
+        LumberJackHandlerV2 getHandler()
         {
-            LumberJackHandler retValue;
+            LumberJackHandlerV2 retValue;
             if (handlers.TryTake(out retValue))
             {
                 retValue.clear();
@@ -48,7 +51,7 @@ namespace ParserLibrary
             }
             if(debugMode)
                 Logger.log("add new handler", Serilog.Events.LogEventLevel.Debug);
-            retValue = new LumberJackHandler(this);
+            retValue = new LumberJackHandlerV2(this);
             retValue.clear();
             return retValue;
         }
@@ -68,7 +71,7 @@ namespace ParserLibrary
                     var tcpClient = await tcpListener.AcceptTcpClientAsync();
                     Logger.log("accept", Serilog.Events.LogEventLevel.Debug);
                     Action<object> action =async  (client1) => {
-                        LumberJackHandler serv = null;
+                        LumberJackHandlerV2 serv = null;
                         TcpClient client = client1 as TcpClient;
                         try
                         {
@@ -126,17 +129,33 @@ namespace ParserLibrary
             }
         }
 
+        public Task start()
+        {
+            Start(port);
+            return Task.CompletedTask;
+        }
+
+        public IReceiverHost host { get; set; }
+        public async Task sendResponse(string response, object context)
+        {
+            // The original PacketBeatReceiver doesn't override Receiver.sendResponseInternal()
+            // and thus doesn't have a way to send a response back to the client.
+            if (debugMode)
+                Logger.log("Not sending dummy answer: step={step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any", host.IDStep, response);
+        }
+
+        public bool cantTryParse { get; }
+        public bool debugMode { get; set; }
     }
-
-
-    /// <summary>
+    
+        /// <summary>
     /// Handler for the LumberJack protocol.
     /// LumberJack is used here for sending out event data, e.g. log events to Logstash.
     /// </summary>
-    public class LumberJackHandler
+    public class LumberJackHandlerV2
     {
-        public PacketBeatReceiver owner;
-        public LumberJackHandler(PacketBeatReceiver owner1)
+        public IReceiver owner;
+        public LumberJackHandlerV2(IReceiver owner1)
         {
             owner = owner1;
         }
@@ -367,10 +386,10 @@ namespace ParserLibrary
                     frame.strJson = encoder.GetString(btsAll);
                     if(multiThreadMode)
                         tasks.Add(Task.Run(async () => {
-                            await owner.signal(frame.strJson,null);
+                            await owner.host.signal(frame.strJson,null);
                         }) );
                     else
-                        await owner.signal(frame.strJson,null);
+                        await owner.host.signal(frame.strJson,null);
                     //                    Console.WriteLine("json:" + frame.strJson.Length);
                     //                    File.WriteAllText(@"C:\d\out\aa_"+(orderFiles++)+"_" + DateTime.Now.Second + DateTime.Now.Millisecond + ".json", frame.strJson);
 
@@ -434,6 +453,4 @@ namespace ParserLibrary
             }
         }
     }
-
-
 }

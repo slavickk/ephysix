@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Security;
@@ -8,14 +7,14 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ParserLibrary;
 using PluginBase;
-using YamlDotNet.Serialization;
-using static ParserLibrary.Step;
 using UniElLib;
+using YamlDotNet.Serialization;
 
-namespace ParserLibrary;
+namespace Plugins;
 
-public  class HTTPSender:Sender,ISelfTested
+public  class HTTPSender: ISender, ISelfTested
 {
     [YamlIgnore]
     HttpClient client;
@@ -76,10 +75,10 @@ public  class HTTPSender:Sender,ISelfTested
     bool init = false;
     object syncro = new object();
 
-    public override async Task<string> send(string JsonBody, ContextItem context)
-    {
-        return await  internSend(JsonBody);
-    }
+    // public override async Task<string> send(string JsonBody, Step.ContextItem context)
+    // {
+    //     return await  internSend(JsonBody);
+    // }
     protected async Task<bool> testGet()
     {
         if (!init)
@@ -240,13 +239,14 @@ public  class HTTPSender:Sender,ISelfTested
         }
     }
 
-    public override TypeContent typeContent => TypeContent.internal_list;//throw new NotImplementedException();
-
+    TypeContent ISender.typeContent => TypeContent.internal_list;//throw new NotImplementedException();
+    
     public int[] timeoutsBetweenRetryInMilli = { 100};
+    private ISenderHost _host;
     static Metrics.MetricCount sendToRex = new Metrics.MetricCount("sendToRexSuc",  "Sended transactions to DummySystem1 time exec"); 
     static Metrics.MetricCount sendToRexErr = new Metrics.MetricCount("sendToRexErr", "Sended transactions to DummySystem1 with error");
     //static Metrics.MetricCount metricExecRex = new Metrics.MetricCount("RexTimeExecution", "Rex time execution");
-    protected string getVal(AbstrParser.UniEl el)
+    protected string getVal(UniElLib.AbstrParser.UniEl el)
     {
         if(el.childs.Count ==0)
             return $"\"{el.Value}\"";
@@ -257,14 +257,17 @@ public  class HTTPSender:Sender,ISelfTested
     }
 
 
-    public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
+    ISenderHost ISender.host
     {
-        await base.sendInternal(root,context);
+        get => _host;
+        set => _host = value;
+    }
+
+    public virtual async Task<string> send(UniElLib.AbstrParser.UniEl root, ContextItem context)
+    {
+        // await base.sendInternal(root,context);
         string str = formBody(root);
-        if (sendActivity != null)
-        {
-            sendActivity?.SetTag("context.url", owner.owner.SaveContext(str));
-        }
+        _host.sendActivity?.SetTag("context.url", _host.SavePipelineContext(str));
 
         /*            foreach (var el in root.childs)
                         {
@@ -280,8 +283,8 @@ public  class HTTPSender:Sender,ISelfTested
         {
 
             var ans = await internSend(str);
-            sendActivity?.AddTag("answer", ans);
-            sendActivity?.AddTag("send.url", this.url);
+            _host.sendActivity?.AddTag("answer", ans);
+            _host.sendActivity?.AddTag("send.url", this.url);
 
 
             //                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information,this, str, ans);
@@ -300,7 +303,7 @@ public  class HTTPSender:Sender,ISelfTested
         }
     }
 
-    protected virtual string formBody(AbstrParser.UniEl root)
+    protected virtual string formBody(UniElLib.AbstrParser.UniEl root)
     {
         if (ResponseType == "application/xml" || ResponseType == "text/xml")
             return root.childs[0].toXML();
@@ -339,5 +342,28 @@ public  class HTTPSender:Sender,ISelfTested
         }
         //            if(ans)
         return (isSuccess,details,exc);
+    }
+
+    public virtual Task<string> send(string JsonBody, ContextItem context)
+    {
+        return internSend(JsonBody);
+    }
+
+    public virtual string getTemplate(string key)
+    {
+        return "";
+    }
+
+    public virtual void setTemplate(string key,string body)
+    {
+    }
+    
+    public virtual void Init()
+    {
+        // metricUpTimeError = new Metrics.MetricHistogram("iu_outbound_errors_total", "handle performance receiver", new double[] { 30, 100, 500, 1000, 5000, 10000 });
+        // metricUpTimeError.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
+        //
+        // metricUpTime = new Metrics.MetricHistogram("iu_outbound_request_duration_msec", "handle performance receiver");
+        // metricUpTime.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
     }
 }

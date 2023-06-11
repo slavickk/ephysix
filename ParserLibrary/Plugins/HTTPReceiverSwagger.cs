@@ -27,9 +27,10 @@ using NSwag.CodeGeneration.CSharp;
 using Serilog.Events;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using System.Security.Cryptography.X509Certificates;
+using ParserLibrary;
 using PluginBase;
 
-namespace ParserLibrary
+namespace Plugins
 {
     public partial class HTTPReceiverSwagger : IReceiver
     {
@@ -224,11 +225,23 @@ namespace ParserLibrary
                 Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug, response);
             }
 
-            if (context is Step.ContextItem { context: SyncroItem item })
+            if (context is ContextItem { context: SyncroItem item })
             {
+                Logger.log(
+                    "HTTPReceiverSwagger: This is a workaround sendResponse branch with context being SyncroItem wrapped in Step.ContextItem. " +
+                    "Most likely this branch will be unused.");
                 item.answer = response;
                 Interlocked.Increment(ref item.srabot);
                 item.semaphore.Set();
+            }
+            
+            // The context may be SyncroItem item directly
+            if (context is SyncroItem syncroItem)
+            {
+                Logger.log("HTTPReceiverSwagger: Main sendResponse branch with context being SyncroItem directly");
+                syncroItem.answer = response;
+                Interlocked.Increment(ref syncroItem.srabot);
+                syncroItem.semaphore.Set();
             }
         }
 

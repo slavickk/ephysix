@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using ParserLibrary.DummyProtocol2;
+using PluginBase;
 
 namespace ParserLibrary.Tests
 {
@@ -20,7 +21,7 @@ namespace ParserLibrary.Tests
             };
 
 
-            dummyProtocol2Receiver.stringReceived = (s, o) => dummyProtocol2Receiver.sendResponse(s, new Step.ContextItem() { context = o });
+            dummyProtocol2Receiver.stringReceived = (s, o) => dummyProtocol2Receiver.sendResponse(s, new ContextItem() { context = o });
             dummyProtocol2Receiver.start();
         }
 

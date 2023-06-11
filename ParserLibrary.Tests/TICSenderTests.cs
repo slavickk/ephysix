@@ -2,6 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using DummySystem1Protocols.DummyProtocol1;
 using NUnit.Framework;
+using PluginBase;
 
 namespace ParserLibrary.Tests
 {
@@ -16,7 +17,7 @@ namespace ParserLibrary.Tests
                 port = _port,
                 dummyProtocol1Frame = _senderDummyProtocol1Frame
             };
-            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponse(s,new Step.ContextItem() { context = o });
+            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponse(s,new ContextItem() { context = o });
             dummyProtocol1Receiver.start();
         }
 

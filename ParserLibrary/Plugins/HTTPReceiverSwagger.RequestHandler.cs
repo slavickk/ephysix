@@ -8,9 +8,10 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ParserLibrary;
 using Serilog.Events;
 
-namespace ParserLibrary;
+namespace Plugins;
 
 public partial class HTTPReceiverSwagger
 {
