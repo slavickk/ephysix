@@ -8,8 +8,10 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using PluginBase;
 using YamlDotNet.Serialization;
 using static ParserLibrary.Step;
+using UniElLib;
 
 namespace ParserLibrary;
 
@@ -74,7 +76,7 @@ public  class HTTPSender:Sender,ISelfTested
     bool init = false;
     object syncro = new object();
 
-    public override async Task<string> send(string JsonBody, Step.ContextItem context)
+    public override async Task<string> send(string JsonBody, ContextItem context)
     {
         return await  internSend(JsonBody);
     }
@@ -255,7 +257,7 @@ public  class HTTPSender:Sender,ISelfTested
     }
 
 
-    public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context)
+    public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
     {
         await base.sendInternal(root,context);
         string str = formBody(root);

@@ -9,8 +9,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSwag.CodeGeneration.CSharp;
+using ParserLibrary;
 
-namespace ParserLibrary;
+namespace Plugins;
 
 public partial class HTTPReceiverSwagger
 {

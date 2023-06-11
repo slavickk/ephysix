@@ -6,18 +6,18 @@ using PluginBase;
 using Serilog;
 using Serilog.Context;
 
-namespace ParserLibrary;
+namespace Plugins.TIC;
 
 /// <summary>
 /// A drop-in replacement for the TICReceiver class, but using the new IReceiver interface.
 /// </summary>
-public class TICReceiverV2 : IReceiver
+public class TICReceiver : IReceiver
 {
     private readonly IDisposable pushProperty;
     private IPEndPoint endpoint;
     private TICFrame Frame;
 
-    public TICReceiverV2()
+    public TICReceiver()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         pushProperty = LogContext.PushProperty("reciever", "TIC");
@@ -49,10 +49,10 @@ public class TICReceiverV2 : IReceiver
 
     public async Task sendResponse(string response, object context)
     {
-        if (context is Step.ContextItem { context: NetworkStream networkStream })
+        if (context is ContextItem { context: NetworkStream networkStream })
             await Frame.SerializeFromJson(networkStream, response);
         else
-            Log.Error("TICReceiverV2.sendResponse: context is not a NetworkStream, this is an internal error.");
+            Log.Error("TICReceiver.sendResponse: context is not a NetworkStream, this is an internal error.");
     }
 
     public async Task start()

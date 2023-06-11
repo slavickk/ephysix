@@ -5,12 +5,12 @@ using Serilog;
 using Serilog.Context;
 using UAMP;
 
-namespace ParserLibrary.TIP;
+namespace Plugins.TIP;
 
 /// <summary>
 /// A IReceiver-based version of TIPReceiver above
 /// </summary>
-public class TIPReceiverV2 : IReceiver, IDisposable
+public class TIPReceiver : IReceiver, IDisposable
 {
     private int _delayTime = 1000;
 
@@ -21,12 +21,12 @@ public class TIPReceiverV2 : IReceiver, IDisposable
     private FileSystemWatcher watcher;
     private string workdir;
 
-    static TIPReceiverV2()
+    static TIPReceiver()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
-    public TIPReceiverV2()
+    public TIPReceiver()
     {
         logContext = LogContext.PushProperty("receiver", "TIP");
     }

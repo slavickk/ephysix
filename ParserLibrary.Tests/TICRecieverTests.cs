@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PluginBase;
 
 namespace ParserLibrary.Tests
 {
@@ -17,7 +18,7 @@ namespace ParserLibrary.Tests
             {
                 port = port, ticFrame = 6
             };
-            ticReciever.stringReceived = (s, o) => ticReciever.sendResponse(s,new Step.ContextItem() { context = o });
+            ticReciever.stringReceived = (s, o) => ticReciever.sendResponse(s,new ContextItem() { context = o });
             ticReciever.start();
         }
 

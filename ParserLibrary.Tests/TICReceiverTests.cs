@@ -5,10 +5,11 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PluginBase;
+using Plugins;
 
 namespace ParserLibrary.Tests;
 
-public class TICReceiverV2Tests
+public class TICReceiverTests
 {
     int port = 5001;
     
@@ -33,7 +34,7 @@ public class TICReceiverV2Tests
             Console.WriteLine("Input: " + input);
             Console.WriteLine("Context: " + context);
             
-            await _receiver.sendResponse(input, new Step.ContextItem() { context = context });
+            await _receiver.sendResponse(input, new ContextItem() { context = context });
         }
         
         public string IDStep => "DummyStep";
@@ -42,7 +43,7 @@ public class TICReceiverV2Tests
     [OneTimeSetUp]
     public void Init()
     {
-        var ticReciever = new TICReceiverV2()
+        var ticReciever = new Plugins.TIC.TICReceiver()
         {
             port = port, ticFrame = 6
         };

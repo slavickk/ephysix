@@ -8,7 +8,7 @@ steps:
   iDPreviousStep: ''
   iDResponsedReceiverStep: ''
   description: Check registration extract
-  receiver: !HTTPReceiverSwagger
+  receiver: !Plugins.HTTPReceiverSwagger
     address: localhost
     port: 8080
     responseType: text/xml
@@ -18,7 +18,7 @@ steps:
     swaggerSpecPath: Data/swagger.json  # standard Swagger file format
     serverCodePath: "GeneratedServer.cs"  # save the NSwag-generated server code to this file
     certSubject: localhost
-  sender: !DummySender
+  sender: !Plugins.DummySender
     responseToReturn: getPet  # key to get the response from the below dictionary of dummy responses
     dummyResponses:
       getPet: '{"Id":1,"Category":{"Id":2,"Name":"Dummy category"}, "Name":"Dummy Name","PhotoUrls":["url1"],"Tags":[{"Id":0,"Name":"tag1"}],"Status":"Available"}'

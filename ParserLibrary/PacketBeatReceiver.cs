@@ -129,6 +129,10 @@ namespace ParserLibrary
     }
 
 
+    /// <summary>
+    /// Handler for the LumberJack protocol.
+    /// LumberJack is used here for sending out event data, e.g. log events to Logstash.
+    /// </summary>
     public class LumberJackHandler
     {
         public PacketBeatReceiver owner;

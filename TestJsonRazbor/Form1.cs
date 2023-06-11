@@ -12,7 +12,7 @@ using System.Text.Json;
 using System.Xml;
 using CSScriptLib;
 using MaxMind.GeoIP2;
-using ParserLibrary;
+using UniElLib;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using YamlDotNet.Serialization;
@@ -23,6 +23,7 @@ using System.Net;
 using System.Net.Sockets;
 using ETL_DB_Interface;
 using CamundaInterface;
+using PluginBase;
 
 namespace TestJsonRazbor
 {
@@ -31,7 +32,7 @@ namespace TestJsonRazbor
         public class TreeDrawer : Drawer
         {
             public TreeNode node;
-            public TreeDrawer(TreeView treeView1, ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor)
+            public TreeDrawer(TreeView treeView1, AbstrParser.UniEl newEl, AbstrParser.UniEl ancestor)
             {
                 newEl.treeNode = this;// new TreeNode(newEl.Name);
                 node = new TreeNode(newEl.Name);
@@ -48,7 +49,7 @@ namespace TestJsonRazbor
                 }
 
             }
-            public void Update(ParserLibrary.AbstrParser.UniEl newEl)
+            public void Update(AbstrParser.UniEl newEl)
             {
                 if (node.Nodes.Count == 0)
                 {
@@ -73,7 +74,7 @@ namespace TestJsonRazbor
                 tree = tree1;
 
             }
-            public Drawer Create(ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor)
+            public Drawer Create(AbstrParser.UniEl newEl, AbstrParser.UniEl ancestor)
             {
                 return new TreeDrawer(tree, newEl, ancestor);
             }
@@ -90,7 +91,7 @@ namespace TestJsonRazbor
                 var bytes = System.Text.Encoding.ASCII.GetBytes(payLoad);
 
                 request.ContentLength = (bytes.Length);
-                Stream dataStream = request.GetRequestStream();
+                StreamSender.Stream dataStream = request.GetRequestStream();
                 //                var bytes = System.Text.Encoding.ASCII.GetBytes(payload);
                 dataStream.Write(bytes, 0, bytes.Length);
                 //                Serialize(dataStream, payload);
@@ -102,7 +103,7 @@ namespace TestJsonRazbor
             if (returnString == "OK")
             {
                 List<byte> outBuff = new List<byte>();
-                Stream stream = response.GetResponseStream();
+                StreamSender.Stream stream = response.GetResponseStream();
                 byte[] buffer = new byte[5000/*response.ContentLength*/];
                 int bytesRead;
 
@@ -423,14 +424,76 @@ namespace TestJsonRazbor
         }
         List<OutputValue> fields = new List<OutputValue>();
         int index_list = -1;
-        public class DemoSender : Sender
+        
+        // TODO: delete DemoSender once DemoSenderV2 is confirmed to work
+        // public class DemoSender : Sender
+        // {
+        //     TreeView tree;
+        //     public static bool noDraw = false;
+        //
+        //     public override TypeContent typeContent => TypeContent.internal_list;// throw new NotImplementedException();
+        //
+        //     public DemoSender(TreeView  tree1)
+        //     {
+        //         tree = tree1;
+        //         Clear();
+        //     }
+        //
+        //     public void Clear()
+        //     {
+        //         if (!noDraw)
+        //         {
+        //             tree.Nodes.Clear();
+        //             tree.Nodes.Add("Output");
+        //         }
+        //     }
+        //
+        //     public async override Task<string> sendInternal(AbstrParser.UniEl root,ContextItem context)
+        //     {
+        //         if (!noDraw)
+        //         {
+        //             tree.Nodes[0].Nodes.Add("Item");
+        //             var rootNode = tree.Nodes[0].Nodes[tree.Nodes[0].Nodes.Count - 1];
+        //             foreach (var el in root.childs)
+        //                 rootNode.Nodes.Add(el.Name + "\":\"" + el.Value);
+        //         }
+        //         return "";
+        //     }
+        // }
+
+        public class DemoSenderV2 : ISender
         {
             TreeView tree;
             public static bool noDraw = false;
 
-            public override TypeContent typeContent => TypeContent.internal_list;// throw new NotImplementedException();
+            public ISenderHost host { get; set; }
 
-            public DemoSender(TreeView  tree1)
+            public Task<string> send(string JsonBody, ContextItem context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public String getTemplate(String key)
+            {
+                return string.Empty;
+            }
+
+            public Void setTemplate(String key, String body)
+            {
+            }
+
+            public TypeContent typeContent => TypeContent.internal_list;// throw new NotImplementedException();
+            public Void Init()
+            {
+                // TODO: the previous implementation, Sender, initializes metrics in the base abstract class. Duplicating the code here. Deduplicate.
+                metricUpTimeError = new Metrics.MetricHistogram("iu_outbound_errors_total", "handle performance receiver", new double[] { 30, 100, 500, 1000, 5000, 10000 });
+                metricUpTimeError.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
+
+                metricUpTime = new Metrics.MetricHistogram("iu_outbound_request_duration_msec", "handle performance receiver");
+                metricUpTime.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
+            }
+
+            public DemoSenderV2(TreeView  tree1)
             {
                 tree = tree1;
                 Clear();
@@ -445,7 +508,7 @@ namespace TestJsonRazbor
                 }
             }
 
-            public async override Task<string> sendInternal(AbstrParser.UniEl root,Step.ContextItem context)
+            public Task<string> send(UniElLib.AbstrParser.UniEl root, ContextItem context)
             {
                 if (!noDraw)
                 {
@@ -545,7 +608,7 @@ namespace TestJsonRazbor
         }
         public class ii : ITypeResolver,INodeTypeResolver
         {
-            public Type Resolve(Type staticType, object actualValue)
+            public Metrics.Metric.Type Resolve(Metrics.Metric.Type staticType, object actualValue)
             {
                 if (actualValue == null)
                     return staticType;
@@ -553,15 +616,15 @@ namespace TestJsonRazbor
 //                throw new NotImplementedException();
             }
 
-            public bool Resolve(NodeEvent nodeEvent, ref Type currentType)
+            public bool Resolve(NodeEvent nodeEvent, ref Metrics.Metric.Type currentType)
             {
-                if(currentType == typeof(Receiver))
+                if(currentType == typeof(IReceiver))
                     {
-                    currentType = typeof(PacketBeatReceiver);
+                    currentType = typeof(PacketBeatReceiverV2);
                 }
-                if (currentType == typeof(Sender))
+                if (currentType == typeof(ISender))
                 {
-                    currentType = typeof(HTTPSender);
+                    currentType = typeof(HTTPSenderV2);
                 }
 
                 return true;
@@ -570,11 +633,11 @@ namespace TestJsonRazbor
         }
         public class ScalarOrSequenceConverter : IYamlTypeConverter
         {
-            public bool Accepts(Type type)
+            public bool Accepts(Metrics.Metric.Type type)
             {
                 return typeof(IEnumerable<string>).IsAssignableFrom(type);
             }
-            public object ReadYaml(IParser parser, Type type)
+            public object ReadYaml(IParser parser, Metrics.Metric.Type type)
             {
                 if (parser.TryConsume<Scalar>(out var scalar))
                 {
@@ -582,7 +645,7 @@ namespace TestJsonRazbor
                 }
                 return null;
             }
-            public void WriteYaml(IEmitter emitter, object value, Type type)
+            public void WriteYaml(IEmitter emitter, object value, Metrics.Metric.Type type)
             {
                 var sequence = (IEnumerable<string>)value;
                 if (sequence.Count() == 1)
@@ -811,11 +874,11 @@ namespace TestJsonRazbor
                     else
                         rec = new TestReceiver() { path = lastFile, pattern = "" };
                     pip.steps[0].receiver = rec;
-                    pip.steps[0].sender = new DemoSender(treeView2);
+                    pip.steps[0].sender = new DemoSenderV2(treeView2);
 
                     int cycle = 1000;
                     ConditionFilter.isNew = true;
-                        DemoSender.noDraw= true;
+                        DemoSenderV2.noDraw= true;
                     DateTime time1 = DateTime.Now;
                     for (int i = 0; i < cycle; i++)
                     {

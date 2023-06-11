@@ -18,6 +18,12 @@ public interface IReceiver
 /// </summary>
 public interface IReceiverHost
 {
+    /// <summary>
+    /// Handle an input message from receiver.
+    /// </summary>
+    /// <param name="input">Input message</param>
+    /// <param name="context">Arbitrary context object</param>
+    /// <returns></returns>
     Task signal(string input, object context);
     string IDStep { get; }
 }

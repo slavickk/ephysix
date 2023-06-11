@@ -1,6 +1,7 @@
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using ParserLibrary.TIC.TICFrames;
+using PluginBase;
 
 namespace ParserLibrary
 {
@@ -19,7 +20,7 @@ namespace ParserLibrary
             set => Frame = TICFrame.GetFrame(value);
         }*/
 
-        public override async Task<string> send(string JsonBody, Step.ContextItem context)
+        public override async Task<string> send(string JsonBody, ContextItem context)
         {
             if (twfaclient is null || !twfaclient.Connected)
             {

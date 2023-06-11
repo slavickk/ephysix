@@ -1,8 +1,7 @@
-using System.IO;
-using System.Threading.Tasks;
+using ParserLibrary;
 using PluginBase;
 
-namespace ParserLibrary;
+namespace Plugins;
 
 /// <summary>
 /// A receiver that reads the given file and triggers a signal for each text chunk separated by the delimiter. 
@@ -16,7 +15,8 @@ public class FileReceiver : IReceiver
     public IReceiverHost host { get; set; }
     public Task sendResponse(string response, object context)
     {
-        throw new System.NotImplementedException("FileReceiver.sendResponse is not supposed to be called");
+        Logger.log($"FileReceiver.sendResponse called with response {response} and context {context}");
+        return Task.CompletedTask;
     }
 
     public bool cantTryParse; // This one comes from the YAML definition of the receiver

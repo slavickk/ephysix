@@ -157,7 +157,7 @@ namespace WebApiConsoleUtility
                             Log.Information("Self test OK. Run pipeline.");
                             pip.run().ContinueWith((runner) =>
                                 {
-                                    Log.Information("Pipeline execution stopped with result {a} exception {exc}.Terminating application...",runner.IsFaulted, runner.Exception?.ToString());
+                                    Log.Information($"Pipeline execution stopped: IsFaulted={runner.IsFaulted}, exception: {runner.Exception?.ToString() ?? "None"}. Terminating application...");
                                     Console.WriteLine(runner.Exception?.ToString());
                                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                                     return;

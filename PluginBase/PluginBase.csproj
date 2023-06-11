@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\UniElLib\UniElLib.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -194,7 +194,7 @@ namespace TestJsonRazbor
             {
 
 //                string key = (tObject as Sender).externalKey; 
-                Form frm = Activator.CreateInstance(type_frm, new object[] { tObject as Sender }) as Form;
+                Form frm = Activator.CreateInstance(type_frm, new object[] { tObject as ISender }) as Form;
 
 //                (frm as SenderDataExchanger).setContent((tObject as Sender).getTemplate(key));
                 if (frm.ShowDialog() == DialogResult.OK)

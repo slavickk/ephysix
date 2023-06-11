@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using ParserLibrary.TIP;
+using PluginBase;
 
 namespace ParserLibrary.Tests
 {
@@ -20,7 +21,7 @@ namespace ParserLibrary.Tests
             };
 
 
-            tipReciever.stringReceived = (s, o) => tipReciever.sendResponse(s, new Step.ContextItem() { context = o });
+            tipReciever.stringReceived = (s, o) => tipReciever.sendResponse(s, new ContextItem() { context = o });
             tipReciever.start();
         }
 

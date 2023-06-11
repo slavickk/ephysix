@@ -1,4 +1,4 @@
-﻿using ParserLibrary;
+﻿using UniElLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -72,7 +72,7 @@ namespace TestJsonRazbor
                     checkBoxCopyChildOnly.Checked=vvv.copyChildsOnly;
                     textBoxValueFieldSearch.Text=vvv.conditionPath;
                     if (vvv.conditionCalcer != null)
-                        textBoxFalueFieldSearchValue.Text = (vvv.conditionCalcer as ComparerForValue).value_for_compare;
+                        textBoxFalueFieldSearchValue.Text = (vvv.conditionCalcer as UniElLib.ComparerForValue).value_for_compare;
                     else
                         textBoxFalueFieldSearchValue.Text = "";
                     //= ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text)));

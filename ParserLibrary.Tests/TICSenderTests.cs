@@ -2,6 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CCFAProtocols.TIC;
 using NUnit.Framework;
+using PluginBase;
 
 namespace ParserLibrary.Tests
 {
@@ -16,7 +17,7 @@ namespace ParserLibrary.Tests
                 port = _port,
                 ticFrame = _senderTicFrame
             };
-            ticReciever.stringReceived = (s, o) => ticReciever.sendResponse(s,new Step.ContextItem() { context = o });
+            ticReciever.stringReceived = (s, o) => ticReciever.sendResponse(s,new ContextItem() { context = o });
             ticReciever.start();
         }
 
