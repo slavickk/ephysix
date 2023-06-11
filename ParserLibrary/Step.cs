@@ -11,12 +11,15 @@ using PluginBase;
 using UniElLib;
 using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
+using DotLiquid;
+using System.Xml.Linq;
+using static ParserLibrary.Pipeline;
 
 namespace ParserLibrary;
 /// <summary>
 /// Step is a sequence of steps that includes (optionally) Sender, Receiver and a set of filters for selecting information
 /// </summary>
-public partial class Step
+public partial class Step : ILiquidizable
 {
 
     public static void Test()
@@ -778,5 +781,21 @@ public partial class Step
         if (contextNode == null)
             contextNode = new AbstrParser.UniEl((getAncestor ? (rootElInput.ancestor) : rootElInput)) { Name = Name};
         return contextNode;
+    }
+
+    public object ToLiquid()
+    {
+        int ref1 = 1;
+        List<OutputValue> outputs = new List<OutputValue>();
+        foreach (var conv in this.converters)
+            outputs.AddRange(conv.outputFields.Where(ii=>ii.getLiquidDict().Count>0));
+       //Dictionary<string,object> outputs1= new Dictionary<string, object>[outp]
+            var ret= new Dictionary<string, object> { { "Name", this.IDStep }, { "Description", this.description }, { "filters", outputs },{ "sender",new LiquidPoint(owner.steps,-1, this.sender,ref ref1
+            ) } };
+        if(IDStep== "Step_ToTWO")
+        {
+            int yy = 0;
+        }
+        return ret;
     }
 }

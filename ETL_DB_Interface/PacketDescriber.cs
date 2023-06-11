@@ -1,4 +1,5 @@
 ﻿using CamundaInterfaces;
+using DotLiquid;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,22 @@ namespace ETL_DB_Interface
        // static string DocPath = @"C:\CamundaTopics\camundatopics\BPMN\ETL";
         public static void SaveMDDefinition(this GenerateStatement.ETL_Package package)
         {
+            if (File.Exists(@"Shablons/Shablon.txt"))
+            {
+                using (StreamReader sr = new StreamReader(@"Shablons/Shablon.txt"))
+                {
+                    var TemplateBody=sr.ReadToEnd();
+                    Template template = Template.Parse(TemplateBody); // Parses and compiles the template
+                                                                       //        Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
+                    var res = template.Render((DotLiquid.Hash.FromDictionary(new Dictionary<string, object>() { { "package", package } }))); // => "hi tobi"
+                    using (StreamWriter sw = new StreamWriter($"{GenerateStatement.pathToSaveETL}{package.NamePacket}.md"))
+                    {
+                        sw.Write(res);
+                    }
+
+                }
+                return;
+            }
             using (StreamWriter sw = new StreamWriter($"{GenerateStatement.pathToSaveETL}{package.NamePacket}.md"))
             {
                 sw.Write(package.DescribePackage());

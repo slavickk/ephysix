@@ -11,6 +11,7 @@ using System.Text.Json;
 //using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DotLiquid;
 using Newtonsoft.Json;
 using ParserLibrary;
 using PluginBase;
@@ -471,6 +472,76 @@ namespace TestJsonRazbor
             }
         }
 
+//        string addLinkItem(string input,string output)
+        private void buttonPlantUml_Click(object sender, EventArgs e)
+        {
+         if( pip != null)
+            {
+                string TemplateBody3 = @"
+## Flow diagram
+### {{pipeline.Description}}
+
+```plantuml
+@startuml
+box ""PCI DSS zone"" #EEEEFF
+{% for chld in pipeline.Childs %}participant ""{{chld.Name}}""     as {{chld.Name}}  order {{chld.nOrder}}  #FF9999
+{% endfor %}
+
+end box
+legend left
+<#FFFFFF,#FFFFFF>|<#99FF99>   | CCFA components|   |<#FFFFFF,#FFFFFF>|<#FF9999>   | Other C+ components|
+endlegend
+autonumber
+  == AReq ==
+{% for chld in pipeline.Childs %}
+{% for chld1 in chld.Childs %}
+{% if chld.isFirst == true %}  [o->{{chld.Name}}:{{chld.Protocol}}{% endif %}
+ {{chld.Name}} -[#FF3333]> {{chld1.Name}} : <b>{{chld.Step.Name}}</b> {{chld.Step.Description}}
+{% if chld1.isFirst == true %}  {{chld1.Name}}->[:{{chld1.Protocol}}{% endif %}{% endfor %}{% endfor %}
+@enduml
+```
+{% for step in pipeline.Steps %}
+## {{step.Name}}
+```plantuml
+@startuml
+class {{step.Name}} << (S,orchid) >>
+{
+{% for flt in step.filters %}{% if flt.Input != """" %} 
++ {{flt.Input}}{% endif %}{% endfor %}
+}
+class {{step.sender.Name}} << (D,orchid) >>
+{
+{% for flt in step.filters %}
++ {{flt.Output}}{% endfor %}
+}
+{% for flt in step.filters %}
+{{step.Name}}::{{flt.Input}}->{{step.sender.Name}}::{{flt.Output}}{% endfor %}
+@enduml
+```
+{% endfor %}
+";
+                string TemplateBody2 = @"
+@startuml
+!pragma svginterface true
+title =ACS->TWO transform{% for object in objects %}
+class {{object.Name}} << ({{object.Type}},orchid) >>
+{
+{% for member in object.members %}
++{{member.Name}}{% endfor %}
+}{% endfor %}{% for object in objects %}{% for member in object.members %}{% for dest in member.destinators %}
+{{object.Name}}::{{member.Name}}->{{dest.Owner}}::{{dest.Name}}{% endfor %}{% endfor %}{% endfor %}
+@enduml
+";
+                //        RenderParameters param1= new RenderParameters()
+                Template template = Template.Parse(TemplateBody3); // Parses and compiles the template
+                                                                   //        Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
+                var res = template.Render((DotLiquid.Hash.FromDictionary(new Dictionary<string, object>() { { "pipeline", pip } }))); // => "hi tobi"
+                                                                                                                               //        var res = template.Render((Hash.FromDictionary(new Dictionary<string, object>() { { "products", new Product[] {new Product(1),new Product(2) } }, { "products1", 2 } }))); // => "hi tobi"
+                                                                                                                               // var res =template.Render((Hash.FromAnonymousObject(new { name = "tobi" }))); // => "hi tobi"
+                Console.WriteLine($"Hello, World! {res}");
+
+            }
+        }
         private void buttonNew_Click(object sender, EventArgs e)
         {
             pip = new Pipeline();

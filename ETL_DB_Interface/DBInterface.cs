@@ -521,7 +521,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
             return retValue;
         }
 
-        public static async Task SaveAndExecuteETL(NpgsqlConnection conn, ETL_Package package)
+        public static async Task<GenerateStatement.ETL_Package> SaveAndExecuteETL(NpgsqlConnection conn, ETL_Package package)
         {
             await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(5,@id,@title,@output_name,@description,@dest_id,@add_par)", conn))
             {
@@ -540,29 +540,6 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                     }
                 }
             }
-            /*if(package.TableOutputName.Count>1)
-            {
-                for(int i=1; i < package.TableOutputName.Count;i++)
-                {
-                    await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_dest_table(@id,@output_name)", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@id", package.idPackage);
-//                        cmd.Parameters.AddWithValue("@scema_id", package.idPackage);
-
-                        cmd.Parameters.AddWithValue("@output_name", package.TableOutputName[i]);
-                    
-                        await using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                package.idPackage = reader.GetInt64(0);
-                            }
-                        }
-                    }
-
-                }
-            }
-            */
             foreach (var item in package.variables)
             {
                 await using (var cmd = new NpgsqlCommand(@"select * from ccfa_add_etl_variable(5,@id,@name,@description,@type,@defaultValue)", conn))
@@ -612,24 +589,6 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
             await SaveItem(conn, package.idPackage, selectList, lastItem,outputList);
 
 
-            /*                foreach (var group in selectedFields.GroupBy(ii => ii.table.table_name + ii.table.alias,i1=>i1.).Select(i1=>i1.Key.)
-                            {
-                                await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetltable(2,@etlid,@tableid,@alias,@select_list)", conn))
-                                {
-                                    cmd.Parameters.AddWithValue("@etlid", idPackage);
-                                    cmd.Parameters.AddWithValue("@tableid", item.table.table_id);
-                                    cmd.Parameters.AddWithValue("@alias", item.table.alias);
-                                    cmd.Parameters.AddWithValue("@select_list", item.col_name);
-                                    await using (var reader = await cmd.ExecuteReaderAsync())
-                                    {
-                                        while (await reader.ReadAsync())
-                                        {
-                                            item.table.etl_id = reader.GetInt64(0);
-                                        }
-                                    }
-                                }
-                            } 
-            */
             foreach (var item in package.relations)
                 await using (var cmd = new NpgsqlCommand(@"select * from ccfa_addetlrelation(5,@etlid,@fk_id,@table1id,@table2id)", conn))
                 {
@@ -665,7 +624,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
             {
                 sw.Write(JsonSerializer.Serialize<ETL_Package>(package,options));
             }
-            await GenerateStatement.Generate(conn, package.idPackage);
+            return await GenerateStatement.Generate(conn, package.idPackage);
         }
         public class TableRelsItem
         {

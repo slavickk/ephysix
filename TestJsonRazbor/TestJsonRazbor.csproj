@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="CS-Script.Core" Version="2.0.0" />
+    <PackageReference Include="DotLiquid" Version="2.2.692" />
     <PackageReference Include="jacobslusser.ScintillaNET" Version="3.6.3" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1343.22" />

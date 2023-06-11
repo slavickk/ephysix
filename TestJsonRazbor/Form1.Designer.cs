@@ -33,6 +33,7 @@ namespace TestJsonRazbor
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.textBoxSearch = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
+            this.buttonPlantUml = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
@@ -152,6 +153,16 @@ namespace TestJsonRazbor
             this.button1.Text = "Search";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // buttonPlantUml
+            // 
+            this.buttonPlantUml.Location = new System.Drawing.Point(266, 5);
+            this.buttonPlantUml.Name = "buttonPlantUml";
+            this.buttonPlantUml.Size = new System.Drawing.Size(108, 46);
+            this.buttonPlantUml.TabIndex = 2;
+            this.buttonPlantUml.Text = "ToDraw";
+            this.buttonPlantUml.UseVisualStyleBackColor = true;
+            this.buttonPlantUml.Click += new System.EventHandler(this.buttonPlantUml_Click);
             // 
             // checkBox1
             // 
@@ -820,6 +831,7 @@ namespace TestJsonRazbor
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonPlantUml);
             this.Controls.Add(this.textBoxSearch);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -927,6 +939,7 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.OpenFileDialog openFileDialog2;
         private System.Windows.Forms.OpenFileDialog openFileDialog3;
+        private System.Windows.Forms.Button buttonPlantUml;
     }
 }
 
