@@ -29,3 +29,12 @@ the following command will retrieve the pet with ID 123:
 curl -v -X 'GET' 'https://localhost:8080/v2/pet/123' -H 'accept: text/plain'
 ```
 TODO: once the JWT pull request is merged, update the above command to include the JWT token.
+
+## JWT verification
+
+The signer's certificate used for JWT verification is loaded
+from the **local machine store** by its subject name
+specified in `jwtIssueSigningCertSubject` in the pipeline configuration.
+
+For development purposes, you can generate a self-signed certificate and a JWT token
+by executing the `JWTTests.GenerateSelfSignedCertificate()` and `JWTTests.GenerateToken()` tests.

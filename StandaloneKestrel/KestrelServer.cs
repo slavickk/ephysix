@@ -8,6 +8,11 @@ using Microsoft.AspNetCore.WebSockets;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
+using Serilog.Extensions.Logging;
 
 namespace Kestrel
 {
@@ -108,18 +113,52 @@ namespace Kestrel
             var serverOptions = new KestrelServerOptions();
             serverOptions.ListenAnyIP(port);
             serverOptions.Limits.MaxConcurrentConnections=maxConnectionLimits;
+            
           //  serverOptions.C
 
             var transportOptions = new SocketTransportOptions();
-            var loggerFactory = new NullLoggerFactory();
+//            var loggerFactory = new NullLoggerFactory();
+            var loggerFactory = new LoggerFactory()
+    .AddSerilog(Log.Logger);
+            HttpClient client = new HttpClient();
+
+            Microsoft.Extensions.Logging.ILogger logger = loggerFactory.CreateLogger("KestrelLogger");
 
             var transportFactory = new SocketTransportFactory(
                 new OptionsWrapper<SocketTransportOptions>(transportOptions), loggerFactory);
+            restart:
+            using (var server = new KestrelServer(
+                new OptionsWrapper<KestrelServerOptions>(serverOptions), transportFactory, loggerFactory))
+            { 
+                // server.Options.
+                await server.StartAsync(new KestrelApplication(loggerFactory, this), CancellationToken.None);
+            string url = $"http://localhost:{port}/healthcheck";
+                while (0 == 0)
+                {
+                    await Task.Delay(1000);
+                    try
+                    {
+                        var resp = await client.GetAsync(url);
+                        if (resp.StatusCode != System.Net.HttpStatusCode.OK)
+                        {
+                            Log.Error("{\"Mess\":\"@StatusCode\"}", resp.StatusCode);
 
-            using var server = new KestrelServer(
-                new OptionsWrapper<KestrelServerOptions>(serverOptions), transportFactory, loggerFactory);
-           // server.Options.
-            await server.StartAsync(new KestrelApplication(loggerFactory,this), CancellationToken.None);
+                            await server.StopAsync(CancellationToken.None);
+                            await server.StartAsync(new KestrelApplication(loggerFactory, this), CancellationToken.None);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Error on healthcheck");
+                        server.Dispose();
+                        goto restart;
+
+                    }
+                    //                resp.EnsureSuccessStatusCode();
+                }
+
+            }
             await Task.Delay(Timeout.Infinite);
         }
     }
