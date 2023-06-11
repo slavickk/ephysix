@@ -29,6 +29,8 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using System.Security.Cryptography.X509Certificates;
 using ParserLibrary;
 using PluginBase;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Plugins
 {
@@ -63,6 +65,11 @@ namespace Plugins
         /// If set, the receiver will return the contents of this file instead of waiting for requests.
         /// </summary>
         public string mockFile;
+        
+        /// <summary>
+        /// JWT issuer signing certificate subject name that the server uses to verify the JWT token.
+        /// </summary>
+        public string jwtIssueSigningCertSubject;
 
         /// <summary>
         /// Body of the mock response to return.
@@ -79,25 +86,16 @@ namespace Plugins
 
         private X509Certificate2 FindMatchingCertificateBySubject(string subjectCommonName)
         {
-            // This is a bit reworked copy of the example from
-            // https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-tutorial-dotnet-app-enable-https-endpoint
+            // Find the signing certificate by common name in the local certificate store
             using var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-            
             store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
+            var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, subjectCommonName, false);
+            
+            // Ensure we have found exactly one certificate
+            if (certificates.Count != 1)
+                throw new Exception($"Found {certificates.Count} certificates with subject 'CN={subjectCommonName}'. Expected exactly one.");
 
-            // TODO: clarify the order in which the certificates are enumerated;
-            // if it is not deterministic, consider sorting the certificates by expiration date.
-            foreach (var cert in store.Certificates)
-            {
-                if (StringComparer.OrdinalIgnoreCase.Equals(subjectCommonName, cert.GetNameInfo(X509NameType.SimpleName, forIssuer: false))
-                    && DateTime.Now < cert.NotAfter
-                    && DateTime.Now >= cert.NotBefore)
-                {
-                    return cert;
-                }
-            }
-
-            throw new Exception($"Could not find a match for a certificate with subject 'CN={subjectCommonName}'.");
+            return certificates[0];
         }
         
         public HTTPReceiverSwagger()
@@ -129,7 +127,12 @@ namespace Plugins
                                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Integration Utility v1");
                             });
                             app.UseRouting();
-                            app.UseEndpoints(ep => ep.MapControllers());
+                            if (jwtIssueSigningCertSubject != null)
+                            {
+                                app.UseAuthentication();
+                                app.UseAuthorization();
+                            }
+                            app.UseEndpoints(ep => ep.MapControllers().RequireAuthorization());
                         });
 
                 });
@@ -210,6 +213,25 @@ namespace Plugins
                     
                     // Register the RequestHandler in the service container
                     services.AddSingleton(requestHandler);
+                    
+                    // Configure JWT validation if jwtIssueSigningKey is provided
+                    if (jwtIssueSigningCertSubject != null)
+                    {
+                        Logger.log("HTTPReceiverSwagger: jwtIssueSigningKey is given in pipeline definition, configuring JWT validation.");
+                        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                            .AddJwtBearer(options =>
+                            {
+                                options.TokenValidationParameters = new TokenValidationParameters
+                                {
+                                    ValidateAudience = false,
+                                    ValidateIssuer = false,  // but the signature is still validated
+                                    ValidateIssuerSigningKey = true,
+                                    IssuerSigningKey = new X509SecurityKey(FindMatchingCertificateBySubject(jwtIssueSigningCertSubject))
+                                };
+                            });
+                    }
+                    else
+                        Logger.log("HTTPReceiverSwagger: Not using JWT validation because jwtIssueSigningKey has not been given in pipeline definition.");
                 });
             }).Build();
 
