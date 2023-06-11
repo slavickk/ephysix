@@ -14,6 +14,7 @@ using System.Reflection.Emit;
 using Microsoft.CSharp;
 using NSwag.CodeGeneration.CSharp;
 using PluginBase;
+using Plugins;
 
 namespace ParserLibrary.Tests;
 
@@ -55,7 +56,7 @@ public class SwaggerStubGenTests
             Console.WriteLine("Input: " + input);
             Console.WriteLine("Context: " + context);
             
-            await _receiver.sendResponse(DummyPetAnswer, new Step.ContextItem() { context = context });
+            await _receiver.sendResponse(DummyPetAnswer, new ContextItem() { context = context });
         }
         
         public string IDStep => "DummyStep";

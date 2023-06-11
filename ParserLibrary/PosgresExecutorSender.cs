@@ -5,6 +5,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Npgsql;
+using PluginBase;
+using UniElLib;
 
 namespace ParserLibrary
 {
@@ -47,7 +49,7 @@ namespace ParserLibrary
         }
         List<ItemVar> sqlVariables = null;
 
-        public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context)
+        public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
         {
             //            var def = root.childs.First(ii => ii.Name == "Define");
 //            if (sqlVariables == null)

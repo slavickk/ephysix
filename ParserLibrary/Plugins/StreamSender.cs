@@ -1,23 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection;
-using System.Text.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 using Npgsql;
-using YamlDotNet.Core.Tokens;
-using Newtonsoft.Json;
-using YamlDotNet.Serialization;
-using System.Globalization;
+using ParserLibrary;
 using PluginBase;
 using UniElLib;
+using YamlDotNet.Serialization;
 
-namespace ParserLibrary;
+namespace Plugins;
 
 public class StreamSender:HTTPSender,ISelfTested
 {
@@ -49,7 +47,7 @@ public class StreamSender:HTTPSender,ISelfTested
         //            if(ans)
         return (isSuccess, details, exc);
     }
-    string getVal1(AbstrParser.UniEl el,Stream stream)
+    string getVal1(UniElLib.AbstrParser.UniEl el,Stream stream)
     {
         var conv = stream.fieldsDict[el.Name].SensitiveConverter;
         if (conv != null)
@@ -58,7 +56,7 @@ public class StreamSender:HTTPSender,ISelfTested
             return getVal(el);
 
     }
-    protected override string formBody(AbstrParser.UniEl root)
+    protected override string formBody(UniElLib.AbstrParser.UniEl root)
     {
         string currentStream = streamName;
         //         getStream()
@@ -72,7 +70,7 @@ public class StreamSender:HTTPSender,ISelfTested
         return str;
     }
 
-    public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context   )
+    public override async Task<string> send(UniElLib.AbstrParser.UniEl root, ContextItem context   )
     {
         metricStreamConcurrent.Increment();
         Interlocked.Increment(ref countOpenRexRequest);
@@ -81,14 +79,14 @@ public class StreamSender:HTTPSender,ISelfTested
         var it=root.childs.FirstOrDefault(ii => ii.Name == "stream");
         if (it == null)
         {
-            root.childs.Add(new AbstrParser.UniEl() { Name = "stream", Value = streamName });
+            root.childs.Add(new UniElLib.AbstrParser.UniEl() { Name = "stream", Value = streamName });
         } else
             currentStream = it.Value.ToString();
            
         //   foreach(var item in stream.fields.Where(ii => ii.SensitiveData.IsNotEmpty()))
 
         DateTime time1=DateTime.Now;
-        var ret= await base.sendInternal(root, context);
+        var ret= await base.send(root, context);
         Interval+=(DateTime.Now-time1); 
         Interlocked.Decrement(ref countOpenRexRequest);
         metricStreamConcurrent.Decrement();
@@ -105,17 +103,17 @@ public class StreamSender:HTTPSender,ISelfTested
             public string Detail { get; set; }
 
             public string SensitiveData { get; set; }
-            HashOutput converter = null;
+            UniElLib.HashOutput converter = null;
             public bool? Calculated { get; set; }
             [YamlIgnore]
-            public HashOutput SensitiveConverter
+            public UniElLib.HashOutput SensitiveConverter
             {
                 get
                 {
                     if(!String.IsNullOrEmpty(SensitiveData) && converter==null)
                     {
                         Type typeProducer= Assembly.GetAssembly(typeof(AliasProducer)).GetTypes().First(t => t.IsAssignableTo(typeof(AliasProducer)) && !t.IsAbstract && t.CustomAttributes.Count(ii => ii.AttributeType == typeof(SensitiveAttribute) && ii.ConstructorArguments[0].Value.ToString()== SensitiveData) >0);
-                        converter = new HashOutput() { hashConverter = new CryptoHash(), aliasProducer = Activator.CreateInstance(typeProducer) as AliasProducer };
+                        converter = new UniElLib.HashOutput() { hashConverter = new UniElLib.CryptoHash(), aliasProducer = Activator.CreateInstance(typeProducer) as UniElLib.AliasProducer };
                     }
                     return converter;
                 }
@@ -215,10 +213,10 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
         return (stream);
     }
 
-    public override void Init(Pipeline owner)
+    public override void Init()
     {
         getStream(streamName);
-        base.Init(owner);
+        base.Init();
     }
 
  
