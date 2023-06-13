@@ -542,7 +542,7 @@ public class Pipeline:ILiquidizable
         public string Protocol="Http";
         public List<LiquidPoint> child = new List<LiquidPoint>();
         Step currentStep;
-        public LiquidPoint(Step[] steps,int index, Sender sender,ref int nOrder)
+        public LiquidPoint(Step[] steps,int index, ISender sender,ref int nOrder)
         {
             Name = sender.GetType().Name;
             if (index >= 0)
@@ -571,7 +571,7 @@ public class Pipeline:ILiquidizable
             return nOrder;
         }
 
-        public LiquidPoint(Step[] steps, int index, Receiver rec,ref int nOrder)
+        public LiquidPoint(Step[] steps, int index, IReceiver rec,ref int nOrder)
         {
             if(index>=0)
                 All.Add(this);
