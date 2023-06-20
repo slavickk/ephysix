@@ -17,6 +17,19 @@ which is enabled by setting `serverCodePath` to the file name in the pipeline co
 HTTPS is supported and can be enabled by setting `certSubject` to certificate subject to use in the pipeline configuration.
 The certificate is loaded from the local machine store.
 
+### Testing the HTTPReceiverSwagger locally
+
+You can use `curl` to test the `HTTPReceiverSwagger` locally.
+E.g. assuming the `HTTPReceiverSwagger` is running on port 8080,
+and the pet `DummySender` has been configured in the pipeline definition
+to return pets,
+the following command will retrieve the pet with ID 123:
+
+```bash
+curl -v -X 'GET' 'https://localhost:8080/v2/pet/123' -H 'accept: text/plain'
+```
+TODO: once the JWT pull request is merged, update the above command to include the JWT token.
+
 ## JWT verification
 
 The signer's certificate used for JWT verification is loaded

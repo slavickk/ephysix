@@ -19,6 +19,8 @@ using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Collections.Concurrent;
+using PluginBase;
+using UniElLib;
 using DotLiquid;
 using System.Xml.Linq;
 
@@ -84,8 +86,6 @@ public class Pipeline:ILiquidizable
             foreach (Step step in steps)
             {
                 step.debugMode = value;
-                if(step.receiver!= null)
-                    step.receiver.debugMode = value;
                 /*if (step.sender != null)
                         step.sender.debugMode = value;*/
             }
@@ -127,9 +127,39 @@ public class Pipeline:ILiquidizable
         }
         return retValue;
     }
+    
+    /// <summary>
+    /// Returns the list of all plugin types that must be available during pipeline deserialization.
+    /// </summary>
+    /// <returns></returns>
+    static List<Type> getAllPluginTypes()
+    {
+        // Predicate to determine whether a type should be available during pipeline deserialization 
+        bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t);
+
+        // TODO: make the list of plugin assemblies configurable
+        var pluginAssemblyNames = new[] { "Plugins.dll" };
+        var pluginAssemblies = pluginAssemblyNames.Select(Assembly.LoadFrom).ToList();
+
+        // Find all types that must be accessible during pipeline deserialization
+        var pluginClasses = pluginAssemblies.SelectMany(a => a.GetTypes()).Where(TypeShouldbBeRegistered).ToList();
+        
+        // There are some plugin classes defined as part of the ParserLibrary itself.
+        // List them too.
+        var internalPluginClasses = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t))
+            .ToList();
+        
+        return pluginClasses.Concat(internalPluginClasses).ToList();
+    }
+
     static List<Type> getAllRegTypes()
     {
-        return Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) || t.IsSubclassOf(typeof(Receiver)) || t.IsSubclassOf(typeof(Filter)) || t.IsSubclassOf(typeof(Sender)) || t.IsSubclassOf(typeof(OutputValue)) || t.IsAssignableTo(typeof(AliasProducer)) || t.IsAssignableTo(typeof(HashConverter))).ToList();
+        return Assembly.GetExecutingAssembly().GetTypes().Where(t =>
+            t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) ||
+            t.IsSubclassOf(typeof(Filter)) ||
+            t.IsSubclassOf(typeof(OutputValue)) || t.IsAssignableTo(typeof(AliasProducer)) ||
+            t.IsAssignableTo(typeof(HashConverter))).ToList();
 
         //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
     }
@@ -189,19 +219,10 @@ public class Pipeline:ILiquidizable
             IV= Encoding.UTF8.GetBytes(initialisationVector);
             //aes.IV = iv;
 
-            foreach (var step in steps)
-        {
-            if (step.receiver != null)
-                step.receiver.owner = step;
-            if (step.sender != null)
-                step.sender.owner = step;
+        foreach (var step in steps)
             step.Init(this);
-
-        }
         foreach(var mb in this.metricsBuilder)
-        {
             mb.Init();
-        }
 //            step.owner = this;
         var entryStep = steps.First(ii => ii.IDPreviousStep == "" && ii.receiver != null);
 
@@ -352,6 +373,27 @@ public class Pipeline:ILiquidizable
         }
     }
 
+    /// <summary>
+    /// A node deserializer for assemblies. It will load the assembly from the given path.
+    /// </summary>
+    // public class AssemblyNodeDeserializer : INodeDeserializer
+    // {
+    //     bool INodeDeserializer.Deserialize(IParser parser, Type expectedType,
+    //         Func<IParser, Type, object> nestedObjectDeserializer, out object value)
+    //     {
+    //         // if expected type is Assembly
+    //         if (expectedType == typeof(Assembly))
+    //         {
+    //             // get the scalar value
+    //             var scalar = parser.Consume<Scalar>();
+    //             // load the assembly
+    //             value = Assembly.LoadFrom(scalar.Value);
+    //             return true;
+    //         }
+    //         value = null;
+    //         return false;
+    //     }
+    // }
 
     public class occurencyItem
     {
@@ -367,6 +409,9 @@ public class Pipeline:ILiquidizable
         var ser = new DeserializerBuilder();
         foreach (var type in getAllRegTypes())
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        // Now register the plugins, but use their FullName for tags
+        foreach (var type in getAllPluginTypes())
+            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -497,7 +542,7 @@ public class Pipeline:ILiquidizable
         public string Protocol="Http";
         public List<LiquidPoint> child = new List<LiquidPoint>();
         Step currentStep;
-        public LiquidPoint(Step[] steps,int index, Sender sender,ref int nOrder)
+        public LiquidPoint(Step[] steps,int index, ISender sender,ref int nOrder)
         {
             Name = sender.GetType().Name;
             if (index >= 0)
@@ -526,7 +571,7 @@ public class Pipeline:ILiquidizable
             return nOrder;
         }
 
-        public LiquidPoint(Step[] steps, int index, Receiver rec,ref int nOrder)
+        public LiquidPoint(Step[] steps, int index, IReceiver rec,ref int nOrder)
         {
             if(index>=0)
                 All.Add(this);

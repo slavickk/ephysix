@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PluginBase;
 
 namespace ParserLibrary.Tests
 {
@@ -17,7 +18,7 @@ namespace ParserLibrary.Tests
             {
                 port = port, dummyProtocol1Frame = 6
             };
-            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponse(s,new Step.ContextItem() { context = o });
+            dummyProtocol1Receiver.stringReceived = (s, o) => dummyProtocol1Receiver.sendResponse(s,new ContextItem() { context = o });
             dummyProtocol1Receiver.start();
         }
 
@@ -30,10 +31,15 @@ namespace ParserLibrary.Tests
             Assert.True(tcpClient.Connected);
             NetworkStream clientStream = tcpClient.GetStream();
             clientStream.Write(bytes);
+            
+            // Avoid infinite loop in case a bug causes the receiver to return less data than we expect
+            clientStream.ReadTimeout = 1000;
 
             byte[] rec_bytes = new byte[bytes.Length];
-            int BytesRead = clientStream.Read(rec_bytes, 0, bytes.Length);
-            Assert.AreEqual(bytes.Length, rec_bytes.Length);
+            var BytesRead = 0;
+            while (BytesRead < rec_bytes.Length)
+                BytesRead += clientStream.Read(rec_bytes, BytesRead, bytes.Length - BytesRead);
+            Assert.AreEqual(bytes.Length, BytesRead);
             Assert.AreEqual(bytes, rec_bytes);
         }
     }
