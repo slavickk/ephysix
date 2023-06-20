@@ -27,12 +27,14 @@ using NSwag.CodeGeneration.CSharp;
 using Serilog.Events;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using System.Security.Cryptography.X509Certificates;
+using ParserLibrary;
+using PluginBase;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ParserLibrary
+namespace Plugins
 {
-    public partial class HTTPReceiverSwagger : Receiver
+    public partial class HTTPReceiverSwagger : IReceiver
     {
         /// <summary>
         /// Address to listen on. If not set, the server listens on localhost.
@@ -59,14 +61,29 @@ namespace ParserLibrary
         public string certSubject;
         
         /// <summary>
+        /// File containing the mock response to return.
+        /// If set, the receiver will return the contents of this file instead of waiting for requests.
+        /// </summary>
+        public string mockFile;
+        
+        /// <summary>
         /// JWT issuer signing certificate subject name that the server uses to verify the JWT token.
         /// </summary>
         public string jwtIssueSigningCertSubject;
 
+        /// <summary>
+        /// Body of the mock response to return.
+        /// If set, the receiver will return this body instead of waiting for requests.
+        /// </summary>
+        public string mockBody;
+
         IHostBuilder _hostBuilder;
         
         public string ResponseType = "application/json";
-        
+        private IReceiverHost _host;
+        public bool cantTryParse; // This one comes from the YAML definition of the receiver
+        private bool _debugMode;
+
         private X509Certificate2 FindMatchingCertificateBySubject(string subjectCommonName)
         {
             // Find the signing certificate by common name in the local certificate store
@@ -121,9 +138,26 @@ namespace ParserLibrary
                 });
         }
 
-        protected override async Task startInternal()
+        async Task IReceiver.start()
         {
-            // Finish the host configuration
+            if (this.mockBody != null)
+            {
+                Logger.log("HTTPReceiverSwagger: Mock mode is enabled, returning the mock body " + this.mockBody);
+                await _host.signal(this.mockBody, "hz");
+                return;
+            }
+            
+            if (this.mockFile != null)
+            {
+                Logger.log("HTTPReceiverSwagger: Mock mode is enabled, reading the mock file " + this.mockFile);
+                var mockResponse = File.ReadAllText(this.mockFile);
+                Logger.log("HTTPReceiverSwagger: Mock response: " + mockResponse);
+                await _host.signal(mockResponse, "hz");
+                return;
+            }
+            
+            // No mocks given, start the server.
+            // Finish the host configuration.
             Logger.log("HTTPReceiverSwagger: finish building the host");
             
             var serverPart = await CompileControllerAssemblyPartAsync();
@@ -205,31 +239,43 @@ namespace ParserLibrary
             await host.RunAsync();
         }
 
-        protected override async Task sendResponseInternal(string response, object context)
+        async Task IReceiver.sendResponse(string response, object context)
         {
-            if (debugMode)
+            if (this._debugMode)
             {
-                Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
+                Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", this._host.IDStep, response);
                 Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug, response);
             }
 
-            if (context is SyncroItem item)
+            if (context is ContextItem { context: SyncroItem item })
             {
+                Logger.log(
+                    "HTTPReceiverSwagger: This is a workaround sendResponse branch with context being SyncroItem wrapped in Step.ContextItem. " +
+                    "Most likely this branch will be unused.");
                 item.answer = response;
                 Interlocked.Increment(ref item.srabot);
                 item.semaphore.Set();
             }
+            
+            // The context may be SyncroItem item directly
+            if (context is SyncroItem syncroItem)
+            {
+                Logger.log("HTTPReceiverSwagger: Main sendResponse branch with context being SyncroItem directly");
+                syncroItem.answer = response;
+                Interlocked.Increment(ref syncroItem.srabot);
+                syncroItem.semaphore.Set();
+            }
         }
 
-        public async Task signal1(string body,SyncroItem semaphoreItem)
+        private async Task signal1(string body,SyncroItem semaphoreItem)
         {
-            await signal(body, semaphoreItem);
-           // semaphoreItem.semaphore.
+            await this._host.signal(body, semaphoreItem);
+            // semaphoreItem.semaphore.
             if (semaphoreItem.srabot==0)
             {
-                if (debugMode)
+                if (this._debugMode)
                 {
-                    Logger.log("Answer without response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, "-");
+                    Logger.log("Answer without response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", this._host.IDStep, "-");
 
                 }
                 semaphoreItem.semaphore.Set();
@@ -272,87 +318,7 @@ namespace ParserLibrary
            // List<Header> headers = new List<Header>();
             public override async Task ReceiveRequest(HttpContext httpContext)
             {
-                if (httpContext.Request.Path.Value.Contains("/metrics"))
-                {
-                    SetResponseType(httpContext, "text/plain");
-                    await SetResponseContent(httpContext,await GetMetrics());
-                    return;
-                }
-
-                    if (httpContext.Request.Path.Value.Contains("/swagger"))
-                {
-                    string json_body;
-                    
-                    using (StreamReader sr = new StreamReader(this.owner.swaggerSpecPath))
-                    {
-                        json_body = sr.ReadToEnd();
-                    }
-
-                    string content=GetSwaggerHtmlBody(json_body);
-                    SetResponseType(httpContext, "text/html");
-                    await SetResponseContent(httpContext, content);
-                    return;
-
-                }
-                Interlocked.Increment(ref CountOpened);
-                metricCountOpened.Increment();
-                DateTime time1=DateTime.Now;
-                bool iError = false;
-                HTTPReceiverSwagger.SyncroItem item = new SyncroItem();
-                using (var stream = new StreamReader(httpContext.Request.Body, Encoding.UTF8))
-                {
-                    string str = await stream.ReadToEndAsync();
-                    if (owner.debugMode)
-                        Logger.log("Stream reading:{o} ", Serilog.Events.LogEventLevel.Debug, "any", Thread.CurrentThread.ManagedThreadId);
-                  //  headers.Clear();
-                    foreach(var head in httpContext.Request.Headers)
-                    {
-                        item.headers.Add(new Header() { Key = head.Key, Value = head.Value });   
-                      /*  var st = head.Key;
-                        var st1 = head.Value;*/
-                    }
-                    
-                    try
-                    {
-                        owner.signal1(str, item).ContinueWith(antecedent =>
-                        {
-                            iError = true;
-                            metricCountOpened.Decrement();
-                            metricErrors.Increment();
-                            httpContext.Response.StatusCode = 404;
-                            item.semaphore.Set();
-                           // Console.WriteLine($"Error {antecedent}!");
-                            //Console.WriteLine($"And how are you this fine {antecedent.Result}?");
-                        },TaskContinuationOptions.OnlyOnFaulted);
-                    }
-                    catch(Exception e77)
-                    {
-                        metricCountOpened.Decrement();
-                        metricErrors.Increment();
-                        httpContext.Response.StatusCode = 404;
-                        return;
-                    }
-                }
-
-                await item.semaphore.WaitAsync();
-                if (iError)
-                    return;
-                Interlocked.Increment(ref item.unwait);
-
-                if (owner.debugMode)
-                {
-                    Logger.log("Answer to client step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner.owner, item.answer);
-
-                }
-                metricCountExecuted.Increment();
-                Interlocked.Increment(ref CountExecuted);
-                // await httpContext.Request.Body.
-                SetResponseType(httpContext, owner.ResponseType);
-                await SetResponseContent(httpContext, item.answer);
-                metricCountOpened.Decrement();
-                Interlocked.Decrement(ref CountOpened);
-                metricTimeExecuted.Add(time1);
-                //return base.ReceiveRequest(httpContext);
+                throw new NotImplementedException("This method is not supposed to be called and should be deleted eventually.");
             }
         }
         static string template = "";
@@ -368,6 +334,20 @@ namespace ParserLibrary
                 }
             }
             return template.Replace("{0}", json_body);
+        }
+        
+        IReceiverHost IReceiver.host
+        {
+            get => _host;
+            set => _host = value;
+        }
+
+        bool IReceiver.cantTryParse => this.cantTryParse;
+
+        bool IReceiver.debugMode
+        {
+            get => _debugMode;
+            set => _debugMode = value;
         }
     }
 

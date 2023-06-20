@@ -1,4 +1,4 @@
-﻿using ParserLibrary;
+﻿using UniElLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,6 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ParserLibrary;
 using static ParserLibrary.Step;
 
 namespace TestJsonRazbor
@@ -131,7 +132,7 @@ namespace TestJsonRazbor
 
         }
 
-        private Type GetTypeOfForm()
+        private Metrics.Metric.Type GetTypeOfForm()
         {
             return   PluginsInterface.getAllTypes().FirstOrDefault(t => t.CustomAttributes.Count(ii => ii.AttributeType == typeof(GUIAttribute) /*&& ii.ConstructorArguments[0].ArgumentType == currentStep.sender.GetType()*/) > 0);
         }
@@ -708,12 +709,12 @@ namespace TestJsonRazbor
              if(0==1/*radioButtonSimple.Checked*/)
             {
 
-                converter = new HashOutput() { hashConverter = new Hasher(), aliasProducer = Activator.CreateInstance(comboBoxTypeAlias.SelectedItem as Type) as AliasProducer };
+                converter = new HashOutput() { hashConverter = new Hasher(), aliasProducer = Activator.CreateInstance(comboBoxTypeAlias.SelectedItem as Metrics.Metric.Type) as AliasProducer };
             }
             if (0==1/*radioButtonCrypto.Checked*/)
             {
 
-                converter = new HashOutput() { hashConverter = new CryptoHash(), aliasProducer = Activator.CreateInstance(comboBoxTypeAlias.SelectedItem as Type) as AliasProducer };
+                converter = new HashOutput() { hashConverter = new CryptoHash(), aliasProducer = Activator.CreateInstance(comboBoxTypeAlias.SelectedItem as Metrics.Metric.Type) as AliasProducer };
             }
             switch (comboBox3.SelectedIndex)
             {
@@ -802,7 +803,7 @@ namespace TestJsonRazbor
                         {
                             for (int i = 0; i < comboBoxTypeAlias.Items.Count; i++)
                             {
-                                if ((comboBoxTypeAlias.Items[i] as Type).Name == conv.aliasProducer.GetType().Name)
+                                if ((comboBoxTypeAlias.Items[i] as Metrics.Metric.Type).Name == conv.aliasProducer.GetType().Name)
                                 {
                                     comboBoxTypeAlias.SelectedIndex = i;
                                     break;
@@ -983,7 +984,7 @@ namespace TestJsonRazbor
             if (type_frm != null)
             {
 
-                Form frm = Activator.CreateInstance(type_frm, new object[] { currentStep.sender as Sender }) as Form;
+                Form frm = Activator.CreateInstance(type_frm, new object[] { currentStep.sender }) as Form;
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
                     var ss=(frm as SenderDataExchanger).getContent();

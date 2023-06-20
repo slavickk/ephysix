@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PluginBase;
+using UniElLib;
 
 namespace ParserLibrary
 {
@@ -19,7 +21,7 @@ namespace ParserLibrary
 
         public override TypeContent typeContent => TypeContent.internal_list;// throw new NotImplementedException();
 
-        public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context)
+        public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
         {
 
             List<AbstrParser.UniEl> stored_list =root.toList();

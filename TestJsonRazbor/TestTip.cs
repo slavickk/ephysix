@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PluginBase;
 
 namespace TestJsonRazbor
 {
@@ -128,7 +129,7 @@ var ans=@"{""Fields"": {
             };
 
 
-            tipReciever.stringReceived = (s, o) => tipReciever.sendResponse(s, new Step.ContextItem() { context = o });
+            tipReciever.stringReceived = (s, o) => tipReciever.sendResponse(s, new ContextItem() { context = o });
             tipReciever.start();
         }
 

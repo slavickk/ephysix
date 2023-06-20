@@ -14,6 +14,8 @@ using YamlDotNet.Core.Tokens;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 using System.Globalization;
+using PluginBase;
+using UniElLib;
 
 namespace ParserLibrary;
 
@@ -70,7 +72,7 @@ public class StreamSender:HTTPSender,ISelfTested
         return str;
     }
 
-    public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context   )
+    public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context   )
     {
         metricStreamConcurrent.Increment();
         Interlocked.Increment(ref countOpenRexRequest);

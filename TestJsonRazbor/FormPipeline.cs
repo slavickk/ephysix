@@ -14,6 +14,11 @@ using System.Windows.Forms;
 using DotLiquid;
 using Newtonsoft.Json;
 using ParserLibrary;
+using PluginBase;
+using Plugins;
+using UniElLib;
+using PacketBeatReceiver = Plugins.PacketBeatReceiver;
+using TICSender = Plugins.TICSender;
 
 namespace TestJsonRazbor
 {
@@ -200,10 +205,10 @@ namespace TestJsonRazbor
             selectedNode = e.Node;
             ((TreeView)sender).SelectedNode = e.Node;
         }
-        Receiver rec;
+        IReceiver rec;
         private void button1_Click(object sender, EventArgs e)
         {
-            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Receiver),tObject= (currentStep.receiver== null)?new PacketBeatReceiver(): currentStep.receiver };
+            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(IReceiver),tObject= (currentStep.receiver== null)?new PacketBeatReceiver(): currentStep.receiver };
             if(frm.ShowDialog() == DialogResult.OK)
             {
                 SetReceiverObject(frm.tObject);
@@ -218,7 +223,7 @@ namespace TestJsonRazbor
             {
                 this.buttonSetupReceiver.Text = "Receiver:" + tObject.GetType().Name;
                 buttonTestReceiver.Enabled = true;
-                rec = tObject as Receiver;
+                rec = tObject as IReceiver;
                 buttonReceiverMoc.Enabled = true;
             } 
         }
@@ -244,12 +249,12 @@ namespace TestJsonRazbor
                 await rec.start();
             });
         }
-        Sender sender1;
+        ISender sender1;
         private void button3_Click(object sender, EventArgs e)
         {
             if (currentStep != null)
             {
-                FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject = ((currentStep.sender == null) ? new TICSender() : currentStep.sender) };
+                FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(ISender), tObject = ((currentStep.sender == null) ? new TICSender() : currentStep.sender) };
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
                     SetSenderObject(frm.tObject);
@@ -265,7 +270,7 @@ namespace TestJsonRazbor
             {
                 this.buttonSetupSender.Text = "Sender:" + tObject.GetType().Name;
                 buttonTestServer.Enabled = true;
-                sender1 = tObject as Sender;
+                sender1 = tObject as ISender;
                 buttonSenderMoc.Enabled = true;
             }
         }
