@@ -189,6 +189,15 @@ namespace UniElLib
        // public static Drawer treeView1;
         public static List<AbstrParser> availParser = new List<AbstrParser>() { new JsonParser(), new XmlParser(), new Base64Parser(), new IPAddrParser() };
         public static DrawerFactory drawerFactory;
+        
+        /// <summary>
+        /// Determines whether the given line can be parsed by this parser and creates corresponding UniEl nodes in the ancestor node.
+        /// </summary>
+        /// <param name="line">The line to parse.</param>
+        /// <param name="ancestor">The ancestor UniEl node to create corresponding nodes in.</param>
+        /// <param name="list">The list of UniEl nodes to add new nodes to.</param>
+        /// <param name="cantTryParse">A boolean value indicating whether to try parsing complex fields.</param>
+        /// <returns>A boolean value indicating whether the line was successfully parsed and corresponding nodes were created.</returns>
         public abstract bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false);
         public virtual bool canRazbor(byte[] bytes, UniEl ancestor, List<UniEl> list)
         {
@@ -931,6 +940,13 @@ namespace UniElLib
                     return el.ToString();
             }
         }
+        /// <summary>
+        /// Extracts fields from a JSON element and creates corresponding UniEl nodes in the ancestor node.
+        /// </summary>
+        /// <param name="el">The JSON element to extract fields from.</param>
+        /// <param name="ancestor">The ancestor UniEl node to create corresponding nodes in.</param>
+        /// <param name="list">The list of UniEl nodes to add new nodes to.</param>
+        /// <param name="cantTryParse">A boolean value indicating whether to try parsing complex fields.</param>
         private void ExtractJsonFields(JsonElement el, UniEl ancestor, List<UniEl> list,bool cantTryParse)
         {
             if(el.ValueKind == JsonValueKind.Array)

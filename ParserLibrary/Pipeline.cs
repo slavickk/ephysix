@@ -101,6 +101,10 @@ public class Pipeline:ILiquidizable
     public bool skipSelfTest = false;
 
     //public AbstrParser.UniEl rootElement = null;
+    /// <summary>
+    /// Performs a self-test on the pipeline by calling the SelfTest() method of each sender that implements ISelfTested.
+    /// </summary>
+    /// <returns>A boolean value indicating whether the self-test passed or failed.</returns>
     public async Task<bool> SelfTest()
     {
         // check that sender implemented ISelfTested

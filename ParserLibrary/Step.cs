@@ -425,6 +425,8 @@ public partial class Step : ILiquidizable
     }
     public async Task FilterInfo(string input, DateTime time2, ContextItem context, AbstrParser.UniEl rootElement)
     {
+        // When called from string_received, the rootElement is the container for the parsed record.
+        
         try
         {
             //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
