@@ -155,6 +155,9 @@ namespace UniElLib
         public static bool includeBodyOnComplexField = false;
         public static string[] PathBuilder(string[] paths, string commonPath = "")
         {
+            if (paths.Length == 0)
+                return Array.Empty<string>();
+            
             int indCommon = -1;
             if (commonPath == "")
             {
