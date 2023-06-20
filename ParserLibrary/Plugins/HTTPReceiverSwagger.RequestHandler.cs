@@ -8,9 +8,10 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ParserLibrary;
 using Serilog.Events;
 
-namespace ParserLibrary;
+namespace Plugins;
 
 public partial class HTTPReceiverSwagger
 {
@@ -96,9 +97,9 @@ public partial class HTTPReceiverSwagger
 
             Interlocked.Increment(ref item.unwait);
 
-            if (_receiver.debugMode)
+            if (_receiver._debugMode)
             {
-                Logger.log("Answer to client step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", _receiver.owner, item.answer);
+                Logger.log("Answer to client step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", this._receiver._host.IDStep, item.answer);
             }
 
             metricCountExecuted.Increment();

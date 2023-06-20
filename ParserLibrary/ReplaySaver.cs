@@ -58,4 +58,9 @@ public class ReplaySaver
         return item.fileName;
     }
 
+    public void Init()
+    {
+        if (!Directory.Exists(path))
+            Directory.CreateDirectory(path);
+    }
 }

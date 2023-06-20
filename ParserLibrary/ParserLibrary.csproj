@@ -8,6 +8,22 @@
 
   <ItemGroup>
     <None Remove="nuget.config" />
+    <Compile Remove="Components.cs" />
+    <None Include="Components.cs" />
+    <Compile Remove="Converters.cs" />
+    <None Include="Converters.cs" />
+    <Compile Remove="AbstrParser.cs" />
+    <None Include="AbstrParser.cs" />
+    <Compile Remove="AliasProducers.cs" />
+    <None Include="AliasProducers.cs" />
+    <Compile Remove="ScriptInterfaces.cs" />
+    <None Include="ScriptInterfaces.cs" />
+    <Compile Remove="OutputValues.cs" />
+    <None Include="OutputValues.cs" />
+    <Compile Remove="Filters.cs" />
+    <None Include="Filters.cs" />
+    <Compile Remove="CustomAttributes.cs" />
+    <None Include="CustomAttributes.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,6 +60,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DMN_lib\DMN_lib.csproj" />
+    <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
     <ProjectReference Include="..\StandaloneKestrel\StandaloneKestrel.csproj" />
   </ItemGroup>
 

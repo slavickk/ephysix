@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using PluginBase;
 using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
@@ -96,12 +97,12 @@ public abstract class Receiver
     }
 
 
-    public async Task sendResponse(string response,Step.ContextItem  contextItem)
+    public async Task sendResponse(string response,ContextItem  contextItem)
     {
         if (debugMode)
             Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any",owner, response);
-        if (owner.owner.saver != null)
-            contextItem.currentScenario.getStepItem(this.owner).MocFileResponce=owner.owner.saver.save(response);
+        if (owner?.owner.saver != null)
+            contextItem.currentScenario.getStepItem(this.owner.IDStep).MocFileResponce=owner.owner.saver.save(response);
 
         if (!MocMode)
             await sendResponseInternal(response, contextItem.context);

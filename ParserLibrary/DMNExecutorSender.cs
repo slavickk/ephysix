@@ -14,6 +14,8 @@ using System.Collections.Concurrent;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Newtonsoft.Json.Linq;
+using PluginBase;
+using UniElLib;
 
 namespace ParserLibrary
 {
@@ -267,7 +269,7 @@ namespace ParserLibrary
 
         public override TypeContent typeContent => TypeContent.internal_list;
         DateTime timeFinish;
-        public async override Task<string> sendInternal(AbstrParser.UniEl root, Step.ContextItem context)
+        public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
         {
             metricCount.Increment();
             DateTime time1 = DateTime.Now;

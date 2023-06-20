@@ -7,6 +7,8 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using PluginBase;
+using UniElLib;
 using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 using DotLiquid;
@@ -17,7 +19,7 @@ namespace ParserLibrary;
 /// <summary>
 /// Step is a sequence of steps that includes (optionally) Sender, Receiver and a set of filters for selecting information
 /// </summary>
-public class Step:ILiquidizable
+public partial class Step : ILiquidizable
 {
 
     public static void Test()
@@ -46,15 +48,8 @@ public class Step:ILiquidizable
     }
     public async Task run()
     {
-
-        if (sender != null)
-            sender.owner = this;
         if (receiver != null)
-        {
-            receiver.owner = this;
-            receiver.stringReceived = Receiver_stringReceived;
-            await receiver.start();
-        }
+            await _receiverHost.start();
     }
     public string IDStep { get; set; } = "Example";
 
@@ -65,9 +60,34 @@ public class Step:ILiquidizable
 
 
     public string description { get; set; } = "Some comments in this place";
+    
     [YamlIgnore]
-    public bool debugMode { get; set; } = true;
-    public Receiver receiver { get; set; } = null;// new PacketBeatReceiver();
+    public bool debugMode
+    {
+        get => this._debugMode;
+        set
+        {
+            this._debugMode = value;
+            if (this.receiver != null)
+                this.receiver.debugMode = value;
+        }
+    }
+    private bool _debugMode = true;
+
+    // The actual receiver object as specified in the pipeline definition file
+    public IReceiver receiver
+    {
+        get => this._receiverHost?.Receiver;
+        set
+        {
+            if (this._receiverHost != null)
+                this._receiverHost.Release();
+            this._receiverHost = new ReceiverHost(this, value);
+            this._receiverHost.Init(owner);
+        }
+    }
+    private ReceiverHost _receiverHost;
+    
     public class ItemFilter
     {
 
@@ -97,15 +117,41 @@ public class Step:ILiquidizable
     /*        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
                 public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
     //        public RecordExtractor transformer;
-    public Sender sender { get; set; } = new LongLifeRepositorySender();
+    // The actual sender object whose class is specified in the pipeline definition file
+    public ISender sender
+    {
+        get => this._senderHost?.Sender;
+        set
+        {
+            if (this._senderHost != null)
+                this._senderHost.Release();
+            this._senderHost = new SenderHost(this, value);
+            this._senderHost.Init(owner);
+        }
+    }
+    
+    private SenderHost _senderHost;
+
     [YamlIgnore]
     public Pipeline owner { get; set; }
 
     public void Init(Pipeline owner)
     {
         this.owner = owner;
-        this.sender?.Init(owner);
-        this.receiver?.Init(owner);
+
+        if (this.receiver != null)
+        {
+            _receiverHost = new ReceiverHost(this, receiver);
+            _receiverHost.Init(owner);
+        }
+        
+        if (this.sender != null)
+        {
+            // TODO: this may be unnecessary because the sender host is initialized when this.sender is set 
+            _senderHost = new SenderHost(this, sender);
+            _senderHost.Init(owner);
+        }
+
         if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
         {
             // Ensure the save error directory exists
@@ -145,6 +191,10 @@ public class Step:ILiquidizable
         //            owner = owner1;
         /*  sucMetric = Pipeline.metrics.getMetric("packagesReceived", false, true, "All packages, sended to utility");
               errMetric = Pipeline.metrics.getMetric("packagesReceived", true, false, "All packages, sended to utility");*/
+        
+        // Preserve the original logic of initializing the sender with a LongLifeRepositorySender,
+        // only this time we use the new, ISender-based, version of the sender.
+        this.sender = new Plugins.LongLifeRepositorySender();
     }
 
     static Metrics.MetricCount sucMetric = new Metrics.MetricCount("packagesReceivedSuccess", "All packages, sended to utility");
@@ -154,13 +204,6 @@ public class Step:ILiquidizable
 
     //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
 
-    public class ContextItem
-    {
-        public List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
-        public object context;
-        public Activity mainActivity;
-        public Scenario currentScenario = null;
-    }
     public bool isBridge = false;
 
     public static bool saveAllResponses = false;
@@ -183,7 +226,7 @@ public class Step:ILiquidizable
         {
             contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
             if (owner.saver != null)
-                contextItem.currentScenario.getStepItem(this).MocFileReceiver=owner.saver.save(input);
+                contextItem.currentScenario.getStepItem(this.IDStep).MocFileReceiver=owner.saver.save(input);
 
         }
 
@@ -201,6 +244,8 @@ public class Step:ILiquidizable
         }
         else
         {
+            // In the bridge mode we immediately send the input to the Sender object.
+            // The response is then sent back to the receiver.
             try
             {
                 /*if(sender?.GetType() == typeof(HTTPSender) && receiver.GetType() == typeof(HTTPReceiver))
@@ -210,7 +255,8 @@ public class Step:ILiquidizable
                     }*/
                 var ans = await sender?.send(input,contextItem);
 
-                await receiver.sendResponse(ans, contextItem);
+                // TODO: consider passing the original context object coming from sender, not the ContextItem wrapper
+                await _receiverHost.sendResponse(ans, contextItem);
 
                 if (contextItem?.currentScenario != null)
                 {
@@ -292,10 +338,10 @@ public class Step:ILiquidizable
     {
         return $"Step:{this.IDStep}";
     }
-    private async Task<string> FindAndCopy1(AbstrParser.UniEl rootElInput, DateTime time1, ItemFilter item, AbstrParser.UniEl el, List<AbstrParser.UniEl> list,Step.ContextItem context)
+    private async Task<string> FindAndCopy1(AbstrParser.UniEl rootElInput, DateTime time1, ItemFilter item, AbstrParser.UniEl el, List<AbstrParser.UniEl> list,ContextItem context)
     {
         int count = 0;
-        AbstrParser.UniEl local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
+        var local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
         count = item.exec(rootElInput, ref local_rootOutput);
         /*            foreach (var ff in item.outputFields)
                         {
@@ -312,10 +358,10 @@ public class Step:ILiquidizable
         if (IDResponsedReceiverStep != "")
             return "";
         else
-            return await sender.send(local_rootOutput,context);
+            return await _senderHost.send(local_rootOutput,context);
     }
 
-    public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement,Step.ContextItem context)
+    public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement,ContextItem context)
     {
         try
         {
@@ -584,7 +630,7 @@ public class Step:ILiquidizable
                 restart:
                 try
                 {
-                    await sender.send(rootEl,null);
+                    await _senderHost.send(rootEl,null);
                     errMetricRetry.Increment();
                     
                 }
@@ -656,18 +702,18 @@ public class Step:ILiquidizable
                 Logger.log("Send answer initializer {step}  ", Serilog.Events.LogEventLevel.Debug, "any", this);
 
             var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
-            string content;
+            string responseFromSender;
             if(sender == null)
-                content = local_rootOutput.toJSON();
+                responseFromSender = local_rootOutput.toJSON();
             else
-                content= await sender.send(local_rootOutput,context);
-            await step.receiver.sendResponse(content, context);
+                responseFromSender= await sender.send(local_rootOutput,context);
+            await step.receiver.sendResponse(responseFromSender, context);
             foreach (var node in local_rootOutput.childs)
             {
                 node.ancestor = toNode;
                 //          toNode.childs.Add(node);
             }
-            StoreAnswer("Resp", rootElInput, context, content, step);
+            StoreAnswer("Resp", rootElInput, context, responseFromSender, step);
 
         }
         else

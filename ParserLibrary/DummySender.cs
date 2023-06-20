@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PluginBase;
 
 namespace ParserLibrary;
 
@@ -20,7 +21,7 @@ public class DummySender : Sender
     /// </summary>
     public string ResponseToReturn;
 
-    public override Task<string> send(string JsonBody, Step.ContextItem context)
+    public override Task<string> send(string JsonBody, ContextItem context)
     {
         return Task.FromResult(this.DummyResponses[this.ResponseToReturn]);
     }
