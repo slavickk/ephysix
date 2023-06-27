@@ -14,6 +14,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Json;
+using UniElLib;
 using Logger = ParserLibrary.Logger;
 
 namespace TestJsonRazbor

@@ -205,7 +205,7 @@ namespace TestJsonRazbor
             selectedNode = e.Node;
             ((TreeView)sender).SelectedNode = e.Node;
         }
-        IReceiver rec;
+        Receiver rec;
         private void button1_Click(object sender, EventArgs e)
         {
             FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(IReceiver),tObject= (currentStep.receiver== null)?new PacketBeatReceiver(): currentStep.receiver };
@@ -223,7 +223,7 @@ namespace TestJsonRazbor
             {
                 this.buttonSetupReceiver.Text = "Receiver:" + tObject.GetType().Name;
                 buttonTestReceiver.Enabled = true;
-                rec = tObject as IReceiver;
+                rec = tObject as Receiver;
                 buttonReceiverMoc.Enabled = true;
             } 
         }
@@ -249,7 +249,7 @@ namespace TestJsonRazbor
                 await rec.start();
             });
         }
-        ISender sender1;
+        Sender sender1;
         private void button3_Click(object sender, EventArgs e)
         {
             if (currentStep != null)
@@ -270,7 +270,7 @@ namespace TestJsonRazbor
             {
                 this.buttonSetupSender.Text = "Sender:" + tObject.GetType().Name;
                 buttonTestServer.Enabled = true;
-                sender1 = tObject as ISender;
+                sender1 = tObject as Sender;
                 buttonSenderMoc.Enabled = true;
             }
         }
@@ -551,7 +551,7 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
 
         private async  void button3_Click_1(object sender, EventArgs e)
         {
-            PostgresSender.Test();
+            ParserLibrary.PostgresSender.Test();
             (new FormDMNView(null) {  xml=""}).ShowDialog();
             return;
             dynamic employee = new ExpandoObject();

@@ -28,13 +28,13 @@ namespace CamundaInterface
             var client = new LookupClient(consulIP, 8600);
             if (nameService != "" && tag != "")
             {
-                var entry = client.ResolveService(nameService + ".service.dc1.consul", tag);
+                var entry = client.ResolveService($"{nameService}.service{DataCenterResolver.DataCenter}consul", tag);
 
                 return entry.Select(ii => ii.AddressList[0].ToString() + ":" + ii.Port).ToList();
             }
             if (tag == "")
             {
-                var entry = client.ResolveService("service.dc1.consul", nameService);
+                var entry = client.ResolveService($"service{DataCenterResolver.DataCenter}consul", nameService);
                 return entry.Select(ii => ii.AddressList[0].ToString() + ":" + ii.Port).ToList();
 
             }
@@ -51,13 +51,13 @@ namespace CamundaInterface
             var client = new LookupClient(consulIP, 8600);
             if (nameService != "" && tag != "")
             {
-                var entry = await client.ResolveServiceAsync(nameService + ".service.dc1.consul", tag);
+                var entry = await client.ResolveServiceAsync($"{nameService}.service{DataCenterResolver.DataCenter}consul", tag);
 
                 return entry.Select(ii => ii.AddressList[0].ToString() + ":" + ii.Port).ToList();
             }
             if (tag == "")
             {
-                var entry = await client.ResolveServiceAsync("service.dc1.consul", nameService);
+                var entry = await client.ResolveServiceAsync($"service{DataCenterResolver.DataCenter}consul", nameService);
                 return entry.Select(ii => ii.AddressList[0].ToString() + ":" + ii.Port).ToList();
 
             }
@@ -77,14 +77,14 @@ namespace CamundaInterface
             var client = new LookupClient(consulIP, 8600);
             if (nameService != "" && tag != "")
             {
-                var entry = client.ResolveService(nameService + ".service.dc1.consul", tag);
+                var entry = client.ResolveService($"{nameService}.service{DataCenterResolver.DataCenter}consul", tag);
                 if (entry.Length == 0)
                     return "";
                 return entry[0].AddressList[0].ToString() + ":" + entry[0].Port;
             }
             if (tag == "")
             {
-                var entry = client.ResolveService("service.dc1.consul", nameService);
+                var entry = client.ResolveService($"service{DataCenterResolver.DataCenter}consul", nameService);
                 if (entry.Length == 0)
                     return "";
                 return entry[0].AddressList[0].ToString() + ":" + entry[0].Port;
@@ -105,12 +105,12 @@ namespace CamundaInterface
             var client = new LookupClient(consulIP, 8600);
             if (nameService != "" && tag != "")
             {
-                var entry = await client.ResolveServiceAsync(nameService + ".service.dc1.consul", tag);
+                var entry = await client.ResolveServiceAsync($"{nameService}.service{DataCenterResolver.DataCenter}consul", tag);
                 return entry[0].AddressList[0].ToString() + ":" + entry[0].Port;
             }
             if (tag == "")
             {
-                var entry = await client.ResolveServiceAsync("service.dc1.consul", nameService);
+                var entry = await client.ResolveServiceAsync($"service{DataCenterResolver.DataCenter}consul", nameService);
                 return entry[0].AddressList[0].ToString() + ":" + entry[0].Port;
 
             }

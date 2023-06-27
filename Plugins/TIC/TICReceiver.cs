@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ParserLibrary.TIC.TICFrames;
+using PluginBase;
 using Serilog;
 using Serilog.Context;
 using YamlDotNet.Serialization;

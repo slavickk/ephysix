@@ -24,6 +24,7 @@ using System.Net.Sockets;
 using ETL_DB_Interface;
 using CamundaInterface;
 using PluginBase;
+using ParserLibrary;
 
 namespace TestJsonRazbor
 {
@@ -91,7 +92,7 @@ namespace TestJsonRazbor
                 var bytes = System.Text.Encoding.ASCII.GetBytes(payLoad);
 
                 request.ContentLength = (bytes.Length);
-                StreamSender.Stream dataStream = request.GetRequestStream();
+                Stream dataStream = request.GetRequestStream();
                 //                var bytes = System.Text.Encoding.ASCII.GetBytes(payload);
                 dataStream.Write(bytes, 0, bytes.Length);
                 //                Serialize(dataStream, payload);
@@ -103,7 +104,7 @@ namespace TestJsonRazbor
             if (returnString == "OK")
             {
                 List<byte> outBuff = new List<byte>();
-                StreamSender.Stream stream = response.GetResponseStream();
+                Stream stream = response.GetResponseStream();
                 byte[] buffer = new byte[5000/*response.ContentLength*/];
                 int bytesRead;
 
@@ -464,7 +465,7 @@ namespace TestJsonRazbor
         //     }
         // }
 
-        public class DemoSenderV2 : ISender
+  /*      public class DemoSenderV2 : ISender
         {
             TreeView tree;
             public static bool noDraw = false;
@@ -481,12 +482,12 @@ namespace TestJsonRazbor
                 return string.Empty;
             }
 
-            public Void setTemplate(String key, String body)
+            public void setTemplate(String key, String body)
             {
             }
 
             public TypeContent typeContent => TypeContent.internal_list;// throw new NotImplementedException();
-            public Void Init()
+            public void Init()
             {
                 // TODO: the previous implementation, Sender, initializes metrics in the base abstract class. Duplicating the code here. Deduplicate.
                 metricUpTimeError = new Metrics.MetricHistogram("iu_outbound_errors_total", "handle performance receiver", new double[] { 30, 100, 500, 1000, 5000, 10000 });
@@ -522,8 +523,18 @@ namespace TestJsonRazbor
                 }
                 return "";
             }
-        }
 
+            void ISender.setTemplate(string key, string body)
+            {
+                throw new NotImplementedException();
+            }
+
+            void ISender.Init()
+            {
+                throw new NotImplementedException();
+            }
+        }
+        */
         private void button7_Click(object sender, EventArgs e)
         {
             try
@@ -611,7 +622,7 @@ namespace TestJsonRazbor
         }
         public class ii : ITypeResolver,INodeTypeResolver
         {
-            public Metrics.Metric.Type Resolve(Metrics.Metric.Type staticType, object actualValue)
+            public Type Resolve(Type staticType, object actualValue)
             {
                 if (actualValue == null)
                     return staticType;
@@ -619,28 +630,30 @@ namespace TestJsonRazbor
 //                throw new NotImplementedException();
             }
 
-            public bool Resolve(NodeEvent nodeEvent, ref Metrics.Metric.Type currentType)
+            public bool Resolve(NodeEvent nodeEvent, ref Type currentType)
             {
                 if(currentType == typeof(IReceiver))
                     {
-                    currentType = typeof(PacketBeatReceiverV2);
+                    currentType = typeof(PacketBeatReceiver);
                 }
                 if (currentType == typeof(ISender))
                 {
-                    currentType = typeof(HTTPSenderV2);
+                    currentType = typeof(HTTPSender);
                 }
 
                 return true;
 //                throw new NotImplementedException();
             }
+
+      
         }
         public class ScalarOrSequenceConverter : IYamlTypeConverter
         {
-            public bool Accepts(Metrics.Metric.Type type)
+            public bool Accepts(Type type)
             {
                 return typeof(IEnumerable<string>).IsAssignableFrom(type);
             }
-            public object ReadYaml(IParser parser, Metrics.Metric.Type type)
+            public object ReadYaml(IParser parser, Type type)
             {
                 if (parser.TryConsume<Scalar>(out var scalar))
                 {
@@ -648,7 +661,7 @@ namespace TestJsonRazbor
                 }
                 return null;
             }
-            public void WriteYaml(IEmitter emitter, object value, Metrics.Metric.Type type)
+            public void WriteYaml(IEmitter emitter, object value, Type type)
             {
                 var sequence = (IEnumerable<string>)value;
                 if (sequence.Count() == 1)
@@ -865,7 +878,7 @@ namespace TestJsonRazbor
 
 
 
-            if (openFileDialog2.ShowDialog() == DialogResult.OK)
+   /*         if (openFileDialog2.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
@@ -900,7 +913,7 @@ namespace TestJsonRazbor
                 {
                     MessageBox.Show(e78.ToString());
                 }
-            }
+            }*/
         }
 
         private void splitContainer5_Panel1_Paint(object sender, PaintEventArgs e)

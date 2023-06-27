@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UniElLib;
 
 namespace TestJsonRazbor
 {
     public class TreeDrawer : Drawer
     {
         public TreeNode node;
-        public TreeDrawer(TreeView treeView1, ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor,bool delRoot=false,bool isPale=false)
+        public TreeDrawer(TreeView treeView1, AbstrParser.UniEl newEl, AbstrParser.UniEl ancestor,bool delRoot=false,bool isPale=false)
         {
             newEl.treeNode = this;// new TreeNode(newEl.Name);
             node = new TreeNode(newEl.Name);
@@ -45,7 +46,7 @@ namespace TestJsonRazbor
             }
 
         }
-        public void Update(ParserLibrary.AbstrParser.UniEl newEl)
+        public void Update(AbstrParser.UniEl newEl)
         {
             if (node.Nodes.Count == 0)
             {
@@ -76,7 +77,7 @@ namespace TestJsonRazbor
             tree = tree1;
 
         }
-        public Drawer Create(ParserLibrary.AbstrParser.UniEl newEl, ParserLibrary.AbstrParser.UniEl ancestor)
+        public Drawer Create(AbstrParser.UniEl newEl, AbstrParser.UniEl ancestor)
         {
             return new TreeDrawer(tree, newEl, ancestor,delRoot,isPale);
         }
