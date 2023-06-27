@@ -48,8 +48,18 @@ public partial class Step : ILiquidizable
     }
     public async Task run()
     {
-        if (receiver != null)
+        if (ireceiver != null)
             await _receiverHost.start();
+        //New ***
+        if (sender != null)
+            sender.owner = this;
+        if (receiver != null)
+        {
+            receiver.owner = this;
+            receiver.stringReceived = Receiver_stringReceived;
+            await receiver.start();
+        }
+        //New ***
     }
     public string IDStep { get; set; } = "Example";
 
@@ -68,6 +78,8 @@ public partial class Step : ILiquidizable
         set
         {
             this._debugMode = value;
+            if (this.ireceiver != null)
+                this.ireceiver.debugMode = value;
             if (this.receiver != null)
                 this.receiver.debugMode = value;
         }
@@ -75,7 +87,8 @@ public partial class Step : ILiquidizable
     private bool _debugMode = true;
 
     // The actual receiver object as specified in the pipeline definition file
-    public IReceiver receiver
+    public Receiver receiver { get; set; }
+    public IReceiver ireceiver
     {
         get => this._receiverHost?.Receiver;
         set
@@ -118,7 +131,8 @@ public partial class Step : ILiquidizable
                 public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
     //        public RecordExtractor transformer;
     // The actual sender object whose class is specified in the pipeline definition file
-    public ISender sender
+    public Sender sender { get; set; }  
+    public ISender isender
     {
         get => this._senderHost?.Sender;
         set
@@ -139,20 +153,30 @@ public partial class Step : ILiquidizable
     {
         this.owner = owner;
 
-        if (this.receiver != null)
+        if (this.ireceiver != null)
         {
-            _receiverHost = new ReceiverHost(this, receiver);
+            _receiverHost = new ReceiverHost(this, ireceiver);
             _receiverHost.Init(owner);
         }
+        if (receiver != null)
+        {
+            receiver.owner = this;
+            receiver.Init(owner);
+        }
         
-        if (this.sender != null)
+        if (this.isender != null)
         {
             // TODO: this may be unnecessary because the sender host is initialized when this.sender is set 
-            _senderHost = new SenderHost(this, sender);
+            _senderHost = new SenderHost(this, isender);
             _senderHost.Init(owner);
         }
+        if (this.sender != null)
+        {
+            this.sender.owner = this;
+            this.sender.Init(owner);
+        }
 
-        if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
+            if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
         {
             // Ensure the save error directory exists
             Directory.CreateDirectory(this.SaveErrorSendDirectory);
@@ -194,7 +218,7 @@ public partial class Step : ILiquidizable
         
         // Preserve the original logic of initializing the sender with a LongLifeRepositorySender,
         // only this time we use the new, ISender-based, version of the sender.
-        this.sender = new Plugins.LongLifeRepositorySender();
+       // this.isender = new Plugins.LongLifeRepositorySender();
     }
 
     static Metrics.MetricCount sucMetric = new Metrics.MetricCount("packagesReceivedSuccess", "All packages, sended to utility");
@@ -253,10 +277,18 @@ public partial class Step : ILiquidizable
                         (sender as HTTPSender).headers = (context as HTTPReceiver.SyncroItem).headers;
                         
                     }*/
-                var ans = await sender?.send(input,contextItem);
+                string ans;
+                if(isender != null)
+                    ans = await isender?.send(input,contextItem);
+                else
+                    ans = await sender?.send(input, contextItem);
+
 
                 // TODO: consider passing the original context object coming from sender, not the ContextItem wrapper
+                if (_receiverHost!= null)
                 await _receiverHost.sendResponse(ans, contextItem);
+                else 
+                await receiver.sendResponse(ans, contextItem);
 
                 if (contextItem?.currentScenario != null)
                 {
@@ -414,6 +446,8 @@ public partial class Step : ILiquidizable
     private bool tryParse(string input, ContextItem context, AbstrParser.UniEl rootElement)
     {
         bool cantTryParse = false;
+        if (ireceiver != null)
+            cantTryParse = ireceiver.cantTryParse;
         if (receiver != null)
             cantTryParse = receiver.cantTryParse;
         foreach (var pars in AbstrParser.availParser)
@@ -479,7 +513,7 @@ public partial class Step : ILiquidizable
             foreach (var item in converters/*.First().filter(list)*/)
             {
                 AbstrParser.UniEl rEl = null;
-                if (this.IDStep == "Step_3")
+                if (this.IDStep == "Step_ToTWO")
                 {
                     int y = 0;
                 }
@@ -632,7 +666,10 @@ public partial class Step : ILiquidizable
                 restart:
                 try
                 {
-                    await _senderHost.send(rootEl,null);
+                    if(_senderHost!= null)
+                        await _senderHost.send(rootEl,null);
+                    else 
+                        await sender.send(rootEl, null);  
                     errMetricRetry.Increment();
                     
                 }
@@ -705,11 +742,21 @@ public partial class Step : ILiquidizable
 
             var step = this.owner.steps.FirstOrDefault(ii => ii.IDStep == IDResponsedReceiverStep);
             string responseFromSender;
-            if(sender == null)
+            if (isender == null && sender==null)
                 responseFromSender = local_rootOutput.toJSON();
             else
-                responseFromSender= await sender.send(local_rootOutput,context);
-            await step.receiver.sendResponse(responseFromSender, context);
+            {
+                if(isender != null)
+                    responseFromSender = await isender.send(local_rootOutput, context);
+                else
+                    responseFromSender = await sender.send(local_rootOutput, context);
+
+            }
+            if (step.ireceiver != null) 
+                await step.ireceiver.sendResponse(responseFromSender, context);
+            if (step.receiver != null)
+                await step.receiver.sendResponse(responseFromSender, context);
+
             foreach (var node in local_rootOutput.childs)
             {
                 node.ancestor = toNode;
@@ -720,7 +767,12 @@ public partial class Step : ILiquidizable
         }
         else
         {
-            var ans = await sender.send(local_rootOutput,context);
+            string ans;
+            if(isender != null)
+                ans = await isender.send(local_rootOutput,context);
+            else
+                ans = await sender.send(local_rootOutput, context);
+
             foreach (var node in local_rootOutput.childs)
             {
                 node.ancestor = toNode;
@@ -744,6 +796,10 @@ public partial class Step : ILiquidizable
                 if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
                 {
                     var nextStep = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep);
+                    if(nextStep.IDStep =="Step_ToTWO")
+                    {
+                        int yy = 0;
+                    }
                     //                        tryParse(ans, context, CheckAndFillNode(sendNode, "From"));
                     StoreAnswer("Rec",rootElInput, context, ans, nextStep);
                 }
@@ -791,8 +847,8 @@ public partial class Step : ILiquidizable
         List<OutputValue> outputs = new List<OutputValue>();
         foreach (var conv in this.converters)
             outputs.AddRange(conv.outputFields.Where(ii=>ii.getLiquidDict().Count>0));
-       //Dictionary<string,object> outputs1= new Dictionary<string, object>[outp]
-            var ret= new Dictionary<string, object> { { "Name", this.IDStep }, { "Description", this.description }, { "filters", outputs },{ "sender",new LiquidPoint(owner.steps,-1, this.sender,ref ref1
+        //Dictionary<string,object> outputs1= new Dictionary<string, object>[outp]
+        var ret = new Dictionary<string, object> { { "Name", this.IDStep }, { "Description", this.description }, { "filters", outputs }, { "sender", new LiquidPoint(owner.steps, -1, ((this.isender == null)?sender:isender),ref ref1
             ) } };
         if(IDStep== "Step_ToTWO")
         {

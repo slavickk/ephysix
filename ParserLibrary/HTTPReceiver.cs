@@ -51,7 +51,7 @@ namespace ParserLibrary
             {
                 item.answer = response;
                 Interlocked.Increment(ref item.srabot);
-                item.semaphore.Set();//.Release();
+           //     item.semaphore.Set();//.Release();
                 /*if (item.semaphore.CurrentCount == 0)
                 {
                     int ii = 0;
@@ -74,7 +74,7 @@ namespace ParserLibrary
                     Logger.log("Answer without response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, "-");
 
                 }
-                semaphoreItem.semaphore.Set();
+         //       semaphoreItem.semaphore.Set();
             }
         }
         public class SyncroItem
@@ -83,7 +83,7 @@ namespace ParserLibrary
             public int unwait = 0;
             public string answer="";
             public List<KestrelServer.Header> headers = new List<KestrelServer.Header>(); 
-            public AsyncAutoResetEvent semaphore = new AsyncAutoResetEvent();
+          // public AsyncAutoResetEvent semaphore = new AsyncAutoResetEvent();
         }
         public class KestrelServer: Kestrel.KestrelServerImplement
         {
@@ -98,6 +98,7 @@ namespace ParserLibrary
             public static long CountOpened = 0;
             public static Metrics.MetricCount metricCountOpened = new Metrics.MetricCount("HTTPOpenConnectCount", "opened http connection at same time ");
             public static Metrics.MetricCount metricErrors = new Metrics.MetricCount("HTTPErrorCount", "Error http request ");
+            public static Metrics.MetricCount metricTimeouts = new Metrics.MetricCount("HTTPTimeoutCount", "Timeout http request ");
             public static Metrics.MetricCount metricCountExecuted = new Metrics.MetricCount("HTTPExecutedConnections", "All http executed connection's ");
             public static Metrics.MetricCount metricTimeExecuted = new Metrics.MetricCount("HTTPExecutedTime", "All http executed connection's time");
             public async Task<string> GetMetrics()
@@ -111,7 +112,8 @@ namespace ParserLibrary
                 public string Key;
                 public string? Value;
             }
-           // List<Header> headers = new List<Header>();
+            // List<Header> headers = new List<Header>();
+            public long TimeoutInMilliseconds = 5000;
             public override async Task ReceiveRequest(HttpContext httpContext)
             {
                 if (httpContext.Request.Path.Value.Contains("/healthcheck"))
@@ -170,7 +172,8 @@ namespace ParserLibrary
                     
                     try
                     {
-                        owner.signal1(str, item).ContinueWith(antecedent =>
+                        await owner.signal1(str, item).WaitAsync(TimeSpan.FromMilliseconds(TimeoutInMilliseconds));
+                    /*    owner.signal1(str, item).ContinueWith(antecedent =>
                         {
                             iError = true;
                             metricCountOpened.Decrement();
@@ -179,9 +182,20 @@ namespace ParserLibrary
                             item.semaphore.Set();
                            // Console.WriteLine($"Error {antecedent}!");
                             //Console.WriteLine($"And how are you this fine {antecedent.Result}?");
-                        },TaskContinuationOptions.OnlyOnFaulted);
+                        },TaskContinuationOptions.OnlyOnFaulted);*/
                     }
-                    catch(Exception e77)
+                    catch (TimeoutException e77)
+                    {
+                        iError = true;
+                        metricCountOpened.Decrement();
+                        metricErrors.Increment();
+                        metricTimeouts.Increment();
+                        httpContext.Response.StatusCode = 408;
+                        Logger.log("Timeout reached :{o} {input}", Serilog.Events.LogEventLevel.Error, "any", owner.owner, item.answer);
+                        return;
+
+                    }
+                    catch (Exception e77)
                     {
                         metricCountOpened.Decrement();
                         metricErrors.Increment();
@@ -190,8 +204,21 @@ namespace ParserLibrary
                         return;
                     }
                 }
+              /*  try
+                {
+                    await item.semaphore.WaitAsync().WaitAsync(TimeSpan.FromMilliseconds(TimeoutInMilliseconds));
+                }
+                catch(TimeoutException e77)
+                {
+                    iError = true;
+                    metricCountOpened.Decrement();
+                    metricErrors.Increment();
+                    metricTimeouts.Increment();
+                    httpContext.Response.StatusCode = 408;
+                    Logger.log("Timeout reached :{o} {input}", Serilog.Events.LogEventLevel.Error, "any", owner.owner, item.answer);
 
-                await item.semaphore.WaitAsync();
+
+                }*/
                 if (iError)
                     return;
                 Interlocked.Increment(ref item.unwait);

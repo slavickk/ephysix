@@ -1,0 +1,35 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header></SOAP-ENV:Header>
+  <SOAP-ENV:Body>
+    <Tran>
+      <Request InitiatorRid="RcScheme Test" Kind="TdsPrepareAuth" LifePhase="Single" NetworkRid="VISA" OrigTime="2022-10-10T02:07:42" ProcessorInstRid="ACS">
+        <Parties>
+          <Cust Presence="true">
+            <Token Kind="Card">
+              <Card ExpDate="2023-03-20T00:00:00" Pan="2220000000000200">
+                <Tds NetworkType="MIR"></Tds>
+              </Card>
+            </Token>
+          </Cust>
+          <Term AcquirerRid="2201380101">
+            <Caps DeviceCategory="02"></Caps>
+            <Owner Country="643" Mcc="3000" Rid="Rumocnay_Solnysko" Title="compass_mrc_1" Url="http://compassplus.ru"></Owner>
+          </Term>
+        </Parties>
+        <Match Key="71094ef3-2da8-4a41-b721-b228ef7435dc"></Match>
+        <Moneys>
+          <Cust Amt="12500.0" Ccy="840"></Cust>
+        </Moneys>
+        <Specific>
+          <Tds Version="2.2.0">
+            <Extensions>
+              <Extension criticalityIndicator="false" id="ID1" name="extensionField1">{"valueOne":"value"}</Extension>
+            </Extensions>
+            <CardholderInfo></CardholderInfo>
+            <TranDetails BrowserAcceptHeaders="application/json,application/jose;charset=utf-8" BrowserColorDepth="24" BrowserIpAddress="192.168.75.166" BrowserJavaEnabled="false" BrowserJavascriptEnabled="true" BrowserLanguage="ru-RU" BrowserScreenHeight="1080" BrowserScreenWidth="1920" BrowserUserAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0" MessageCategory="01" TdsServerTranId="1312218b-6676-402a-b236-cbf9e326f481"></TranDetails>
+          </Tds>
+        </Specific>
+      </Request>
+    </Tran>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
