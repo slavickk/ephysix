@@ -9,7 +9,7 @@ using UniElLib;
 
 namespace ParserLibrary;
 
-public abstract class Sender
+public abstract class Sender/*:ISender*/
 {
     [YamlIgnore]
 
@@ -19,6 +19,7 @@ public abstract class Sender
     private Metrics.MetricHistogram metricUpTimeError;
     public virtual void Init(Pipeline owner)
     {
+        
         metricUpTimeError = new Metrics.MetricHistogram("iu_outbound_errors_total", "handle performance receiver", new double[] { 30, 100, 500, 1000, 5000, 10000 });
         metricUpTimeError.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
 
@@ -60,6 +61,11 @@ public abstract class Sender
     {
         get;
     }
+   /* ISenderHost _host;
+    public ISenderHost host { get => _host; set => _host=value; }
+
+    global::TypeContent ISender.typeContent => this.typeContent;
+   */
     //  public string IDResponsedReceiverStep = "";
     string MocContent = "";
     object syncro= new object();
@@ -132,5 +138,10 @@ public abstract class Sender
                             Console.WriteLine("send result");*/
         return "";
 
+    }
+
+    public void Init()
+    {
+        //throw new NotImplementedException();
     }
 }

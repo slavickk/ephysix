@@ -1,12 +1,48 @@
 using NUnit.Framework;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ParserLibrary.Tests;
 
 [TestFixture]
 public class ThreadTests
 {
+
+    [Test]
+    public static async System.Threading.Tasks.Task TestWaiting()
+   
+    {
+        int countSuc = 0, countNoSuc = 0;
+        for (int i = 0; i < 20; i++)
+        {
+            int timeoutInMilliseconds = 3000;
+            if(i%2 ==0)
+                timeoutInMilliseconds= 1000;
+
+            int milli = 2000;
+
+            try
+            {
+                await tt(milli).WaitAsync(TimeSpan.FromMilliseconds(timeoutInMilliseconds));
+                countSuc++;
+            }
+            catch (TimeoutException t)
+            {
+                countNoSuc++;
+//                Console.WriteLine(t.ToString());
+            }
+        }
+        Assert.AreEqual(countSuc, countNoSuc);
+    }
+    async static System.Threading.Tasks.Task tt(int milli)
+    {
+        await System.Threading.Tasks.Task.Delay(milli);
+        return;
+
+    }
+
+
     [Test]
     public static void ScheduleManyTasks()
     {

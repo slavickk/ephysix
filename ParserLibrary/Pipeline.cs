@@ -113,6 +113,21 @@ public class Pipeline:ILiquidizable
         bool retValue = true;
         foreach (var step in steps)
         {
+            if (step.isender != null)
+            {
+                var testableSender = step.isender as ISelfTested;
+                if (testableSender != null)
+                {
+
+                    var res1 = await testableSender.isOK();
+                    if (res1.Item3 == null)
+                        Logger.log("{Item}.Results:{Res}", Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+                    else
+                        Logger.log("{Item}.Results:{Res}", res1.Item3, Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+                    if (!res1.Item1)
+                        retValue = false;
+                }
+            }
             if (step.sender != null)
             {
                 var testableSender = step.sender as ISelfTested;
@@ -156,14 +171,21 @@ public class Pipeline:ILiquidizable
         
         return pluginClasses.Concat(internalPluginClasses).ToList();
     }
-
-    static List<Type> getAllRegTypes()
+    static bool predicate(Type t)
     {
-        return Assembly.GetExecutingAssembly().GetTypes().Where(t =>
-            t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) ||
+        return t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) ||
             t.IsSubclassOf(typeof(Filter)) ||
             t.IsSubclassOf(typeof(OutputValue)) || t.IsAssignableTo(typeof(AliasProducer)) ||
-            t.IsAssignableTo(typeof(HashConverter))).ToList();
+            t.IsAssignableTo(typeof(HashConverter))
+            ||
+            t.IsAssignableTo(typeof(Receiver))
+             ||
+            t.IsAssignableTo(typeof(Sender));
+    }
+    static List<Type> getAllRegTypes()
+    {
+        return Assembly.GetAssembly(typeof(OutputValue)).GetTypes().Where(t => predicate(t)).Union(
+            Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(t=>predicate(t))).ToList();
 
         //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
     }
@@ -228,7 +250,7 @@ public class Pipeline:ILiquidizable
         foreach(var mb in this.metricsBuilder)
             mb.Init();
 //            step.owner = this;
-        var entryStep = steps.First(ii => ii.IDPreviousStep == "" && ii.receiver != null);
+        var entryStep = steps.First(ii => ii.IDPreviousStep == "" && (ii.ireceiver != null || ii.receiver != null));
 
         Logger.log($"Starting the entry step {entryStep.IDStep}", Serilog.Events.LogEventLevel.Debug);
         await entryStep.run();
@@ -546,7 +568,7 @@ public class Pipeline:ILiquidizable
         public string Protocol="Http";
         public List<LiquidPoint> child = new List<LiquidPoint>();
         Step currentStep;
-        public LiquidPoint(Step[] steps,int index, ISender sender,ref int nOrder)
+        public LiquidPoint(Step[] steps,int index, object sender,ref int nOrder)
         {
             Name = sender.GetType().Name;
             if (index >= 0)
@@ -567,7 +589,7 @@ public class Pipeline:ILiquidizable
                 if (index < steps.Length - 1)
                 {
                     nOrder++;
-                    child.Add(new LiquidPoint(steps, index + 1, steps[index + 1].sender, ref nOrder));
+                    child.Add(new LiquidPoint(steps, index + 1, ((steps[index + 1].isender== null)? steps[index + 1].sender : steps[index + 1].isender), ref nOrder));
                 }
 
             }
@@ -575,7 +597,7 @@ public class Pipeline:ILiquidizable
             return nOrder;
         }
 
-        public LiquidPoint(Step[] steps, int index, IReceiver rec,ref int nOrder)
+        public LiquidPoint(Step[] steps, int index, object rec,ref int nOrder,int dummy)
         {
             if(index>=0)
                 All.Add(this);
@@ -597,7 +619,7 @@ public class Pipeline:ILiquidizable
         LiquidPoint.All.Clear();
         List<LiquidPoint> senders = new List<LiquidPoint>();
         int nOrder = 1;
-        senders.Add(new LiquidPoint(this.steps, 0, steps[0].receiver,ref nOrder));
+        senders.Add(new LiquidPoint(this.steps, 0, ((steps[0].ireceiver==null)? steps[0].receiver: steps[0].ireceiver), ref nOrder,1));
 
         return new Dictionary<string, object> { { "Name", this.fileName }, { "Description", this.pipelineDescription }, { "Steps", this.steps },{ "Childs",LiquidPoint.All} };
     }

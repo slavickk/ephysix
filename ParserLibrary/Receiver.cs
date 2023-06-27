@@ -8,7 +8,7 @@ using YamlDotNet.Serialization;
 namespace ParserLibrary;
 
 
-public abstract class Receiver
+public abstract class Receiver/*:IReceiver*/
 {
     /// <summary>
     /// Abstract and virtual methods
@@ -72,6 +72,13 @@ public abstract class Receiver
             return owner_internal; 
         }
     }
+    /*
+    public IReceiverHost host { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+    bool IReceiver.cantTryParse => this.cantTryParse;//throw new NotImplementedException();
+
+    bool IReceiver.debugMode { get => this.debugMode; set => this.debugMode = value;}
+    */
     [YamlIgnore]
     Step owner_internal;
 
@@ -129,5 +136,10 @@ public abstract class Receiver
     protected async virtual Task startInternal()
     { 
         
+    }
+
+    public Task sendResponse(string response, object context)
+    {
+        throw new NotImplementedException();
     }
 }
