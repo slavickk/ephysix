@@ -14,8 +14,13 @@ About WebCamundaExecutors see [CamundaExecutors](WebApiCamundaExecutors/readme.m
 ## OpenTelemetry & Jaeger  support
  2 environment variable needed:
  * JAEGER_AGENT_HOST e.g. localhost
- * JAEGER_AGENT_PORT e.g. 6831
- 
+ * JAEGER_AGENT_PORT e.g. 6831 (if not set ,jaeger support is switch off)
+ * JAEGER_SAVE_CONTEXT - if variable set swith on save jaeger context file in  CONTEXT directory . Strongly
+ it is not recommended to turn on in working mode
+
+## Pipeline debug control 
+ Switch on set  DEBUG_MODE environment variablede
+
 ## About OpenApi support
  HTTPReceiver also support Swagger emulation (based on json definition) . Each call transform to internal structure and after transfomation convert internal structure to return method of call. 
  This makes it possible to use the product as a proxy for a systems with existing API endpoint.
