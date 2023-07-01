@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.VisualStudio.Threading;
 using System.Text.Json;
+using static ParserLibrary.HTTPSender;
 //using Microsoft.
 
 namespace ParserLibrary
@@ -35,7 +36,7 @@ namespace ParserLibrary
         }
         protected override async Task startInternal()
         {
-            await server.Start(port,1000);
+            await server.Start(port,MaxConcurrentConnections);
            // return base.startInternal();
         }
         //namespace Kestrel;
@@ -62,10 +63,11 @@ namespace ParserLibrary
             }
             // return base.sendResponseInternal(response, context);
         }
+//        public long TimeoutInMilliseconds = 15000;
 
         public async Task signal1(string body,SyncroItem semaphoreItem)
         {
-            await signal(body, semaphoreItem);
+            await signal(body, semaphoreItem).WaitAsync(TimeSpan.FromMilliseconds(ConnectionTimeoutInMilliseconds));
            // semaphoreItem.semaphore.
             if (semaphoreItem.srabot==0)
             {
@@ -91,6 +93,7 @@ namespace ParserLibrary
             public KestrelServer(HTTPReceiver owner)
             {
                 this.owner = owner;
+                //this..GetMetrics();
             }
 
 
@@ -113,7 +116,6 @@ namespace ParserLibrary
                 public string? Value;
             }
             // List<Header> headers = new List<Header>();
-            public long TimeoutInMilliseconds = 5000;
             public override async Task ReceiveRequest(HttpContext httpContext)
             {
                 if (httpContext.Request.Path.Value.Contains("/healthcheck"))
@@ -172,7 +174,7 @@ namespace ParserLibrary
                     
                     try
                     {
-                        await owner.signal1(str, item).WaitAsync(TimeSpan.FromMilliseconds(TimeoutInMilliseconds));
+                        await owner.signal1(str, item);
                     /*    owner.signal1(str, item).ContinueWith(antecedent =>
                         {
                             iError = true;
@@ -183,6 +185,18 @@ namespace ParserLibrary
                            // Console.WriteLine($"Error {antecedent}!");
                             //Console.WriteLine($"And how are you this fine {antecedent.Result}?");
                         },TaskContinuationOptions.OnlyOnFaulted);*/
+                    }
+
+                    catch (TaskCanceledException e77)
+                    {
+                        iError = true;
+                        metricCountOpened.Decrement();
+                        metricErrors.Increment();
+                        metricTimeouts.Increment();
+                        httpContext.Response.StatusCode = 429;
+                        Logger.log("ConnectionBusy error :{o} {input}", Serilog.Events.LogEventLevel.Error, "any", owner.owner, item.answer);
+                        return;
+
                     }
                     catch (TimeoutException e77)
                     {
@@ -195,12 +209,23 @@ namespace ParserLibrary
                         return;
 
                     }
+                    catch (ConnectionBusyException e77)
+                    {
+                        iError = true;
+                        metricCountOpened.Decrement();
+                        metricErrors.Increment();
+                        metricTimeouts.Increment();
+                        httpContext.Response.StatusCode = 429;
+                        Logger.log("ConnectionBusy error :{o} {input}", Serilog.Events.LogEventLevel.Error, "any", owner.owner, item.answer);
+                        return;
+
+                    }
                     catch (Exception e77)
                     {
                         metricCountOpened.Decrement();
                         metricErrors.Increment();
                         Logger.log("Error on input request ", e77, Serilog.Events.LogEventLevel.Error);
-                        httpContext.Response.StatusCode = 404;
+                        httpContext.Response.StatusCode = 503;
                         return;
                     }
                 }

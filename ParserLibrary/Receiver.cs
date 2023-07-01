@@ -10,6 +10,10 @@ namespace ParserLibrary;
 
 public abstract class Receiver/*:IReceiver*/
 {
+    public int MaxConcurrentConnections = 1000;
+    public int ConnectionTimeoutInMilliseconds = 5000;
+
+
     /// <summary>
     /// Abstract and virtual methods
     /// </summary>
@@ -44,16 +48,30 @@ public abstract class Receiver/*:IReceiver*/
 
     public Metrics.MetricHistogram metricUpTimeError;
     public bool  cantTryParse=false;
-/*        public virtual bool cantTryParse()
-        {
-            return false;
-        }*/
+    /*        public virtual bool cantTryParse()
+            {
+                return false;
+            }*/
 
+    [YamlIgnore]
+    public Mocker mocker= new Mocker();
 
     [YamlIgnore]
     public bool MocMode = false;
-    public string MocFile;
-    public string MocBody;
+    public string MocFile
+    {
+        get
+        { return mocker.MocFile; }
+        set
+        {
+            mocker.MocFile = value;
+        }
+    }
+    public string MocBody
+    {
+        get { return mocker.MocBody; }
+        set { mocker.MocBody = value; }
+    }
 
     [YamlIgnore]
     public bool debugMode = false;

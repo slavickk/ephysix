@@ -38,6 +38,10 @@ public class TICReceiverTests
         }
         
         public string IDStep => "DummyStep";
+
+        public int MaxConcurrentConnections => throw new NotImplementedException();
+
+        public int ConnectionTimeoutInMilliseconds => throw new NotImplementedException();
     }
 
     [OneTimeSetUp]

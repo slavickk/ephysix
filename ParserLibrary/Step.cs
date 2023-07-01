@@ -84,7 +84,7 @@ public partial class Step : ILiquidizable
                 this.receiver.debugMode = value;
         }
     }
-    private bool _debugMode = true;
+    private bool _debugMode = false;
 
     // The actual receiver object as specified in the pipeline definition file
     public Receiver receiver { get; set; }
@@ -148,7 +148,8 @@ public partial class Step : ILiquidizable
 
     [YamlIgnore]
     public Pipeline owner { get; set; }
-
+    [YamlIgnore]
+    public int countDelayMessages = 0;
     public void Init(Pipeline owner)
     {
         this.owner = owner;
@@ -200,7 +201,8 @@ public partial class Step : ILiquidizable
 
             }
             var files = Directory.GetFiles(this.SaveErrorSendDirectory);
-            if (files.Count() > 0)
+            countDelayMessages = files.Count();
+            if (countDelayMessages > 0)
             {
                 SizeDirectory=files.Select(ii => new FileInfo(ii).Length).Sum();
 
@@ -572,7 +574,7 @@ public partial class Step : ILiquidizable
     {
         if(nonSavedError) 
             return;
-
+        Interlocked.Increment(ref countDelayMessages);
         string fileName = Path.Combine(SaveErrorSendDirectory, Path.GetFileName(Path.GetRandomFileName()));
         using (AesManaged aes = new AesManaged())
         {
@@ -602,7 +604,7 @@ public partial class Step : ILiquidizable
                 {
                     try
                     {
-
+                        countDelayMessages = 0;
                         File.Delete(file);
                     }
                     catch
@@ -666,10 +668,13 @@ public partial class Step : ILiquidizable
                 restart:
                 try
                 {
-                    if(_senderHost!= null)
-                        await _senderHost.send(rootEl,null);
-                    else 
-                        await sender.send(rootEl, null);  
+                    if (_senderHost != null)
+                        await _senderHost.send(rootEl, null);
+                    else
+                    {
+                        //Path.GetFullPath(@"/CACHE1\\j20ddkl2.p21")
+                        await sender.send(rootEl, null);
+                    }
                     errMetricRetry.Increment();
                     
                 }
@@ -693,6 +698,8 @@ public partial class Step : ILiquidizable
                 }
                 try
                 {
+                    Interlocked.Decrement(ref countDelayMessages);
+
                     FileInfo fi = new FileInfo(file1);
                     File.Delete(file1);
                     Interlocked.Add(ref SizeDirectory,-(fi.Length));

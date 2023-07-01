@@ -53,11 +53,15 @@ namespace WebApiConsoleUtility
             string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
             Pipeline.AgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
             string sport= Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
+            string SAVE_CONTEXT = Environment.GetEnvironmentVariable("JAEGER_SAVE_CONTEXT");
             if (string.IsNullOrEmpty(sport))
                 Pipeline.AgentPort = -1;
             else
                 Pipeline.AgentPort = Convert.ToInt32(sport);
-
+            if(!string.IsNullOrEmpty(SAVE_CONTEXT))
+                Pipeline.saveContext= true;
+            else
+                Pipeline.saveContext = false;
             Pipeline.ServiceAddr = Environment.GetEnvironmentVariable(Pipeline.EnvironmentVar);
             if(Pipeline.ServiceAddr == null)    
                 Pipeline.ServiceAddr = "localhost:44352";
