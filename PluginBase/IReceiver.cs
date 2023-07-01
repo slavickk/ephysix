@@ -26,4 +26,8 @@ public interface IReceiverHost
     /// <returns></returns>
     Task signal(string input, object context);
     string IDStep { get; }
+    int MaxConcurrentConnections { get; }
+    int ConnectionTimeoutInMilliseconds { get; }
+
+
 }

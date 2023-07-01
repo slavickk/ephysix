@@ -100,6 +100,10 @@ public partial class Step
 
         public string IDStep => this.owner.IDStep;
 
+        public int MaxConcurrentConnections => throw new NotImplementedException();
+
+        public int ConnectionTimeoutInMilliseconds => throw new NotImplementedException();
+
 
         /// <summary>
         /// Send response to client

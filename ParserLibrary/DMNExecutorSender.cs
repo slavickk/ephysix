@@ -95,12 +95,10 @@ namespace ParserLibrary
 
             }
                   
-                     using (StreamWriter sw = new StreamWriter("vars.json"))
+                    /* using (StreamWriter sw = new StreamWriter("vars.json"))
                      {
-              /*  JsonSerializerSettings sett = new JsonSerializerSettings();
-                sett.*/
                          sw.Write(JsonConvert.SerializeObject(dict));
-                     }
+                     }*/
 
             return dict;
             /*            return new List<ItemInputVar>() { new ItemInputVar() { Name = "SignalledRules", Value = new SignalledRule[] { new SignalledRule() { RuleID = "REX_TRAN_001", Severity = 1 }

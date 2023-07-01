@@ -57,15 +57,23 @@ public class Pipeline:ILiquidizable
 
     public const string EnvironmentVar = "NOMAD_ADDR_http_ctrl";
     public static string ServiceAddr = "localhost:44352";
+
+    public static bool saveContext = false;
     public string SaveContext(string body,string extension="txt")
     {
-        Guid myuuid = Guid.NewGuid();
-        string fileName =$"{myuuid.ToString().Replace("-","")}.{extension}";
-        Task.Run(async() =>await saveTraceContext(fileName, body)).ContinueWith((t1) =>
+        if (saveContext)
         {
-           // Console.WriteLine(t1.Result);
-        });
-        return  $"http://{ServiceAddr}/api/Context/GetContext?fileName={fileName.Replace(".","_")}";
+            Guid myuuid = Guid.NewGuid();
+            string fileName = $"{myuuid.ToString().Replace("-", "")}.{extension}";
+            Task.Run(async () => await saveTraceContext(fileName, body)).ContinueWith((t1) =>
+            {
+                // Console.WriteLine(t1.Result);
+            });
+
+            return $"http://{ServiceAddr}/api/Context/GetContext?fileName={fileName.Replace(".", "_")}";
+        }
+        else
+            return $"http://{ServiceAddr}/api/Context/GetContext";
     }
 
     /// <summary>

@@ -243,8 +243,8 @@ public  class HTTPSender:Sender,ISelfTested
     public override TypeContent typeContent => TypeContent.internal_list;//throw new NotImplementedException();
 
     public int[] timeoutsBetweenRetryInMilli = { 100};
-    static Metrics.MetricCount sendToRex = new Metrics.MetricCount("sendToRexSuc",  "Sended transactions to DummySystem1 time exec"); 
-    static Metrics.MetricCount sendToRexErr = new Metrics.MetricCount("sendToRexErr", "Sended transactions to DummySystem1 with error");
+    static Metrics.MetricCounters sendToHttp = new Metrics.MetricCounters("sendToHttp",  "Sended streams to http time exec", new string[] { "Step" }); 
+    static Metrics.MetricCounters sendToHTTPErr = new Metrics.MetricCounters("sendToHttpErr", "Sended transactions to http with error", new string[] { "Step","Reason" });
     //static Metrics.MetricCount metricExecRex = new Metrics.MetricCount("RexTimeExecution", "Rex time execution");
     protected string getVal(AbstrParser.UniEl el)
     {
@@ -286,16 +286,29 @@ public  class HTTPSender:Sender,ISelfTested
 
             //                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information,this, str, ans);
             //              createMetrics();
-            if (sendToRex != null)
-                sendToRex.Add(time1);
+            if (sendToHttp != null)
+                sendToHttp.AddCount(this.owner.IDStep);
             return ans;
         }
         catch (Exception e77)
         {
             //                createMetrics();
-            if (sendToRex != null)
-                sendToRexErr.Add(time1);
+            bool toManyConnection=false;
+            if (e77.InnerException != null)
+            {
+                if (e77.InnerException.Message.Contains("was forcibly closed by the remote host"))
+                    toManyConnection = true;
+            }
+            string Reason = e77.GetType().Name;
+            if (toManyConnection || e77 is TaskCanceledException || e77 is OperationCanceledException)
+                Reason = "ConnBusy";
+            if (e77 is TimeoutException )
+                Reason = "Timeout";
+            if (sendToHTTPErr != null)
+                sendToHTTPErr.AddCount($"{owner.IDStep}/{Reason}");
             Logger.log($"Error to send {this.GetType().Name} url {this.url}", e77, Serilog.Events.LogEventLevel.Error);
+            if (Reason == "ConnBusy")
+                throw new ConnectionBusyException();
             throw;
         }
     }
@@ -339,5 +352,9 @@ public  class HTTPSender:Sender,ISelfTested
         }
         //            if(ans)
         return (isSuccess,details,exc);
+    }
+    public class ConnectionBusyException:Exception
+    {
+
     }
 }

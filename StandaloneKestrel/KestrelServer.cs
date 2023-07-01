@@ -24,6 +24,7 @@ namespace Kestrel
         public KestrelContext(IFeatureCollection features)
         {
             this.features = features;
+           
         }
     }
 
@@ -35,6 +36,7 @@ namespace Kestrel
         {
   //          this.owner = owner;
             var wsOptions = new WebSocketOptions();
+          //  wsOptions.
             wsMiddleware = new WebSocketMiddleware(owner.ContinueRequest, new OptionsWrapper<WebSocketOptions>(wsOptions),
                 loggerFactory);
         }
