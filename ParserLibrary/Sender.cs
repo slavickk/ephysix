@@ -49,9 +49,25 @@ public abstract class Sender/*:ISender*/
 
 
     [YamlIgnore]
+    public Mocker mocker = new Mocker();
+
+    [YamlIgnore]
     public bool MocMode = false;
-    public string MocFile;
-    public string MocBody="";
+    public string MocFile
+    {
+        get
+        { return mocker.MocFile; }
+        set
+        {
+            mocker.MocFile = value;
+        }
+    }
+    public string MocBody
+    {
+        get { return mocker.MocBody; }
+        set { mocker.MocBody = value; }
+    }
+
 
     [YamlIgnore]
     public Step owner;
@@ -87,8 +103,11 @@ public abstract class Sender/*:ISender*/
             }
             else
             {
+
+                ans=await mocker.getMock();
+
                 // await Task.Delay(10);
-                if ((MocBody ?? "") != "")
+/*                if ((MocBody ?? "") != "")
                     ans = MocBody;
                 else
                 {
@@ -109,7 +128,7 @@ public abstract class Sender/*:ISender*/
                         }
                     }
                     ans = MocContent;
-                }
+                }*/
             }
             if (owner.debugMode)
                 Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(), ans);

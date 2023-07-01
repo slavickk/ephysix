@@ -60,6 +60,10 @@ public class SwaggerStubGenTests
         }
         
         public string IDStep => "DummyStep";
+
+        public int MaxConcurrentConnections => throw new NotImplementedException();
+
+        public int ConnectionTimeoutInMilliseconds => throw new NotImplementedException();
     }
 
     // Test the compilation of the generated server code

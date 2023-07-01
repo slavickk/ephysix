@@ -38,6 +38,10 @@ public class DummyProtocol1ReceiverTests
         }
         
         public string IDStep => "DummyStep";
+
+        public int MaxConcurrentConnections => throw new NotImplementedException();
+
+        public int ConnectionTimeoutInMilliseconds => throw new NotImplementedException();
     }
 
     [OneTimeSetUp]
