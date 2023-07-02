@@ -370,10 +370,10 @@ namespace UniElLib
                 return xmlDoc.OuterXml;
 
             }
-            public string toJSON()
+            public string toJSON(bool maskSensitive=false)
             {
                 string tt = "";
-                return to_json_internal(ref tt);
+                return to_json_internal(ref tt,maskSensitive);
                 
 //                throw new Exception("not implemented");
             }
@@ -391,7 +391,7 @@ namespace UniElLib
                 return value.Replace("\"", "\\\"");
             }
             public bool packToJsonString = false;
-            public string to_json_internal(ref string val,bool isArr1=false)
+            public string to_json_internal(ref string val,bool maskSensitive,bool isArr1=false)
             {
 /*                JsonElement el = new JsonElement() ;
                 el.*/
@@ -403,20 +403,20 @@ namespace UniElLib
                 }
                 if (this.childs.Count > 0 && !packToJsonString)
                 {
-                    val = ChildsToJson(val);
+                    val = ChildsToJson(val,maskSensitive);
                 }
                 else
                 {
                     if (packToJsonString)
                     {
-                        val+="\""+mask(ChildsToJson("")) + "\"";
+                        val+="\""+mask(ChildsToJson("",maskSensitive)) + "\"";
                     }
                     else
                     {
                         if (this.Value != null)
                         {
                             if (this.Value.GetType() == typeof(string))
-                                val += "\"" + mask(this.Value.ToString()) + "\"";
+                                val += "\"" +(maskSensitive?this.Value.ToString().MaskSensitive(): mask(this.Value.ToString())) + "\"";
                             else
                             {
                                 if (this.Value != null && this.Value.GetType() == typeof(bool))
@@ -438,7 +438,7 @@ namespace UniElLib
                 return val;
             }
 
-            private string ChildsToJson(string val)
+            private string ChildsToJson(string val,bool maskSensitive)
             {
                 val += "{";
                 string prevName = "";
@@ -460,7 +460,7 @@ namespace UniElLib
                         isArr = true;
                     }
 
-                    this.childs[i].to_json_internal(ref val, isArr);
+                    this.childs[i].to_json_internal(ref val,maskSensitive, isArr);
                     if (lastElInArray(this.childs, i))
                     {
                         isArr = false;

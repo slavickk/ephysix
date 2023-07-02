@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using PluginBase;
+using UniElLib;
 using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
@@ -107,7 +108,7 @@ public abstract class Receiver/*:IReceiver*/
         {
             if (debugMode)
             {
-                Logger.log("Receive step:{o} {input} {thr}", Serilog.Events.LogEventLevel.Debug, "any", owner, input, Thread.CurrentThread.ManagedThreadId);
+                Logger.log("Receive step:{o} {input} {thr}", Serilog.Events.LogEventLevel.Debug, "any", owner, input.MaskSensitive(), Thread.CurrentThread.ManagedThreadId);
             }
             if (stringReceived != null)
                 await stringReceived(input, context);

@@ -248,6 +248,7 @@ namespace TestJsonRazbor
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(493, 124);
             this.listBox1.TabIndex = 13;
+            this.listBox1.HorizontalScrollbar = true;
             // 
             // listBox2
             // 

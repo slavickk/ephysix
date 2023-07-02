@@ -131,7 +131,7 @@ public abstract class Sender/*:ISender*/
                 }*/
             }
             if (owner.debugMode)
-                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(), ans);
+                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(true), ans);
             metricUpTime.Add(time1);
         }
         catch (Exception ex)
