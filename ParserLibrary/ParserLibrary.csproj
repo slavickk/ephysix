@@ -9,6 +9,7 @@
   <ItemGroup>
     <None Remove="nuget.config" />
     <Compile Remove="Components.cs" />
+    <Compile Remove="DetectSensitive.cs" />
     <None Include="Components.cs" />
     <Compile Remove="Converters.cs" />
     <None Include="Converters.cs" />

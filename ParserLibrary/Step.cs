@@ -727,7 +727,7 @@ public partial class Step : ILiquidizable
                                 count++;
                         }*/
         if (debugMode )
-            Logger.log("{this} {filter} transform to output  added {count} items, filt:{l} out:{out}", Serilog.Events.LogEventLevel.Debug,this,item, count,el.toJSON(),local_rootOutput.toJSON());
+            Logger.log("{this} {filter} transform to output  added {count} items, filt:{l} out:{out}", Serilog.Events.LogEventLevel.Debug,this,item, count,el.toJSON(true),local_rootOutput.toJSON());
         var msec = (DateTime.Now - time1).TotalMilliseconds;
         AbstrParser.regEvent("FP", time1);
         return true;
