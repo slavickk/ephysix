@@ -381,7 +381,7 @@ namespace ParserLibrary
             public override string getHeader(ref string lastName)
             {
                 string retValue = "";
-     //           if (this.Comment != "" && lastName != this.Name)
+                if (this.Comment != "" && lastName != this.Name)
                 {
                     retValue += "#  HELP " + this.Name + ":" + this.Comment + ".\n";
                     lastName = this.Name;
@@ -466,7 +466,7 @@ namespace ParserLibrary
             public override string getHeader(ref string lastName)
             {
                 string retValue = "";
-       //         if (this.Comment != "" && lastName != this.Name)
+                if (this.Comment != "" && lastName != this.Name)
                 {
                     retValue += "#  HELP " + this.Name + ":" + this.Comment + "\n";
                     lastName = this.Name;
@@ -478,7 +478,7 @@ namespace ParserLibrary
             public override string getBody()
             {
                 string retValue = "";
-                retValue += ("prometeus_" + Name + prometheusLabels + getCount() + "\n");
+                retValue += ("prometheus_" + Name + prometheusLabels + getCount() + "\n");
                 /*                if (!noAverage)
                                     retValue += (Name + "{type=\"Avg\",result=\"" + (isSuccess ? "Success" : "Error") + "\"} " + getAverage() + "\n");*/
 
@@ -510,7 +510,7 @@ namespace ParserLibrary
             public override string getBody()
             {
                 string retValue = "";
-                retValue += ("prometeus_" + Name + prometheusLabels + val + "\n");
+                retValue += ("prometheus_" + Name + prometheusLabels + val + "\n");
                 /*                if (!noAverage)
                                     retValue += (Name + "{type=\"Avg\",result=\"" + (isSuccess ? "Success" : "Error") + "\"} " + getAverage() + "\n");*/
 
@@ -538,7 +538,7 @@ namespace ParserLibrary
             public override string getBody()
             {
                 string retValue = "";
-                retValue += ("prometeus_" + Name + prometheusLabels + (DateTime.Now-timeStart).TotalSeconds + "\n");
+                retValue += ("prometheus_" + Name + prometheusLabels + (DateTime.Now-timeStart).TotalSeconds + "\n");
                 return retValue;
             }
 
@@ -587,7 +587,7 @@ namespace ParserLibrary
                 {
 
                     var kvs=d.Key.Split("/");
-                    retValue += ($"prometeus_{Name}{Metrics.common_labels.Select(ii => ii.Value).Union(labels.Select((ii, index) => new Label(ii, kvs[index]))).toPrometheusLabels()}{d.Value.Value.Value}\n");
+                    retValue += ($"prometheus_{Name}{Metrics.common_labels.Select(ii => ii.Value).Union(labels.Select((ii, index) => new Label(ii, kvs[index]))).toPrometheusLabels()}{d.Value.Value.Value}\n");
                 }
 
                 return retValue;
@@ -604,7 +604,7 @@ namespace ParserLibrary
             public override string getBody()
             {
                 string retValue = "";
-                retValue += ("prometeus_" + Name + prometheusLabels + func().ToString() + "\n");
+                retValue += ("prometheus_" + Name + prometheusLabels + func().ToString() + "\n");
                 /*                if (!noAverage)
                                     retValue += (Name + "{type=\"Avg\",result=\"" + (isSuccess ? "Success" : "Error") + "\"} " + getAverage() + "\n");*/
 
