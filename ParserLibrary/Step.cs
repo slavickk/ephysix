@@ -14,6 +14,7 @@ using YamlDotNet.Serialization;
 using DotLiquid;
 using System.Xml.Linq;
 using static ParserLibrary.Pipeline;
+using System.Reflection.Emit;
 
 namespace ParserLibrary;
 /// <summary>
@@ -227,6 +228,7 @@ public partial class Step : ILiquidizable
     static Metrics.MetricCount errMetric = new Metrics.MetricCount("packagesReceivedUnsuccess", "All packages, sended to utility with error");
     static Metrics.MetricCount errMetricRetry = new Metrics.MetricCount("packagesSendedUnsucRetry", "All packages, resended sucessfully after error");
     static Metrics.MetricHistogram metricRetryTimeError = new Metrics.MetricHistogram("retryPackagesTime", "retry time on error", new double[] {  100, 500, 1000, 5000, 10000 ,30000,60000,600000});
+    static Metrics.MetricAuto metricDelayMessages; 
 
     //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
 
@@ -570,6 +572,16 @@ public partial class Step : ILiquidizable
     Int64 SizeDirectory = 0;
     [YamlIgnore]
     bool nonSavedError = false;
+
+
+    void CheckMetric()
+    {
+        if(metricDelayMessages == null)
+        {
+            metricDelayMessages = new Metrics.MetricAuto("delayingMessages", "count of delayingMessages", () => { return countDelayMessages; });
+            metricDelayMessages.AddLabels(new Metrics.Label [] { new Metrics.Label("Step",this.IDStep) } );
+        }
+    }
     private void SaveRestoreFile(AbstrParser.UniEl local_rootOutput)
     {
         if(nonSavedError) 
