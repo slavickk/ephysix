@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using JamaaTech.Smpp.Net.Client;
+using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -22,7 +23,7 @@ namespace ParserLibrary.Tests
         private IModel channel;
         private EventingBasicConsumer consumer;
 
-        [SetUp]
+       // [SetUp]
         public void Setup()
         {
             receiver = new RabbitMQHelper(Hostname, Port, Username, Password, QueueName);
@@ -44,6 +45,41 @@ namespace ParserLibrary.Tests
             receiver.StopReceiving();
             channel.Close();
             connection.Close();
+        }
+        [Test]
+        public void testSmpp()
+        {
+            SmppClient client = new SmppClient();
+            System.Threading.Thread.Sleep(3000);
+            SmppConnectionProperties properties = client.Properties;
+            properties.SystemID = "other";
+            properties.Password = "other";
+            properties.Port = 7000; //IP port to use
+            properties.Host = "10.77.206.210"; //SMSC host name or IP Address
+            properties.SystemType = "mysystemtype";
+            properties.DefaultServiceType = "mydefaultservicetype";
+
+            //Resume a lost connection after 30 seconds
+            client.AutoReconnectDelay = 3000;
+
+            //Send Enquire Link PDU every 15 seconds
+            client.KeepAliveInterval = 15000;
+
+            //Start smpp client
+            client.Start();
+            System.Threading.Thread.Sleep(3000);
+
+            //client.ConnectionStateChanged += client_ConnectionStateChanged;
+
+            TextMessage msg = new TextMessage();
+
+            msg.DestinationAddress = "+79222354098"; //Receipient number
+            msg.SourceAddress = "300"; //Originating number
+            msg.Text = "Hello, this is my test message!";
+            msg.RegisterDeliveryNotification = true; //I want delivery notification for this message
+
+            //SmppClient client = GetSmppClient();
+            client.SendMessage(msg);
         }
 
         [Test]
