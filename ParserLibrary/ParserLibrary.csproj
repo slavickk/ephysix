@@ -31,6 +31,7 @@
     <PackageReference Include="Confluent.Kafka" Version="2.1.1" />
     <PackageReference Include="CS-Script.Core" Version="2.0.0" />
     <PackageReference Include="DotLiquid" Version="2.2.692" />
+    <PackageReference Include="JamaaSMPP" Version="1.10.0" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="4.0.20710" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.15" />
