@@ -210,7 +210,7 @@ steps:
       valuePath: ''
   sender: !StreamSender
     streamName: AReq
-    dbConnectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;
+    dbConnectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;
     streamSender:
       name: AReq
       description: AReq transaction
@@ -518,6 +518,19 @@ steps:
       conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
       conditionCalcer: 
       valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/RuleIDVersion
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/nameWithVersion
+      conditionCalcer: 
+      valuePath: ''
   - name: FilterDataField
     filter: !ConditionFilter
       conditionPath: Step_0/Send/To/*
@@ -758,7 +771,7 @@ steps:
         conditionPath: Step_0/Step_DMN/Step_2/Rec/ItemList/Value
         conditionCalcer: !ComparerForValue
           isNegative: false
-          valueForCompare: true
+          valueForCompare: 1
       action: AND
     outputFields:
     - !ExtractFromInputValue
@@ -788,8 +801,8 @@ steps:
       conditionCalcer: 
       valuePath: ''
   sender: !PostgresExecutorSender
-    connectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=fp;
-    statement: select * from fp.add_alert(@stream,@rex_result)
+    connectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=fp;
+    statement: select * from fp.app_add_alert(@stream,@rex_result)
     mocFile: ''
     mocBody: ''
 metricsBuilder:
