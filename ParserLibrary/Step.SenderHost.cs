@@ -25,7 +25,7 @@ public partial class Step
                 new Metrics.MetricHistogram("iu_outbound_request_duration_msec", "handle performance receiver");
             metricUpTime.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
             
-            this._sender.Init();
+            this._sender?.Init();
         }
 
 
