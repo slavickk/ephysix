@@ -152,8 +152,16 @@ namespace TestJsonRazbor
                     {
                         fileName = sr.ReadLine();
                     }
-                    this.Text = fileName;
-                    LoadYaml(fileName);
+                    if (File.Exists(fileName))
+                    {
+                        this.Text = fileName;
+                        LoadYaml(fileName);
+                    } else
+                    {
+                        pip = new Pipeline();
+                        this.Text = (pipelinePath == "") ? "new Pipeline" : pipelinePath;
+
+                    }
                 }
                 else
                 {
@@ -208,7 +216,7 @@ namespace TestJsonRazbor
         Receiver rec;
         private void button1_Click(object sender, EventArgs e)
         {
-            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(IReceiver),tObject= (currentStep.receiver== null)?new PacketBeatReceiver(): currentStep.receiver };
+            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Receiver),tObject= (currentStep.receiver== null)?new PacketBeatReceiver(): currentStep.receiver };
             if(frm.ShowDialog() == DialogResult.OK)
             {
                 SetReceiverObject(frm.tObject);

@@ -1,0 +1,224 @@
+[
+
+  {
+    "Table": "dm.customer",
+    "UpdateIfExists": true,
+    "KeyColumns": [ "firstname", "lastname" ],
+    "Columns": [
+      {
+        "ind": 35,
+        "Name": "status",
+        "Type": "NUMBER"
+      },
+      {
+        "ind": 36,
+        "Name": "othernames",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 37,
+        "Name": "startdate",
+        "Type": "DATE"
+      },
+      {
+        "ind": 38,
+        "Name": "institutionid",
+        "Type": "NUMBER"
+      },
+      {
+        "ind": 39,
+        "Name": "branchid",
+        "Type": "NUMBER"
+      },
+      {
+        "path": "PersonId",
+        "ind": 40,
+        "Name": "externalid",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 41,
+        "Name": "phone1",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 42,
+        "Name": "address1",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 43,
+        "Name": "city",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 44,
+        "Name": "country",
+        "Type": "NUMBER"
+      },
+      {
+        "ind": 45,
+        "Name": "inn",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 46,
+        "Name": "gender",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 47,
+        "Name": "lastname",
+        "Type": "VARCHAR"
+      },
+      {
+        "path": "PersonFIO",
+        "ind": 48,
+        "Name": "firstname",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 49,
+        "Name": "birthdate",
+        "Type": "DATE"
+      },
+      {
+        "ind": 50,
+        "Name": "statustime",
+        "Type": "DATE"
+      },
+      {
+        "ind": 51,
+        "Name": "email",
+        "Type": "VARCHAR"
+      }
+    ],
+    "ExtIDs": [
+
+    ]
+  },
+  {
+    "Table": "dm.account",
+    "UpdateIfExists": true,
+    "KeyColumns": [ "orignumber" ],
+    "Columns": [
+      {
+        "ind": 1,
+        "Name": "statustime",
+        "Type": "DATE"
+      },
+      {
+        "ind": 2,
+        "Name": "customerid",
+        "Type": "NUMBER"
+      },
+      {
+        "path": "Accounts/Row/AcctNo",
+        "Name": "orignumber",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 4,
+        "Name": "branchid",
+        "Type": "NUMBER"
+      },
+      {
+        "ind": 5,
+        "Name": "externalid",
+        "Type": "VARCHAR"
+      },
+      {
+        "path": "Accounts/Row/Currency",
+        "Name": "currency",
+        "Type": "NUMBER"
+      },
+      {
+        "ind": 7,
+        "Name": "closedate",
+        "Type": "DATE"
+      },
+      {
+        "ind": 8,
+        "Name": "opendate",
+        "Type": "DATE"
+      },
+      {
+        "path": "Accounts/Row/Status",
+        "Name": "status",
+        "Type": "NUMBER"
+      },
+      {
+        "ind": 11,
+        "Name": "accountid",
+        "Type": "NUMBER"
+      }
+    ],
+    "ExtIDs": [
+
+      {
+        "Column": "customerid",
+        "Table": "dm.customer"
+      }
+    ]
+  },
+  {
+    "Table": "dm.card",
+    "UpdateIfExists": true,
+    "KeyColumns": [ "pan", "mbr" ],
+    "Columns": [
+      {
+        "ind": 10,
+        "Name": "accountid",
+        "Type": "NUMBER"
+      },
+      {
+        "path": "$closedate",
+        "Name": "closedate",
+        "Type": "DATE"
+      },
+      {
+        "ind": 13,
+        "Name": "firstusedate",
+        "Type": "DATE"
+      },
+      {
+        "ind": 14,
+        "Name": "statustime",
+        "Type": "DATE"
+      },
+      {
+        "ind": 15,
+        "Name": "expirationdate",
+        "Type": "DATE"
+      },
+      {
+        "path": "FoundMBR",
+        "Name": "mbr",
+        "Type": "NUMBER"
+      },
+      {
+        "path": "FoundPAN",
+
+        "ind": 17,
+        "Name": "pan",
+        "Type": "VARCHAR"
+      },
+      {
+        "ind": 18,
+        "Name": "status",
+        "Type": "NUMBER"
+      },
+      {
+        "ind": 19,
+        "Name": "branchid",
+        "Type": "NUMBER"
+      }
+    ],
+    "ExtIDs": [
+      {
+        "Column": "accountid",
+        "Table": "dm.account"
+      }
+    ]
+  }
+]

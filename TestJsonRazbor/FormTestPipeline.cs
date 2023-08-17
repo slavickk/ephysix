@@ -115,6 +115,7 @@ namespace TestJsonRazbor
         {
 
             var log = ((LogEventArgs)e).Log;
+            Console.WriteLine(logTextBox.Text.ToString());
             listBox1.Items.Insert(0, $"{log.Timestamp.DateTime.ToString("HH:mm:ss")}:{log.RenderMessage()} {((log.Exception != null)?$"Exc:{log.Exception}":"")} \r\n{this.logTextBox.Text}");
             //this.logTextBox.Text = $"{log.Timestamp.DateTime.ToString("HH:mm:ss")}: {log.RenderMessage()}\r\n{this.logTextBox.Text}";
         }

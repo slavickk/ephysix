@@ -1,0 +1,11 @@
+﻿<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:m1="http://schemas.compassplus.com/two/1.0/fimi.xsd" xmlns:m0="http://schemas.compassplus.com/two/1.0/fimi_types.xsd">
+  <env:Body>
+    <m1:InitSessionRq>
+      <m1:Request Ver="9.1" Product="FIMI" RetAddress="192.166.22.33" Clerk="FIMIXML">
+        <m0:NeedDicts>0</m0:NeedDicts>
+        <m0:AllVendors>0</m0:AllVendors>
+        <m0:AvoidSession>0</m0:AvoidSession>
+      </m1:Request>
+    </m1:InitSessionRq>
+  </env:Body>
+</env:Envelope>
