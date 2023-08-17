@@ -16,6 +16,7 @@ public partial class Step
         {
             this.owner = owner;
             this._receiver = receiver;
+            if(receiver != null )
             receiver.host = this;
         }
         

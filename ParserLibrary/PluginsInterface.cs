@@ -19,6 +19,7 @@ namespace ParserLibrary
             List<Type> types = new List<Type>();
             types.AddRange(Assembly.GetAssembly(typeof(Pipeline)).GetTypes());
             types.AddRange(Assembly.GetEntryAssembly().GetTypes());
+            types.AddRange(Pipeline.getAllPluginTypes());
             /* foreach(var ass in Plugins)
              {
                  types.AddRange(ass.GetTypes());

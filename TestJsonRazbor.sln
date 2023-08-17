@@ -63,7 +63,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewParserLibraryShablon", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniElLib", "UniElLib\UniElLib.csproj", "{1E2465D9-1245-4C9D-846B-C6E17598E519}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppPerformance", "ConsoleAppPerformance\ConsoleAppPerformance.csproj", "{D77BF9F1-3070-4FBF-AEAD-3ECAB0FDF13E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppPerformance", "ConsoleAppPerformance\ConsoleAppPerformance.csproj", "{D77BF9F1-3070-4FBF-AEAD-3ECAB0FDF13E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummySystem2ConsoleApp", "DummySystem2ConsoleApp\DummySystem2ConsoleApp.csproj", "{324AD5C5-3A64-4879-8B6A-1B912EFF1853}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -195,6 +197,10 @@ Global
 		{D77BF9F1-3070-4FBF-AEAD-3ECAB0FDF13E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D77BF9F1-3070-4FBF-AEAD-3ECAB0FDF13E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D77BF9F1-3070-4FBF-AEAD-3ECAB0FDF13E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{324AD5C5-3A64-4879-8B6A-1B912EFF1853}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{324AD5C5-3A64-4879-8B6A-1B912EFF1853}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{324AD5C5-3A64-4879-8B6A-1B912EFF1853}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{324AD5C5-3A64-4879-8B6A-1B912EFF1853}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -86,6 +86,7 @@ public class Pipeline:ILiquidizable
     [YamlIgnore]
     public string tempMocData ="";
     public Step[] steps { get; set; } = new Step[] { };// new Step[] { new Step() };
+    [YamlIgnore]
     public ConcurrentQueue<Scenario> scenarios { get; set; }= new ConcurrentQueue<Scenario>();
     public bool debugMode
     {
@@ -159,10 +160,10 @@ public class Pipeline:ILiquidizable
     /// Returns the list of all plugin types that must be available during pipeline deserialization.
     /// </summary>
     /// <returns></returns>
-    static List<Type> getAllPluginTypes()
+    public static List<Type> getAllPluginTypes()
     {
         // Predicate to determine whether a type should be available during pipeline deserialization 
-        bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t);
+        bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t) || typeof(Receiver).IsAssignableFrom(t) || typeof(Sender).IsAssignableFrom(t);
 
         // TODO: make the list of plugin assemblies configurable
         var pluginAssemblyNames = new[] { "Plugins.dll" };
@@ -174,7 +175,7 @@ public class Pipeline:ILiquidizable
         // There are some plugin classes defined as part of the ParserLibrary itself.
         // List them too.
         var internalPluginClasses = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t))
+            .Where(t => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t)|| typeof(Receiver).IsAssignableFrom(t) || typeof(Sender).IsAssignableFrom(t))
             .ToList();
         
         return pluginClasses.Concat(internalPluginClasses).ToList();
@@ -470,8 +471,11 @@ public class Pipeline:ILiquidizable
         }
         //        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         var pip = deserializer.Deserialize<Pipeline>(Body);// (File.OpenText(fileName));
-        foreach (var step in pip.steps)
-            step.owner = pip;
+        if (pip.steps != null)
+        {
+            foreach (var step in pip.steps)
+                step.owner = pip;
+        }
         InitJaeger(pip.pipelineDescription);
         return pip;
     }
