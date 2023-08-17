@@ -10,7 +10,7 @@ namespace UAMP
     /// </summary>
     public record UAMPMessage : UAMPValue
     {
-        private static readonly string ParameterSeparator = $"(?<!{(char) Symbols.SP}){(char) Symbols.PS}";
+        private static readonly string ParameterSeparator = $"(?<!{(char)Symbols.SP}){(char)Symbols.PS}";
         public override UAMPType Type => UAMPType.UAMPMessage;
         public Dictionary<string, UAMPValue?> Value { get; set; }
 
@@ -41,8 +41,15 @@ namespace UAMP
             string[] parameters = Regex.Split(uampmessage, ParameterSeparator);
             foreach (var parameter in parameters)
             {
-                var keyval = parameter.Split((char) Symbols.Eq, 2);
-                if (keyval.Length < 2) throw new ArgumentException("Message not contain '='", "uampmessage");
+                var keyval = parameter.Split((char)Symbols.Eq, 2);
+                if (keyval.Length < 2)
+                {
+                    if (keyval[0] == Symbols.NI.ToString())
+                    {
+                        continue;
+                    }
+                    throw new ArgumentException($"Message not contain '=': {uampmessage}", "uampmessage");
+                }
 
                 Value[keyval[0]] = ParseValue(keyval[1]);
             }
@@ -55,8 +62,8 @@ namespace UAMP
         /// <returns>string in uamp format</returns>
         public override string Serialize()
         {
-            return string.Join((char) Symbols.PS,
-                Value.Select(pair => pair.Key + (char) Symbols.Eq + SerializeValue(pair.Value)));
+            return string.Join((char)Symbols.PS,
+                Value.Select(pair => pair.Key + (char)Symbols.Eq + SerializeValue(pair.Value)));
         }
 
 
