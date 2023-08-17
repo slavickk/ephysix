@@ -44,10 +44,11 @@ namespace UAMP
                 var keyval = parameter.Split((char)Symbols.Eq, 2);
                 if (keyval.Length < 2)
                 {
-                    if (keyval[0] == Symbols.NI.ToString())
+                    if (keyval[0].Length == 1 && keyval[0][0] == (char)Symbols.NI)
                     {
                         continue;
                     }
+
                     throw new ArgumentException($"Message not contain '=': {uampmessage}", "uampmessage");
                 }
 

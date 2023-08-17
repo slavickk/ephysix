@@ -1,15 +1,9 @@
-using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using ParserLibrary.TIC.TICFrames;
-using PluginBase;
 using Serilog;
 using Serilog.Context;
-using YamlDotNet.Serialization;
 
 namespace ParserLibrary
 {
@@ -26,14 +20,14 @@ namespace ParserLibrary
             pushProperty = LogContext.PushProperty("reciever", "TIC");
         }
 
-        public int ticFrame = 5;//; { get; set; }
+        public int ticFrame = 5; //; { get; set; }
 /*                {
                     get => Frame.FrameNum;
                     set { Frame = TICFrame.GetFrame(value); }
                 }*/
 
         //        [YamlMember(Alias = "Port")]
-        public int port=15001;//{ get; set; }
+        public int port = 15001; //{ get; set; }
 /*              {
                   set => endpoint = new IPEndPoint(IPAddress.Any, value);
                   get => endpoint.Port;
@@ -83,10 +77,11 @@ namespace ParserLibrary
                 Log.Information("Stop Listening");
             }
         }
-      /*  public override bool cantTryParse()
-        {
-            return true;
-        }*/
+
+        /*  public override bool cantTryParse()
+          {
+              return true;
+          }*/
         public async Task ClientHandler(TcpClient client, CancellationToken cancellationToken)
         {
             using (LogContext.PushProperty("client", client.Client.RemoteEndPoint))
@@ -101,6 +96,7 @@ namespace ParserLibrary
                         try
                         {
                             TICMessageJson = await Frame.DeserializeToJson(clientStream, cancellationToken);
+                            if (TICMessageJson is null) continue;
                         }
                         catch (Exception e)
                         {
