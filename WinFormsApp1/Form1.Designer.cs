@@ -603,7 +603,7 @@
             // 
             // buttonFIMI
             // 
-            this.buttonFIMI.Location = new System.Drawing.Point(30, 1057);
+            this.buttonFIMI.Location = new System.Drawing.Point(881, 690);
             this.buttonFIMI.Name = "buttonFIMI";
             this.buttonFIMI.Size = new System.Drawing.Size(150, 46);
             this.buttonFIMI.TabIndex = 48;
