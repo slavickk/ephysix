@@ -139,6 +139,7 @@
             this.Controls.Add(this.comboBoxFimiCommand);
             this.Name = "FormConnectFimi";
             this.Text = "FormConnectFimi";
+            this.Load += new System.EventHandler(this.FormConnectFimi_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

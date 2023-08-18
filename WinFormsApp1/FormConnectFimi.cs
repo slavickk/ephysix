@@ -49,5 +49,10 @@ namespace WinFormsETLPackagedCreator
         {
 
         }
+
+        private void FormConnectFimi_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
