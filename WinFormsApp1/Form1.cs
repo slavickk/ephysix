@@ -713,7 +713,8 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
 
         private void buttonFIMI_Click(object sender, EventArgs e)
         {
-
+            FormConnectFimi frm = new FormConnectFimi();
+            frm.ShowDialog();
         }
     }
 }
