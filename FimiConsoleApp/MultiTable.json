@@ -3,13 +3,19 @@
   {
     "Table": "dm.customer",
     "UpdateIfExists": true,
-    "KeyColumns": [ "firstname", "lastname" ],
+    "KeyColumns": [ "firstname" ],
     "Columns": [
       {
         "ind": 35,
         "Name": "status",
         "Type": "NUMBER"
       },
+      {
+        "ind": 35,
+        "Name": "customerid",
+        "Type": "NUMBER"
+      },
+      
       {
         "ind": 36,
         "Name": "othernames",
@@ -67,6 +73,7 @@
         "Type": "VARCHAR"
       },
       {
+        "constant": "",
         "ind": 47,
         "Name": "lastname",
         "Type": "VARCHAR"
@@ -172,7 +179,7 @@
         "Type": "NUMBER"
       },
       {
-        "path": "$closedate",
+
         "Name": "closedate",
         "Type": "DATE"
       },

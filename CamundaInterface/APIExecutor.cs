@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
-
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CamundaInterface
 {
@@ -28,16 +28,37 @@ namespace CamundaInterface
                 public class ItemParam
                 {
                     public string Key; 
-                    public string Value;
+                    public string? Value;
+                    public string? Variable;
+
+                public ItemParam()
+                {
 
                 }
+                public ItemParam(string key, string value)
+                {
+                    Key = key;
+                    Value = value;
+                }
+
+                }
+            public ExecContextItem()
+            {
+
+            }
+            public ExecContextItem(string command)
+            {
+                Command = command;
+            }
                 public string Command { get; set; }
                 public ItemParam[] Params { get; set; }
             }
 
         public class Item
         {
-            public string path;
+            public string? path;
+            public string? variable;
+            public string? constant;
             public int currentIndex;
             public string columnName;
             public string columnType;
@@ -59,22 +80,27 @@ namespace CamundaInterface
                 { "TEXT", NpgsqlTypes.NpgsqlDbType.Text }, { "CHAR", NpgsqlTypes.NpgsqlDbType.Varchar }, { "JSON", NpgsqlTypes.NpgsqlDbType.Varchar }, { "NCHAR", NpgsqlTypes.NpgsqlDbType.Varchar },
                 { "NVARCHAR", NpgsqlTypes.NpgsqlDbType.Varchar }, { "VARCHAR", NpgsqlTypes.NpgsqlDbType.Varchar }, { "DATE", NpgsqlTypes.NpgsqlDbType.Date }, { "TIMESTAMP", NpgsqlTypes.NpgsqlDbType.Timestamp } };
 
-        public async Task<bool> ExecuteApiRequest(_ApiExecutor executor, ExecContextItem[] commands, TableDefine[] tables, string ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;", string baseQuery = "select closedate from dm.card limit 10")
+        public async Task<bool> ExecuteApiRequest(_ApiExecutor executor, ExecContextItem[] commands, TableDefine[] tables, string baseQuery = "select '2220000000000200' PAN", string ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;")
         {
             //                { "BLOB",NpgsqlTypes.NpgsqlDbType.: LargeBinary, "BYTEA": LargeBinary*/
             foreach (TableDefine table in tables)
             {
                 foreach (var col in table.Columns)
+                {
                     col.TableName = table.Table;
+                    col.variable?.ToUpper();
+                }
             }
             var types = tables.SelectMany(ii => ii.Columns.Select(ii2 => ii2.Type)).Distinct().ToArray();
 
             //            XmlFimi fim = new XmlFimi(content);
-          //  var currentIndexes = paths.Select(ii => 0).ToArray();
+            //  var currentIndexes = paths.Select(ii => 0).ToArray();
             //   var ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;";
             //            var ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=dm;";
 
             //     string baseQuery = "select closedate from dm.card limit 10";
+            if (string.IsNullOrEmpty(baseQuery))
+                baseQuery = "select 1 dummy;";
             NpgsqlConnection conn = new NpgsqlConnection(ConnString);
             conn.Open();
             NpgsqlConnection connBase = new NpgsqlConnection(ConnString);
@@ -92,10 +118,10 @@ namespace CamundaInterface
                             object val = null;
                             if (!readerCom.IsDBNull(i))
                                 val = readerCom.GetValue(i);
-                            var colName = "$" + readerCom.GetName(i);
+                            var colName = readerCom.GetName(i).ToUpper();
                             foreach(var com in commands )
                             {
-                                foreach (var par in com.Params.Where(ii => ii.Key == colName))
+                                foreach (var par in com.Params.Where(ii => ii.Variable == colName))
                                     par.Value = val.ToString();
                             }
                         }
@@ -103,19 +129,22 @@ namespace CamundaInterface
                         List<Item> paths = new List<Item>();
                         foreach (var tab in tables)
                         {
-                            paths.AddRange(tab.Columns.Where(ii => !string.IsNullOrEmpty(ii.path)).Select(i1 => new Item() { columnName = i1.Name, tableName = i1.TableName, currentIndex = 0, columnType = i1.Type, path = i1.path, values = filter.filter(i1.path).ToArray() }).OrderBy(i1 => i1.path));
+                            paths.AddRange(tab.Columns.Where(ii => !string.IsNullOrEmpty(ii.path) || !string.IsNullOrEmpty(ii.variable) || ii.constant != null).Select(i1 => new Item() { columnName = i1.Name, tableName = i1.TableName, currentIndex = 0, columnType = i1.Type, path = i1.path, constant=i1.constant, variable=i1.variable, values = filter.filter(i1.path)?.ToArray() }).OrderBy(i1 => i1.path));
                         }
+                        foreach (var path in paths.Where(ii => ii.constant!= null))
+                            path.values = new string[] { path.constant };
+
                         for (int i = 0; i < readerCom.FieldCount; i++)
                         {
                             object val = null;
                             if (!readerCom.IsDBNull(i))
                                 val = readerCom.GetValue(i);
-                            var colName = "$" + readerCom.GetName(i);
-                            foreach (var path in paths.Where(ii => ii.path == colName))
+                            var colName = readerCom.GetName(i);
+                            foreach (var path in paths.Where(ii => ii.variable == colName))
                                 path.values = new string[] { val?.ToString() };
                         }
                         // Dictionary<string, string> variables = new Dictionary<string, string>();
-                        foreach (var table in tables.OrderBy(ii => ii.Table))
+                        foreach (var table in tables.OrderBy(ii => ii.ExtIDs.Count))
                         {
                             bool exists;
 
@@ -125,7 +154,11 @@ namespace CamundaInterface
                             {
                                 for (int i = 0; i < table.KeyColumns.Length; i++)
                                 {
-                                    var path = paths.First(ii => ii.tableName == table.Table && ii.columnName == table.KeyColumns[i]);
+                                    var path = paths.FirstOrDefault(ii => ii.tableName == table.Table && ii.columnName == table.KeyColumns[i]);
+                                    if(path == null)
+                                    {
+                                        throw new Exception($"Value of column {table.KeyColumns[i]} on table {table.Table} not set");
+                                    }
                                     cmd1.Parameters.AddWithValue($"@P{i}"/*, db_types[path.columnType]*/, path.values[path.currentIndex]);
                                 }
                                 await using (var reader = await cmd1.ExecuteReaderAsync())
@@ -202,10 +235,15 @@ namespace CamundaInterface
                                             for (int i = 0; i < columns.Count; i++)
                                             {
                                                 var val = reader.GetInt64(i);
-                                                var varName = "$" + columns[i].columnName;
-                                                var columnType = table.Columns.First(ii => ii.Name == columns[i].columnName).Type;
+                                                var varName = columns[i].columnName;
+                                                var columnType = table.Columns.FirstOrDefault(ii => ii.Name == columns[i].columnName)?.Type;
+                                                if(columnType== null)
+                                                {
+                                                    throw new Exception($"Column {columns[i].columnName} not present in {table.Table} definition , but present in external keys");
+                                                }
+
                                                 //                                    var path = paths.First(ii => ii.tableName == table.Table && ii.columnName == columns[i].columnName);
-                                                paths.Add(new Item() { currentIndex = 0, path = varName, columnName = columns[i].columnName, columnType = columnType, tableName = columns[i].tableName, values = new string[] { val.ToString() } });
+                                                paths.Add(new Item() { currentIndex = 0, variable = varName, columnName = columns[i].columnName, columnType = columnType, tableName = columns[i].tableName, values = new string[] { val.ToString() } });
                                                 break;
                                             }
 
@@ -227,7 +265,10 @@ namespace CamundaInterface
 
         private static string WhereClause(Dictionary<string, NpgsqlDbType> db_types, List<Item> paths, TableDefine? table, int beforeKol = 0)
         {
-            return $"where {string.Join(" and ", table.KeyColumns.Select((val, index) => val + $"=cast(@P{beforeKol + index} as {db_types[paths.First(ii => ii.tableName == table.Table && ii.columnName == val).columnType]})"))}";
+            if(table.KeyColumns.Length== 0) {
+                return "";
+            } else
+            return $"where {string.Join(" and ", table.KeyColumns.Select((val, index) => val + $"=cast(@P{beforeKol + index} as {db_types[table.Columns.First(ii => ii.Name == val).Type]})"))}";
         }
 
     }

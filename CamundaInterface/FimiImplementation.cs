@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Microsoft.OpenApi.Services;
 
 namespace CamundaInterface
 {
@@ -19,16 +20,16 @@ namespace CamundaInterface
             string addr;
             string password = "qwerty";
             string session;
-
-            public FimiXmlTransport(string addr = @"http://10.74.28.30:30401", string password = "qwerty")
+        public string NextChallenge;
+        public FimiXmlTransport(string addr = @"http://10.74.28.30:30401", string password = "qwerty")
             {
                 this.addr = addr;
                 this.password = password;
             }
-            HttpClient client = new HttpClient();
+            static HttpClient client = new HttpClient();
 
 
-            public string NextChallenge;
+
             public async Task<XmlFimi> send(XmlFimi fimi, string currentTopic = "")
             {
                 if (!string.IsNullOrEmpty(currentTopic) && !string.IsNullOrEmpty(NextChallenge) && !string.IsNullOrEmpty(session))
@@ -77,22 +78,48 @@ namespace CamundaInterface
        
         public async  Task beginSessionAsync()
         {
+            var currentKey = "InitSession";
+            XmlFimi fimi = new XmlFimi();
+            fimi.setPath("FIMI/InitSessionRq/Rq/NeedDicts", "0");
+            fimi.setPath("FIMI/InitSessionRq/Rq/AllVendors", "0");
+            fimi.setPath("FIMI/InitSessionRq/Rq/AvoidSession", "0");
+            var ans = await send(fimi, currentKey);
+            //                var pwd =XmlFimi.GetChallengePassword(tr.NextChallenge/* ans.getPath("FIMI/InitSessionRp/Rp/@NextChallenge")*/);
+            XmlFimi fimiLogon = new XmlFimi();
+            /*              fimiLogon.setPath("FIMI/LogonRq/Rq/@Password", pwd);
+                          fimiLogon.setPath("FIMI/LogonRq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
+            var ans11 = await send(fimiLogon, "Logon");
         }
 
         public async Task<APIExecutor._ApiFilter> ExecAsync(APIExecutor.ExecContextItem[] commands)
         {
-            string content;
+/*            string content;
             using (StreamReader sr = new StreamReader(@"c:\d\Answer.xml"))
             {
                 content = sr.ReadToEnd();
+            }*/
+            //            return new XmlFimi(content);
+            XmlFimi retValue = null;
+            foreach (var com in commands)
+            {
+                XmlFimi fimiCommand = new XmlFimi();
+
+                var currentKey = com.Command;
+                /*    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Password", pwd);
+                    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
+                foreach (var par in com.Params)
+                {
+                    fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value);
+                }
+                retValue = await send(fimiCommand, currentKey);
             }
-
-            return new XmlFimi(content);
-
+            return retValue;
         }
 
         public async Task endSessionAsync()
         {
+            XmlFimi fimiLogoff = new XmlFimi();
+            var ans11 = await send(fimiLogoff, "Logoff");
         }
 
         public EnvelopeBodyFault lastError;
@@ -305,6 +332,8 @@ namespace CamundaInterface
 
         public string[] filter(string path)
         {
+            if (string.IsNullOrEmpty(path))
+                return null;
             return extractMulti(path).ToArray();
         }
     }

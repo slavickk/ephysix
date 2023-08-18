@@ -18,7 +18,10 @@ namespace CamundaInterface
         public class Column
         {
             public int ind { get; set; }
-            public string path { get; set; }
+            public string? path { get; set; }
+            public string? variable { get; set; }
+            public string? constant { get; set; }
+
             public string Name { get; set; }
             public string Type { get; set; }
             public string TableName;
