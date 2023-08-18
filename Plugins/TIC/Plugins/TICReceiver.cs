@@ -11,7 +11,7 @@ namespace Plugins.TIC;
 /// <summary>
 /// A drop-in replacement for the TICReceiver class, but using the new IReceiver interface.
 /// </summary>
-public class TICReceiver : IReceiver
+public class TICReceiver : IReceiver, IDisposable
 {
     private readonly IDisposable pushProperty;
     private IPEndPoint endpoint;
@@ -99,10 +99,11 @@ public class TICReceiver : IReceiver
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    string TICMessageJson;
+                    string? TICMessageJson;
                     try
                     {
                         TICMessageJson = await Frame.DeserializeToJson(clientStream, cancellationToken);
+                        if (TICMessageJson is null) continue;
                     }
                     catch (Exception e)
                     {

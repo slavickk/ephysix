@@ -16,7 +16,7 @@ namespace ParserLibrary.TIC.TICFrames
         public abstract Task<long> DeserializeLength(Stream reader, CancellationToken cancellationToken);
         public abstract Task SerializeLength(Stream writer, long length, CancellationToken cancellationToken);
 
-        public async Task<string> DeserializeToJson(NetworkStream reader, CancellationToken cancellationToken = default)
+        public async Task<string?> DeserializeToJson(NetworkStream reader, CancellationToken cancellationToken = default)
         {
             var length = await DeserializeLength(reader, cancellationToken);
             Log.Debug("Recieve {length}", length);
@@ -26,6 +26,11 @@ namespace ParserLibrary.TIC.TICFrames
             {
                 readBytes += await reader.ReadAsync(bytes, readBytes, bytes.Length - readBytes, cancellationToken);
             } while (readBytes < length);
+
+            if (readBytes == 0)
+            {
+                return null;
+            }
 
             return TICMessage.DeserializeToJSON(bytes);
         }

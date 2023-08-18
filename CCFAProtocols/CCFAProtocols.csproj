@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
         <Nullable>enable</Nullable>
         <Title>CCFAProtocols</Title>
         <Authors>Ilya Ogolikhin</Authors>
@@ -11,6 +10,16 @@
         <NeutralLanguage>en</NeutralLanguage>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <VersionPrefix>0.1.0</VersionPrefix>
+        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <AssemblyVersion>2.156</AssemblyVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin/CCFAProtocols.xml</DocumentationFile>
+      <DebugType>full</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\net5.0\CCFAProtocols.xml</DocumentationFile>
+      <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <ItemGroup>
