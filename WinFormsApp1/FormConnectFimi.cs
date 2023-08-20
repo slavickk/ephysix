@@ -29,6 +29,7 @@ namespace WinFormsETLPackagedCreator
                 {
                     listViewFIMIInputParams.Items.Add(new ListViewItem(new string[] { item.name, "", "" }));
                 }
+//                listView
                 listBoxFimiOutputParam.Items.Clear();
                 foreach(var item in comm.outputItems)
                 {
@@ -64,7 +65,7 @@ namespace WinFormsETLPackagedCreator
         bool busyText = false;
         private async void textBoxPrefix_TextChanged(object sender, EventArgs e)
         {
-            await Task.Delay(300);
+/*            await Task.Delay(300);
             if (!busyText)
             {
                 busyText = true;
@@ -77,7 +78,7 @@ namespace WinFormsETLPackagedCreator
 
 
                 }
-            }
+            }*/
         }
 
         private void buttonLink_Click(object sender, EventArgs e)
@@ -147,8 +148,17 @@ namespace WinFormsETLPackagedCreator
 
         }
 
-        private void textBoxPrefix_Leave(object sender, EventArgs e)
+        private async void textBoxPrefix_Leave(object sender, EventArgs e)
         {
+            if (!string.IsNullOrEmpty(textBoxPrefix.Text))
+            {
+                list = await DBInterface.GetColumnsForTablePattern(conn, textBoxPrefix.Text);
+                comboBoxTable.Items.Clear();
+                comboBoxTable.Items.AddRange(list.Select(ii => ii.table).DistinctBy(i1 => i1.table_name).ToArray());
+
+
+
+            }
 
         }
     }

@@ -308,13 +308,16 @@ namespace CamundaInterface
                             }
                         }
                         retValue = await executor.ExecAsync(commands);
+                    }
+                }
             }
-            await executor.endSessionAsync();
+                    await executor.endSessionAsync();
 
-//            conn.Close();
-            connBase.Close();
-            return retValue;
-        }
+                    //            conn.Close();
+                    connBase.Close();
+                    return retValue;
+                }
+            
 
     }
 }
