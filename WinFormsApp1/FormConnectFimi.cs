@@ -53,7 +53,17 @@ namespace WinFormsETLPackagedCreator
 
         private void FormConnectFimi_Load(object sender, EventArgs e)
         {
-            var def = FIMIHelper.getDefine();
+     //       var def = FIMIHelper.getDefine();
+        }
+
+        private void textBoxSQL_Leave(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxCommandPrefix_Leave(object sender, EventArgs e)
+        {
+
         }
     }
 }
