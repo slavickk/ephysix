@@ -30,7 +30,7 @@
         {
             this.comboBoxFimiCommand = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.listBoxFimiParam = new System.Windows.Forms.ListBox();
+            this.listBoxFimiOutputParam = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.comboBoxTable = new System.Windows.Forms.ComboBox();
             this.listBoxTableColumns = new System.Windows.Forms.ListBox();
@@ -70,13 +70,13 @@
             // 
             // listBoxFimiParam
             // 
-            this.listBoxFimiParam.FormattingEnabled = true;
-            this.listBoxFimiParam.ItemHeight = 32;
-            this.listBoxFimiParam.Location = new System.Drawing.Point(382, 228);
-            this.listBoxFimiParam.Name = "listBoxFimiParam";
-            this.listBoxFimiParam.Size = new System.Drawing.Size(379, 452);
-            this.listBoxFimiParam.TabIndex = 2;
-            this.listBoxFimiParam.SelectedIndexChanged += new System.EventHandler(this.listBoxFimiParam_SelectedIndexChanged);
+            this.listBoxFimiOutputParam.FormattingEnabled = true;
+            this.listBoxFimiOutputParam.ItemHeight = 32;
+            this.listBoxFimiOutputParam.Location = new System.Drawing.Point(382, 228);
+            this.listBoxFimiOutputParam.Name = "listBoxFimiParam";
+            this.listBoxFimiOutputParam.Size = new System.Drawing.Size(379, 452);
+            this.listBoxFimiOutputParam.TabIndex = 2;
+            this.listBoxFimiOutputParam.SelectedIndexChanged += new System.EventHandler(this.listBoxFimiParam_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -240,7 +240,7 @@
             this.Controls.Add(this.listBoxTableColumns);
             this.Controls.Add(this.comboBoxTable);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.listBoxFimiParam);
+            this.Controls.Add(this.listBoxFimiOutputParam);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBoxFimiCommand);
             this.Name = "FormConnectFimi";
@@ -255,7 +255,7 @@
 
         private ComboBox comboBoxFimiCommand;
         private Label label1;
-        private ListBox listBoxFimiParam;
+        private ListBox listBoxFimiOutputParam;
         private Label label2;
         private ComboBox comboBoxTable;
         private ListBox listBoxTableColumns;

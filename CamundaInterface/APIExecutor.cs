@@ -270,6 +270,51 @@ namespace CamundaInterface
             } else
             return $"where {string.Join(" and ", table.KeyColumns.Select((val, index) => val + $"=cast(@P{beforeKol + index} as {db_types[table.Columns.First(ii => ii.Name == val).Type]})"))}";
         }
+        public async static Task<_ApiFilter> ExecuteApiRequestOnly(_ApiExecutor executor, ExecContextItem[] commands, string baseQuery = "select '2220000000000200' PAN", string ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;")
+        {
+            _ApiFilter retValue = null;
+            //                { "BLOB",NpgsqlTypes.NpgsqlDbType.: LargeBinary, "BYTEA": LargeBinary*/
+
+            //            XmlFimi fim = new XmlFimi(content);
+            //  var currentIndexes = paths.Select(ii => 0).ToArray();
+            //   var ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;";
+            //            var ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=dm;";
+
+            //     string baseQuery = "select closedate from dm.card limit 10";
+            if (string.IsNullOrEmpty(baseQuery))
+                baseQuery = "select 1 dummy;";
+            /*NpgsqlConnection conn = new NpgsqlConnection(ConnString);
+            conn.Open();*/
+            NpgsqlConnection connBase = new NpgsqlConnection(ConnString);
+            connBase.Open();
+            await executor.beginSessionAsync();
+            await using (var cmdCommand = new NpgsqlCommand(baseQuery, connBase))
+            {
+                await using (var readerCom = await cmdCommand.ExecuteReaderAsync())
+                {
+                    while (await readerCom.ReadAsync())
+                    {
+                        // Initialize commands variables
+                        for (int i = 0; i < readerCom.FieldCount; i++)
+                        {
+                            object val = null;
+                            if (!readerCom.IsDBNull(i))
+                                val = readerCom.GetValue(i);
+                            var colName = readerCom.GetName(i).ToUpper();
+                            foreach (var com in commands)
+                            {
+                                foreach (var par in com.Params.Where(ii => ii.Variable == colName))
+                                    par.Value = val.ToString();
+                            }
+                        }
+                        retValue = await executor.ExecAsync(commands);
+            }
+            await executor.endSessionAsync();
+
+//            conn.Close();
+            connBase.Close();
+            return retValue;
+        }
 
     }
 }

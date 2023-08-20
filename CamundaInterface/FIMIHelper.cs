@@ -13,6 +13,10 @@ namespace CamundaInterface
     {
         public class ItemCommand
         {
+            public override string ToString()
+            {
+                return Name;
+            }
             public string Name;
             public class Parameter
             {
@@ -25,6 +29,10 @@ namespace CamundaInterface
             {
                 public string path;
                 public OutputItems parent = null;
+                public override string ToString()
+                {
+                    return path;
+                }
 
             }
             public List<OutputItems> outputItems = new List<OutputItems>();
