@@ -30,7 +30,6 @@
         {
             this.comboBoxFimiCommand = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.listBoxFimiOutputParam = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.comboBoxTable = new System.Windows.Forms.ComboBox();
             this.listBoxTableColumns = new System.Windows.Forms.ListBox();
@@ -48,6 +47,9 @@
             this.textBoxConstant = new System.Windows.Forms.TextBox();
             this.buttonAddConst = new System.Windows.Forms.Button();
             this.textBoxCommandPrefix = new System.Windows.Forms.TextBox();
+            this.listViewFimiOutputParam = new System.Windows.Forms.ListView();
+            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
             this.SuspendLayout();
             // 
             // comboBoxFimiCommand
@@ -67,16 +69,6 @@
             this.label1.Size = new System.Drawing.Size(178, 32);
             this.label1.TabIndex = 1;
             this.label1.Text = "FIMI Command";
-            // 
-            // listBoxFimiParam
-            // 
-            this.listBoxFimiOutputParam.FormattingEnabled = true;
-            this.listBoxFimiOutputParam.ItemHeight = 32;
-            this.listBoxFimiOutputParam.Location = new System.Drawing.Point(382, 228);
-            this.listBoxFimiOutputParam.Name = "listBoxFimiParam";
-            this.listBoxFimiOutputParam.Size = new System.Drawing.Size(379, 452);
-            this.listBoxFimiOutputParam.TabIndex = 2;
-            this.listBoxFimiOutputParam.SelectedIndexChanged += new System.EventHandler(this.listBoxFimiParam_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -113,6 +105,7 @@
             this.textBoxPrefix.Size = new System.Drawing.Size(200, 39);
             this.textBoxPrefix.TabIndex = 6;
             this.textBoxPrefix.TextChanged += new System.EventHandler(this.textBoxPrefix_TextChanged);
+            this.textBoxPrefix.Leave += new System.EventHandler(this.textBoxPrefix_Leave);
             // 
             // buttonLink
             // 
@@ -196,6 +189,7 @@
             this.buttonAddSQLColumn.TabIndex = 13;
             this.buttonAddSQLColumn.Text = "Add Col";
             this.buttonAddSQLColumn.UseVisualStyleBackColor = true;
+            this.buttonAddSQLColumn.Click += new System.EventHandler(this.buttonAddSQLColumn_Click);
             // 
             // textBoxConstant
             // 
@@ -212,6 +206,7 @@
             this.buttonAddConst.TabIndex = 15;
             this.buttonAddConst.Text = "Add Const";
             this.buttonAddConst.UseVisualStyleBackColor = true;
+            this.buttonAddConst.Click += new System.EventHandler(this.buttonAddConst_Click);
             // 
             // textBoxCommandPrefix
             // 
@@ -221,11 +216,35 @@
             this.textBoxCommandPrefix.TabIndex = 16;
             this.textBoxCommandPrefix.Leave += new System.EventHandler(this.textBoxCommandPrefix_Leave);
             // 
+            // listViewFimiOutputParam
+            // 
+            this.listViewFimiOutputParam.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader4,
+            this.columnHeader5});
+            this.listViewFimiOutputParam.FullRowSelect = true;
+            this.listViewFimiOutputParam.Location = new System.Drawing.Point(392, 222);
+            this.listViewFimiOutputParam.Name = "listViewFimiOutputParam";
+            this.listViewFimiOutputParam.Size = new System.Drawing.Size(459, 458);
+            this.listViewFimiOutputParam.TabIndex = 17;
+            this.listViewFimiOutputParam.UseCompatibleStateImageBehavior = false;
+            this.listViewFimiOutputParam.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Path";
+            this.columnHeader4.Width = 350;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "Value";
+            this.columnHeader5.Width = 100;
+            // 
             // FormConnectFimi
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1544, 1099);
+            this.Controls.Add(this.listViewFimiOutputParam);
             this.Controls.Add(this.textBoxCommandPrefix);
             this.Controls.Add(this.buttonAddConst);
             this.Controls.Add(this.textBoxConstant);
@@ -240,7 +259,6 @@
             this.Controls.Add(this.listBoxTableColumns);
             this.Controls.Add(this.comboBoxTable);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.listBoxFimiOutputParam);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBoxFimiCommand);
             this.Name = "FormConnectFimi";
@@ -255,7 +273,6 @@
 
         private ComboBox comboBoxFimiCommand;
         private Label label1;
-        private ListBox listBoxFimiOutputParam;
         private Label label2;
         private ComboBox comboBoxTable;
         private ListBox listBoxTableColumns;
@@ -273,5 +290,8 @@
         private TextBox textBoxConstant;
         private Button buttonAddConst;
         private TextBox textBoxCommandPrefix;
+        private ListView listViewFimiOutputParam;
+        private ColumnHeader columnHeader4;
+        private ColumnHeader columnHeader5;
     }
 }

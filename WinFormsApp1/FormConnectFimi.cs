@@ -136,5 +136,20 @@ namespace WinFormsETLPackagedCreator
             }
 
         }
+
+        private void buttonAddConst_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonAddSQLColumn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxPrefix_Leave(object sender, EventArgs e)
+        {
+
+        }
     }
 }
