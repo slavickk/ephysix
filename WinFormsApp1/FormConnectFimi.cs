@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CamundaInterface;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -52,7 +53,7 @@ namespace WinFormsETLPackagedCreator
 
         private void FormConnectFimi_Load(object sender, EventArgs e)
         {
-
+            var def = FIMIHelper.getDefine();
         }
     }
 }
