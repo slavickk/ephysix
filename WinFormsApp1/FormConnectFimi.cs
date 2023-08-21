@@ -219,5 +219,15 @@ namespace WinFormsETLPackagedCreator
             }
 
         }
+
+        private void buttonAddColumnToTable_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonAddConstantToTable_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
