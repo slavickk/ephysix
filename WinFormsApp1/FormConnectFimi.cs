@@ -47,8 +47,23 @@ namespace WinFormsETLPackagedCreator
         {
 
         }
+        public class ItemKeyColumns
+        {
+            public string table;
+            public List<string> keyColumns;
+        }
 
-        private void comboBoxTable_SelectedIndexChanged(object sender, EventArgs e)
+        List<ItemKeyColumns> listKeyColumns= new List<ItemKeyColumns>();
+
+        public class ItemRel
+        {
+            public string pktable;
+            public string pkcolumns;
+            public string fktable;
+            public string fkcolumn;
+        }
+        List<ItemRel> relations= new List<ItemRel>();
+        private async void comboBoxTable_SelectedIndexChanged(object sender, EventArgs e)
         {
             var table = comboBoxTable.SelectedItem as ETL_Package.ItemTable;
             if (table != null)
@@ -63,18 +78,38 @@ namespace WinFormsETLPackagedCreator
                     {
                         // package.allTables.Add(cols.table);
                         var rr=frm.fromLeftToRight;
-                        foreach (var item in frm.returnedItems)
+                        foreach (var item in frm.returnedItems.Where(ii=>ii.itemName=="ForeignKey"))
                         {
-                            if (item.itemName == "Table")
+
+                            await using (var cmdCommand = new NpgsqlCommand("select pktable,pkcolumn,fktable,fkcolumn from md_get_fk_info(@idrel)", conn))
                             {
+                                cmdCommand.Parameters.AddWithValue("@idrel", item.itemId);
+                                await using (var readerCom = await cmdCommand.ExecuteReaderAsync())
+                                {
+                                    while (await readerCom.ReadAsync())
+                                    {
+                                        relations.Add(new ItemRel() { pktable = readerCom.GetString(0), pkcolumns = readerCom.GetString(1), fktable = readerCom.GetString(2), fkcolumn = readerCom.GetString(3) });
+
+
+                                        //                            "select pktable,pkcolumn,fktable,fkcolumn from md_get_fk_info(2163938)"
+                                        /*                          if (item.itemName == "Table")
+                                                      {
+                                                      }*/
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                FormSelectKeyColumns frm1 = new FormSelectKeyColumns(list.Where(ii => ii.table.table_name == table.table_name).Select(ii => ii.col_name).ToArray());
+                if (frm1.ShowDialog() == DialogResult.OK)
+                {
+                    listKeyColumns.Add(new ItemKeyColumns() { table = table.table_name, keyColumns = frm1.keyColumns });
+/*                    var keyColumns = frm1.keyColumns;
+                    listBoxTableColumns.Items.Clear();*/
 
-                            listBoxTableColumns.Items.Clear();
-
-                listBoxTableColumns.Items.AddRange( list.Where(ii=>ii.table.table_name== table.table_name).ToArray());
+                    listBoxTableColumns.Items.AddRange(list.Where(ii => ii.table.table_name == table.table_name).ToArray());
+                }
 
             }
         }
