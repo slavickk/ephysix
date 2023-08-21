@@ -414,7 +414,7 @@ where nc.name like '%" + findString + "%' and nc.isdeleted=false", conn))
 
             return list;
         }
-        public static async Task<List<ETL_Package.ItemColumn>> GetColumnsForTablePattern(NpgsqlConnection conn, string findString)
+        public static async Task<List<ETL_Package.ItemColumn>> GetColumnsForTablePattern(NpgsqlConnection conn, string findString,int[] excludeSrc=null)
         {
             List<ETL_Package.ItemColumn> list = new List<ETL_Package.ItemColumn>();
             await using (var cmd = new NpgsqlCommand(@"select nc.name colname,nc.nodeid colid,nt.name tablename,nt.nodeid tableid,s.name from MD_node nc 
@@ -422,9 +422,7 @@ inner join MD_type tc on nc.typeid = tc.typeid and tc.key = 'Column'
 inner join MD_arc ac on (ac.fromid = nc.nodeid  and ac.isdeleted=false)
 inner join md_Node nt on ac.toid = nt.nodeid  and nt.typeid = 1 and nt.isdeleted=false
 inner join md_src s on (nt.srcid=s.srcid)
-
-
-where nt.name like '%" + findString + "%' and nc.isdeleted=false", conn))
+where nt.name like '%" + findString + "%' and nc.isdeleted=false"+((excludeSrc!= null)?string.Join("",excludeSrc.Select(ii=>$" AND nt.srcid!={ii}")):""), conn))
             await using (var reader = await cmd.ExecuteReaderAsync())
             {
                 while (await reader.ReadAsync())

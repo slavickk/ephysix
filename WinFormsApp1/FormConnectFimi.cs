@@ -62,7 +62,7 @@ namespace WinFormsETLPackagedCreator
                     if (frm.ShowDialog() == DialogResult.OK)
                     {
                         // package.allTables.Add(cols.table);
-
+                        var rr=frm.fromLeftToRight;
                         foreach (var item in frm.returnedItems)
                         {
                             if (item.itemName == "Table")
@@ -203,14 +203,20 @@ namespace WinFormsETLPackagedCreator
 
         private void buttonAddSQLColumn_Click(object sender, EventArgs e)
         {
+            var val=comboBoxSqlColumn.SelectedItem?.ToString(); 
+            if(val!= null && val.Length>0)
+            {
+                int index = listViewFIMIInputParams.SelectedIndices[0];
+                listViewFIMIInputParams.Items[index].SubItems[1].Text = val;
 
+            }
         }
 
         private async void textBoxPrefix_Leave(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(textBoxPrefix.Text))
             {
-                list = await DBInterface.GetColumnsForTablePattern(conn, textBoxPrefix.Text);
+                list = await DBInterface.GetColumnsForTablePattern(conn, textBoxPrefix.Text,new int[] { 1 });
                 comboBoxTable.Items.Clear();
                 comboBoxTable.Items.AddRange(list.Select(ii => ii.table).DistinctBy(i1 => i1.table_name).ToArray());
 

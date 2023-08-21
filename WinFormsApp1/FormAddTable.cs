@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.RightsManagement;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -40,6 +41,7 @@ namespace WinFormsApp1
             public Int64 itemId;
             public string[] additionalInfo;
         }
+        public List<(string first,string second)> fromLeftToRight = new List<(string,string)>();
         List<ItemReturn> itemsReturn = new List<ItemReturn>();
 
         public IEnumerable<ItemReturn> returnedItems
@@ -62,6 +64,7 @@ namespace WinFormsApp1
                 itemsReturn.Add(new ItemReturn() { itemName = "Table", itemId = toId });
                 int index = listViewPaths.SelectedIndices[0];
                 var path = allPaths[index];
+                fromLeftToRight = leftToRight[index];
                 foreach (var pp in allPaths[index].Where(ii => ii[0] == "ForeignKey" || ii[0] == "VForeignKey"))
                 {
                     var ppLast = path[path.IndexOf(pp) - 1];
@@ -153,7 +156,7 @@ namespace WinFormsApp1
         {
             fromId= (comboBoxSrc.SelectedItem as ItemNameTable).tableId;
         }
-
+        public List<List<(string,string)>> leftToRight;
         private async void button1_Click(object sender, EventArgs e)
         {
             button2.Enabled = false;
@@ -173,6 +176,7 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
 
             int i1 = 0;
             allPaths = new List<List<string[]>>();
+//            rightToLeft.Clear();
             string oldKey = "";
             await using (var cmd = new NpgsqlCommand(command, conn))
             {
@@ -212,6 +216,7 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
             maxCol = maxCol * 2 + 1;
             listViewPaths.Items.Clear();
             listViewPaths.Columns.Clear();
+            leftToRight = new List<List<(string,string)>>();
             for(int i=0; i <maxCol;i++)
             {
                 listViewPaths.Columns.Add(new ColumnHeader() { Name = "Table", Width=160, Text="Table" });
@@ -220,6 +225,7 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
             }
             foreach(var path in allPaths)
             {
+                leftToRight.Add(new List<(string,string)>());
                 List<string> list = new List<string>();
                 bool first = true;
                 foreach(var pp in path.Where(ii => ii[0] == "ForeignKey" || ii[0] == "VForeignKey"))
@@ -229,6 +235,7 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
                     {
                         var ppLast = path[path.IndexOf(pp) - 1];
                         var ppNext = path[path.IndexOf(pp) + 1];
+                        leftToRight.Last().Add((ppNext[3], ppLast[3]));
                         if (first)
                             list.Add($"{ppLast[3]}");
                         //                    list.Add($"{ppLast[2]}:{ppNext[2]}");
@@ -258,6 +265,7 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
                                         fromLeftToRight = false;
 
                                 }
+//                                leftToRight.Last().Add(fromLeftToRight);
 
                             }
 

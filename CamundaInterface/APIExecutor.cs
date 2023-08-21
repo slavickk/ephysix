@@ -301,7 +301,7 @@ namespace CamundaInterface
                             object val = null;
                             if (!readerCom.IsDBNull(i))
                                 val = readerCom.GetValue(i);
-                            var colName = readerCom.GetName(i).ToUpper();
+                            var colName = readerCom.GetName(i)/*.ToUpper()*/;
                             foreach (var com in commands)
                             {
                                 foreach (var par in com.Params.Where(ii => ii.Variable == colName))
