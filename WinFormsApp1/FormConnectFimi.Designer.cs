@@ -32,7 +32,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.comboBoxTable = new System.Windows.Forms.ComboBox();
-            this.listBoxTableColumns = new System.Windows.Forms.ListBox();
             this.textBoxPrefix = new System.Windows.Forms.TextBox();
             this.buttonLink = new System.Windows.Forms.Button();
             this.buttonTest = new System.Windows.Forms.Button();
@@ -52,6 +51,13 @@
             this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
             this.buttonAddColumnToTable = new System.Windows.Forms.Button();
             this.buttonAddConstantToTable = new System.Windows.Forms.Button();
+            this.listViewTableColumns = new System.Windows.Forms.ListView();
+            this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader9 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader10 = new System.Windows.Forms.ColumnHeader();
+            this.buttonFullTest = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // comboBoxFimiCommand
@@ -94,17 +100,6 @@
             this.comboBoxTable.TabIndex = 4;
             this.comboBoxTable.SelectedIndexChanged += new System.EventHandler(this.comboBoxTable_SelectedIndexChanged);
             // 
-            // listBoxTableColumns
-            // 
-            this.listBoxTableColumns.FormattingEnabled = true;
-            this.listBoxTableColumns.ItemHeight = 15;
-            this.listBoxTableColumns.Location = new System.Drawing.Point(705, 104);
-            this.listBoxTableColumns.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.listBoxTableColumns.Name = "listBoxTableColumns";
-            this.listBoxTableColumns.Size = new System.Drawing.Size(348, 394);
-            this.listBoxTableColumns.TabIndex = 5;
-            this.listBoxTableColumns.SelectedIndexChanged += new System.EventHandler(this.listBoxTableColumns_SelectedIndexChanged);
-            // 
             // textBoxPrefix
             // 
             this.textBoxPrefix.Location = new System.Drawing.Point(704, 31);
@@ -117,7 +112,7 @@
             // 
             // buttonLink
             // 
-            this.buttonLink.Location = new System.Drawing.Point(970, 35);
+            this.buttonLink.Location = new System.Drawing.Point(972, 96);
             this.buttonLink.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.buttonLink.Name = "buttonLink";
             this.buttonLink.Size = new System.Drawing.Size(81, 22);
@@ -280,11 +275,66 @@
             this.buttonAddConstantToTable.UseVisualStyleBackColor = true;
             this.buttonAddConstantToTable.Click += new System.EventHandler(this.buttonAddConstantToTable_Click);
             // 
+            // listViewTableColumns
+            // 
+            this.listViewTableColumns.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader6,
+            this.columnHeader7,
+            this.columnHeader8,
+            this.columnHeader9,
+            this.columnHeader10});
+            this.listViewTableColumns.FullRowSelect = true;
+            this.listViewTableColumns.Location = new System.Drawing.Point(704, 124);
+            this.listViewTableColumns.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.listViewTableColumns.Name = "listViewTableColumns";
+            this.listViewTableColumns.Size = new System.Drawing.Size(359, 502);
+            this.listViewTableColumns.TabIndex = 20;
+            this.listViewTableColumns.UseCompatibleStateImageBehavior = false;
+            this.listViewTableColumns.View = System.Windows.Forms.View.Details;
+            this.listViewTableColumns.SelectedIndexChanged += new System.EventHandler(this.listViewTableColumns_SelectedIndexChanged);
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "path";
+            this.columnHeader6.Width = 120;
+            // 
+            // columnHeader7
+            // 
+            this.columnHeader7.Text = "Cnst";
+            this.columnHeader7.Width = 50;
+            // 
+            // columnHeader8
+            // 
+            this.columnHeader8.Text = "Var";
+            this.columnHeader8.Width = 50;
+            // 
+            // columnHeader9
+            // 
+            this.columnHeader9.Text = "Column";
+            this.columnHeader9.Width = 65;
+            // 
+            // columnHeader10
+            // 
+            this.columnHeader10.Text = "Table";
+            this.columnHeader10.Width = 65;
+            // 
+            // buttonFullTest
+            // 
+            this.buttonFullTest.Location = new System.Drawing.Point(12, 378);
+            this.buttonFullTest.Name = "buttonFullTest";
+            this.buttonFullTest.Size = new System.Drawing.Size(79, 23);
+            this.buttonFullTest.TabIndex = 21;
+            this.buttonFullTest.Text = "Test full";
+            this.buttonFullTest.UseVisualStyleBackColor = true;
+            this.buttonFullTest.Click += new System.EventHandler(this.buttonFullTest_Click);
+            // 
             // FormConnectFimi
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1064, 628);
+            this.Controls.Add(this.buttonFullTest);
+            this.Controls.Add(this.listViewTableColumns);
             this.Controls.Add(this.buttonAddConstantToTable);
             this.Controls.Add(this.buttonAddColumnToTable);
             this.Controls.Add(this.listViewFimiOutputParam);
@@ -299,7 +349,6 @@
             this.Controls.Add(this.buttonTest);
             this.Controls.Add(this.buttonLink);
             this.Controls.Add(this.textBoxPrefix);
-            this.Controls.Add(this.listBoxTableColumns);
             this.Controls.Add(this.comboBoxTable);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -319,7 +368,6 @@
         private Label label1;
         private Label label2;
         private ComboBox comboBoxTable;
-        private ListBox listBoxTableColumns;
         private TextBox textBoxPrefix;
         private Button buttonLink;
         private Button buttonTest;
@@ -339,5 +387,12 @@
         private ColumnHeader columnHeader5;
         private Button buttonAddColumnToTable;
         private Button buttonAddConstantToTable;
+        private ListView listViewTableColumns;
+        private ColumnHeader columnHeader6;
+        private ColumnHeader columnHeader7;
+        private ColumnHeader columnHeader8;
+        private ColumnHeader columnHeader9;
+        private ColumnHeader columnHeader10;
+        private Button buttonFullTest;
     }
 }
