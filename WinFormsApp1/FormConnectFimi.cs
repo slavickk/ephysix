@@ -63,14 +63,15 @@ namespace WinFormsETLPackagedCreator
             public string fkcolumn;
         }
         List<ItemRel> relations= new List<ItemRel>();
+        List<ETL_Package.ItemColumn> listAllColumns = new List<ETL_Package.ItemColumn>();
         private async void comboBoxTable_SelectedIndexChanged(object sender, EventArgs e)
         {
             var table = comboBoxTable.SelectedItem as ETL_Package.ItemTable;
             if (table != null)
             {
-                ETL_Package.ItemColumn[] arr = new ETL_Package.ItemColumn[listBoxTableColumns.Items.Count];
-                listBoxTableColumns.Items.CopyTo(arr, 0);
-                var arr1=arr.Select(ii=>ii.table).DistinctBy(i1=>i1.table_name).Select(ii=>ii.table_id).ToArray();
+/*                ETL_Package.ItemColumn[] arr = new ETL_Package.ItemColumn[listBoxTableColumns.Items.Count];
+                listBoxTableColumns.Items.CopyTo(arr, 0);*/
+                var arr1=listAllColumns.Select(ii=>ii.table).DistinctBy(i1=>i1.table_name).Select(ii=>ii.table_id).ToArray();
                 if (arr1.Length > 0)
                 {
                     FormAddTable frm = new FormAddTable(arr1,arr1.First() , table.table_id, conn);
@@ -105,10 +106,18 @@ namespace WinFormsETLPackagedCreator
                 if (frm1.ShowDialog() == DialogResult.OK)
                 {
                     listKeyColumns.Add(new ItemKeyColumns() { table = table.table_name, keyColumns = frm1.keyColumns });
-/*                    var keyColumns = frm1.keyColumns;
-                    listBoxTableColumns.Items.Clear();*/
+                    /*                    var keyColumns = frm1.keyColumns;
+                                        listBoxTableColumns.Items.Clear();*/
+                    var ll = list.Where(ii => ii.table.table_name == table.table_name).ToArray();
+                    listAllColumns.AddRange(ll);
+                    listViewTableColumns.Items.AddRange(ll.Select(ii => new ListViewItem(new string[] { "", "", "", ii.col_name, ii.table.table_name })).ToArray());
+                    foreach(var key in frm1.keyColumns)
+                    {
+                        var index= listAllColumns.IndexOf(listAllColumns.First(ii=>ii.col_name== key && ii.table.table_name==table.table_name));
+                        listViewTableColumns.Items[index].ForeColor= Color.Red;
+                    }
 
-                    listBoxTableColumns.Items.AddRange(list.Where(ii => ii.table.table_name == table.table_name).ToArray());
+//                    listBoxTableColumns.Items.AddRange(list.Where(ii => ii.table.table_name == table.table_name).ToArray());
                 }
 
             }
@@ -141,6 +150,15 @@ namespace WinFormsETLPackagedCreator
 
         private void buttonLink_Click(object sender, EventArgs e)
         {
+            if(listViewFimiOutputParam.SelectedItems.Count > 0 && listViewTableColumns.SelectedItems.Count>0) 
+            {
+                int index1 = listViewFimiOutputParam.SelectedIndices[0];
+                int index2 = listViewTableColumns.SelectedIndices[0];
+                if (!string.IsNullOrEmpty(listViewFimiOutputParam.Items[index1].SubItems[0].Text))
+                {
+                    listViewTableColumns.Items[index2].SubItems[0].Text = listViewFimiOutputParam.Items[index1].SubItems[0].Text;
+                }
+            }
 
         }
 
@@ -263,11 +281,31 @@ namespace WinFormsETLPackagedCreator
 
         private void buttonAddColumnToTable_Click(object sender, EventArgs e)
         {
+            if (comboBoxSqlColumn.SelectedItem != null &&   listViewTableColumns.SelectedItems.Count > 0)
+            {
+
+//                int index1 = listViewFimiOutputParam.SelectedIndices[0];
+                int index2 = listViewTableColumns.SelectedIndices[0];
+//                if (!string.IsNullOrEmpty(listViewFimiOutputParam.Items[index1].SubItems[0].Text))
+                {
+                    listViewTableColumns.Items[index2].SubItems[2].Text = comboBoxSqlColumn.SelectedItem.ToString();
+                }
+            }
 
         }
 
         private void buttonAddConstantToTable_Click(object sender, EventArgs e)
         {
+            if (textBoxConstant.Text.Length>0 && listViewTableColumns.SelectedItems.Count > 0)
+            {
+
+                //                int index1 = listViewFimiOutputParam.SelectedIndices[0];
+                int index2 = listViewTableColumns.SelectedIndices[0];
+                //                if (!string.IsNullOrEmpty(listViewFimiOutputParam.Items[index1].SubItems[0].Text))
+                {
+                    listViewTableColumns.Items[index2].SubItems[1].Text = textBoxConstant.Text;
+                }
+            }
 
         }
 
