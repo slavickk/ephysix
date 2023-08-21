@@ -122,6 +122,11 @@ namespace CamundaInterface
             var ans11 = await send(fimiLogoff, "Logoff");
         }
 
+        public EnvelopeBodyFault getError()
+        {
+            return lastError;
+        }
+
         public EnvelopeBodyFault lastError;
         }
 

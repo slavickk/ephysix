@@ -16,6 +16,7 @@ namespace CamundaInterface
         {
             Task beginSessionAsync();
             Task<_ApiFilter> ExecAsync(ExecContextItem[] commands);
+            EnvelopeBodyFault getError();
             Task endSessionAsync();
         }
         public interface _ApiFilter
@@ -51,7 +52,7 @@ namespace CamundaInterface
                 Command = command;
             }
                 public string Command { get; set; }
-                public ItemParam[] Params { get; set; }
+                public List<ItemParam> Params { get; set; }
             }
 
         public class Item
