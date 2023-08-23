@@ -21,8 +21,13 @@ import dns.name
 import dns.message
 import dns.query
 import dns.flags
+import uuid
 
-logger.info(f'Start service version=0.0.8 ({__name__})')
+logger.info(f'Start service version=0.0.9 ({__name__})')
+
+#TODO переехать на asyncpg для Postgres драйвера
+#TODO переехать на oracledb & SQLAlchemy-3
+#TODO переехать на Python-311
 
 def getenv(cfg):
     cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else int(os.environ['MAX_TASKS'])
@@ -117,6 +122,8 @@ def db2db(task: ExternalTask) -> TaskResult:
                  Например: '[{"Table":"branch1","Columns":[{"ind":18,"Name":"phone3","Type":"VARCHAR"},{"ind":19,"Name":"phone2","Type":"VARCHAR"},{"ind":20,"Name":"phone1","Type":"VARCHAR"},{"ind":21,"Name":"address3","Type":"VARCHAR"},{"ind":22,"Name":"contactname2","Type":"VARCHAR"},{"ind":23,"Name":"contactname1","Type":"VARCHAR"},{"ind":24,"Name":"address2","Type":"VARCHAR"},{"ind":25,"Name":"address1","Type":"VARCHAR"},{"ind":26,"Name":"city","Type":"VARCHAR"},{"ind":27,"Name":"region","Type":"VARCHAR"},{"ind":28,"Name":"country","Type":"NUMBER"},{"ind":29,"Name":"title","Type":"VARCHAR"},{"ind":30,"Name":"institutionid","Type":"NUMBER"},{"ind":31,"Name":"externalid","Type":"VARCHAR"},{"ind":32,"Name":"contactname3","Type":"VARCHAR"}],"ExtIDs":[],"Indexes":[[22,23],[18,19]]},{"Table":"customer1","Columns":[{"ind":33,"Name":"status","Type":"NUMBER"},{"ind":34,"Name":"othernames","Type":"VARCHAR"},{"ind":35,"Name":"startdate","Type":"DATE"},{"ind":36,"Name":"institutionid","Type":"NUMBER"},{"ind":37,"Name":"branchid","Type":"NUMBER"},{"ind":38,"Name":"externalid","Type":"VARCHAR"},{"ind":39,"Name":"phone1","Type":"VARCHAR"},{"ind":40,"Name":"address1","Type":"VARCHAR"},{"ind":41,"Name":"city","Type":"VARCHAR"},{"ind":42,"Name":"country","Type":"NUMBER"},{"ind":43,"Name":"inn","Type":"VARCHAR"},{"ind":44,"Name":"gender","Type":"VARCHAR"},{"ind":45,"Name":"lastname","Type":"VARCHAR"},{"ind":46,"Name":"firstname","Type":"VARCHAR"},{"ind":47,"Name":"birthdate","Type":"DATE"},{"ind":48,"Name":"statustime","Type":"DATE"},{"ind":49,"Name":"email","Type":"VARCHAR"}],"ExtIDs":[{"Column":"branchid","Table":"branch1"}],"Indexes":[]},{"Table":"account1","Columns":[{"ind":1,"Name":"statustime","Type":"DATE"},{"ind":2,"Name":"customerid","Type":"NUMBER"},{"ind":3,"Name":"orignumber","Type":"VARCHAR"},{"ind":4,"Name":"branchid","Type":"NUMBER"},{"ind":5,"Name":"externalid","Type":"VARCHAR"},{"ind":6,"Name":"currency","Type":"NUMBER"},{"ind":7,"Name":"closedate","Type":"DATE"},{"ind":8,"Name":"opendate","Type":"DATE"},{"ind":9,"Name":"status","Type":"NUMBER"}],"ExtIDs":[{"Column":"branchid","Table":"branch1"},{"Column":"customerid","Table":"customer1"}]},{"Table":"card1","Columns":[{"ind":10,"Name":"closedate","Type":"DATE"},{"ind":11,"Name":"firstusedate","Type":"DATE"},{"ind":12,"Name":"statustime","Type":"DATE"},{"ind":13,"Name":"expirationdate","Type":"DATE"},{"ind":14,"Name":"mbr","Type":"NUMBER"},{"ind":15,"Name":"pan","Type":"VARCHAR"},{"ind":16,"Name":"status","Type":"NUMBER"},{"ind":17,"Name":"branchid","Type":"NUMBER"}],"ExtIDs":[{"Column":"accountid","Table":"account1"},{"Column":"branchid","Table":"branch1"}]}]'
      SQLText   : SQL текст-выражение для выборки из источника.
                  Например 'select card.pan pan,card.mbr mbr from card'
+     Если TName='DATAMART', то считаем, что у всех таблиц есть поле ouuid, в которое надо записать одинаковый UUID для данной операции guid=str(uuid.uuid4())
+
      Переданные значения параметров: '{"VAR_pan":{"value":"4550000000000006","type":"String"},"VAR_ost":{"value":"03.06.2022 15:06:49","type":"String"},"VAR_num":{"value":546,"type":"Integer"},"VAR_db":{"value":"@1@","type":"String"}}'
      return task.bpmn_error(
             error_code='656590',
@@ -132,7 +139,7 @@ def db2db(task: ExternalTask) -> TaskResult:
             retry_timeout=50
             ) - будет происходить бесконечная попытка выполнить блок.
     """
-    global engine_src, engine_ser, engine_dst, columns, table, indexes, insert, Oper
+    global engine_src, engine_ser, engine_dst, inspector_dst, columns, table, indexes, insert, Oper, table_has_operuuid, query_has_operuuid
     # Не нашел как передать параметры в процедуру, заполняю cfg еще раз.
     cfg = {}
     cfg = getenv(cfg)
@@ -147,6 +154,8 @@ def db2db(task: ExternalTask) -> TaskResult:
 
     logger.debug(f'Process Instance ID = {task.get_process_instance_id()}')
     logger.debug(f'Activity ID = {task.get_activity_id()}')
+    operuuid = str(uuid.uuid4())
+    logger.debug(f'OperUUID={operuuid}')
 
     try:
         vars = task.get_variables()
@@ -189,6 +198,7 @@ def db2db(task: ExternalTask) -> TaskResult:
                 """),{"name": vars['TName']}).fetchone())[0]
             engine_dst = create_engine(dsn_dst)
             engine_dst.execution_options(stream_results=True, isolation_level='AUTOCOMMIT')
+            inspector_dst = inspect(engine_dst)
         # Обходим все входные переменные процесса и при обнаружении значения переменной '^@\d+@$' заменяем его значением из базы
         for i in vars:
             if not ((vars[i]) is None):
@@ -287,6 +297,9 @@ def db2db(task: ExternalTask) -> TaskResult:
                 # cols = []
                 # Первая колонка автоматически создаваемой таблицы должна иметь имя {table}+id и тип BIGINT
                 cols = [Column(table + 'id', dtypes["BIGINT"], primary_key=True, server_default=text("nextval('dm.dm_seq')"))]
+                if TName == 'DATAMART':
+                    # Вторая колонка автоматически создаваемой таблицы для DATAMART должна иметь имя ouuid и тип TEXT
+                    cols.append(Column('ouuid', dtypes["TEXT"]))
                 for colind in COLUMNS[table]:
                     logger.debug(f"Add column (colind): {COLUMNS[table][colind]['Name']}  {dtypes[COLUMNS[table][colind]['Type']]}")
                     if COLUMNS[table][colind]['Name'] == 'externalid':
@@ -360,14 +373,26 @@ def db2db(task: ExternalTask) -> TaskResult:
                     ins = ''
                     val = ''
                     params = {}
+                    columns = inspector_dst.get_columns(table)
+                    for i in columns:
+                        if i['name'] == 'operuuid' and type(i["type"]).__name__ == 'TEXT':
+                            table_has_operuuid=true
                     for colind in COLUMNS[table]:
                         ins += COLUMNS[table][colind]['Name'] + ','
                         val += ':' + COLUMNS[table][colind]['Name'] + ','
+                        if COLUMNS[table][colind]['Name'] == 'operuuid':
+                            query_has_operuuid=true
                         try:
                             # Если нужна подстановка значения ColumntID из ранее вставленной записи, берем это значение из TABID[table]
                             params[COLUMNS[table][colind]['Name']] = TABID[EXTIDS[table][COLUMNS[table][colind]['Name']]]
                         except KeyError:
                             params[COLUMNS[table][colind]['Name']] = src[colind-1]
+                    if table_has_operuuid and not query_has_operuuid:
+                        logger.debug(f'Table {table} has field OperUUID and query has not this field => Add field into query and {operuuid} into values')
+                        ins += 'operuuid,'
+                        val += ':operuuid,'
+                        params['operuuid'] = operuuid
+
                     ins = ins[:-1]
                     val = val[:-1]
                     # insert = f"insert into {table} ({ins}) values({val}) on conflict (externalid) do update set externalid=excluded.externalid returning {table}id"
@@ -416,8 +441,8 @@ def db2db(task: ExternalTask) -> TaskResult:
                 engine_dst.dispose()
         if engine_ser:
             engine_ser.dispose()
-    logger.info(f'Task completed: Count={count}, Errors={errors}')
-    return task.complete({"All": count, "Errors": errors})
+    logger.info(f'Task completed: Count={count}, OperUUID={operuuid}, Errors={errors}')
+    return task.complete({"All": count, "OperUUID": operuuid, "Errors": errors})
 
 def main(health):
     """
