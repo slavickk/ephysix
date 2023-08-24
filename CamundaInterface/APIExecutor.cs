@@ -119,7 +119,7 @@ namespace CamundaInterface
                             object val = null;
                             if (!readerCom.IsDBNull(i))
                                 val = readerCom.GetValue(i);
-                            var colName = readerCom.GetName(i).ToUpper();
+                            var colName = readerCom.GetName(i)/*.ToUpper()*/;
                             foreach(var com in commands )
                             {
                                 foreach (var par in com.Params.Where(ii => ii.Variable == colName))
@@ -127,12 +127,14 @@ namespace CamundaInterface
                             }
                         }
                         var filter = await executor.ExecAsync(commands);
+                        if (filter == null)
+                            return false;
                         List<Item> paths = new List<Item>();
                         foreach (var tab in tables)
                         {
-                            paths.AddRange(tab.Columns.Where(ii => !string.IsNullOrEmpty(ii.path) || !string.IsNullOrEmpty(ii.variable) || ii.constant != null).Select(i1 => new Item() { columnName = i1.Name, tableName = i1.TableName, currentIndex = 0, columnType = i1.Type, path = i1.path, constant=i1.constant, variable=i1.variable, values = filter.filter(i1.path)?.ToArray() }).OrderBy(i1 => i1.path));
+                            paths.AddRange(tab.Columns.Where(ii => !string.IsNullOrEmpty(ii.path) || !string.IsNullOrEmpty(ii.variable) || !string.IsNullOrEmpty(ii.constant) ).Select(i1 => new Item() { columnName = i1.Name, tableName = i1.TableName, currentIndex = 0, columnType = i1.Type, path = i1.path, constant=i1.constant, variable=i1.variable, values = filter.filter(i1.path)?.ToArray() }).OrderBy(i1 => i1.path));
                         }
-                        foreach (var path in paths.Where(ii => ii.constant!= null))
+                        foreach (var path in paths.Where(ii => !string.IsNullOrEmpty(ii.constant)))
                             path.values = new string[] { path.constant };
 
                         for (int i = 0; i < readerCom.FieldCount; i++)
@@ -147,7 +149,7 @@ namespace CamundaInterface
                         // Dictionary<string, string> variables = new Dictionary<string, string>();
                         foreach (var table in tables.OrderBy(ii => ii.ExtIDs.Count))
                         {
-                            bool exists;
+                            bool exists=false;
 
                             var commandText = $"select * from {table.Table} {WhereClause(db_types, paths, table)}";// + $"where {string.Join(" and ", table.KeyColumns.Select((val, index) => val + $"=cast(@P{index} as {db_types[paths.First(ii => ii.tableName == table.Table && ii.columnName == val).columnType]})"))}";
 
@@ -162,10 +164,17 @@ namespace CamundaInterface
                                     }
                                     cmd1.Parameters.AddWithValue($"@P{i}"/*, db_types[path.columnType]*/, path.values[path.currentIndex]);
                                 }
+                                try { 
                                 await using (var reader = await cmd1.ExecuteReaderAsync())
                                 {
                                     exists = reader.HasRows;
                                 }
+                                }
+                                catch (Exception ex)
+                                {
+                                    GenerateSQLError(cmd1, ex);
+                                }
+
 
 
                             }
@@ -182,14 +191,35 @@ namespace CamundaInterface
                                         cmd1.Parameters.AddWithValue($"@P{index}"/*, db_types[path.columnType]*/, (object)path.values[path.currentIndex] ?? DBNull.Value);
                                         index++;
                                     }
+                                    try { 
                                     var retCol = cmd1.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        GenerateSQLError(cmd1, ex);
+                                    }
 
 
                                 }
                             }
                             else
                             {
-                                int kolVar = paths.Where(ii => ii.tableName == table.Table).Count();
+                                /*await using (var cmd5 = new NpgsqlCommand(@"SELECT r.rolname, rs.setconfig
+FROM   pg_db_role_setting rs
+LEFT   JOIN pg_roles      r ON r.oid = rs.setrole
+WHERE  r.rolname ='dm'
+", conn))
+                                {
+                                    await using (var reader = await cmd5.ExecuteReaderAsync())
+                                    {
+                                        while (await reader.ReadAsync())
+                                        {
+
+                                        }
+                                    }
+                                }*/
+
+                                            int kolVar = paths.Where(ii => ii.tableName == table.Table).Count();
                                 commandText = $"UPDATE   {table.Table}  set  {string.Join(",", paths.Where(ii => ii.tableName == table.Table).Select((ii, index) => $"{ii.columnName}=CAST(@P{index} as {db_types[ii.columnType].ToString()})"))}   {WhereClause(db_types, paths, table, kolVar)}";
                                 await using (var cmd1 = new NpgsqlCommand(commandText, conn))
                                 {
@@ -208,8 +238,13 @@ namespace CamundaInterface
                                         cmd1.Parameters.AddWithValue($"@P{i + kolVar}"/*, db_types[path.columnType]*/, (object)path.values[path.currentIndex] ?? DBNull.Value);
                                         out_par += $"@P{i + kolVar}={path.values[path.currentIndex]}\n";
                                     }
-
-                                    var retCol = cmd1.ExecuteNonQuery();
+                                    try
+                                    {
+                                        var retCol = cmd1.ExecuteNonQuery();
+                                    } catch (Exception ex) 
+                                    {
+                                        GenerateSQLError(cmd1,ex);
+                                    }
 
                                 }
 
@@ -229,6 +264,7 @@ namespace CamundaInterface
                                         var path = paths.First(ii => ii.tableName == table.Table && ii.columnName == table.KeyColumns[i]);
                                         cmd1.Parameters.AddWithValue($"@P{i}", db_types[path.columnType], (object)path.values[path.currentIndex] ?? DBNull.Value);
                                     }
+                                    try { 
                                     await using (var reader = await cmd1.ExecuteReaderAsync())
                                     {
                                         while (await reader.ReadAsync())
@@ -250,6 +286,12 @@ namespace CamundaInterface
 
                                         }
                                     }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        GenerateSQLError(cmd1, ex);
+                                    }
+
                                 }
 
                             }
@@ -319,6 +361,11 @@ namespace CamundaInterface
                     return retValue;
                 }
             
-
+            static void GenerateSQLError(NpgsqlCommand command,Exception e)
+        {
+            throw new Exception($"Error happend in statement:\n{command.CommandText} \nconn:{command.Connection.ConnectionString} \npar:\n{string.Join("\n", command.Parameters.Select(ii=>ii.ParameterName+"="+ii.Value))} \nerr:\n{e.Message}");
+        }
     }
+    
+
 }

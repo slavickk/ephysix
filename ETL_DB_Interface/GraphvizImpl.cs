@@ -62,7 +62,7 @@ digraph {
                 }
                 content += "}";
             }
-            foreach (var rel in package.list)
+            foreach (var rel in package.relations)
             {
                 var cols1 = rel.NameColumns1.Split(',');
                 var cols2 = rel.NameColumns2.Split(',');

@@ -523,21 +523,21 @@ $BODY$;
 
         public class ItemRel
         {
-            public bool isExternal = false;
-            public int srcId;
-            public long IdEtlRelation;
-            public long IdFkRelation;
-            public bool is1Skip=false;
-            public bool is2Skip = false;
-            public string Name1Table = "";
-            public string Alias1Table="";
-            public ItemTable table1;
-            public ItemTable table2;
-            public string Name2Table="";
-            public string Alias2Table="";
-            public string NameColumns1="";
-            public string NameColumns2="";
-            public int seq_id=-1;
+            public bool isExternal { get; set; } = false;
+            public int srcId { get; set; }
+            public long IdEtlRelation { get; set; }
+            public long IdFkRelation { get; set; }
+            public bool is1Skip { get; set; } = false;
+            public bool is2Skip { get; set; } = false;
+            public string Name1Table { get; set; } = "";
+            public string Alias1Table { get; set; } = "";
+            public ItemTable table1 { get; set; }
+            public ItemTable table2 { get; set; }
+            public string Name2Table { get; set; } = "";
+            public string Alias2Table { get; set; } = "";
+            public string NameColumns1 { get; set; } = "";
+            public string NameColumns2 { get; set; } = "";
+            public int seq_id { get; set; } = -1;
             public void ToTableList(List<ItemTable> list)
             {
                 if (list.Count(ii => ii.Name == this.Name1Table && ii.Alias == this.Alias1Table)==0)
@@ -566,28 +566,29 @@ $BODY$;
 
         public class ItemTable:ILiquidizable
         {
-            public ETL_Package owner;
-            public string liquidColor;
-            public int src_id;
-            public string src_name;
-            public string scema;
-            public bool pci_dss_zone;
-            public int seq_id;
-            public string Name = "";
-            public string Alias="";
-            public string Condition="";
-            public string url = "";
-            public string sqlurl = "";
-            public int IntervalUpdateInSec = 0;
-            public List<RelItem> optionalRelItems = new List<RelItem>();
+            public long etl_id { get; set; }
+            public ETL_Package owner { get; set; }
+            public string liquidColor { get; set; }
+            public int src_id { get; set; }
+            public string src_name { get; set; }
+            public string scema { get; set; }
+            public bool pci_dss_zone { get; set; }
+            public int seq_id { get; set; }
+            public string Name { get; set; } = "";
+            public string Alias { get; set; } = "";
+            public string Condition { get; set; } = "";
+            public string url { get; set; } = "";
+            public string sqlurl { get; set; } = "";
+            public int IntervalUpdateInSec { get; set; } = 0;
+            public List<RelItem> optionalRelItems { get; set; } = new List<RelItem>();
 
         public class SelectListItem:ILiquidizable
             {
-                public string expression = "";
-                public string alias = "";
-                public bool fromOriginalSelect = false;
-                public string outputTable;
-                public ItemTable owner;
+                public string expression { get; set; } = "";
+                public string alias { get; set; } = "";
+                public bool fromOriginalSelect { get; set; } = false;
+                public string outputTable { get; set; }
+                public ItemTable owner { get; set; }
                 public SelectListItem(string Expression,string OutputTable)
                 {
 //                    this.owner = owner;
@@ -667,10 +668,10 @@ $BODY$;
                 }
             }
 
-            public List<SelectListItem> SelectList = new List<SelectListItem>();
+            public List<SelectListItem> SelectList { get; set; } = new List<SelectListItem>();
 
-            public List<List<ColumnItem>> indexes = new List<List<ColumnItem>> ();
-            public List<ColumnItem> needed_indexes = new List<ColumnItem>();
+            public List<List<ColumnItem>> indexes { get; set; } = new List<List<ColumnItem>> ();
+            public List<ColumnItem> needed_indexes { get; set; } = new List<ColumnItem>();
             public string getSelectList()
             {
                 string retValue = "";
@@ -709,33 +710,33 @@ $BODY$;
                     sel.owner = this;
                 //this.SelectList.Select(ii=>ii.expression).Union(this.owner.list.Where(i2 => i2.Name1Table == this.Name).Select(ii=>ii.NameColumns1).Union(this.owner.list.Where(i2 => i2.Name2Table == this.Name).Select(ii => ii.NameColumns2))).Distinct();
 //                this.optionalRelItems
-                return new Dictionary<string, object> { { "Name", this.Name }, { "Zone",this.src_name}, { "ColumnsNames", this.SelectList.Select(ii => ii.expression).Union(this.owner.list.Where(i2 => i2.Name1Table == this.Name).SelectMany(ii => ii.NameColumns1.Split(',')).Union(this.owner.list.Where(i2 => i2.Name2Table == this.Name).SelectMany(ii => ii.NameColumns2.Split(',')))).Distinct().ToList() }, { "Columns", this.SelectList }, { "Relations",this.owner.list.Where(i2=>i2.Name1Table==this.Name || i2.Name2Table == this.Name).SelectMany(ii=>ii.NameColumns1.Split(',').Select((i2,index)=> new OptionalTypeListItem(this,ii,index))).ToList() }, { "Color", this.liquidColor },{ "Condition",this.Condition } };
+                return new Dictionary<string, object> { { "Name", this.Name }, { "Zone",this.src_name}, { "ColumnsNames", this.SelectList.Select(ii => ii.expression).Union(this.owner.relations.Where(i2 => i2.Name1Table == this.Name).SelectMany(ii => ii.NameColumns1.Split(',')).Union(this.owner.relations.Where(i2 => i2.Name2Table == this.Name).SelectMany(ii => ii.NameColumns2.Split(',')))).Distinct().ToList() }, { "Columns", this.SelectList }, { "Relations",this.owner.relations.Where(i2=>i2.Name1Table==this.Name || i2.Name2Table == this.Name).SelectMany(ii=>ii.NameColumns1.Split(',').Select((i2,index)=> new OptionalTypeListItem(this,ii,index))).ToList() }, { "Color", this.liquidColor },{ "Condition",this.Condition } };
 
             }
 
-            public long TableId;
+            public long TableId { get; set; }
             public class ColumnItem
             {
-                public string Name;
-                public string Type;
-                public int Lengtn;
-                public string OutputTable;
-                public string SensitiveData = "";
-                public int? synonym;
+                public string Name { get; set; }
+                public string Type { get; set; }
+                public int Lengtn { get; set; }
+                public string OutputTable { get; set; }
+                public string SensitiveData { get; set; } = "";
+                public int? synonym { get; set; }
                 public override string ToString()
                 {
                     return $"{Name}:{OutputTable}";
                 }
             }
-            public List<ColumnItem> columns= new List<ColumnItem>();
+            public List<ColumnItem> columns { get; set; } = new List<ColumnItem>();
 
         }
         public class RelItem
         {
-            public ItemTable srcTable;
-            public ItemTable dstTable;
-            public ItemTable.ColumnItem colSrc;
-            public ItemTable.ColumnItem colDst;
+            public ItemTable srcTable { get; set; }
+            public ItemTable dstTable { get; set; }
+            public ItemTable.ColumnItem colSrc { get; set; }
+            public ItemTable.ColumnItem colDst { get; set; }
 
         }
         static IEnumerable<(ItemTable,ItemRel)> enumerateTables(List<(ItemTable, ItemRel)> outTables,ItemTable table, List<ItemTable> tables, List<ItemRel> rels, List<ItemRel> usedRels ,ItemRel currentRel)
@@ -884,10 +885,10 @@ $BODY$;
 
         public class ItemVar:ILiquidizable
         {
-            public string Name;
-            public string Type;
-            public string DefaultValue;
-            public string Description;
+            public string Name { get; set; }
+            public string Type { get; set; }
+            public string DefaultValue { get; set; }
+            public string Description { get; set; }
             public object ToObject
             {
                 get
@@ -918,18 +919,18 @@ $BODY$;
         }
         public class ETL_Package:ILiquidizable
         {
-            public long packet_id;
-            public List<ItemVar> variables = new List<ItemVar>();
-            public List<ItemRel> list = new List<ItemRel>();
+            public long packet_id { get; set; }
+            public List<ItemVar> variables { get; set; } = new List<ItemVar>();
+            public List<ItemRel> relations { get; set; } = new List<ItemRel>();
 //            public List<string> usedExternalTasks=  new List<string>();
-            public string NamePacket = "";
-            public string outputTable = "output_Table";
-            public string description = "";
-            public int dest_id = 2;
-            public string dest_name;
-            public string ETL_add_par;
-            public List<ItemTable> allTables = new List<ItemTable>();
-            public List<CamundaProcess.ExternalTask> usedExternalTasks= new List<CamundaProcess.ExternalTask>();
+            public string NamePacket { get; set; } = "";
+            public string outputTable { get; set; } = "output_Table";
+            public string description { get; set; } = "";
+            public int dest_id { get; set; } = 2;
+            public string dest_name { get; set; }
+            public string ETL_add_par { get; set; }
+            public List<ItemTable> allTables { get; set; } = new List<ItemTable>();
+            public List<CamundaProcess.ExternalTask> usedExternalTasks  = new List<CamundaProcess.ExternalTask>();
             ItemTable getTable(int i,int countAll)
             {
                 bool isFinishTask = i >= countAll;
@@ -950,7 +951,7 @@ $BODY$;
                 else
                     task.source_id = this.dest_id;
                 List<RelItem> outCols;
-                List<ItemTable.ColumnItem> columns = getColumnsForStep(list, allTables, i, variables, task,out outCols);
+                List<ItemTable.ColumnItem> columns = getColumnsForStep(relations, allTables, i, variables, task,out outCols);
                 task.outputTable.src_id = task.source_id;
                 task.outputTable.scema = task.scema;
                 task.outputTable.optionalRelItems= outCols; 
@@ -1020,7 +1021,7 @@ $BODY$;
                     outTab = outputTables.First();
                 return outTab;
             }
-
+            [JsonIgnore]
             public IEnumerable<ItemTable> tables
             {
                 get
@@ -1038,52 +1039,72 @@ $BODY$;
         }
         public static async Task<ETL_Package> Generate(NpgsqlConnection conn, long id)
         {
-            CamundaProcess process = new CamundaProcess();
-            string CamundaID= $"ETL_Process{id}";
             ETL_Package package = await getPackage(conn, id);
-            await SaveProcedure(conn, id,package.NamePacket,CamundaID);
-
-
-            //if()
-
-            /*            foreach (var item in allTables)
-                        {
-                            item.columns = await getColumns(item.TableId, conn);
-                        }
-            */
-            List<ItemTask> tasks = new List<ItemTask>();
-            process.ProcessID = CamundaID;
-            process.ProcessName = $"{package.NamePacket}{id}";
-            process.documentation = $"{package.description}\r\n  Not contain input variables!";
-            //            process.save($"c:\\Camunda\\{NamePacket}.bpmn");
-            process.tasks.Clear();
-            if (package.list.Count == 0)
+            if (package.relations.Count == 0)
             {
 
                 if (package.allTables.Count == 0)
                 {
                     throw new Exception($"The package {id} is empty");
                     //                    MessageBox.Show($"The package {id} is empty");
-                    return null;
                 }
             }
+            string CamundaID;
+            CamundaProcess process = prepareCamundaProc(package, out CamundaID);
 
+            await formAddTask(conn, package, process);
+
+            await SaveCamundaEnvironment(conn, package, CamundaID, process);
+            return package;
+        }
+
+        private static async Task SaveCamundaEnvironment(NpgsqlConnection conn, ETL_Package package, string CamundaID, CamundaProcess process)
+        {
+            long id = package.packet_id;
+            var path1 = $"{pathToSaveETL}{package.NamePacket}.bpmn";
+            process.save(path1);
+            string json = JsonSerializer.Serialize<ETL_Package>(package);
+
+            await SaveProcedure(conn, id, package.NamePacket, CamundaID);
+
+            package.SaveMDDefinition();
+
+            //            await SendToCamunda(@"C:\Camunda\Temp6.bpmn", "ETL_Process532730");
+
+            await SendToCamunda(path1, process.ProcessID, package.variables);
+        }
+
+        private static CamundaProcess prepareCamundaProc( ETL_Package package, out string CamundaID)
+        {
+
+            long id = package.packet_id;
+            CamundaID = $"ETL_Process{id}";
+            var process = new CamundaProcess();
+            process.ProcessID = CamundaID;
+            process.ProcessName = $"{package.NamePacket}{id}";
+            process.documentation = $"{package.description}\r\n  Not contain input variables!";
+            //            process.save($"c:\\Camunda\\{NamePacket}.bpmn");
+            process.tasks.Clear();
+            return process;
+        }
+
+        private static async Task formAddTask(NpgsqlConnection conn, ETL_Package package, CamundaProcess process)
+        {
+            long id = package.packet_id;
+            List<ItemTask> tasks = new List<ItemTask>();
             int countTask = fillInitSeqID(package);
             //            string outputPath = "outputTable";
             bool isExternalDest = countTask == 1 /*&& list[0].srcId != 2*/ && package.dest_id != 5 && package.dest_id != 11;
             for (int i = 1; i <= countTask; i++)
             {
-                await AddTask(package,conn, process, package.list, package.allTables, tasks, (countTask == 1 && !isExternalDest), package.outputTable, i, package.dest_id, id, package.variables, package.ETL_add_par);
+                await AddTask(package, conn, process, package.relations, package.allTables, tasks, (countTask == 1 && !isExternalDest), package.outputTable, i, package.dest_id, id, package.variables, package.ETL_add_par);
             }
             if (countTask == 0)
             {
-                await AddTask(package,conn, process, package.list, package.allTables, tasks, false, package.outputTable, 1, package.dest_id, id, package.variables, package.ETL_add_par);
+                await AddTask(package, conn, process, package.relations, package.allTables, tasks, false, package.outputTable, 1, package.dest_id, id, package.variables, package.ETL_add_par);
                 countTask = 1;
                 isExternalDest = countTask == 1 && package.dest_id != 5;
             }
-            /* if (isExternalDest)
-                 countTask++;
-            */
 
             if (countTask > 1)
             {
@@ -1092,15 +1113,15 @@ $BODY$;
                 for (int i = 0; i < countTask; i++)
                 {
                     var task = tasks[i];
-                    ItemRel rel = FillTableRel(seq_id + 1, task.seq_id, package.list, package.allTables, tasks);
+                    ItemRel rel = FillTableRel(seq_id + 1, task.seq_id, package.relations, package.allTables, tasks);
                     if (rel != null)
                     {
                         seq_id++;
                         rel.seq_id = seq_id;
                         //                        rel.isExternal = true; //No!!!!
-                        package.list.Add(rel);
+                        package.relations.Add(rel);
 
-                        await AddTask(package,conn, process, package.list, package.allTables, tasks, true, package.outputTable, rel.seq_id, package.dest_id, id, package.variables, package.ETL_add_par);
+                        await AddTask(package, conn, process, package.relations, package.allTables, tasks, true, package.outputTable, rel.seq_id, package.dest_id, id, package.variables, package.ETL_add_par);
 
                     }
 
@@ -1113,17 +1134,8 @@ $BODY$;
                 await AddTask(package, conn, process, new List<ItemRel>() { }, new List<ItemTable>() { tasks[0].outputTable }, tasks, true, package.outputTable, 2, package.dest_id, id, package.variables, package.ETL_add_par);
 
             }
-
-
-            var path1 = $"{pathToSaveETL}{package.NamePacket}.bpmn";
-            process.save(path1);
-            package.SaveMDDefinition();
-
-            //            await SendToCamunda(@"C:\Camunda\Temp6.bpmn", "ETL_Process532730");
-
-            await SendToCamunda(path1, process.ProcessID, package.variables);
-            return package;
         }
+
         public static string pathToSaveETL = @"C:\CamundaTopics\camundatopics\BPMN\ETL\";
         public static string pathToSaveExternalTask = @"C:\CamundaTopics\camundatopics\ExternalTasks\";
         private static async Task SaveProcedure(NpgsqlConnection conn, long id,string NamePacket,string CamundaID)
@@ -1163,8 +1175,8 @@ $BODY$;
         public static int fillInitSeqID(ETL_Package package)
         {
             int countTask = 0;
-            if (package.list.Count > 0)
-                countTask = package.list.Max(ii => ii.seq_id);
+            if (package.relations.Count > 0)
+                countTask = package.relations.Max(ii => ii.seq_id);
             if (countTask == 0)
             {
                 var s_id = 1;
@@ -1446,7 +1458,7 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
                             rel.IdEtlRelation = reader.GetInt64(1);
                             rel.IdFkRelation = reader.GetInt64(2);
                             rel.isExternal = true;
-                            package.list.Add(rel);
+                            package.relations.Add(rel);
                         }
                     }
                 }
@@ -1471,17 +1483,17 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
                             rel.srcId = reader.GetInt32(0);
                             rel.IdEtlRelation = reader.GetInt64(1);
                             rel.IdFkRelation = reader.GetInt64(2);
-                            package.list.Add(rel);
+                            package.relations.Add(rel);
                         }
                     }
                 }
             }
-            if (package.list.Count == 0)
+            if (package.relations.Count == 0)
             {
                 await FillTableInfo(conn, package.allTables, null, id);
 
             }
-            foreach (var item in package.list)
+            foreach (var item in package.relations)
             {
                 //string a1 = @"";
                 await FillTableInfo(conn, package.allTables, item, item.IdEtlRelation);
@@ -1534,20 +1546,20 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
 
 
             }
-            SearchPaths(package.list);
+            SearchPaths(package.relations);
 
-            foreach (var item in package.list)
+            foreach (var item in package.relations)
             {
                 bool skipFirst = false;
                 bool skipSecond = false;
                 if (item.isExternal)
                 {
-                    if (package.list.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name1Table && ii.Alias1Table == item.Alias1Table) || ((ii.Name2Table == item.Name1Table && ii.Alias2Table == item.Alias1Table)))) == 0 && package.allTables.First(ii => ii.Name == item.Name1Table).src_id != package.allTables.First(ii => ii.Name == item.Name2Table).src_id)
+                    if (package.relations.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name1Table && ii.Alias1Table == item.Alias1Table) || ((ii.Name2Table == item.Name1Table && ii.Alias2Table == item.Alias1Table)))) == 0 && package.allTables.First(ii => ii.Name == item.Name1Table).src_id != package.allTables.First(ii => ii.Name == item.Name2Table).src_id)
                     {
                         skipSecond = true;
                         //                        item.Name2Table = "";
                     }
-                    if (package.list.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name2Table && ii.Alias1Table == item.Alias2Table) || ((ii.Name2Table == item.Name2Table && ii.Alias2Table == item.Alias2Table)))) == 0 && package.allTables.First(ii => ii.Name == item.Name1Table).src_id != package.allTables.First(ii => ii.Name == item.Name2Table).src_id)
+                    if (package.relations.Count(ii => ii.seq_id != item.seq_id && ((ii.Name1Table == item.Name2Table && ii.Alias1Table == item.Alias2Table) || ((ii.Name2Table == item.Name2Table && ii.Alias2Table == item.Alias2Table)))) == 0 && package.allTables.First(ii => ii.Name == item.Name1Table).src_id != package.allTables.First(ii => ii.Name == item.Name2Table).src_id)
                     {
                         skipFirst = true;
                     }
@@ -1639,7 +1651,7 @@ order by n.nodeid
                             {
                                 var sel1= selectList.Split(',').Where(ii2 => ii2.Trim().Length > 0).ToArray();
                                 var out1=outputTables.Split(',');
-                                tab = new ItemTable() { scema = scema, src_name = src_name, pci_dss_zone = pci_dss_zone, url = url, sqlurl = sqlurl, IntervalUpdateInSec = interval, src_id = src_id, Name = table, Alias = alias, Condition = condition, SelectList = Enumerable.Range(0, sel1.Length).Select(ii => new ItemTable.SelectListItem(sel1[ii], ((out1.Length > ii) ? out1[ii] : "")) { fromOriginalSelect = true }).ToList(), TableId = table_id };
+                                tab = new ItemTable() {etl_id=etlid, scema = scema, src_name = src_name, pci_dss_zone = pci_dss_zone, url = url, sqlurl = sqlurl, IntervalUpdateInSec = interval, src_id = src_id, Name = table, Alias = alias, Condition = condition, SelectList = Enumerable.Range(0, sel1.Length).Select(ii => new ItemTable.SelectListItem(sel1[ii], ((out1.Length > ii) ? out1[ii] : "")) { fromOriginalSelect = true }).ToList(), TableId = table_id };
                                 allTables.Add(tab);
                             }  else
                             {
