@@ -763,12 +763,12 @@ steps:
     filter: !AndOrFilter
       filters:
       - !ConditionFilter
-        conditionPath: Step_0/Step_DMN/Step_ToTWFA/Step_2/Rec/ItemList/Name
+        conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
         conditionCalcer: !ComparerForValue
           isNegative: false
           valueForCompare: SaveAlert
       - !ConditionFilter
-        conditionPath: Step_0/Step_DMN/Step_2/Rec/ItemList/Value
+        conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
         conditionCalcer: !ComparerForValue
           isNegative: false
           valueForCompare: 1
