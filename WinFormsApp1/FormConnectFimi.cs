@@ -720,5 +720,15 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
             }
 
         }
+
+        private void listViewFIMIInputParams_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBoxAlternatives_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

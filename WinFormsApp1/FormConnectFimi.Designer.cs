@@ -58,6 +58,8 @@
             this.columnHeader9 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader10 = new System.Windows.Forms.ColumnHeader();
             this.buttonFullTest = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.comboBoxAlternatives = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // comboBoxFimiCommand
@@ -146,6 +148,7 @@
             this.listViewFIMIInputParams.TabIndex = 9;
             this.listViewFIMIInputParams.UseCompatibleStateImageBehavior = false;
             this.listViewFIMIInputParams.View = System.Windows.Forms.View.Details;
+            this.listViewFIMIInputParams.SelectedIndexChanged += new System.EventHandler(this.listViewFIMIInputParams_SelectedIndexChanged);
             // 
             // columnHeader1
             // 
@@ -328,11 +331,31 @@
             this.buttonFullTest.UseVisualStyleBackColor = true;
             this.buttonFullTest.Click += new System.EventHandler(this.buttonFullTest_Click);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(438, 91);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(22, 15);
+            this.label4.TabIndex = 22;
+            this.label4.Text = "Alt";
+            // 
+            // comboBoxAlternatives
+            // 
+            this.comboBoxAlternatives.FormattingEnabled = true;
+            this.comboBoxAlternatives.Location = new System.Drawing.Point(466, 88);
+            this.comboBoxAlternatives.Name = "comboBoxAlternatives";
+            this.comboBoxAlternatives.Size = new System.Drawing.Size(233, 23);
+            this.comboBoxAlternatives.TabIndex = 23;
+            this.comboBoxAlternatives.SelectedIndexChanged += new System.EventHandler(this.comboBoxAlternatives_SelectedIndexChanged);
+            // 
             // FormConnectFimi
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1064, 628);
+            this.Controls.Add(this.comboBoxAlternatives);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.buttonFullTest);
             this.Controls.Add(this.listViewTableColumns);
             this.Controls.Add(this.buttonAddConstantToTable);
@@ -394,5 +417,7 @@
         private ColumnHeader columnHeader9;
         private ColumnHeader columnHeader10;
         private Button buttonFullTest;
+        private Label label4;
+        private ComboBox comboBoxAlternatives;
     }
 }
