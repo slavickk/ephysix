@@ -711,9 +711,17 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
 
         }
 
-        private void buttonFIMI_Click(object sender, EventArgs e)
+        private async void buttonFIMI_Click(object sender, EventArgs e)
         {
-            FormConnectFimi frm = new FormConnectFimi();
+            if (package.ETLName == "")
+            {
+                MessageBox.Show(" Не заполнены параметры ETL пакета");
+                return;
+
+            }
+            await DBInterface.SavePackage(conn, package);
+
+            FormConnectFimi frm = new FormConnectFimi(package.idPackage);
             frm.ShowDialog();
         }
     }

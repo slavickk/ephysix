@@ -91,7 +91,7 @@ static void Prepare()
                 {
                     Log.Information(" Fetching...");
 
-                    await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler" });
+                    await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler", "to_exec_proc", "FimiConnector" });
                 }
                 catch (Exception e)
                 {

@@ -15,11 +15,13 @@ namespace ETL_DB_Interface
             ETL_Package package = new ETL_Package();
             package.idPackage = pack.id;
             {
-                await using (var cmd = new NpgsqlCommand(@"select n.name,a1.val out_table,a2.val description,a3.val type_src,a4.val add_par  from md_Node n
+                await using (var cmd = new NpgsqlCommand(@"select n.name,a1.val out_table,a2.val description,a3.val type_src,a4.val add_par,a5.val  from md_Node n
 left join md_node_attr_val a1  on( a1.attrid=42 and a1.nodeid=n.nodeid)
 left join md_node_attr_val a2  on( a2.attrid=43 and a2.nodeid=n.nodeid)
 left join md_node_attr_val a3  on( a3.attrid=44 and a3.nodeid=n.nodeid)
 left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
+left join md_node_attr_val a5  on( a5.attrid=58 and a5.nodeid=n.nodeid)
+
   where n.nodeid= @id and n.isdeleted=false", conn))
                 {
                     cmd.Parameters.AddWithValue("@id", pack.id);
@@ -37,6 +39,8 @@ left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
                             package.ETL_add_par = "";
                             if (!reader.IsDBNull(4))
                                 package.ETL_add_par = reader.GetString(4);
+                            if (!reader.IsDBNull(5))
+                                package.ETL_add_storage = reader.GetString(5);
 
 
                         }
@@ -416,6 +420,30 @@ where nc.name like '%" + findString + "%' and nc.isdeleted=false", conn))
 
             return list;
         }
+        public static async Task<List<ETL_Package.ItemColumn>> GetColumnsForTableID(NpgsqlConnection conn, long tableID)
+        {
+            List<ETL_Package.ItemColumn> list = new List<ETL_Package.ItemColumn>();
+            await using (var cmd = new NpgsqlCommand(@"select nc.name colname,nc.nodeid colid,nt.name tablename,nt.nodeid tableid,s.name from MD_node nc 
+inner join MD_type tc on nc.typeid = tc.typeid and tc.key = 'Column'
+inner join MD_arc ac on (ac.fromid = nc.nodeid  and ac.isdeleted=false)
+inner join md_Node nt on ac.toid = nt.nodeid  and nt.typeid = 1 and nt.isdeleted=false
+inner join md_src s on (nt.srcid=s.srcid)
+
+
+where nt.nodeid=@nodeid and nc.isdeleted=false", conn))
+            {
+                cmd.Parameters.AddWithValue("@nodeid", tableID);
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        list.Add(new ETL_Package.ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1), table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), src_name = reader.GetString(4) } });
+                    }
+                }
+            }
+
+            return list;
+        }
         public static async Task<List<ETL_Package.ItemColumn>> GetColumnsForTablePattern(NpgsqlConnection conn, string findString,int[] excludeSrc=null)
         {
             List<ETL_Package.ItemColumn> list = new List<ETL_Package.ItemColumn>();
@@ -534,7 +562,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
         }
         public static async Task SavePackage(NpgsqlConnection conn, ETL_Package package)
         {
-            await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(5,@id,@title,@output_name,@description,@dest_id,@add_par)", conn))
+            await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(5,@id,@title,@output_name,@description,@dest_id,@add_par,@add_stor)", conn))
             {
                 cmd.Parameters.AddWithValue("@id", package.idPackage);
                 cmd.Parameters.AddWithValue("@title", package.ETLName);
@@ -542,6 +570,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                 cmd.Parameters.AddWithValue("@description", package.ETLDescription);
                 cmd.Parameters.AddWithValue("@dest_id", package.ETL_dest_id);
                 cmd.Parameters.AddWithValue("@add_par", package.ETL_add_par);
+                cmd.Parameters.AddWithValue("@add_stor", package.ETL_add_storage);
 
                 await using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -635,14 +664,15 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
 
         public  static async Task SavePackage(NpgsqlConnection conn, GenerateStatement.ETL_Package package)
         {
-            await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(5,@id,@title,@output_name,@description,@dest_id,@add_par)", conn))
+            await using (var cmd = new NpgsqlCommand(@"select * from md_add_etl_package(5,@id,@title,@output_name,@description,@dest_id,@add_par,@add_storage)", conn))
             {
                 cmd.Parameters.AddWithValue("@id", package.packet_id);
                 cmd.Parameters.AddWithValue("@title", package.NamePacket);
                 cmd.Parameters.AddWithValue("@output_name",  package.outputTable );
                 cmd.Parameters.AddWithValue("@description", package.description);
                 cmd.Parameters.AddWithValue("@dest_id", package.dest_id);
-                cmd.Parameters.AddWithValue("@add_par", package.ETL_add_par);
+                cmd.Parameters.AddWithValue("@add_par", (object)package.ETL_add_par??"");
+                cmd.Parameters.AddWithValue("@add_storage", (object)package.ETL_add_define??"");
 
                 await using (var reader = await cmd.ExecuteReaderAsync())
                 {

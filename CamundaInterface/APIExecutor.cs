@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CamundaInterface.CamundaExecutor;
 
 namespace CamundaInterface
 {
@@ -28,9 +29,9 @@ namespace CamundaInterface
             {
                 public class ItemParam
                 {
-                    public string Key; 
-                    public string? Value;
-                    public string? Variable;
+                    public string Key { get; set; } 
+                    public string? Value { get; set; }
+                public string? Variable { get; set; }
 
                 public ItemParam()
                 {
@@ -81,7 +82,7 @@ namespace CamundaInterface
                 { "TEXT", NpgsqlTypes.NpgsqlDbType.Text }, { "CHAR", NpgsqlTypes.NpgsqlDbType.Varchar }, { "JSON", NpgsqlTypes.NpgsqlDbType.Varchar }, { "NCHAR", NpgsqlTypes.NpgsqlDbType.Varchar },
                 { "NVARCHAR", NpgsqlTypes.NpgsqlDbType.Varchar }, { "VARCHAR", NpgsqlTypes.NpgsqlDbType.Varchar }, { "DATE", NpgsqlTypes.NpgsqlDbType.Date }, { "TIMESTAMP", NpgsqlTypes.NpgsqlDbType.Timestamp } };
 
-        public async Task<bool> ExecuteApiRequest(_ApiExecutor executor, ExecContextItem[] commands, TableDefine[] tables, string baseQuery = "select '2220000000000200' PAN", string ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;")
+        public async Task<bool> ExecuteApiRequest(_ApiExecutor executor, ExecContextItem[] commands, TableDefine[] tables, string baseQuery = "select '2220000000000200' PAN", string ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;",Dictionary<string, ExternalTaskAnswer.Variables> variables=null)
         {
             //                { "BLOB",NpgsqlTypes.NpgsqlDbType.: LargeBinary, "BYTEA": LargeBinary*/
             foreach (TableDefine table in tables)
@@ -100,6 +101,15 @@ namespace CamundaInterface
             //            var ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=dm;";
 
             //     string baseQuery = "select closedate from dm.card limit 10";
+            if(variables != null)
+            foreach (var var in variables)
+            {
+                foreach (var com in commands)
+                {
+                    foreach (var par in com.Params.Where(ii => ii.Variable == var.Key))
+                        par.Value = var.Value.value.ToString()??"";
+                }
+            }
             if (string.IsNullOrEmpty(baseQuery))
                 baseQuery = "select 1 dummy;";
             NpgsqlConnection conn = new NpgsqlConnection(ConnString);
@@ -146,6 +156,17 @@ namespace CamundaInterface
                             foreach (var path in paths.Where(ii => ii.variable == colName))
                                 path.values = new string[] { val?.ToString() };
                         }
+                        foreach (var var in variables)
+                        {
+                            foreach (var path in paths.Where(ii => ii.variable == var.Key))
+                                path.values = new string[] { var.Value.value.ToString() ?? "" };
+/*                            foreach (var com in commands)
+                            {
+                                foreach (var par in com.Params.Where(ii => ii.Variable == var.Key))
+                                    par.Value = var.Value.value.ToString() ?? "";
+                            }*/
+                        }
+
                         // Dictionary<string, string> variables = new Dictionary<string, string>();
                         foreach (var table in tables.OrderBy(ii => ii.ExtIDs.Count))
                         {

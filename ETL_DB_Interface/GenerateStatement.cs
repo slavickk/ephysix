@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using BlazorAppCreateETL.Shared;
 using CamundaInterface;
 using CamundaInterfaces;
 using DotLiquid;
@@ -929,6 +930,7 @@ $BODY$;
             public int dest_id { get; set; } = 2;
             public string dest_name { get; set; }
             public string ETL_add_par { get; set; }
+            public string ETL_add_define { get; set; }
             public List<ItemTable> allTables { get; set; } = new List<ItemTable>();
             public List<CamundaProcess.ExternalTask> usedExternalTasks  = new List<CamundaProcess.ExternalTask>();
             ItemTable getTable(int i,int countAll)
@@ -1058,7 +1060,30 @@ $BODY$;
             return package;
         }
 
-        private static async Task SaveCamundaEnvironment(NpgsqlConnection conn, ETL_Package package, string CamundaID, CamundaProcess process)
+        public static async Task<ETL_Package> Generate(NpgsqlConnection conn, ETL_Package package,bool saveToCamunda)
+        {
+            var id = package.packet_id;
+            if (package.relations.Count == 0)
+            {
+
+                if (package.allTables.Count == 0)
+                {
+                    throw new Exception($"The package {id} is empty");
+                    //                    MessageBox.Show($"The package {id} is empty");
+                }
+            }
+            string CamundaID;
+            CamundaProcess process = prepareCamundaProc(package, out CamundaID);
+            process.tasks.AddRange(package.usedExternalTasks);
+
+          //  await formAddTask(conn, package, process);
+
+            await SaveCamundaEnvironment(conn, package, CamundaID, process,saveToCamunda);
+            return package;
+        }
+
+
+        private static async Task SaveCamundaEnvironment(NpgsqlConnection conn, ETL_Package package, string CamundaID, CamundaProcess process,bool sendToCamunda=true)
         {
             long id = package.packet_id;
             var path1 = $"{pathToSaveETL}{package.NamePacket}.bpmn";
@@ -1070,7 +1095,7 @@ $BODY$;
             package.SaveMDDefinition();
 
             //            await SendToCamunda(@"C:\Camunda\Temp6.bpmn", "ETL_Process532730");
-
+            if(sendToCamunda)
             await SendToCamunda(path1, process.ProcessID, package.variables);
         }
 
@@ -1368,11 +1393,13 @@ where a.typeid=md_get_type(@key) and a.isdeleted=false
             //            List<ItemRel> listExternal = new List<ItemRel>();
             //          int keyCount = 1;
             {
-                var command = @"select n.name,a1.val out_table,a2.val description,a3.val type_src,a4.val  from md_Node n
+                var command = @"select n.name,a1.val out_table,a2.val description,a3.val type_src,a4.val,a5.val  from md_Node n
 left join md_node_attr_val a1  on( a1.attrid=42 and a1.nodeid=n.nodeid)
 left join md_node_attr_val a2  on( a2.attrid=43 and a2.nodeid=n.nodeid)
 left join md_node_attr_val a3  on( a3.attrid=44 and a3.nodeid=n.nodeid)
 left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
+left join md_node_attr_val a5  on( a5.attrid=58 and a5.nodeid=n.nodeid)
+
   where n.nodeid=@id and n.isdeleted=false";
                 await using (var cmd = new NpgsqlCommand(command, conn))
                 {
@@ -1393,6 +1420,12 @@ left join md_node_attr_val a4  on( a4.attrid=57 and a4.nodeid=n.nodeid)
                                 var val1 = reader.GetString(4);
                                 if (!string.IsNullOrEmpty(val1))
                                     package.ETL_add_par = (reader.GetString(4));
+                            }
+                            if (!reader.IsDBNull(5))
+                            {
+                                var val1 = reader.GetString(5);
+                                if (!string.IsNullOrEmpty(val1))
+                                    package.ETL_add_define = (reader.GetString(5));
                             }
                         }
                     }

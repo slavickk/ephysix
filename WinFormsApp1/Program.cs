@@ -1,5 +1,6 @@
 using CamundaInterface;
 using ETL_DB_Interface;
+using GraphShablons;
 using System.Text.RegularExpressions;
 using WinFormsETLPackagedCreator;
 
@@ -21,8 +22,8 @@ namespace WinFormsApp1
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-     
-            Application.Run(new Form1()/* new FormConnectFimi()*/);
+           // var ex=Shablon.getExample();
+            Application.Run(new Form1()/* new FormConnectFimi(-1)*/);
         }
 
    

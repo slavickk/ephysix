@@ -19,6 +19,7 @@
     <ProjectReference Include="..\CamundaInterfaces\CamundaDefinitionInterfaces.csproj" />
     <ProjectReference Include="..\CamundaInterface\CamundaInterface.csproj" />
     <ProjectReference Include="..\ETL_DB_Interface\ETL_DB_Interface.csproj" />
+    <ProjectReference Include="..\GraphShablons\GraphShablons.csproj" />
     <ProjectReference Include="..\GraphVizWrapper\GraphVizWrapper.csproj" />
   </ItemGroup>
 
