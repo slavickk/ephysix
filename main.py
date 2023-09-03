@@ -23,7 +23,7 @@ import dns.query
 import dns.flags
 import uuid
 
-logger.info(f'Start service version=0.0.9 ({__name__})')
+logger.info(f'Start service version=0.0.10 ({__name__})')
 
 #TODO переехать на asyncpg для Postgres драйвера
 #TODO переехать на oracledb & SQLAlchemy-3
@@ -39,10 +39,11 @@ def getenv(cfg):
     cfg['DBDriver']             = 'postgresql+psycopg2' if 'DBDRIVER' not in os.environ else  os.environ['DBDRIVER']
     cfg['DBUser']               = 'md' if 'DBUSER' not in os.environ else os.environ['DBUSER']
     cfg['DBPassword']           = 'rav1234' if 'DBPASSWORD' not in os.environ else os.environ['DBPASSWORD']
-    cfg['DSN']                  = 'master.pgsqlanomaly01.service.consul:5432/fpdb' if 'DSN' not in os.environ else os.environ['DSN']
+    cfg['DSN']                  = 'master.pgsqlanomaly01.service.dc1.consul:5432/fpdb' if 'DSN' not in os.environ else os.environ['DSN']
     cfg['CONSUL_ADDR']          = '10.74.30.22' if 'CONSUL_ADDR' not in os.environ else os.environ['CONSUL_ADDR']
     cfg['CAMUNDA_NAME']         = 'camunda.service.dc1.consul' if 'CAMUNDA_NAME' not in os.environ else os.environ['CAMUNDA_NAME']
-    cfg['TOPIC']                = 'TEST' if 'TOPIC' not in os.environ else os.environ['TOPIC'] #'LoginDB'
+    cfg['TOPIC']                = 'LoginDB_' if 'TOPIC' not in os.environ else os.environ['TOPIC'] #'LoginDB'
+    cfg['DataMartDB'] = 'DATAMART' if 'DataMartDB' not in os.environ else os.environ['DataMartDB']
 #    cfg[''] =  if '' not in os.environ else  os.environ['']
     return cfg
 
@@ -157,6 +158,10 @@ def db2db(task: ExternalTask) -> TaskResult:
     operuuid = str(uuid.uuid4())
     logger.debug(f'OperUUID={operuuid}')
 
+    # a = task.get_process_instance_id()
+    # b = task.get_variables()
+    # c = task.get_extension_properties()
+    # d = task._context
     try:
         vars = task.get_variables()
         try:
@@ -177,6 +182,13 @@ def db2db(task: ExternalTask) -> TaskResult:
         # Connect к базе МетаДанных, собираем и забираем строки коннекта к источнику и к цели
         engine_ser = create_engine(cfg['DBDriver'] + '://'+cfg['DBUser']+':'+cfg['DBPassword']+'@'+cfg['DSN'])
         engine_ser.execution_options(stream_results=True)
+
+        # Connect к базе Datamart для складирования ошибок ETL
+        (dsn_dm) = (engine_ser.execute(text("""
+            select d.driver||'://'||s.login||':'||s.pass||'@'||s.dsn from md_src s, md_src_driver d where s.driverid=d.driverid and s.name=:name
+            """),{"name": cfg['DataMartDB']}).fetchone())[0]
+        engine_dm = create_engine(dsn_dm)
+        engine_dm.execution_options(stream_results=True, isolation_level='AUTOCOMMIT')
 
         (dsn_src) = (engine_ser.execute(text("""
             select d.driver||'://'||s.login||':'||s.pass||'@'||s.dsn from md_src s, md_src_driver d where s.driverid=d.driverid and s.name=:name
@@ -265,12 +277,17 @@ def db2db(task: ExternalTask) -> TaskResult:
         if SQLText_params:
             for j in SQLText_params:
                 try:
-                    if j[1:]=='expDate':
+                    if j[1:] == 'expDate':
                         SQLParams[j[1:]] = parser.parse(vars[j[1:]])
                     else:
                         SQLParams[j[1:]] = vars[j[1:]]
                 except KeyError as ex:
                     logger.error(f'SQLText params parse and matching error: {ex}')
+                    with engine_dm.begin() as conn:
+                        result = conn.execute(
+                                text("insert into etl_error(open_uuid, camunda_process_id, detail_operation, detail_error, camunda_context) values(:open_uuid, :camunda_process_id, :detail_operation, :detail_error, :camunda_context)"),
+                                {'camunda_process_id': task.get_process_instance_id(), 'open_uuid': operuuid, 'detail_operation': f'parse date:{vars[j[1:]]}', 'detail_error': f'SQLText params parse and matching error: {str(ex)}', 'camunda_context': json.dumps(task._context)})
+                    return task.bpmn_error(error_code='CAMUNDA-00002', error_message=f'{ex}', variables={'open_uuid': operuuid})
         logger.debug(f'All SQLParams = {SQLParams}')
 
 
@@ -288,47 +305,69 @@ def db2db(task: ExternalTask) -> TaskResult:
             except BaseException as ex:
                 logger.error(f'Exception truncate: {ex}')
                 norecreate_flag = None
+                with engine_dm.begin() as conn:
+                    result = conn.execute(
+                        text(
+                            "insert into etl_error(open_uuid, camunda_process_id, detail_operation, detail_error, camunda_context) values(:open_uuid, :camunda_process_id, :detail_operation, :detail_error, :camunda_context)"),
+                        {'camunda_process_id': task.get_process_instance_id(), 'open_uuid': operuuid,
+                         'detail_operation': f'truncate table {SQLTable}',
+                         'detail_error': f'Exception truncate: {str(ex)}',
+                         'camunda_context': json.dumps(task._context)})
+                return task.bpmn_error(error_code='CAMUNDA-00003', error_message=f'{ex}', variables={'open_uuid': operuuid})
 
         if norecreate_flag is None and Oper == 'Recreate':
             # Если запрос изменился и Выставлена операция на разрешение пересоздания таблицы - пересоздаем целевые таблицы
             logger.debug(f'Recreate tables: {SQLTable}')
             for table in COLUMNS:
-                logger.debug(f'For table: {table}')
-                # cols = []
-                # Первая колонка автоматически создаваемой таблицы должна иметь имя {table}+id и тип BIGINT
-                cols = [Column(table + 'id', dtypes["BIGINT"], primary_key=True, server_default=text("nextval('dm.dm_seq')"))]
-                if TName == 'DATAMART':
-                    # Вторая колонка автоматически создаваемой таблицы для DATAMART должна иметь имя ouuid и тип TEXT
-                    cols.append(Column('ouuid', dtypes["TEXT"]))
-                for colind in COLUMNS[table]:
-                    logger.debug(f"Add column (colind): {COLUMNS[table][colind]['Name']}  {dtypes[COLUMNS[table][colind]['Type']]}")
-                    if COLUMNS[table][colind]['Name'] == 'externalid':
-                        cols.append(Column(COLUMNS[table][colind]['Name'], dtypes[COLUMNS[table][colind]['Type']], unique=True))
-                    else:
-                        cols.append(Column(COLUMNS[table][colind]['Name'], dtypes[COLUMNS[table][colind]['Type']]))
-                # Если есть индексы - создаем их
-                if INDEXES[table]:
-                    idx_count = 0
-                    for idxind in INDEXES[table]:  # [[14, 16],[18, 19]]
-                        idx_count += 1
-                        idx = []
-                        idx.append(f'{table}_{idx_count}')
-                        for colind in idxind:
-                            idx.append(COLUMNS[table][colind]['Name'])
-                        logger.debug(f'Add Index: {idx}')
-                        cols.append(Index(*idx))
+                try:
+                    logger.debug(f'For table: {table}')
+                    # cols = []
+                    # Первая колонка автоматически создаваемой таблицы должна иметь имя {table}+id и тип BIGINT
+                    cols = [Column(table + 'id', dtypes["BIGINT"], primary_key=True, server_default=text("nextval('dm.dm_seq')"))]
+                    if TName == 'DATAMART':
+                        # Вторая колонка автоматически создаваемой таблицы для DATAMART должна иметь имя ouuid и тип TEXT
+                        cols.append(Column('ouuid', dtypes["TEXT"]))
+                    for colind in COLUMNS[table]:
+                        logger.debug(f"Add column (colind): {COLUMNS[table][colind]['Name']}  {dtypes[COLUMNS[table][colind]['Type']]}")
+                        if COLUMNS[table][colind]['Name'] == 'externalid':
+                            cols.append(Column(COLUMNS[table][colind]['Name'], dtypes[COLUMNS[table][colind]['Type']], unique=True))
+                        else:
+                            cols.append(Column(COLUMNS[table][colind]['Name'], dtypes[COLUMNS[table][colind]['Type']]))
+                    # Если есть индексы - создаем их
+                    if INDEXES[table]:
+                        idx_count = 0
+                        for idxind in INDEXES[table]:  # [[14, 16],[18, 19]]
+                            idx_count += 1
+                            idx = []
+                            idx.append(f'{table}_{idx_count}')
+                            for colind in idxind:
+                                idx.append(COLUMNS[table][colind]['Name'])
+                            logger.debug(f'Add Index: {idx}')
+                            cols.append(Index(*idx))
 
-                sql_meta = MetaData(engine_dst)
-                tab = Table(table, sql_meta, *cols)
-                engine_dst.execute('drop table if exists {}'.format(table))
-                sql_meta.create_all()
-                table_creation_sql = CreateTable(tab)
-                logger.debug(f'Create table SQL: {table_creation_sql}')
-                #            engine_dst.execute(table_creation_sql)
-                logger.debug(f"Insert Camunda_Hash: key={(SQLTable + cfg['TOPIC'])}, hash={hash_}")
-                engine_ser.execute(text(
-                    "insert into MD_Camunda_Hash (key, hash) values(:key, :hash) on conflict (key) do update set hash=:hash"
-                ), {"key": SQLTable + cfg['TOPIC'], "hash": hash_})
+                    sql_meta = MetaData(engine_dst)
+                    tab = Table(table, sql_meta, *cols)
+                    engine_dst.execute('drop table if exists {}'.format(table))
+                    sql_meta.create_all()
+                    table_creation_sql = CreateTable(tab)
+                    logger.debug(f'Create table SQL: {table_creation_sql}')
+                    #            engine_dst.execute(table_creation_sql)
+                    logger.debug(f"Insert Camunda_Hash: key={(SQLTable + cfg['TOPIC'])}, hash={hash_}")
+                    engine_ser.execute(text(
+                        "insert into MD_Camunda_Hash (key, hash) values(:key, :hash) on conflict (key) do update set hash=:hash"
+                    ), {"key": SQLTable + cfg['TOPIC'], "hash": hash_})
+                except BaseException as ex:
+                    logger.error(f'Exception Recreate: {ex}')
+                    with engine_dm.begin() as conn:
+                        result = conn.execute(
+                            text(
+                                "insert into etl_error(open_uuid, camunda_process_id, detail_operation, detail_error, camunda_context) values(:open_uuid, :camunda_process_id, :detail_operation, :detail_error, :camunda_context)"),
+                            {'camunda_process_id': task.get_process_instance_id(), 'open_uuid': operuuid,
+                             'detail_operation': f'Recreate table {table}',
+                             'detail_error': f'Exception Recreate table: {str(ex)}',
+                             'camunda_context': json.dumps(task._context)})
+                    return task.bpmn_error(error_code='CAMUNDA-00004', error_message=f'{ex}', variables={'open_uuid': operuuid})
+
 
 # Сформировать следующий SQL
 # insert into {table}({ins}) values({val}) on conflict do nothing return {table}+id
@@ -350,12 +389,18 @@ def db2db(task: ExternalTask) -> TaskResult:
                         logger.debug(f'ExecSQLBool Result: {i[0]}')
                         return task.complete(i[0])
             except Exception as ex:
-                logger.debug(f'ExecSQL Except: {ex}')
-                return task.bpmn_error(error_code='CAMUNDA-00001', error_message=f'{ex}')
-#                return task.failure(error_message="db2db task failed", error_details=f'Exec Fail', max_retries=1,retry_timeout=1)
+                logger.error(f'Exception ExecSQL: {ex}')
+                with engine_dm.begin() as conn:
+                    result = conn.execute(
+                        text(
+                            "insert into etl_error(open_uuid, camunda_process_id, detail_operation, detail_error, camunda_context) values(:open_uuid, :camunda_process_id, :detail_operation, :detail_error, :camunda_context)"),
+                        {'camunda_process_id': task.get_process_instance_id(), 'open_uuid': operuuid,
+                         'detail_operation': f'ExecSQL: {SQLText}, Params:{json.dumps(SQLParams)}',
+                         'detail_error': f'Exception ExecSQL: {str(ex)}',
+                         'camunda_context': json.dumps(task._context)})
+                return task.bpmn_error(error_code='CAMUNDA-00005', error_message=f'{ex}', variables={'open_uuid': operuuid})
         else:
             logger.debug(f'Start Inserts')
-#expDate
             result = engine_src.execute(text(SQLText), SQLParams)
 
         count = 0
@@ -367,7 +412,6 @@ def db2db(task: ExternalTask) -> TaskResult:
             for src in chunk:
                 # LegacyRow: (datetime.datetime(2021, 12, 2, 17, 34, 39), 61, None, 1, 'MEGA~410810002', 840, None, None, 1, datetime.datetime(2021, 7, 27, 0, 0), datetime.datetime(2020, 6, 1, 0, 0), 2, '676280519001970406', None, None, None, None, None, None, None, None, 'sdf', None, 50, 'MEGA_Branch', 1, None, 'Igorevich', None, None, None, 'Mironec', 'Igor', None, 'twa@mailtest, igor@mail.hru')
                 logger.debug(f'Source: {src}')
-                count+=1
                 TABID = {}
                 for table in COLUMNS:
                     ins = ''
@@ -404,6 +448,7 @@ def db2db(task: ExternalTask) -> TaskResult:
                     try:
                         result_dst = engine_dst.execute(text(insert), params)
                         result_id = (result_dst.fetchone())[0]
+                        count += 1
                     except IntegrityError as ie:
                         logger.debug(f'Insert Error: {ie}')
                         err = ie.args[0]
@@ -411,6 +456,14 @@ def db2db(task: ExternalTask) -> TaskResult:
                         if re.search(r'violates foreign key constraint', err):
                             logger.error(f'Foreign Key for table {table} is not found: {err}')
                             errors += 1
+                            with engine_dm.begin() as conn:
+                                result = conn.execute(
+                                    text(
+                                        "insert into etl_error(open_uuid, camunda_process_id, detail_operation, detail_error, camunda_context) values(:open_uuid, :camunda_process_id, :detail_operation, :detail_error, :camunda_context)"),
+                                    {'camunda_process_id': task.get_process_instance_id(), 'open_uuid': operuuid,
+                                     'detail_operation': f'Insert: {insert}, Params:{json.dumps(params)}',
+                                     'detail_error': f'Exception Insert: {str(err)}',
+                                     'camunda_context': json.dumps(task._context)})
                             break
                         # Если наткнулись на уникальность по какому-то другому ключу, делаем фиктивный инсерт для получения ID этой записи
                         pattern = r'DETAIL:  Key ([^\)]*\))'
@@ -423,15 +476,32 @@ def db2db(task: ExternalTask) -> TaskResult:
                         try:
                             result_dst = engine_dst.execute(text(insert), params)
                             result_id = (result_dst.fetchone())[0]
-                        except:
+                            count += 1
+                        except Exception as err:
                             errors += 1
                             result_id = None
+                            with engine_dm.begin() as conn:
+                                result = conn.execute(
+                                    text(
+                                        "insert into etl_error(open_uuid, camunda_process_id, detail_operation, detail_error, camunda_context) values(:open_uuid, :camunda_process_id, :detail_operation, :detail_error, :camunda_context)"),
+                                    {'camunda_process_id': task.get_process_instance_id(), 'open_uuid': operuuid,
+                                     'detail_operation': f'Insert: {insert}, Params:{json.dumps(params)}',
+                                     'detail_error': f'Exception Insert: {str(err)}',
+                                     'camunda_context': json.dumps(task._context)})
                     TABID[table] = result_id
                     logger.debug(f"Returning {table}ID={TABID[table]}")
 
     except BaseException as ex:
         logger.error(f'Exception: {ex}')
-#        return task.bpmn_error(error_code="BPMN_ERROR_CODE", error_message="BPMN Vsio Herovo",variables={"var1": "value1", "success": False})
+        with engine_dm.begin() as conn:
+            result = conn.execute(
+                text(
+                    "insert into etl_error(open_uuid, camunda_process_id, detail_operation, detail_error, camunda_context) values(:open_uuid, :camunda_process_id, :detail_operation, :detail_error, :camunda_context)"),
+                {'camunda_process_id': task.get_process_instance_id(), 'open_uuid': operuuid,
+                 'detail_operation': '',
+                 'detail_error': f'BaseException: {str(ex)}',
+                 'camunda_context': json.dumps(task._context)})
+    #        return task.bpmn_error(error_code="BPMN_ERROR_CODE", error_message="BPMN Vsio Herovo",variables={"var1": "value1", "success": False})
         return task.failure(error_message="db2db task failed", error_details=f'{ex}', max_retries=3, retry_timeout=5000)
     finally:
         if engine_src:
@@ -441,6 +511,8 @@ def db2db(task: ExternalTask) -> TaskResult:
                 engine_dst.dispose()
         if engine_ser:
             engine_ser.dispose()
+        if engine_dm:
+            engine_dm.dispose()
     logger.info(f'Task completed: Count={count}, OperUUID={operuuid}, Errors={errors}')
     return task.complete({"All": count, "OperUUID": operuuid, "Errors": errors})
 
