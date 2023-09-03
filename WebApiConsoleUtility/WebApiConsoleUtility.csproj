@@ -13,10 +13,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.4.0" />
     <PackageReference Include="XParserLibrary.Core" Version="1.1.1" />
+    <PackageReference Include="XParserLibrary.UniElLib" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Plugins\Plugins.csproj" />
+    <ProjectReference Include="..\StandaloneKestrel\StandaloneKestrel.csproj" />
   </ItemGroup>
 
   <ItemGroup>
