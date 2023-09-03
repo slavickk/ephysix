@@ -8,7 +8,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CCFAProtocols\CCFAProtocols.csproj" />
-    <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+    <PackageReference Include="XParserLibrary.Core" Version="1.1.1" />
   </ItemGroup>
 
 </Project>
