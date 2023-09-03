@@ -68,7 +68,7 @@ namespace CamundaInterface
                 {
                     //var errorContent = await ans.Content.ReadAsStringAsync();
                     XmlSerializer ser = new XmlSerializer(typeof(Envelope));
-                    lastError = ((Envelope)ser.Deserialize(ans.Content.ReadAsStream())).Body.Fault;
+                    lastError = new APIExecutor._ApiExecutor.ErrorItem() { content = request1, error = ((Envelope)ser.Deserialize(ans.Content.ReadAsStream())).Body.Fault.Reason.Text };
 
                     return null;
                 }
@@ -122,12 +122,23 @@ namespace CamundaInterface
             var ans11 = await send(fimiLogoff, "Logoff");
         }
 
-        public EnvelopeBodyFault getError()
+        /*public EnvelopeBodyFault getError()
         {
             return lastError;
+        }*/
+
+        public List<APIExecutor._ApiExecutor.ItemCommand> getDefine()
+        {
+            return FIMIHelper.getDefine();
         }
 
-        public EnvelopeBodyFault lastError;
+        APIExecutor._ApiExecutor.ErrorItem APIExecutor._ApiExecutor.getError()
+        {
+            return lastError;
+//            throw new NotImplementedException();
+        }
+
+        public APIExecutor._ApiExecutor.ErrorItem lastError;
         }
 
         public class XmlFimi : APIExecutor._ApiFilter
