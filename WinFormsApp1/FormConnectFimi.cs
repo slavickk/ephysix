@@ -283,6 +283,7 @@ namespace WinFormsETLPackagedCreator
         bool ignoreComboSelect = false;
         private async void FormConnectFimi_Load(object sender, EventArgs e)
         {
+            GenerateStatement.camundaAddr = Resolver.ResolveConsulAddr("Camunda");
             // DBInterface.SaveAndExecuteETL(conn, pack);
             textBoxSQL.Text = "select 1 dummy";
             conn = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
@@ -700,22 +701,24 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                 pack.allTables.Clear();
                 pack.allTables.AddRange(listAllColumns.Select(ii => ii.table).DistinctBy(ii => ii.table_name).Select(i1 => formETLPackageTable(i1,listAllColumns)));
                 await toExternalTask(pack, conn, textBoxSQL.Text, commands, tables);
-                await GenerateStatement.Generate(conn, pack,false);
+                await GenerateStatement.Generate(conn, pack,true);
                 await saveToCamunda(tables, commands, textBoxSQL.Text, "User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;");
-              //  var trans = new FimiXmlTransport();
-                var ans1=await new APIExecutor().ExecuteApiRequest(trans, commands,tables,textBoxSQL.Text, "User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;", fromParametersToCamundaVars(pack.variables));
+                //  var trans = new FimiXmlTransport();
+                MessageBox.Show("All saved!!!");
+           /*     var ans1=await new APIExecutor().ExecuteApiRequest(trans, commands,tables,textBoxSQL.Text, "User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;", fromParametersToCamundaVars(pack.variables));
                 if(ans1.Errors>0)
                 {
                     MessageBox.Show(trans.getError().error, "Error");
                     return;
 
-                }
+                }*/
                 /*                var ans = await APIExecutor.ExecuteApiRequestOnly(trans, commands);
                                 if (ans == null)
                                 {
                                     MessageBox.Show(trans.getError().Reason.Text, "Error");
                                     return;
                                 }*/
+
             }
             catch (Exception ex)
             {
