@@ -23,7 +23,7 @@ import dns.query
 import dns.flags
 import uuid
 
-logger.info(f'Start service version=0.0.10 ({__name__})')
+logger.info(f'Start service version=0.0.11 ({__name__})')
 
 #TODO переехать на asyncpg для Postgres драйвера
 #TODO переехать на oracledb & SQLAlchemy-3
@@ -179,6 +179,11 @@ def db2db(task: ExternalTask) -> TaskResult:
         except KeyError:
             SQLText = ''
 
+        try:
+            ErrMessage = vars['ErrMessage']
+        except KeyError:
+            ErrMessage = ''
+
         # Connect к базе МетаДанных, собираем и забираем строки коннекта к источнику и к цели
         engine_ser = create_engine(cfg['DBDriver'] + '://'+cfg['DBUser']+':'+cfg['DBPassword']+'@'+cfg['DSN'])
         engine_ser.execution_options(stream_results=True)
@@ -198,8 +203,8 @@ def db2db(task: ExternalTask) -> TaskResult:
         if Oper == 'CloseAction':
             logger.debug(f'Start CloseAction')
             with engine_src.begin() as conn:
-                result = conn.execute(text("select app_change_status_actions(pcamundaid=>:camundaid, pstatus=>'completed') as actionid"),
-                                      {'camundaid':task.get_process_instance_id()})
+                result = conn.execute(text("select app_change_status_actions(pcamundaid=>:camundaid, pstatus=>'completed', pmsgresult=>:error) as actionid"),
+                                      {'camundaid':task.get_process_instance_id(), 'error':ErrMessage})
             execresult = json.dumps([dict(r) for r in result])
             logger.debug(f'CloseAction Result: {execresult}')
             return task.complete({"Result": execresult})
