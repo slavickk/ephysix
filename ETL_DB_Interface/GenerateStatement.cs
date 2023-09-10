@@ -280,8 +280,11 @@ namespace ETL_DB_Interface
                             var item1 = JsonSerializer.Deserialize<ItemInfo>(ans1);
                             if (!item1.ended)
                             {
-                                var res=await WaitEndExec(camundaPath, item1);
-                                Console.WriteLine($"Task  {processId} {((res.isSucess) ? "finished successfully" : "failed")} with message: {res.Description}");
+                                if (0 == 1)
+                                {
+                                    var res = await WaitEndExec(camundaPath, item1);
+                                    Console.WriteLine($"Task  {processId} {((res.isSucess) ? "finished successfully" : "failed")} with message: {res.Description}");
+                                }
                                 //MessageBox.Show($"Task  {processId} {((res.isSucess)?"finished successfully":"failed")} with message: {res.Description}");
 
                             }
@@ -1045,11 +1048,11 @@ $BODY$;
             if (package.relations.Count == 0)
             {
 
-                if (package.allTables.Count == 0)
+/*                if (package.allTables.Count == 0)
                 {
                     throw new Exception($"The package {id} is empty");
                     //                    MessageBox.Show($"The package {id} is empty");
-                }
+                }*/
             }
             string CamundaID;
             CamundaProcess process = prepareCamundaProc(package, out CamundaID);
@@ -1066,11 +1069,11 @@ $BODY$;
             if (package.relations.Count == 0)
             {
 
-                if (package.allTables.Count == 0)
+          /*      if (package.allTables.Count == 0)
                 {
                     throw new Exception($"The package {id} is empty");
                     //                    MessageBox.Show($"The package {id} is empty");
-                }
+                }*/
             }
             string CamundaID;
             CamundaProcess process = prepareCamundaProc(package, out CamundaID);

@@ -11,39 +11,13 @@ namespace CamundaInterface
 {
     public class FIMIHelper
     {
-        public class ItemCommand
-        {
-            public override string ToString()
-            {
-                return Name;
-            }
-            public string Name;
-            public class Parameter
-            {
-                public string name;
-                public bool isDemand = false;
-                public List<string> alternatives = new List<string>();
-            }
-            public List<Parameter> parameters = new List<Parameter>();
-            public class OutputItems
-            {
-                public string path;
-                public OutputItems parent = null;
-                public override string ToString()
-                {
-                    return path;
-                }
-
-            }
-            public List<OutputItems> outputItems = new List<OutputItems>();
-        }
-        public static List<ItemCommand> getDefine()
+        public static List<CamundaInterface.APIExecutor._ApiExecutor.ItemCommand> getDefine()
         {
             Dictionary<string, string> namespaces;
             XmlDocument xmlDoc;
             XmlNamespaceManager nsManager;
 
-            List<ItemCommand> retValue = new List<ItemCommand>();
+            List<CamundaInterface.APIExecutor._ApiExecutor.ItemCommand> retValue = new List<CamundaInterface.APIExecutor._ApiExecutor.ItemCommand>();
             string filePath = "Data/fimi_types.xsd";
             xmlDoc = new XmlDocument();
             xmlDoc.Load(filePath);
@@ -83,11 +57,11 @@ namespace CamundaInterface
                     }
                     if (Name.Substring(Name.Length - 2) == "Rq" || Name.Substring(Name.Length - 2) == "Rp")
                     {
-                        ItemCommand lastCommand = null;
+                        APIExecutor._ApiExecutor.ItemCommand lastCommand = null;
                         lastCommand = retValue.FirstOrDefault(x => x.Name == Name.Substring(0, Name.Length - 2));
                         if (lastCommand == null)
                         {
-                            lastCommand = new ItemCommand() { Name = Name.Substring(0, Name.Length - 2) };
+                            lastCommand = new APIExecutor._ApiExecutor.ItemCommand() { Name = Name.Substring(0, Name.Length - 2) };
                             retValue.Add(lastCommand);
 
                         }
@@ -101,11 +75,11 @@ namespace CamundaInterface
                                 int yy = 0;
                             }
                             var NameMember = node1.Attributes["name"].Value;
-                            ItemCommand.Parameter lastInpParameter = null;
-                            ItemCommand.OutputItems lastOutParameter = null;
+                            APIExecutor._ApiExecutor.ItemCommand.Parameter lastInpParameter = null;
+                            APIExecutor._ApiExecutor.ItemCommand.OutputItems lastOutParameter = null;
                             if (isRequest)
                             {
-                                lastInpParameter = new ItemCommand.Parameter()
+                                lastInpParameter = new APIExecutor._ApiExecutor.ItemCommand.Parameter()
                                 {
                                     name = NameMember
                                 };
@@ -113,7 +87,7 @@ namespace CamundaInterface
                             }
                             else
                             {
-                                lastOutParameter = new ItemCommand.OutputItems() { path = NameMember };
+                                lastOutParameter = new APIExecutor._ApiExecutor.ItemCommand.OutputItems() { path = NameMember };
                                 lastCommand.outputItems.Add(lastOutParameter);
                             }
                             if (node1.Attributes.GetNamedItem("minOccurs") != null)
@@ -154,12 +128,12 @@ namespace CamundaInterface
                                 var NameMember1 = node2.Attributes["name"].Value;
                                 if (!isRequest)
                                 {
-                                    ItemCommand.OutputItems lastChildItem = new ItemCommand.OutputItems() { parent = lastOutParameter, path = lastOutParameter.path + "/Row/" + NameMember1 };
+                                    APIExecutor._ApiExecutor.ItemCommand.OutputItems lastChildItem = new APIExecutor._ApiExecutor.ItemCommand.OutputItems() { parent = lastOutParameter, path = lastOutParameter.path + "/Row/" + NameMember1 };
                                     lastCommand.outputItems.Add(lastChildItem);
                                 }
                                 else
                                 {
-                                    ItemCommand.Parameter lastChildItem = new ItemCommand.Parameter() { /*parent = lastOutParameter,*/ name = lastInpParameter.name + "/Row/" + NameMember1 };
+                                    APIExecutor._ApiExecutor.ItemCommand.Parameter lastChildItem = new APIExecutor._ApiExecutor.ItemCommand.Parameter() { /*parent = lastOutParameter,*/ name = lastInpParameter.name + "/Row/" + NameMember1 };
                                 }
 
 

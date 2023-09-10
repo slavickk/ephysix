@@ -28,8 +28,11 @@ namespace WinFormsETLPackagedCreator
     public partial class FormConnectFimi : Form
     {
         long id_package;
+        APIExecutor._ApiExecutor trans;
+        
         public FormConnectFimi(long id_package)
         {
+            trans = new FimiXmlTransport();
             this.id_package = id_package;
             InitializeComponent();
         }
@@ -39,12 +42,12 @@ namespace WinFormsETLPackagedCreator
             if(!ignoreComboSelect)
             {
 
-            var comm = comboBoxFimiCommand.SelectedItem as FIMIHelper.ItemCommand;
+            var comm = comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand;
             FillFimiControls(comm);
             }
         }
 
-        private void FillFimiControls(FIMIHelper.ItemCommand? comm)
+        private void FillFimiControls(_ApiExecutor.ItemCommand? comm)
         {
             if (comm != null)
             {
@@ -188,7 +191,7 @@ namespace WinFormsETLPackagedCreator
         {
             APIExecutor.ExecContextItem[] commands = new APIExecutor.ExecContextItem[1];
             commands[0] = new APIExecutor.ExecContextItem();
-            commands[0].Command = (comboBoxFimiCommand.SelectedItem as FIMIHelper.ItemCommand).Name;
+            commands[0].Command = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand).Name;
             commands[0].Params = new List<APIExecutor.ExecContextItem.ItemParam>();
             for (int i = 0; i < listViewFIMIInputParams.Items.Count; i++)
             {
@@ -198,11 +201,12 @@ namespace WinFormsETLPackagedCreator
                     commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text, Value = subitems[2].Text, Variable = subitems[1].Text });
                 }
             }
-            var trans = new FimiXmlTransport();
+       //     var trans = new FimiXmlTransport();
             var ans = await APIExecutor.ExecuteApiRequestOnly(trans, commands);
+
             if (ans == null)
             {
-                MessageBox.Show(trans.getError().Reason.Text, "Error");
+                MessageBox.Show(trans.getError().error, "Error");
                 return;
             }
             try
@@ -272,7 +276,7 @@ namespace WinFormsETLPackagedCreator
         }
 
 
-        List<FIMIHelper.ItemCommand> def;
+        List<_ApiExecutor.ItemCommand> def;
         private NpgsqlConnection conn;
 //        GenerateStatement.ETL_Package pack = null;
             
@@ -280,6 +284,7 @@ namespace WinFormsETLPackagedCreator
         bool ignoreComboSelect = false;
         private async void FormConnectFimi_Load(object sender, EventArgs e)
         {
+            GenerateStatement.camundaAddr = Resolver.ResolveConsulAddr("Camunda");
             // DBInterface.SaveAndExecuteETL(conn, pack);
             textBoxSQL.Text = "select 1 dummy";
             conn = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
@@ -294,7 +299,7 @@ namespace WinFormsETLPackagedCreator
                 comboBoxSqlColumn.Items.Add(val.Name);
             }
 
-            def = FIMIHelper.getDefine();
+            def = trans.getDefine();// FIMIHelper.getDefine();
             foreach (var item in def)
             {
                 comboBoxFimiCommand.Items.Add(item);
@@ -323,7 +328,7 @@ namespace WinFormsETLPackagedCreator
                     }
                     ignoreComboSelect = true;
                     int index = 0;
-                    foreach (FIMIHelper.ItemCommand item in comboBoxFimiCommand.Items)
+                    foreach (APIExecutor._ApiExecutor.ItemCommand item in comboBoxFimiCommand.Items)
                     {
 
                         if (item.Name == com1.Command)
@@ -666,7 +671,7 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                 }
                 foreach (var table in tables)
                 {
-                    var col = list.FirstOrDefault(ii => ii.col_name == "oouid" && ii.table.table_name == table.Table);
+                    var col = list.FirstOrDefault(ii => ii.col_name == "operuuid" && ii.table.table_name == table.Table);
                     if (col != null)
                     {
                         var att = await getColAttr(conn, col.col_id);
@@ -679,7 +684,7 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                 }
                 APIExecutor.ExecContextItem[] commands = new APIExecutor.ExecContextItem[1];
                 commands[0] = new APIExecutor.ExecContextItem();
-                commands[0].Command = (comboBoxFimiCommand.SelectedItem as FIMIHelper.ItemCommand).Name;
+                commands[0].Command = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand).Name;
                 commands[0].Params = new List<APIExecutor.ExecContextItem.ItemParam>();
                 for (int i = 0; i < listViewFIMIInputParams.Items.Count; i++)
                 {
@@ -697,22 +702,24 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                 pack.allTables.Clear();
                 pack.allTables.AddRange(listAllColumns.Select(ii => ii.table).DistinctBy(ii => ii.table_name).Select(i1 => formETLPackageTable(i1,listAllColumns)));
                 await toExternalTask(pack, conn, textBoxSQL.Text, commands, tables);
-                await GenerateStatement.Generate(conn, pack,false);
+                await GenerateStatement.Generate(conn, pack,true);
                 await saveToCamunda(tables, commands, textBoxSQL.Text, "User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;");
-                var trans = new FimiXmlTransport();
-                var ans1=await new APIExecutor().ExecuteApiRequest(trans, commands,tables,textBoxSQL.Text, "User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;", fromParametersToCamundaVars(pack.variables));
-                if(!ans1)
+                //  var trans = new FimiXmlTransport();
+                MessageBox.Show("All saved!!!");
+           /*     var ans1=await new APIExecutor().ExecuteApiRequest(trans, commands,tables,textBoxSQL.Text, "User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;", fromParametersToCamundaVars(pack.variables));
+                if(ans1.Errors>0)
                 {
-                    MessageBox.Show(trans.getError().Reason.Text, "Error");
+                    MessageBox.Show(trans.getError().error, "Error");
                     return;
 
-                }
+                }*/
                 /*                var ans = await APIExecutor.ExecuteApiRequestOnly(trans, commands);
                                 if (ans == null)
                                 {
                                     MessageBox.Show(trans.getError().Reason.Text, "Error");
                                     return;
                                 }*/
+
             }
             catch (Exception ex)
             {
@@ -723,11 +730,24 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
 
         private void listViewFIMIInputParams_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+           
+            var comm=comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand;
+            if (comm != null && listViewFIMIInputParams.SelectedIndices.Count > 0)
+            {
+                int index = listViewFIMIInputParams.SelectedIndices[0];
+                var par = comm.parameters.First(ii => ii.name == listViewFIMIInputParams.Items[index].SubItems[0].Text);
+                if (par.alternatives?.Count > 0)
+                {
+                    comboBoxAlternatives.Items.Clear();
+                    comboBoxAlternatives.Items.AddRange(par.alternatives.ToArray());
+                }
+            }
         }
 
         private void comboBoxAlternatives_SelectedIndexChanged(object sender, EventArgs e)
         {
+            int index = listViewFIMIInputParams.SelectedIndices[0];
+            listViewFIMIInputParams.Items[index].SubItems[2].Text= comboBoxAlternatives.SelectedItem.ToString();
 
         }
     }

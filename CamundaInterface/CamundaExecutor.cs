@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Common.Logging;
 using Newtonsoft.Json;
 using Npgsql;
 using ParserLibrary;
@@ -168,23 +169,27 @@ namespace CamundaInterface
                                    {*/
                                 var trans = new FimiXmlTransport();
 
-                                var ans1 = await new APIExecutor().ExecuteApiRequest(trans, System.Text.Json.JsonSerializer.Deserialize<ExecContextItem[]>(item.variables["FIMICommands"].value.ToString()), System.Text.Json.JsonSerializer.Deserialize<TableDefine[]>(item.variables["Tables"].value.ToString()), item.variables["SQLText"].value.ToString(), "User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;", item.variables);
-                                if(!ans1)
-                                {
-                                    var err = trans.getError().Reason.Text;
-                                }
-/*                                var itog = await url_crowler.execGet(client
-                                     , item.variables["FIMICommands"].value.ToString(), item.variables["ConnAdm"].value.ToString(), item.variables["Table"].value.ToString(), item.variables["URL"].value.ToString()
-                                     , item.variables["SQL"].value.ToString()
-                                     , Convert.ToInt32(item.variables["UpdateTimeout"].value.ToString()));
-                                Log.Information("get from url  end");*/
+                                var ans1 = await new APIExecutor().ExecuteApiRequest(trans, System.Text.Json.JsonSerializer.Deserialize<ExecContextItem[]>(item.variables["FIMICommands"].value.ToString()), System.Text.Json.JsonSerializer.Deserialize<TableDefine[]>(item.variables["Tables"].value.ToString()), item.variables["SQLText"].value.ToString(), "User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;", item.variables,item.processInstanceId);
+                                dictOutput.Add("All", new CamundaCompleteItem.Variable() { value = ans1.All });
+                                dictOutput.Add("Errors", new CamundaCompleteItem.Variable() { value = ans1.Errors });
+                                dictOutput.Add("OperUUID", new CamundaCompleteItem.Variable() { value = ans1.OperUUID });
+
+                                /* if(!ans1)
+                                 {
+                                     var err = trans.getError().Reason.Text;
+                                 }*/
+                                /*                                var itog = await url_crowler.execGet(client
+                                                                     , item.variables["FIMICommands"].value.ToString(), item.variables["ConnAdm"].value.ToString(), item.variables["Table"].value.ToString(), item.variables["URL"].value.ToString()
+                                                                     , item.variables["SQL"].value.ToString()
+                                                                     , Convert.ToInt32(item.variables["UpdateTimeout"].value.ToString()));
+                                                                Log.Information("get from url  end");*/
                                 /*                                } 
                                                                 catch(Exception e77)
                                                                 { 
                                                                     Log.Error(e77.ToString()); 
                                                                 }*/
-/*                                dictOutput.Add("All", new CamundaCompleteItem.Variable() { value = itog.all });
-                                dictOutput.Add("Errors", new CamundaCompleteItem.Variable() { value = itog.errors });*/
+                                /*                                dictOutput.Add("All", new CamundaCompleteItem.Variable() { value = itog.all });
+                                                                dictOutput.Add("Errors", new CamundaCompleteItem.Variable() { value = itog.errors });*/
                             }
                             if (item.topicName == "to_dict_sender")
                             {
