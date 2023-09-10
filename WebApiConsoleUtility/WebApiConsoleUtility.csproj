@@ -17,11 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Plugins\Plugins.csproj" />
-    <ProjectReference Include="..\StandaloneKestrel\StandaloneKestrel.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Data\ACS_TW.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
