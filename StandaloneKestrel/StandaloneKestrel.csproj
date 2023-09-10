@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>XParserLibrary.StandaloneKestrel</PackageId>
+    <Authors>Authors of StandaloneKestrel</Authors>
   </PropertyGroup>
 
   <ItemGroup>
