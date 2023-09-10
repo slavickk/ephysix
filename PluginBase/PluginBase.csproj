@@ -7,11 +7,11 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>XParserLibrary.PluginBase</PackageId>
         <Authors>Authors of PluginBase</Authors>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\UniElLib\UniElLib.csproj" />
+      <PackageReference Include="XParserLibrary.UniElLib" Version="1.0.0" />
     </ItemGroup>
 
 </Project>
