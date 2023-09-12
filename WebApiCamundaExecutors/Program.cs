@@ -6,8 +6,10 @@ using Serilog.Core;
 using System.IO.Pipelines;
 using System.Runtime.Loader;
 using CamundaInterface;
-Prepare();
-var builder = WebApplication.CreateBuilder(args);
+using WebApiCamundaExecutors;
+
+ Prepare();
+/*var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
@@ -15,9 +17,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 var app = builder.Build();
-
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 {
@@ -31,10 +31,31 @@ app.UseAuthorization();
 
 app.MapControllers();
 //Prepare();
-app.Run();
+app.Run();*/
+CreateHostBuilder(args).Build().Run();
 
 
 // Prepare();
+static IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+    .ConfigureLogging(loggingBuilder =>
+    {
+        /*                builder.Configure(options => options.ActivityTrackingOptions = ActivityTrackingOptions.SpanId |
+                                                                                      ActivityTrackingOptions.ParentId |
+                                                                                      ActivityTrackingOptions.TraceId);
+
+                        */
+        loggingBuilder.Configure(options =>
+        {
+            options.ActivityTrackingOptions = ActivityTrackingOptions.TraceId | ActivityTrackingOptions.SpanId;
+        });
+    })
+               .UseSerilog() // <-- Add this line
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            webBuilder.UseStartup<Startup>();
+        });
+    
 
 static void Prepare()
 {
@@ -118,7 +139,7 @@ static void Prepare()
     }
     finally
     {
-        Log.CloseAndFlush();
+//        Log.CloseAndFlush();
     }
 }
 

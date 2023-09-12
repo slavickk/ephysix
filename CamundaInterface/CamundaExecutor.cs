@@ -81,6 +81,36 @@ namespace CamundaInterface
         static HttpClient client = null;
         public static string workerId = "SimpleExecutor";
 
+
+
+        
+        public class ItemBpmnError
+        {
+            public class AnotherVariable
+            {
+                public bool value { get; set; }
+                public string type { get; set; }
+            }
+            public class AVariable
+            {
+                public string value { get; set; }
+                public string type { get; set; }
+            }
+
+            public class Variables
+            {
+                public AVariable aVariable { get; set; }
+                public AnotherVariable anotherVariable { get; set; }
+            }
+            public string workerId { get; set; }
+            public string errorCode { get; set; }
+            public string errorMessage { get; set; }
+            public Variables variables { get; set; }
+        }
+
+     
+
+
         public class ItemFailure
         {
             public string workerId { get; set; }
@@ -117,7 +147,7 @@ namespace CamundaInterface
             ExternalTaskAnswer it1 = null;
             if (client == null)
                 client = new HttpClient();
-            Log.Information("Start fetching on addr {camundaPath}", camundaPath);
+            Log.Information("Start fetching on addr {@camundaPath}", camundaPath);
 
             while (0 == 0)
             {
@@ -134,7 +164,7 @@ namespace CamundaInterface
                         foreach (var item in ret)
                         {
                             it1 = item;
-                            Log.Information("topic {item.topicName}", item.topicName);
+                            Log.Information("topic {@topicName} {@vars}", item.topicName, item.variables);
                             var dictOutput = new Dictionary<string, CamundaCompleteItem.Variable>();
                             /*                            if (item.topicName == "rest_executor1")
                                                         {
@@ -164,7 +194,7 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "FimiConnector")
                             {
-                                Log.Information("get from url start");
+                                Log.Information("Start fimi connector ");
                                 /*   try
                                    {*/
                                 var trans = new FimiXmlTransport();
@@ -268,13 +298,14 @@ namespace CamundaInterface
                             }
                             //$"/external-task/{id}/complete"
                                                         var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{item.id}/complete", new CamundaCompleteItem() { workerId = workerId, variables = dictOutput });
-/*                            var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{item.id}/failure", new ItemFailure()
-                            {
-                                workerId = workerId,
-                                errorMessage = "Error Message",
-                                retries = 1,
-                                retryTimeout = 6000
-                            });*/
+                            /*                            var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{item.id}/failure", new ItemFailure()
+                                                        {
+                                                            workerId = workerId,
+                                                            errorMessage = "Error Message",
+                                                            retries = 1,
+                                                            retryTimeout = 6000
+                                                        });*/
+                            Log.Information("End topic execute {@a}", dictOutput);
 
                         }
 
@@ -293,7 +324,18 @@ namespace CamundaInterface
                 }
                 catch (Exception ex5)
                 {
-                    var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{it1.id}/failure", new ItemFailure()
+                    Log.Error("Error:{@topic} {@err}",it1.topicName, ex5);
+                    var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{it1.id}/bpmnError", new ItemBpmnError()
+                    {
+                        workerId = workerId,
+                        errorCode="ErrorHappening",// $"error hapenned on {it1.topicName}",
+                        errorMessage = $"topic:{it1.topicName} Detail {ex5.Message}!",
+                        /*errorDetails = ex5.ToString(),
+                        retries = 0,
+                        retryTimeout = 600
+                        */
+                    });
+/*                    var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{it1.id}/failure", new ItemFailure()
                     {
                         workerId = workerId,
                         errorMessage = $"error hapenned on {it1.topicName}!",
@@ -301,7 +343,7 @@ namespace CamundaInterface
                         retries = 0,
                         retryTimeout = 600
 
-                    });
+                    });*/
                 }
             }
             //            topics.Select(x => new ItemFetchAndLock.(x)).ToList();

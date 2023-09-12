@@ -201,8 +201,8 @@ namespace WinFormsETLPackagedCreator
                     commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text, Value = subitems[2].Text, Variable = subitems[1].Text });
                 }
             }
-       //     var trans = new FimiXmlTransport();
-            var ans = await APIExecutor.ExecuteApiRequestOnly(trans, commands);
+            Dictionary<string, object> dict = getVariables();
+            var ans = await APIExecutor.ExecuteApiRequestOnly(trans, commands, textBoxSQL.Text, dict);
 
             if (ans == null)
             {
@@ -221,6 +221,20 @@ namespace WinFormsETLPackagedCreator
             {
             }
         }
+
+        private Dictionary<string, object> getVariables()
+        {
+            //     var trans = new FimiXmlTransport();
+            return pack.variables.Select(x => new KeyValuePair<string, object>(x.Name, x.Type switch
+            {
+                "Long" => Int64.Parse(x.DefaultValue),
+                "Integer" => Int64.Parse(x.DefaultValue),
+                "JSON"=>JsonDocument.Parse(x.DefaultValue),
+                _ => x.DefaultValue
+            }))
+    .ToDictionary(x => x.Key, x => x.Value);
+        }
+
         public async Task<CamundaProcess.ExternalTask> toExternalTask(GenerateStatement.ETL_Package package, NpgsqlConnection conn, string sqlQuery, APIExecutor.ExecContextItem[] commands, TableDefine[] tables)
         {
             var columnList=package.allTables.SelectMany(ii=>ii.columns).ToList();
@@ -319,8 +333,8 @@ namespace WinFormsETLPackagedCreator
                         {
                             if (item.SubItems[0].Text == par.Key)
                             {
-                                if (!string.IsNullOrEmpty(par.Value))
-                                    item.SubItems[2].Text = par.Value;
+                                if (!string.IsNullOrEmpty(par.Value?.ToString()))
+                                    item.SubItems[2].Text = par.Value.ToString();
                                 if (!string.IsNullOrEmpty(par.Variable))
                                     item.SubItems[1].Text = par.Variable;
                             }
@@ -414,6 +428,12 @@ namespace WinFormsETLPackagedCreator
                 }
                 await using (var cmdCommand = new NpgsqlCommand(textBoxSQL.Text, conn))
                 {
+                    var variables = getVariables();
+                    foreach (var patt in textBoxSQL.Text.getVariablesForPattern())
+                    {
+                        cmdCommand.Parameters.AddWithValue(patt, variables[patt.Substring(1)]);
+                    }
+
                     await using (var readerCom = await cmdCommand.ExecuteReaderAsync())
                     {
                         while (await readerCom.ReadAsync())
@@ -442,7 +462,7 @@ namespace WinFormsETLPackagedCreator
 
         private void buttonAddConst_Click(object sender, EventArgs e)
         {
-            if(textBoxConstant.Text.Length > 0 && listViewFIMIInputParams.SelectedIndices.Count>0)
+            if(/*textBoxConstant.Text.Length > 0 &&*/ listViewFIMIInputParams.SelectedIndices.Count>0)
             {
                 int index= listViewFIMIInputParams.SelectedIndices[0];
                 listViewFIMIInputParams.Items[index].SubItems[2].Text=textBoxConstant.Text;

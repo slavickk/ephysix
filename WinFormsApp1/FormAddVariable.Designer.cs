@@ -105,7 +105,7 @@
             "String",
             "Integer",
             "Long",
-            "Boolean","DATE"});
+            "Boolean","JSON","DATE"});
             this.comboBoxVarType.Location = new System.Drawing.Point(125, 57);
             this.comboBoxVarType.Name = "comboBoxVarType";
             this.comboBoxVarType.Size = new System.Drawing.Size(212, 38);

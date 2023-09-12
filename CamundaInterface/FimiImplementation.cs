@@ -12,6 +12,8 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Microsoft.OpenApi.Services;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace CamundaInterface
 {
@@ -109,7 +111,32 @@ namespace CamundaInterface
                     fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
                 foreach (var par in com.Params)
                 {
-                    fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value);
+                    if(par.Value.GetType() == typeof(JsonDocument))
+                    {
+                        JsonDocument jsonDocument = (JsonDocument)par.Value;
+                        if(jsonDocument.RootElement.ValueKind == JsonValueKind.Array)
+                        {
+                            var users = jsonDocument.RootElement.EnumerateArray();
+
+                            while (users.MoveNext())
+                            {
+                                var user = users.Current;
+                                var props = user.EnumerateObject();
+                                fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}/Row", null);
+                                while (props.MoveNext())
+                                {
+                                    var prop = props.Current;
+                                    if(prop.Value.ValueKind != JsonValueKind.Null)
+                                    fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}/Row/{prop.Name}",prop.Value.ToString());
+                                }
+                            }
+                        } 
+//                        if(jsonDocument.RootElement. != null)
+//                        fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value.ToString());
+
+                    }
+                    else
+                        fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value.ToString());
                 }
                 retValue = await send(fimiCommand, currentKey);
             }
@@ -279,10 +306,14 @@ namespace CamundaInterface
 
             public static string XmlPath(string path)
             {
-                var lex = path.Replace("FIMI/", "").Replace("/Rq/", "/m1:Request/").Replace("/Rp/", "/Response/").Split("/");
+                var lex = path.Replace("FIMI/", "").Replace("/Rq/", "/m1:Request/").Replace("/Rp/", "/Response/").Split("/").ToList();
                 lex[0] = "m1:" + lex[0];
-                if (lex[lex.Length - 1][0] != '@')
-                    lex[lex.Length - 1] = "m0:" + lex[lex.Length - 1];
+                int index = lex.IndexOf("m1:Request");
+                if(index== -1)
+                    index = lex.IndexOf("Response");
+            for (int i=index+1;i <lex.Count; i++)
+                if (lex[i][0] != '@')
+                    lex[i] = "m0:" + lex[i];
                 return string.Join("/", new string[] { "env:Envelope", "env:Body" }.Union(lex));
             }
             public string getPath(string path)
@@ -301,10 +332,11 @@ namespace CamundaInterface
                 xmlDoc.Save(stream);
             }
 
-            public void setPath(string path, string Value)
+            public void setPath(string path, string? Value)
             {
                 var tokens = XmlPath(path).Split("/");
-                var comm_obj = xmlDoc.SelectSingleNode(string.Join('/', tokens.Take(3)), nsManager);
+            int lastIndex = tokens.Length - 1;
+            var comm_obj = xmlDoc.SelectSingleNode(string.Join('/', tokens.Take(3)), nsManager);
                 if (comm_obj == null)
                 {
                     var tt = tokens[2].Split(':');
@@ -313,11 +345,12 @@ namespace CamundaInterface
                     var child = rootNode.ChildNodes.Item(0).ChildNodes.Item(0);
                     nod.AppendChild(child);
                     rootNode.ReplaceChild(nod, rootNode.ChildNodes.Item(0));
+                    lastIndex = 4;
                 }
-                var obj = xmlDoc.SelectSingleNode(string.Join('/', tokens.Take(tokens.Length - 1)), nsManager);
                 if (tokens.Last()[0] == '@')
                 {
                     var attrName = tokens.Last().Substring(1);
+                    var obj = xmlDoc.SelectSingleNode(string.Join('/', tokens.Take(tokens.Length - 1)), nsManager);
                     var attr = obj.Attributes.GetNamedItem(attrName);
                     if (attr == null)
                     {
@@ -329,22 +362,33 @@ namespace CamundaInterface
                         attr.InnerText = Value;
                 }
                 else
-                {
-                    var replaced = xmlDoc.SelectSingleNode(string.Join('/', tokens), nsManager);
-                    if (replaced == null)
-                    {
-                        var tt = tokens.Last().Split(':');
-                        var nod = xmlDoc.CreateNode(XmlNodeType.Element, tt[0], tt[1], namespaces[tt[0]]);
-                        obj.AppendChild(nod);
-                        nod.InnerText = Value;
-                    }
-                    else
-                        replaced.InnerText = Value;
-
-
-                }
+            {
+                for(int index = lastIndex; index <tokens.Length;index++)
+                    SetNodeRq(Value, tokens, index);
 
             }
+
+        }
+
+        private void SetNodeRq(string? Value, string[] tokens, int index)
+        {
+            var nodes = xmlDoc.SelectNodes(string.Join('/', tokens.Take(index)), nsManager);
+            var obj = nodes[nodes.Count - 1];
+            var replaced = xmlDoc.SelectSingleNode(string.Join('/', tokens.Take(index + 1)), nsManager);
+            if (replaced == null)
+            {
+                var tt = tokens[index].Split(':');
+                var nod = xmlDoc.CreateNode(XmlNodeType.Element, tt[0], tt[1], namespaces[tt[0]]);
+                obj.AppendChild(nod);
+                if (index == tokens.Length - 1 && Value != null)
+                    nod.InnerText = Value;
+            }
+            else
+            {
+                if (index == tokens.Length - 1 && Value != null)
+                    replaced.InnerText = Value;
+            }
+        }
 
         public string[] filter(string path)
         {

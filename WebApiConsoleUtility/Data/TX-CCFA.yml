@@ -1,0 +1,1368 @@
+saver: 
+limitOfSavedContextInMB: 10
+traceSaveDirectory: /CONTEXT
+pipelineDescription: Pipeline ACS-CCFA-TX
+skipSelfTest: true
+metricsBuilder:
+- name: HOST_ANSWER
+  description: Host Result answer of auth
+  labels:
+  - name: Result
+    value: !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: 
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/tran:Response/-Result/#text
+      conditionCalcer: 
+      valuePath: ''
+- name: DMN_ANSWER
+  description: DMN recomendation
+  labels:
+  - name: Result
+    value: !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: 
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
+      conditionCalcer: !ComparerForValue
+        isNegative: false
+        valueForCompare: v3ds
+      valuePath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
+- name: RULE_ANSWER
+  description: Answer of each rule
+  labels:
+  - name: IDRule
+    value: !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: 
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/name
+      conditionCalcer: 
+      valuePath: ''
+  - name: Answer
+    value: !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: 
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
+      conditionCalcer: 
+      valuePath: ''
+hashWord: {#SECRET_WORD#}
+steps:
+- isBridge: false
+  isHandleSenderError: true
+  maxSavedLimitInMB: 10
+  saveErrorSendDirectory: Data/Restore
+  saveScenariousDirectory: C:\d\Scenarious\
+  iDStep: Step_0
+  iDPreviousStep: ''
+  iDResponsedReceiverStep: ''
+  description: Check registration extract
+  receiver: !HTTPReceiver
+    port: 8080
+    swaggerSpecPath: Data/swagger.json
+    responseType: text/xml
+    maxConcurrentConnections: 1000
+    connectionTimeoutInMilliseconds: 5000
+    saver: 
+    cantTryParse: true
+    mocFile: C:\D\OutACS_TX\aaa.txt
+    mocBody: ''
+  ireceiver: 
+  converters:
+  - name: FilterToTW
+    filter: !ConditionFilter
+      conditionPath: Step_0/Rec/xml-fragment/-Kind/#text
+      conditionCalcer: !ComparerForValue
+        isNegative: false
+        valueForCompare: TdsPrepareAuth
+    outputFields:
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: originalTime
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/-OrigTime/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: acctNumber
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Parties/t:Cust/t:Token/tc:Card/-Pan/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: cardExpiryDate
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Parties/t:Cust/t:Token/tc:Card/-ExpDate/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: acquirerBIN
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Parties/t:Term/-AcquirerRid/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: acquirerMerchantID
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Parties/t:Term/t:Owner/-Rid/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserAcceptHeader
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:TranDetails/-BrowserAcceptHeaders/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserIP
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:TranDetails/-BrowserIpAddress/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserLanguage
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:TranDetails/-BrowserLanguage/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserTZ
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:TranDetails/-BrowserTZ/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserUserAgent
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:TranDetails/-BrowserUserAgent/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: dsTransID
+      isUniqOutputPath: true
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Match/-Key/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: dsTransID
+      isUniqOutputPath: true
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Match/-Nrn/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseAmount
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Moneys/t:Cust/-Amt/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseCurrency
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/xml-fragment/t:Moneys/t:Cust/-Ccy/#text
+      conditionCalcer: 
+      valuePath: ''
+  sender: !StreamSender
+    streamName: AReq
+    dbConnectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;
+    streamSender:
+      name: AReq
+      description: AReq transaction
+      fieldsDict:
+        deviceInfo_SDKAppID: &o0
+          name: deviceInfo_SDKAppID
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        dsTransID: &o1
+          name: dsTransID
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        mcc: &o2
+          name: mcc
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        destCardNum: &o3
+          name: destCardNum
+          type: String
+          detail: ''
+          sensitiveData: PAN
+          calculated: false
+          linkedColumn: 
+        purchaseAmount: &o4
+          name: purchaseAmount
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        purchaseCurrency: &o5
+          name: purchaseCurrency
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        purchaseDate: &o6
+          name: purchaseDate
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrCity: &o7
+          name: shipAddrCity
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrCountry: &o8
+          name: shipAddrCountry
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrLine1: &o9
+          name: shipAddrLine1
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrLine2: &o10
+          name: shipAddrLine2
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrLine3: &o11
+          name: shipAddrLine3
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrPostCode: &o12
+          name: shipAddrPostCode
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        shipAddrState: &o13
+          name: shipAddrState
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserIP: &o14
+          name: browserIP
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        stream: &o15
+          name: stream
+          type: String
+          detail: Name of stream
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        originalTime: &o16
+          name: originalTime
+          type: String
+          detail: Time of stream
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        acctNumber: &o17
+          name: acctNumber
+          type: String
+          detail: ''
+          sensitiveData: PAN
+          calculated: false
+          linkedColumn: 
+        cardExpiryDate: &o18
+          name: cardExpiryDate
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        acquirerBIN: &o19
+          name: acquirerBIN
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        acquirerMerchantID: &o20
+          name: acquirerMerchantID
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserAcceptHeader: &o21
+          name: browserAcceptHeader
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserLanguage: &o22
+          name: browserLanguage
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserTZ: &o23
+          name: browserTZ
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        browserUserAgent: &o24
+          name: browserUserAgent
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        deviceInfo_Latitude: &o25
+          name: deviceInfo_Latitude
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        deviceInfo_Longitude: &o26
+          name: deviceInfo_Longitude
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        mbr: &o27
+          name: mbr
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: true
+          linkedColumn: 
+      fields:
+      - *o0
+      - *o1
+      - *o2
+      - *o3
+      - *o4
+      - *o5
+      - *o6
+      - *o7
+      - *o8
+      - *o9
+      - *o10
+      - *o11
+      - *o12
+      - *o13
+      - *o14
+      - *o15
+      - *o16
+      - *o17
+      - *o18
+      - *o19
+      - *o20
+      - *o21
+      - *o22
+      - *o23
+      - *o24
+      - *o25
+      - *o26
+      - *o27
+    certName: ''
+    certPassword: ''
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInSeconds: 10
+    headers: 
+    responseType: application/json
+    urls:
+    - {#REX_URL#}/api/Streams/LoadStream2
+    timeoutsBetweenRetryInMilli:
+    - 100
+    url: {#REX_URL#}/api/Streams/LoadStream2
+    mocFile: ''
+    mocBody: ''
+  isender: 
+- isBridge: false
+  isHandleSenderError: false
+  maxSavedLimitInMB: 0
+  saveErrorSendDirectory: ''
+  saveScenariousDirectory: C:\d\Scenarious\
+  iDStep: Step_DMN
+  iDPreviousStep: Step_0
+  iDResponsedReceiverStep: ''
+  description: Some comments in this place
+  receiver: 
+  ireceiver: 
+  converters:
+  - name: FilterSignalledRule
+    filter: !ConditionFilter
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: InputParameters
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/RuleID
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/name
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/Severity
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/severity
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/Result
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/RuleIDVersion
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/nameWithVersion
+      conditionCalcer: 
+      valuePath: ''
+  - name: FilterDataField
+    filter: !ConditionFilter
+      conditionPath: Step_0/Send/To/*
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: InputRecordFields
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputRecordFields/Key
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: true
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Send/To/*
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputRecordFields/Value
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Send/To/*
+      conditionCalcer: 
+      valuePath: ''
+  - name: FilterInactiveRules
+    filter: !ConditionFilter
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/Inactive
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: InactiveRule
+      isUniqOutputPath: true
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InactiveRule/Item
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/Inactive
+      conditionCalcer: 
+      valuePath: ''
+  sender: !DMNExecutorSender
+    countPrewarmingIntances: 4
+    xML: >
+      <?xml version="1.0" encoding="UTF-8"?>
+
+      <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" xmlns:scripter="http://scripti.com/modeler7654" id="exampleSum" name="Summator" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.11.1">
+        <extensionElements>
+          <scripter:script name="ToIndy">
+            using BlazorDmnInterface.Client.Pages;
+            public string TransformToIndy(SignalledRule[]  rules)
+            {
+            return "FFFFFFFDDDD";
+            }
+          </scripter:script>
+          <scripter:script name="row1">1005</scripter:script>
+        </extensionElements>
+        <inputData id="dayType_id" name="InputRecord">
+          <variable id="dayType_ii" name="Inpur records list" typeRef="string" />
+        </inputData>
+        <inputData id="temperature_id" name="SignalledRules">
+          <variable id="temperature_ii" name="Signalled rules list" typeRef="integer" />
+        </inputData>
+        <decision id="Decision_03gaio2" name="Scoring">
+          <informationRequirement id="InformationRequirement_0pzu6m0">
+            <requiredDecision href="#Decision_0ttmt6w" />
+          </informationRequirement>
+          <informationRequirement id="InformationRequirement_0m36dw2">
+            <requiredDecision href="#Decision_1f9uw16" />
+          </informationRequirement>
+          <informationRequirement id="InformationRequirement_0bxln69">
+            <requiredDecision href="#Decision_11jgy39" />
+          </informationRequirement>
+          <informationRequirement id="InformationRequirement_1fldmw1">
+            <requiredDecision href="#Decision_0htz6p0" />
+          </informationRequirement>
+          <informationRequirement id="InformationRequirement_01e0a3n">
+            <requiredDecision href="#Decision_01zlwc9" />
+          </informationRequirement>
+          <decisionTable id="DecisionTable_0b99csc" hitPolicy="FIRST">
+            <input id="InputClause_04lbz3d">
+              <inputExpression id="LiteralExpression_0twiv3p" typeRef="number">
+                <text>WeighedCountFrictionless</text>
+              </inputExpression>
+            </input>
+            <input id="InputClause_11v9ldh">
+              <inputExpression id="LiteralExpression_014kmzc" typeRef="number">
+                <text>WeighedCountChallenge</text>
+              </inputExpression>
+            </input>
+            <input id="InputClause_0bm0dwi">
+              <inputExpression id="LiteralExpression_1he020a" typeRef="number">
+                <text>CountOfInactiveRules</text>
+              </inputExpression>
+            </input>
+            <input id="InputClause_03bh4kz">
+              <inputExpression id="LiteralExpression_0vsn8o6" typeRef="string">
+                <text>SignalledRules.Count(jj=&gt;jj.Result=="decline")</text>
+              </inputExpression>
+            </input>
+            <input id="InputClause_1b7f38t">
+              <inputExpression id="LiteralExpression_1uxbmsr" typeRef="string">
+                <text>CountWhiteList</text>
+              </inputExpression>
+            </input>
+            <input id="InputClause_1i00wt9">
+              <inputExpression id="LiteralExpression_11x2bvz" typeRef="number">
+                <text>WeighedCountDecline</text>
+              </inputExpression>
+            </input>
+            <output id="OutputClause_021evse" label="OutResult" name="OutResult" typeRef="number" />
+            <output id="OutputClause_1p2uajf" name="v3ds" typeRef="string" />
+            <output id="OutputClause_1epw2zy" name="SaveAlert" typeRef="number" />
+            <output id="OutputClause_0aeuras" name="OutComment" typeRef="string" />
+            <rule id="DecisionRule_1of1brv">
+              <description>White list rule signalled</description>
+              <inputEntry id="UnaryTests_1f80w2n">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1kxatsj">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1xw1bxl">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_054vca1">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_00eb3sp">
+                <text>&gt;0</text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_16p26g5">
+                <text></text>
+              </inputEntry>
+              <outputEntry id="LiteralExpression_103a0l8">
+                <text>1</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_1froodt">
+                <text>"frictionless"</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0557b4b">
+                <text>1</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0q753dl">
+                <text>"White list rule signalled"</text>
+              </outputEntry>
+            </rule>
+            <rule id="DecisionRule_1hkkpvt">
+              <description>Abnormal behavior signalled</description>
+              <inputEntry id="UnaryTests_18hwkmh">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1vhsgc2">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_18x1igf">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0dknl0a">
+                <text>&gt;0</text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_196cotk">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0zzfhsy">
+                <text></text>
+              </inputEntry>
+              <outputEntry id="LiteralExpression_0y3ugyk">
+                <text>1</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_1havsj0">
+                <text>"decline"</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_1px53bb">
+                <text>1</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_09v1at7">
+                <text>"Abnormal behavior signalled"</text>
+              </outputEntry>
+            </rule>
+            <rule id="DecisionRule_1wbbmft">
+              <description>Decline rules signalled</description>
+              <inputEntry id="UnaryTests_144tu8y">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_09d2gr4">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_13tv8xt">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_00cl204">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1f7bpsd">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1qylwqf">
+                <text>&gt;0</text>
+              </inputEntry>
+              <outputEntry id="LiteralExpression_1d3o11s">
+                <text>1</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0ow9q31">
+                <text>"decline"</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_1ceyp7q">
+                <text>1</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0703nv1">
+                <text>"Decline rules signalled"</text>
+              </outputEntry>
+            </rule>
+            <rule id="DecisionRule_1l0l4bi">
+              <description>Inactive rules detected</description>
+              <inputEntry id="UnaryTests_0v383ug">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1sdj2b2">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0tekjdw">
+                <text>&gt;0</text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1csjp6e">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_13mem0k">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1vueckp">
+                <text></text>
+              </inputEntry>
+              <outputEntry id="LiteralExpression_1ye1uto">
+                <text>0</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_04i30os">
+                <text>"challenge"</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0o72k0t">
+                <text>0</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_15du0ae">
+                <text>"Inactive rules detected"</text>
+              </outputEntry>
+            </rule>
+            <rule id="DecisionRule_0lmnxbo">
+              <description>Challenge rules signalled</description>
+              <inputEntry id="UnaryTests_0kos06u">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0casun4">
+                <text>&gt;0</text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0kxmwhb">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1t2yu6n">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1fsb65o">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0sp5i8y">
+                <text></text>
+              </inputEntry>
+              <outputEntry id="LiteralExpression_0zg0bkk">
+                <text>0</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_1u24zqq">
+                <text>"challenge"</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0uro9t8">
+                <text>0</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_1sv8pdm">
+                <text>"Challenge rules signalled"</text>
+              </outputEntry>
+            </rule>
+            <rule id="DecisionRule_0kmp0ne">
+              <description>Frictionless rules signalled</description>
+              <inputEntry id="UnaryTests_1ahtaby">
+                <text>&gt;0</text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_051zchq">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1p7noi0">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1jvimjh">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0lfsclk">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1kc64zr">
+                <text></text>
+              </inputEntry>
+              <outputEntry id="LiteralExpression_11o20v3">
+                <text>0</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0pbptnb">
+                <text>"frictionless"</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_1y9je4g">
+                <text>0</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_1ygabc4">
+                <text>"Frictionless rules signalled"</text>
+              </outputEntry>
+            </rule>
+            <rule id="DecisionRule_1j0o2kk">
+              <description>No rules signalled.Default behaviour</description>
+              <inputEntry id="UnaryTests_1l84qbn">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1yb4ukq">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_18tyh1m">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0joyqye">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_0zw4z27">
+                <text></text>
+              </inputEntry>
+              <inputEntry id="UnaryTests_1lv299d">
+                <text></text>
+              </inputEntry>
+              <outputEntry id="LiteralExpression_0m707he">
+                <text>0</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0vj8lhh">
+                <text>"challenge"</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_0dbr2sc">
+                <text>0</text>
+              </outputEntry>
+              <outputEntry id="LiteralExpression_13i118w">
+                <text>"No rules signalled.Default behaviour"</text>
+              </outputEntry>
+            </rule>
+          </decisionTable>
+        </decision>
+        <decision id="Decision_0ttmt6w" name="Count of frictionless rules, weighted by severity">
+          <variable id="InformationItem_07pnjcl" name="WeighedCountFrictionless" typeRef="number" />
+          <informationRequirement id="InformationRequirement_1gxmr0t">
+            <requiredInput href="#temperature_id" />
+          </informationRequirement>
+          <literalExpression id="LiteralExpression_06mehq7">
+            <text>SignalledRules.Where(jj=&gt;jj.Result=="frictionless").Sum(ii=&gt;ii.Severity)</text>
+          </literalExpression>
+        </decision>
+        <decision id="Decision_1f9uw16" name="Count of challenge rules, weighted by severity">
+          <variable id="InformationItem_14mnm4n" name="WeighedCountChallenge" typeRef="number" />
+          <informationRequirement id="InformationRequirement_0j7o1ix">
+            <requiredInput href="#temperature_id" />
+          </informationRequirement>
+          <literalExpression id="LiteralExpression_1sl1uuz">
+            <text>SignalledRules.Where(jj=&gt;jj.Result=="challenge").Sum(ii=&gt;ii.Severity)</text>
+          </literalExpression>
+        </decision>
+        <inputData id="InputData_1x6w4j4" name="InactiveRules" />
+        <decision id="Decision_11jgy39" name="Count of inactive rules">
+          <variable id="InformationItem_07uisoa" name="CountOfInactiveRules" typeRef="number" />
+          <informationRequirement id="InformationRequirement_1rkpk2d">
+            <requiredInput href="#InputData_1x6w4j4" />
+          </informationRequirement>
+          <literalExpression id="LiteralExpression_0snx4pp">
+            <text>InactiveRules.Count()</text>
+          </literalExpression>
+        </decision>
+        <decision id="Decision_0htz6p0" name="Count signalledВ  white list rules">
+          <variable id="InformationItem_00jmihf" name="CountWhiteList" typeRef="integer" />
+          <informationRequirement id="InformationRequirement_0qllzdm">
+            <requiredInput href="#temperature_id" />
+          </informationRequirement>
+          <literalExpression id="LiteralExpression_1e4d3oj">
+            <text>SignalledRules.Count(jj=&gt;jj.RuleID=="CheckWhiteListEcom")</text>
+          </literalExpression>
+        </decision>
+        <decision id="Decision_01zlwc9" name="Count of decline rules, weighted by severity">
+          <variable id="InformationItem_1h5ihxs" name="WeighedCountDecline" typeRef="integer" />
+          <informationRequirement id="InformationRequirement_1m6k9tv">
+            <requiredInput href="#temperature_id" />
+          </informationRequirement>
+          <literalExpression id="LiteralExpression_0hmmzv0">
+            <text>SignalledRules.Where(jj=&gt;jj.Result=="decline").Sum(ii=&gt;ii.Severity)</text>
+          </literalExpression>
+        </decision>
+        <textAnnotation id="TextAnnotation_1">
+          <text>Fields of analyze record</text>
+        </textAnnotation>
+        <association id="Association_18hoj4i">
+          <sourceRef href="#dayType_id" />
+          <targetRef href="#TextAnnotation_1" />
+        </association>
+        <textAnnotation id="TextAnnotation_0cbnzqx">
+          <text>List of signalled rules</text>
+        </textAnnotation>
+        <association id="Association_1hixpjb">
+          <sourceRef href="#TextAnnotation_0cbnzqx" />
+          <targetRef href="#temperature_id" />
+        </association>
+        <textAnnotation id="TextAnnotation_1enhxao">
+          <text>List of inactive rules</text>
+        </textAnnotation>
+        <association id="Association_0sag1i7">
+          <sourceRef href="#TextAnnotation_1enhxao" />
+          <targetRef href="#InputData_1x6w4j4" />
+        </association>
+        <dmndi:DMNDI>
+          <dmndi:DMNDiagram id="DMNDiagram_1ejukud">
+            <dmndi:DMNShape id="DMNShape_1pny77l" dmnElementRef="dayType_id">
+              <dc:Bounds height="45" width="125" x="297" y="97" />
+            </dmndi:DMNShape>
+            <dmndi:DMNShape id="DMNShape_1b88mi9" dmnElementRef="temperature_id">
+              <dc:Bounds height="45" width="125" x="297" y="197" />
+            </dmndi:DMNShape>
+            <dmndi:DMNShape id="DMNShape_1izzhzd" dmnElementRef="TextAnnotation_1">
+              <dc:Bounds height="45" width="125" x="157" y="117" />
+            </dmndi:DMNShape>
+            <dmndi:DMNEdge id="DMNEdge_1mkr3rl" dmnElementRef="Association_18hoj4i">
+              <di:waypoint x="297" y="123" />
+              <di:waypoint x="282" y="136" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNShape id="DMNShape_0radzsx" dmnElementRef="TextAnnotation_0cbnzqx">
+              <dc:Bounds height="80" width="100" x="160" y="180" />
+            </dmndi:DMNShape>
+            <dmndi:DMNEdge id="DMNEdge_0gfcq0j" dmnElementRef="Association_1hixpjb">
+              <di:waypoint x="260" y="220" />
+              <di:waypoint x="297" y="220" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNShape id="DMNShape_1yeoz9u" dmnElementRef="Decision_03gaio2">
+              <dc:Bounds height="80" width="180" x="660" y="190" />
+            </dmndi:DMNShape>
+            <dmndi:DMNEdge id="DMNEdge_0nmuj87" dmnElementRef="InformationRequirement_1gxmr0t">
+              <di:waypoint x="360" y="197" />
+              <di:waypoint x="540" y="150" />
+              <di:waypoint x="540" y="130" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNShape id="DMNShape_16et8ko" dmnElementRef="Decision_0ttmt6w">
+              <dc:Bounds height="80" width="180" x="450" y="50" />
+            </dmndi:DMNShape>
+            <dmndi:DMNShape id="DMNShape_0932le3" dmnElementRef="Decision_1f9uw16">
+              <dc:Bounds height="80" width="180" x="450" y="180" />
+            </dmndi:DMNShape>
+            <dmndi:DMNEdge id="DMNEdge_1e4du5i" dmnElementRef="InformationRequirement_0j7o1ix">
+              <di:waypoint x="422" y="220" />
+              <di:waypoint x="430" y="220" />
+              <di:waypoint x="450" y="220" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNEdge id="DMNEdge_0osnlfu" dmnElementRef="InformationRequirement_0pzu6m0">
+              <di:waypoint x="540" y="130" />
+              <di:waypoint x="750" y="170" />
+              <di:waypoint x="750" y="190" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNEdge id="DMNEdge_0cppq85" dmnElementRef="InformationRequirement_0m36dw2">
+              <di:waypoint x="630" y="220" />
+              <di:waypoint x="640" y="230" />
+              <di:waypoint x="660" y="230" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNShape id="DMNShape_05tv9m2" dmnElementRef="InputData_1x6w4j4">
+              <dc:Bounds height="45" width="125" x="277" y="537" />
+            </dmndi:DMNShape>
+            <dmndi:DMNShape id="DMNShape_102zdy4" dmnElementRef="TextAnnotation_1enhxao">
+              <dc:Bounds height="80" width="100" x="170" y="520" />
+            </dmndi:DMNShape>
+            <dmndi:DMNEdge id="DMNEdge_1vdpzhv" dmnElementRef="Association_0sag1i7">
+              <di:waypoint x="270" y="557" />
+              <di:waypoint x="277" y="564" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNShape id="DMNShape_0s67clu" dmnElementRef="Decision_11jgy39">
+              <dc:Bounds height="80" width="180" x="470" y="520" />
+            </dmndi:DMNShape>
+            <dmndi:DMNEdge id="DMNEdge_116w6gk" dmnElementRef="InformationRequirement_1rkpk2d">
+              <di:waypoint x="402" y="560" />
+              <di:waypoint x="450" y="560" />
+              <di:waypoint x="470" y="560" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNEdge id="DMNEdge_1pi7j8f" dmnElementRef="InformationRequirement_0bxln69">
+              <di:waypoint x="560" y="520" />
+              <di:waypoint x="795" y="290" />
+              <di:waypoint x="795" y="270" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNShape id="DMNShape_0lucl39" dmnElementRef="Decision_0htz6p0">
+              <dc:Bounds height="80" width="180" x="450" y="290" />
+            </dmndi:DMNShape>
+            <dmndi:DMNEdge id="DMNEdge_0lle5yc" dmnElementRef="InformationRequirement_0qllzdm">
+              <di:waypoint x="360" y="242" />
+              <di:waypoint x="540" y="270" />
+              <di:waypoint x="540" y="290" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNEdge id="DMNEdge_0ws2ik1" dmnElementRef="InformationRequirement_1fldmw1">
+              <di:waypoint x="540" y="290" />
+              <di:waypoint x="705" y="290" />
+              <di:waypoint x="705" y="270" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNShape id="DMNShape_1mulrbn" dmnElementRef="Decision_01zlwc9">
+              <dc:Bounds height="80" width="180" x="450" y="390" />
+            </dmndi:DMNShape>
+            <dmndi:DMNEdge id="DMNEdge_0gkncbn" dmnElementRef="InformationRequirement_1m6k9tv">
+              <di:waypoint x="360" y="242" />
+              <di:waypoint x="540" y="370" />
+              <di:waypoint x="540" y="390" />
+            </dmndi:DMNEdge>
+            <dmndi:DMNEdge id="DMNEdge_1tqb820" dmnElementRef="InformationRequirement_01e0a3n">
+              <di:waypoint x="540" y="390" />
+              <di:waypoint x="750" y="290" />
+              <di:waypoint x="750" y="270" />
+            </dmndi:DMNEdge>
+          </dmndi:DMNDiagram>
+        </dmndi:DMNDI>
+      </definitions>
+    mocFile: ''
+    mocBody: ''
+  isender: 
+- isBridge: false
+  isHandleSenderError: false
+  maxSavedLimitInMB: 0
+  saveErrorSendDirectory: ''
+  saveScenariousDirectory: C:\d\Scenarious\
+  iDStep: Step_ToTWO
+  iDPreviousStep: Step_DMN
+  iDResponsedReceiverStep: Step_0
+  description: Some comments in this place
+  receiver: 
+  ireceiver: 
+  converters:
+  - name: FilterCopyToTWBody
+    filter: !ConditionFilter
+      conditionPath: Step_0/Rec22
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ExtractFromInputValue
+      copyChildsOnly: true
+      viewAsJsonString: false
+      outputPath: ''
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec
+      conditionCalcer: 
+      valuePath: ''
+  - name: FilterCopyToTWDMNResult
+    filter: !ConditionFilter
+      conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:Extensions/t:Extension
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:Extensions/t:Extension/-name/#text
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: CCFA_3DS
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:Extensions/t:Extension/-id/#text
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: 374890234
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:Extensions/t:Extension/-criticalityIndicator/#text
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: false
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:Extensions/t:Extension/#text
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:Extensions/t:Extension/#text/DMNResult
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:Extensions/t:Extension/#text/DMNResult/3ds
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
+      conditionCalcer: !ComparerForValue
+        isNegative: false
+        valueForCompare: v3ds
+      valuePath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: Step_0/Rec/xml-fragment/t:Specific/t:Tds/t:Extensions/t:Extension/#text/DMNResult/declinereason
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
+      conditionCalcer: !ComparerForValue
+        isNegative: false
+        valueForCompare: OutComment
+      valuePath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
+  sender: !HTTPSender
+    certName: ''
+    certPassword: ''
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInSeconds: 9
+    headers: 
+    responseType: text/xml
+    urls:
+    - {#AUTH_HOST_URL#}
+    timeoutsBetweenRetryInMilli:
+    - 100
+    url: {#AUTH_HOST_URL#}
+    mocFile: ''
+    mocBody: ''
+  isender: 
+- isBridge: false
+  isHandleSenderError: false
+  maxSavedLimitInMB: 0
+  saveErrorSendDirectory: ''
+  saveScenariousDirectory: C:\d\Scenarious\
+  iDStep: Step_SaveAlert
+  iDPreviousStep: Step_ToTWO
+  iDResponsedReceiverStep: ''
+  description: Some comments in this place
+  receiver: 
+  ireceiver: 
+  converters:
+  - name: FilterToPostgres
+    filter: !AndOrFilter
+      filters:
+      - !ConditionFilter
+        conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
+        conditionCalcer: !ComparerForValue
+          isNegative: false
+          valueForCompare: SaveAlert
+      - !ConditionFilter
+        conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
+        conditionCalcer: !ComparerForValue
+          isNegative: false
+          valueForCompare: 1
+      action: AND
+    outputFields:
+    - !ExtractFromInputValue
+      copyChildsOnly: true
+      viewAsJsonString: false
+      outputPath: '@stream'
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Send/To
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: true
+      viewAsJsonString: false
+      outputPath: '@rex_result'
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Send/To/InputParameters
+      conditionCalcer: 
+      valuePath: ''
+  sender: !PostgresExecutorSender
+    connectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=fp;
+    statement: select * from fp.app_add_alert(@stream,@rex_result)
+    mocFile: ''
+    mocBody: ''
+  isender: 

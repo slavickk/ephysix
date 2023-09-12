@@ -319,13 +319,16 @@ namespace ETL_DB_Interface
             switch (type.ToUpper())
             {
                 case "DATE":
-                    return $"\"'||to_char({var}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')||'\"";
+                    return $"to_char({var}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')";
+                case "JSON":
+                    return $"{var}::text";
+
                 case "INTEGER":
                 case "LONG":
                 case "BOOLEAN":
-                    return $"\"'||{var}||'\"";
+                    return $"{var}::text";
                 default:
-                    return $"\"'||{var}||'\"";
+                    return $"{var}::text";
             }
         }
 
@@ -335,6 +338,10 @@ namespace ETL_DB_Interface
             {
                 case "LONG":
                     return "bigint";
+              /*  case "DATE":
+                    return "timestamp with time zone";*/
+                case "JSON":
+                    return "jsonb";
                 case "DATE":
                 case "INTEGER":
                 case "BOOLEAN":
@@ -347,8 +354,9 @@ namespace ETL_DB_Interface
         {
             switch (type.ToUpper())
             {
-
-//                case "DATE":
+                case "JSON":
+                    return "Json";
+                //                case "DATE":
                 case "INTEGER":
                 case "BOOLEAN":
                     return type;
@@ -357,7 +365,7 @@ namespace ETL_DB_Interface
             }
         }
 
-        async static Task<string> formFunctionText(NpgsqlConnection conn,long id,string CamundaID)
+        async static Task<string[]> formFunctionText(NpgsqlConnection conn,long id,string CamundaID)
         {
             string packageName = "";
             string packageDescription="";
@@ -384,16 +392,17 @@ where n.nodeid=@id and n.isdeleted=false and a.name is not null";
                         packageDescription = reader.GetString(1);
                         var var1 = reader.GetString(3);
                         var typ=reader.GetString(4);
-                        jsons.Add($"\"{var1}\": {{ \"type\": \"{ToCamundaType(typ)}\", \"value\": {argFromType(var1,typ)}}}");
+                        jsons.Add($"'{var1}',jsonb_build_object('type', '{ToCamundaType(typ)}', 'value', {argFromType(var1, typ)})");// : {{ \"type\": \"{ToCamundaType(typ)}\", \"value\": {argFromType(var1,typ)}}}");
+//                        jsons.Add($"\"{var1}\": {{ \"type\": \"{ToCamundaType(typ)}\", \"value\": {argFromType(var1, typ)}}}");
                         arguments.Add($"{var1} {ToPostgreType( typ)}");
                     }
                 }
             }
-
+      //      "select jsonb_build_object('cardid', jsonb_build_object('type', 'String', 'value', '626262'),'Limits',jsonb_build_object('type', 'Object', 'value', '{\"TEST\":\"hfhfhf\", \"hjfjfjf\":56}'::jsonb))"
 //            select('{"+string.Join(', ',jsons)+ $",\"extProcId\":{{\"value\":\"{CamundaID}\""+ @",""type"":""String""},' || command || '}')::jsonb into params;
 
-            string body = @"CREATE OR REPLACE FUNCTION fp.etlpackage_"+packageName+@"(
-	"+string.Join(',',arguments)+((arguments.Count>0)?",":"")+ @"pgroupid bigint DEFAULT NULL::bigint)
+            string[] body = new string[] { @"CREATE OR REPLACE FUNCTION fp.etlpackage_" + packageName + @"(
+	" + string.Join(',', arguments) + ((arguments.Count > 0) ? "," : "") + @"pgroupid bigint DEFAULT NULL::bigint)
     RETURNS bigint
     LANGUAGE 'plpgsql'
     COST 100
@@ -402,9 +411,9 @@ AS $BODY$
 DECLARE
     params jsonb;
 BEGIN
-    select ('{" + string.Join(',',jsons)+ $",\"extProcId\":{{\"value\":\"{CamundaID}\""+ @",""type"":""String""}}')::jsonb into params;
+    select jsonb_build_object(" + string.Join(',', jsons) + $", 'extProcId',jsonb_build_object('type', 'String', 'value', '{CamundaID}'"+@")) into params;
     /*
-      Автоматически создаваемая задача исполнения ETL "+$"{packageName} {packageDescription}"+ @".
+      Автоматически создаваемая задача исполнения ETL " + $"{packageName} {packageDescription}" + @".
       Входные параметры:
         Параметры ETL,
         command text - Описание параметров функции : вызываемой по окончании обработки ETL
@@ -416,7 +425,32 @@ BEGIN
     return app_insert_actions(pjparam := params, pcamunda_proc_id := 'main_etl_job',pgroupid := pgroupid);
 END
 $BODY$;
-";
+",
+ @"CREATE OR REPLACE FUNCTION fp.etlaction_" + packageName + @"(
+	" + string.Join(',', arguments) + ((arguments.Count > 0) ? "," : "") + @"pgroupid bigint DEFAULT NULL::bigint)
+    RETURNS bigint
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+    params jsonb;
+BEGIN
+    select jsonb_build_object(" + string.Join(',', jsons) + $", 'extProcId',jsonb_build_object('type', 'String', 'value', '{CamundaID}'"+@")) into params;
+    /*
+      Автоматически создаваемая задача исполнения ETL " + $"{packageName} {packageDescription}" + @".
+      Входные параметры:
+        Параметры ETL,
+        command text - Описание параметров функции : вызываемой по окончании обработки ETL
+        Пример:
+'""procJob"":{""value"":""{\""procName\"":\""examplefunction\"",\""param_proc\"":[{\""Name\"":\""timeExample\"",\""Type\"":\""Date\"", \""Value\"":\""2023-03-11T00:00:00Z\""},{\""Name\"":\""IDEvent\"",\""Value\"":5,\""Type\"":\""Integer\""},{\""Name\"":\""comment1\"",\""Type\"":\""Text\"",\""Value\"":\""all right\""}]}"",""type"":""String""}'
+      Выходные параметры:
+        id_ - идентификатор запущенного задания
+    */
+    return app_insert_actions(pjparam := params, pcamunda_proc_id := 'main_action_job',pgroupid := pgroupid);
+END
+$BODY$;
+"           };
             return body;
         }
 
@@ -1169,7 +1203,7 @@ $BODY$;
         private static async Task SaveProcedure(NpgsqlConnection conn, long id,string NamePacket,string CamundaID)
         {
          //   return;
-            var body = await formFunctionText(conn, id,CamundaID);
+            var bodies = await formFunctionText(conn, id,CamundaID);
             NpgsqlConnection connAdm = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
             await connAdm.OpenAsync();
            /* var command = @"INSERT INTO fp.app_action(
@@ -1186,6 +1220,7 @@ $BODY$;
                     }
                 }
             }*/
+           foreach(var body in bodies)
             await using (var cmd = new NpgsqlCommand(body,conn))
             {
                 //cmd.Parameters.AddWithValue("@id_packet", NamePacket);
