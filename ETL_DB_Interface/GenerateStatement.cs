@@ -365,7 +365,7 @@ namespace ETL_DB_Interface
             }
         }
 
-        async static Task<string[]> formFunctionText(NpgsqlConnection conn,long id,string CamundaID)
+        async static Task<string[]> formFunctionText(NpgsqlConnection conn, ETL_Package package, string CamundaID)
         {
             string packageName = "";
             string packageDescription="";
@@ -383,7 +383,7 @@ where n.nodeid=@id and n.isdeleted=false and a.name is not null";
 
             await using (var cmd = new NpgsqlCommand(command, conn))
             {
-                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@id", package.packet_id);
                 await using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
@@ -415,12 +415,8 @@ BEGIN
     /*
       Автоматически создаваемая задача исполнения ETL " + $"{packageName} {packageDescription}" + @".
       Входные параметры:
-        Параметры ETL,
-        command text - Описание параметров функции : вызываемой по окончании обработки ETL
-        Пример:
-'""procJob"":{""value"":""{\""procName\"":\""examplefunction\"",\""param_proc\"":[{\""Name\"":\""timeExample\"",\""Type\"":\""Date\"", \""Value\"":\""2023-03-11T00:00:00Z\""},{\""Name\"":\""IDEvent\"",\""Value\"":5,\""Type\"":\""Integer\""},{\""Name\"":\""comment1\"",\""Type\"":\""Text\"",\""Value\"":\""all right\""}]}"",""type"":""String""}'
-      Выходные параметры:
-        id_ - идентификатор запущенного задания
+        Параметры функции:"+$"{string.Join('\n',package.variables.Select (ii=>"\nИмя:"+ii.Name+"\nОписание:"+ii.Description+"\nТип:"+ii.Type+"\nПример:"+ii.DefaultValue))}"+@"
+
     */
     return app_insert_actions(pjparam := params, pcamunda_proc_id := 'main_etl_job',pgroupid := pgroupid);
 END
@@ -440,12 +436,8 @@ BEGIN
     /*
       Автоматически создаваемая задача исполнения ETL " + $"{packageName} {packageDescription}" + @".
       Входные параметры:
-        Параметры ETL,
-        command text - Описание параметров функции : вызываемой по окончании обработки ETL
-        Пример:
-'""procJob"":{""value"":""{\""procName\"":\""examplefunction\"",\""param_proc\"":[{\""Name\"":\""timeExample\"",\""Type\"":\""Date\"", \""Value\"":\""2023-03-11T00:00:00Z\""},{\""Name\"":\""IDEvent\"",\""Value\"":5,\""Type\"":\""Integer\""},{\""Name\"":\""comment1\"",\""Type\"":\""Text\"",\""Value\"":\""all right\""}]}"",""type"":""String""}'
-      Выходные параметры:
-        id_ - идентификатор запущенного задания
+        Параметры функции:"+$"{string.Join('\n',package.variables.Select (ii=>"\nИмя:"+ii.Name+"\nОписание:"+ii.Description+"\nТип:"+ii.Type+"\nПример:"+ii.DefaultValue))}"+@"
+
     */
     return app_insert_actions(pjparam := params, pcamunda_proc_id := 'main_action_job',pgroupid := pgroupid);
 END
@@ -969,7 +961,7 @@ $BODY$;
             public string ETL_add_par { get; set; }
             public string ETL_add_define { get; set; }
             public List<ItemTable> allTables { get; set; } = new List<ItemTable>();
-            public List<CamundaProcess.ExternalTask> usedExternalTasks  = new List<CamundaProcess.ExternalTask>();
+            public List<CamundaProcess.ExternalTask> usedExternalTasks { get; set; } = new List<CamundaProcess.ExternalTask>();
             ItemTable getTable(int i,int countAll)
             {
                 bool isFinishTask = i >= countAll;
@@ -1048,7 +1040,7 @@ $BODY$;
                 }
 
 //                this.allTables.Select(ii=>ii.SelectList)
-                return new Dictionary<string, object> { { "Name", this.NamePacket}, { "Description", this.description }, { "InputTables", this.allTables }, { "OutputTables", outTables },{ "Zones", zones },{ "Parameters",this.variables},{ "Usage", $"select * from fp.etlpackage_{NamePacket.ToLower()}({string.Join(',',variables.Select(ii=> "@" + ii.Name.ToLower()))},[idexternalobj])" },{ "UsedExternalTasks", this.usedExternalTasks} };
+                return new Dictionary<string, object> { { "Name", this.NamePacket}, { "CountVar", this.variables.Count }, { "Description", this.description }, { "InputTables", this.allTables }, { "OutputTables", outTables },{ "Zones", zones },{ "Parameters",this.variables},{ "Usage", $"select * from fp.etlpackage_{NamePacket.ToLower()}({string.Join(',',variables.Select(ii=> "@" + ii.Name.ToLower()))},[idexternalobj])" },{ "UsedExternalTasks", this.usedExternalTasks} };
 
 //                throw new NotImplementedException();
             }
@@ -1127,9 +1119,10 @@ $BODY$;
             process.save(path1);
             string json = JsonSerializer.Serialize<ETL_Package>(package);
 
-            await SaveProcedure(conn, id, package.NamePacket, CamundaID);
+            await SaveProcedure(conn, package, CamundaID);
 
             package.SaveMDDefinition();
+            package.SavePythonDefinition();
 
             //            await SendToCamunda(@"C:\Camunda\Temp6.bpmn", "ETL_Process532730");
             if(sendToCamunda)
@@ -1200,10 +1193,10 @@ $BODY$;
 
         public static string pathToSaveETL = @"C:\CamundaTopics\camundatopics\BPMN\ETL\";
         public static string pathToSaveExternalTask = @"C:\CamundaTopics\camundatopics\ExternalTasks\";
-        private static async Task SaveProcedure(NpgsqlConnection conn, long id,string NamePacket,string CamundaID)
+        private static async Task SaveProcedure(NpgsqlConnection conn, ETL_Package package/*string NamePacket*/,string CamundaID)
         {
          //   return;
-            var bodies = await formFunctionText(conn, id,CamundaID);
+            var bodies = await formFunctionText(conn, package,CamundaID);
             NpgsqlConnection connAdm = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
             await connAdm.OpenAsync();
            /* var command = @"INSERT INTO fp.app_action(
@@ -2054,7 +2047,10 @@ order by n.nodeid
                 var dest = await GenerateStatement.getSrcInfo(dest_id, conn);
                 foreach( var table in allTables.Where(ii=>!string.IsNullOrEmpty(ii.url)))
                 {
-                    listValue.Add(urlTask(src.connectionString, GenerateStatement.ConnectionStringAdm, table));
+                    var item = urlTask(src.connectionString, GenerateStatement.ConnectionStringAdm, table);
+                    package.usedExternalTasks.Add(item);// Checking needed!
+
+                    listValue.Add(item);
                 }
 
                 CamundaProcess.ExternalTask retValue = new CamundaProcess.ExternalTask();
