@@ -178,6 +178,7 @@ where r.isdeleted = false
                             var table_id2 = reader.GetInt64(3);
                             if (package.relations.Count(ii => ii.relationID == fk_id) == 0)
                             {
+                                
                                 package.relations.Add(new ETL_Package.ItemRelation() { relationID = fk_id, relationName = fk_name, table1 = package.allTables.First(ii => ii.etl_id == table_id1), table2 = package.allTables.First(ii => ii.etl_id == table_id2) });
                             }
 

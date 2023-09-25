@@ -71,7 +71,7 @@ namespace CamundaInterface
                 await using (var cmd = new NpgsqlCommand($"insert into  {TableName}  {SQL}", conn))
                 {
                     cmd.Parameters.AddWithValue("@body",body);
-
+                    retValue.all++;
                     cmd.ExecuteNonQuery();
                 }
 
@@ -80,6 +80,7 @@ namespace CamundaInterface
             }
             catch
             {
+                retValue.errors++;
                 FinishStep(retValue, conn, connAdm);
                 throw;
             }

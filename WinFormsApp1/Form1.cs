@@ -602,11 +602,18 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
             {
                 if (isBusy)
                     return;
-                isBusy = true;
-                var pack = comboBoxPackage.SelectedItem as ItemPackage;
-                package=await DBInterface.FillPackageContent(conn,pack);
-                textBoxEtlDescr.Text = $"Etl:{package.ETLName} outFile:{package.OutputTables}";
-
+                try
+                {
+                    isBusy = true;
+                    var pack = comboBoxPackage.SelectedItem as ItemPackage;
+                    package = await DBInterface.FillPackageContent(conn, pack);
+                    textBoxEtlDescr.Text = $"Etl:{package.ETLName} outFile:{package.OutputTables}";
+                } 
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                    return;
+                }
                 RefreshVariableList();
                 RefreshListViewLinksSelected();
                 RefreshListViewTablesSelected();

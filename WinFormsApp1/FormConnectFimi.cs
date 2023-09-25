@@ -251,6 +251,8 @@ namespace WinFormsETLPackagedCreator
             retValue.id = $"Id{index}";
             retValue.name = $"ETL_Task_{index}";
             retValue.topic = "FimiConnector";
+            retValue.url = "http://CSExternalTask.service.dc1.consul:24169/api/Api/FimiConnector";
+
             retValue.parameters.Clear();
             retValue.Annotation = $"Fimi transform data  ";
             retValue.author = "Yury Gasnikov";

@@ -1988,6 +1988,8 @@ order by n.nodeid
                 retValue.id = $"Id{table.Name}";
                 retValue.name = $"ETL_Task_{table.Name}";
                 retValue.topic = "url_crowler";
+                retValue.url = "http://CSExternalTask.service.dc1.consul:24169/api/Api/to-dict-sender";
+
                 retValue.parameters.Clear();
                 retValue.Annotation = $"Get data from {"external url"} to {table.Name} ";
                 retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("ConnSelect", ConnectionString));
@@ -2117,7 +2119,7 @@ order by n.nodeid
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Fields", string.Join(',', def.Fields.Select(ii=>ii.Name)), "Fields of dictionary(delimiter ',')"));
 
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Variables", String.Join(", ", variables.Select(ii => ii.Name)),"List of package variables(',' delimiter)"));
-
+                    retValue.url = "http://CSExternalTask.service.dc1.consul:24169/api/Api/to-dict-sender";
                     retValue.topic = "to_dict_sender";
                 }
                 else
