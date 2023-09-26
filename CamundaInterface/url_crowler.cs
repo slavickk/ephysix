@@ -72,6 +72,7 @@ namespace CamundaInterface
                 {
                     cmd.Parameters.AddWithValue("@body",body);
                     retValue.all++;
+
                     cmd.ExecuteNonQuery();
                 }
 
