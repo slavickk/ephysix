@@ -84,6 +84,12 @@
             this.checkBoxFindTable = new System.Windows.Forms.CheckBox();
             this.buttonDelField = new System.Windows.Forms.Button();
             this.buttonFIMI = new System.Windows.Forms.Button();
+            this.textBoxUrl = new System.Windows.Forms.TextBox();
+            this.textBoxSql = new System.Windows.Forms.TextBox();
+            this.textBoxTimeout = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -100,7 +106,7 @@
             // textBox1
             // 
             this.textBox1.Location = new System.Drawing.Point(256, 2);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(4);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(190, 39);
             this.textBox1.TabIndex = 1;
@@ -109,7 +115,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(451, 2);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(141, 43);
             this.button1.TabIndex = 2;
@@ -121,7 +127,7 @@
             // 
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(19, 64);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.comboBox1.Margin = new System.Windows.Forms.Padding(4);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(426, 40);
             this.comboBox1.TabIndex = 3;
@@ -130,7 +136,7 @@
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(19, 209);
-            this.button2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(141, 43);
             this.button2.TabIndex = 4;
@@ -147,8 +153,8 @@
             this.columnHeader8,
             this.columnHeader14});
             this.listViewSelectedField.FullRowSelect = true;
-            this.listViewSelectedField.Location = new System.Drawing.Point(19, 322);
-            this.listViewSelectedField.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.listViewSelectedField.Location = new System.Drawing.Point(19, 412);
+            this.listViewSelectedField.Margin = new System.Windows.Forms.Padding(4);
             this.listViewSelectedField.MultiSelect = false;
             this.listViewSelectedField.Name = "listViewSelectedField";
             this.listViewSelectedField.Size = new System.Drawing.Size(574, 322);
@@ -189,8 +195,8 @@
             this.columnHeader4,
             this.columnHeader5});
             this.listViewLinks.FullRowSelect = true;
-            this.listViewLinks.Location = new System.Drawing.Point(615, 322);
-            this.listViewLinks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.listViewLinks.Location = new System.Drawing.Point(615, 412);
+            this.listViewLinks.Margin = new System.Windows.Forms.Padding(4);
             this.listViewLinks.MultiSelect = false;
             this.listViewLinks.Name = "listViewLinks";
             this.listViewLinks.Size = new System.Drawing.Size(712, 322);
@@ -216,7 +222,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(19, 282);
+            this.label2.Location = new System.Drawing.Point(19, 372);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(70, 32);
@@ -226,7 +232,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(615, 252);
+            this.label3.Location = new System.Drawing.Point(615, 374);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(79, 32);
@@ -236,7 +242,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(19, 663);
+            this.label4.Location = new System.Drawing.Point(19, 753);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(357, 32);
@@ -245,8 +251,8 @@
             // 
             // textBoxCondition
             // 
-            this.textBoxCondition.Location = new System.Drawing.Point(191, 700);
-            this.textBoxCondition.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxCondition.Location = new System.Drawing.Point(191, 790);
+            this.textBoxCondition.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxCondition.Name = "textBoxCondition";
             this.textBoxCondition.Size = new System.Drawing.Size(364, 39);
             this.textBoxCondition.TabIndex = 11;
@@ -254,8 +260,8 @@
             // buttonAddCondition
             // 
             this.buttonAddCondition.Enabled = false;
-            this.buttonAddCondition.Location = new System.Drawing.Point(565, 693);
-            this.buttonAddCondition.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.buttonAddCondition.Location = new System.Drawing.Point(565, 783);
+            this.buttonAddCondition.Margin = new System.Windows.Forms.Padding(4);
             this.buttonAddCondition.Name = "buttonAddCondition";
             this.buttonAddCondition.Size = new System.Drawing.Size(74, 43);
             this.buttonAddCondition.TabIndex = 12;
@@ -269,8 +275,8 @@
             this.columnHeader6,
             this.columnHeader7});
             this.listViewAddCondition.FullRowSelect = true;
-            this.listViewAddCondition.Location = new System.Drawing.Point(19, 755);
-            this.listViewAddCondition.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.listViewAddCondition.Location = new System.Drawing.Point(19, 845);
+            this.listViewAddCondition.Margin = new System.Windows.Forms.Padding(4);
             this.listViewAddCondition.MultiSelect = false;
             this.listViewAddCondition.Name = "listViewAddCondition";
             this.listViewAddCondition.Size = new System.Drawing.Size(695, 264);
@@ -294,8 +300,8 @@
             // 
             this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.tableViewControl1.ForeColor = System.Drawing.SystemColors.ControlLight;
-            this.tableViewControl1.Location = new System.Drawing.Point(747, 704);
-            this.tableViewControl1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableViewControl1.Location = new System.Drawing.Point(747, 794);
+            this.tableViewControl1.Margin = new System.Windows.Forms.Padding(2);
             this.tableViewControl1.Name = "tableViewControl1";
             this.tableViewControl1.Size = new System.Drawing.Size(576, 704);
             this.tableViewControl1.TabIndex = 14;
@@ -303,8 +309,8 @@
             // textBoxTableAdditional
             // 
             this.textBoxTableAdditional.Enabled = false;
-            this.textBoxTableAdditional.Location = new System.Drawing.Point(19, 700);
-            this.textBoxTableAdditional.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxTableAdditional.Location = new System.Drawing.Point(19, 790);
+            this.textBoxTableAdditional.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxTableAdditional.Name = "textBoxTableAdditional";
             this.textBoxTableAdditional.Size = new System.Drawing.Size(164, 39);
             this.textBoxTableAdditional.TabIndex = 15;
@@ -312,7 +318,7 @@
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(1177, 9);
-            this.button3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(141, 43);
             this.button3.TabIndex = 18;
@@ -323,7 +329,7 @@
             // textBoxFieldName
             // 
             this.textBoxFieldName.Location = new System.Drawing.Point(93, 113);
-            this.textBoxFieldName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxFieldName.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxFieldName.Name = "textBoxFieldName";
             this.textBoxFieldName.Size = new System.Drawing.Size(190, 39);
             this.textBoxFieldName.TabIndex = 21;
@@ -351,7 +357,7 @@
             // textBoxColumnAlias
             // 
             this.textBoxColumnAlias.Location = new System.Drawing.Point(373, 113);
-            this.textBoxColumnAlias.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxColumnAlias.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxColumnAlias.Name = "textBoxColumnAlias";
             this.textBoxColumnAlias.Size = new System.Drawing.Size(190, 39);
             this.textBoxColumnAlias.TabIndex = 24;
@@ -370,7 +376,7 @@
             // 
             this.textBoxTableName.Enabled = false;
             this.textBoxTableName.Location = new System.Drawing.Point(128, 164);
-            this.textBoxTableName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxTableName.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxTableName.Name = "textBoxTableName";
             this.textBoxTableName.Size = new System.Drawing.Size(154, 39);
             this.textBoxTableName.TabIndex = 26;
@@ -378,7 +384,7 @@
             // textBoxTableAlias
             // 
             this.textBoxTableAlias.Location = new System.Drawing.Point(373, 166);
-            this.textBoxTableAlias.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxTableAlias.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxTableAlias.Name = "textBoxTableAlias";
             this.textBoxTableAlias.Size = new System.Drawing.Size(190, 39);
             this.textBoxTableAlias.TabIndex = 28;
@@ -413,7 +419,7 @@
             this.columnHeader11});
             this.listViewVariableList.FullRowSelect = true;
             this.listViewVariableList.Location = new System.Drawing.Point(615, 141);
-            this.listViewVariableList.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.listViewVariableList.Margin = new System.Windows.Forms.Padding(4);
             this.listViewVariableList.MultiSelect = false;
             this.listViewVariableList.Name = "listViewVariableList";
             this.listViewVariableList.Size = new System.Drawing.Size(704, 162);
@@ -444,7 +450,7 @@
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(1027, 96);
-            this.button4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button4.Margin = new System.Windows.Forms.Padding(4);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(141, 43);
             this.button4.TabIndex = 31;
@@ -456,7 +462,7 @@
             // 
             this.textBoxEtlDescr.Enabled = false;
             this.textBoxEtlDescr.Location = new System.Drawing.Point(743, 13);
-            this.textBoxEtlDescr.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxEtlDescr.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxEtlDescr.Name = "textBoxEtlDescr";
             this.textBoxEtlDescr.Size = new System.Drawing.Size(427, 39);
             this.textBoxEtlDescr.TabIndex = 32;
@@ -465,7 +471,7 @@
             // button5
             // 
             this.button5.Location = new System.Drawing.Point(665, 13);
-            this.button5.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button5.Margin = new System.Windows.Forms.Padding(4);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(71, 43);
             this.button5.TabIndex = 33;
@@ -477,7 +483,7 @@
             // 
             this.comboBoxPackage.FormattingEnabled = true;
             this.comboBoxPackage.Location = new System.Drawing.Point(743, 55);
-            this.comboBoxPackage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.comboBoxPackage.Margin = new System.Windows.Forms.Padding(4);
             this.comboBoxPackage.Name = "comboBoxPackage";
             this.comboBoxPackage.Size = new System.Drawing.Size(429, 40);
             this.comboBoxPackage.TabIndex = 34;
@@ -486,8 +492,8 @@
             // buttonEditCondition
             // 
             this.buttonEditCondition.Enabled = false;
-            this.buttonEditCondition.Location = new System.Drawing.Point(646, 693);
-            this.buttonEditCondition.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.buttonEditCondition.Location = new System.Drawing.Point(646, 783);
+            this.buttonEditCondition.Margin = new System.Windows.Forms.Padding(4);
             this.buttonEditCondition.Name = "buttonEditCondition";
             this.buttonEditCondition.Size = new System.Drawing.Size(74, 43);
             this.buttonEditCondition.TabIndex = 35;
@@ -499,7 +505,7 @@
             // 
             this.buttonEditField.Enabled = false;
             this.buttonEditField.Location = new System.Drawing.Point(176, 209);
-            this.buttonEditField.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.buttonEditField.Margin = new System.Windows.Forms.Padding(4);
             this.buttonEditField.Name = "buttonEditField";
             this.buttonEditField.Size = new System.Drawing.Size(141, 43);
             this.buttonEditField.TabIndex = 36;
@@ -510,7 +516,7 @@
             // button6
             // 
             this.button6.Location = new System.Drawing.Point(1176, 96);
-            this.button6.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button6.Margin = new System.Windows.Forms.Padding(4);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(141, 43);
             this.button6.TabIndex = 37;
@@ -521,7 +527,7 @@
             // buttonDelete
             // 
             this.buttonDelete.Location = new System.Drawing.Point(665, 53);
-            this.buttonDelete.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.buttonDelete.Margin = new System.Windows.Forms.Padding(4);
             this.buttonDelete.Name = "buttonDelete";
             this.buttonDelete.Size = new System.Drawing.Size(71, 43);
             this.buttonDelete.TabIndex = 38;
@@ -532,7 +538,7 @@
             // button7
             // 
             this.button7.Location = new System.Drawing.Point(1177, 51);
-            this.button7.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button7.Margin = new System.Windows.Forms.Padding(6);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(139, 49);
             this.button7.TabIndex = 39;
@@ -543,7 +549,7 @@
             // button8
             // 
             this.button8.Location = new System.Drawing.Point(451, 58);
-            this.button8.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button8.Margin = new System.Windows.Forms.Padding(6);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(139, 49);
             this.button8.TabIndex = 40;
@@ -583,7 +589,7 @@
             // 
             this.checkBoxFindTable.AutoSize = true;
             this.checkBoxFindTable.Location = new System.Drawing.Point(19, 21);
-            this.checkBoxFindTable.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.checkBoxFindTable.Margin = new System.Windows.Forms.Padding(6);
             this.checkBoxFindTable.Name = "checkBoxFindTable";
             this.checkBoxFindTable.Size = new System.Drawing.Size(222, 36);
             this.checkBoxFindTable.TabIndex = 46;
@@ -593,7 +599,7 @@
             // buttonDelField
             // 
             this.buttonDelField.Location = new System.Drawing.Point(178, 258);
-            this.buttonDelField.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.buttonDelField.Margin = new System.Windows.Forms.Padding(6);
             this.buttonDelField.Name = "buttonDelField";
             this.buttonDelField.Size = new System.Drawing.Size(139, 49);
             this.buttonDelField.TabIndex = 47;
@@ -603,7 +609,7 @@
             // 
             // buttonFIMI
             // 
-            this.buttonFIMI.Location = new System.Drawing.Point(881, 690);
+            this.buttonFIMI.Location = new System.Drawing.Point(881, 780);
             this.buttonFIMI.Name = "buttonFIMI";
             this.buttonFIMI.Size = new System.Drawing.Size(150, 46);
             this.buttonFIMI.TabIndex = 48;
@@ -611,11 +617,67 @@
             this.buttonFIMI.UseVisualStyleBackColor = true;
             this.buttonFIMI.Click += new System.EventHandler(this.buttonFIMI_Click);
             // 
+            // textBoxUrl
+            // 
+            this.textBoxUrl.Location = new System.Drawing.Point(30, 313);
+            this.textBoxUrl.Multiline = true;
+            this.textBoxUrl.Name = "textBoxUrl";
+            this.textBoxUrl.Size = new System.Drawing.Size(525, 65);
+            this.textBoxUrl.TabIndex = 49;
+            // 
+            // textBoxSql
+            // 
+            this.textBoxSql.Location = new System.Drawing.Point(615, 310);
+            this.textBoxSql.Multiline = true;
+            this.textBoxSql.Name = "textBoxSql";
+            this.textBoxSql.Size = new System.Drawing.Size(525, 65);
+            this.textBoxSql.TabIndex = 50;
+            // 
+            // textBoxTimeout
+            // 
+            this.textBoxTimeout.Location = new System.Drawing.Point(1157, 336);
+            this.textBoxTimeout.Name = "textBoxTimeout";
+            this.textBoxTimeout.Size = new System.Drawing.Size(161, 39);
+            this.textBoxTimeout.TabIndex = 51;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(1157, 301);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(180, 32);
+            this.label6.TabIndex = 52;
+            this.label6.Text = "TimeoutUpdate";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(553, 316);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(56, 32);
+            this.label12.TabIndex = 53;
+            this.label12.Text = "SQL";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(33, 274);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(55, 32);
+            this.label13.TabIndex = 54;
+            this.label13.Text = "URL";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1333, 1506);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.textBoxTimeout);
+            this.Controls.Add(this.textBoxSql);
+            this.Controls.Add(this.textBoxUrl);
             this.Controls.Add(this.buttonFIMI);
             this.Controls.Add(this.buttonDelField);
             this.Controls.Add(this.checkBoxFindTable);
@@ -658,7 +720,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.Text = "FormEtlCreator";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -726,5 +788,11 @@
         private CheckBox checkBoxFindTable;
         private Button buttonDelField;
         private Button buttonFIMI;
+        private TextBox textBoxUrl;
+        private TextBox textBoxSql;
+        private TextBox textBoxTimeout;
+        private Label label6;
+        private Label label12;
+        private Label label13;
     }
 }
