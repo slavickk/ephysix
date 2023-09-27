@@ -619,7 +619,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                 {
                     lastKey = item.sourceColumn.table.table_name + item.sourceColumn.table.alias;
                     if(lastItem != null)
-                    lastItem.sourceColumn.table.etl_id =(long) await SaveItem(conn, package.idPackage, selectList, lastItem.sourceColumn.table.table_id, lastItem.sourceColumn.table.alias, outputList);
+                    lastItem.sourceColumn.table.etl_id =(long) await SaveItem(conn, package.idPackage, selectList, lastItem.sourceColumn.table.table_id, lastItem.sourceColumn.table.alias, outputList );
                     selectList = "";
                     outputList = "";
 
@@ -719,7 +719,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
             {
                 var selectList = string.Join(",", table.SelectList.Select(ii => ii.expression + " " + ii.alias)); 
                 var outputList= string.Join(",", table.SelectList.Select(ii => ii.outputTable));
-                table.etl_id=(long)await SaveItem(conn, package.packet_id, selectList,table.TableId, table.Alias, outputList);
+                table.etl_id=(long)await SaveItem(conn, package.packet_id, selectList,table.TableId, table.Alias, outputList,table);
                 /*foreach (var item in package.selectedFields.OrderBy(ii => ii.sourceColumn.table.table_name + ii.sourceColumn.table.alias))
             {
                 if (item.sourceColumn.table.table_name + item.sourceColumn.table.alias != lastKey)
@@ -824,11 +824,11 @@ and rk.nodeid=rc.fromid
 
 
 
-        private static async Task<long?> SaveItem(NpgsqlConnection conn, long idPackage, string selectList, long table_id,string table_alias/* ETL_Package.ItemSelectedList lastItem*/,string outputList)
+        private static async Task<long?> SaveItem(NpgsqlConnection conn, long idPackage, string selectList, long table_id,string table_alias/* ETL_Package.ItemSelectedList lastItem*/,string outputList,GenerateStatement.ItemTable table= null)
         {
             if (table_alias != null)
             {
-                await using (var cmd = new NpgsqlCommand(@"select * from md_addetltable(5,@etlid,@tableid,@alias,@select_list,@output_list)", conn))
+                await using (var cmd = new NpgsqlCommand(@"select * from md_addetltable(5,@etlid,@tableid,@alias,@select_list,@output_list,@url,@sqlurl,@timeout)", conn))
                 {
                     cmd.Parameters.AddWithValue("@etlid", idPackage);
                     cmd.Parameters.AddWithValue("@tableid",table_id/* lastItem.sourceColumn.table.table_id*/);
@@ -836,6 +836,18 @@ and rk.nodeid=rc.fromid
         
                     cmd.Parameters.AddWithValue("@select_list", selectList);
                     cmd.Parameters.AddWithValue("@output_list", outputList);
+                    if (table != null)
+                    {
+                        cmd.Parameters.AddWithValue("@url", table.url);
+                        cmd.Parameters.AddWithValue("@sqlurl", table.sqlurl);
+                        cmd.Parameters.AddWithValue("@timeout", table.IntervalUpdateInSec.ToString());
+                    } else
+                    {
+                        cmd.Parameters.AddWithValue("@url", "");
+                        cmd.Parameters.AddWithValue("@sqlurl", "");
+                        cmd.Parameters.AddWithValue("@timeout", "");
+
+                    }
                     await using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
