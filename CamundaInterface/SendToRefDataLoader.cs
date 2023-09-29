@@ -212,6 +212,7 @@ namespace CamundaInterface
 
                                 var options = new JsonSerializerOptions();
                                 options.PropertyNameCaseInsensitive = false;
+                                Console.WriteLine($"Send request on addr {uri1.ToString()} sended {dict1}");
                                 var res = await client.PostAsJsonAsync<Dictionary>(uri1, dict, options);
 
                                 if (!res.IsSuccessStatusCode)
