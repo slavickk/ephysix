@@ -411,7 +411,7 @@ AS $BODY$
 DECLARE
     params jsonb;
 BEGIN
-    select jsonb_build_object(" + string.Join(',', jsons) + $", 'extProcId',jsonb_build_object('type', 'String', 'value', '{CamundaID}'"+@")) into params;
+    select jsonb_build_object(" + string.Join(',', jsons)+ ((jsons.Count > 0) ? "," : "") + $" 'extProcId',jsonb_build_object('type', 'String', 'value', '{CamundaID}'"+@")) into params;
     /*
       Автоматически создаваемая задача исполнения ETL " + $"{packageName} {packageDescription}" + @".
       Входные параметры:
@@ -432,7 +432,7 @@ AS $BODY$
 DECLARE
     params jsonb;
 BEGIN
-    select jsonb_build_object(" + string.Join(',', jsons) + $", 'extProcId',jsonb_build_object('type', 'String', 'value', '{CamundaID}'"+@")) into params;
+    select jsonb_build_object(" + string.Join(',', jsons) + ((jsons.Count > 0) ? "," : "") + $" 'extProcId',jsonb_build_object('type', 'String', 'value', '{CamundaID}'"+@")) into params;
     /*
       Автоматически создаваемая задача исполнения ETL " + $"{packageName} {packageDescription}" + @".
       Входные параметры:
@@ -1988,7 +1988,7 @@ order by n.nodeid
                 retValue.id = $"Id{table.Name}";
                 retValue.name = $"ETL_Task_{table.Name}";
                 retValue.topic = "url_crowler";
-                retValue.url = "http://CSExternalTask.service.dc1.consul:24169/api/Api/to-dict-sender";
+                retValue.url = "http://CSExternalTask.service.dc1.consul:24169/api/Api/url-crowler";
 
                 retValue.parameters.Clear();
                 retValue.Annotation = $"Get data from {"external url"} to {table.Name} ";
@@ -2124,6 +2124,7 @@ order by n.nodeid
                 }
                 else
                 {
+                    retValue.url = "http://ExternalTask.service.dc1.consul:24169/api/Api/loginDB";
 
                     retValue.noDescribe = true;
 

@@ -214,6 +214,11 @@ namespace CamundaInterface
                                 options.PropertyNameCaseInsensitive = false;
                                 var res = await client.PostAsJsonAsync<Dictionary>(uri1, dict, options);
 
+                                if (!res.IsSuccessStatusCode)
+                                {
+                                    Console.WriteLine($"Error on web request on addr {uri1.ToString()} sended {dict1}");
+                                }
+
                                 res.EnsureSuccessStatusCode();
 
                                 if (hash != new_hash)
@@ -445,6 +450,9 @@ namespace CamundaInterface
                     //var response = await client.PostAsync($"{baseAddr}/api/v0/referencedata/{FID}/{dictName}/append?delimiter=;", multiPartFormContent);
                     try
                     {
+                        if(!response.IsSuccessStatusCode)
+                            Console.WriteLine($"Error on web request on addr {baseAddr}/api/v0/referencedata/{FID}/{dictName}/reload?delimiter=;");
+
                         response.EnsureSuccessStatusCode();
                         var ans = await response.Content.ReadAsStringAsync();
                         Console.WriteLine($"OK: {ans}");

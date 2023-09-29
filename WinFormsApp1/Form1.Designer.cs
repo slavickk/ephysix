@@ -298,7 +298,7 @@
             // 
             // tableViewControl1
             // 
-            this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableViewControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.tableViewControl1.ForeColor = System.Drawing.SystemColors.ControlLight;
             this.tableViewControl1.Location = new System.Drawing.Point(747, 794);
             this.tableViewControl1.Margin = new System.Windows.Forms.Padding(2);

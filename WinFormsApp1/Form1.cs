@@ -310,18 +310,34 @@ namespace WinFormsApp1
                 textBoxTableName.Text = package.selectedFields[index].sourceColumn.table.table_name;
                 textBoxTableAlias.Text = package.selectedFields[index].sourceColumn.table.alias;
                 await fillTableInfo(package.selectedFields[index].sourceColumn.table);
+
             }
         }
 
 
         ETL_Package.ItemTable selectedTable = null;
-
+   
+        public void setTableAttr()
+        {
+            if(selectedTable!=null)
+            {
+                selectedTable.interval = Convert.ToInt64(textBoxTimeout.Text);
+                selectedTable.url = textBoxUrl.Text;
+                selectedTable.sqlurl = textBoxSql.Text;
+            }
+        }
         private async Task fillTableInfo( ETL_Package.ItemTable table)
         {
+            setTableAttr();
             buttonAddCondition.Enabled = true;
             selectedTable = table;
             await tableViewControl1.setContent(table.table_id, conn);
             textBoxTableAdditional.Text = table.table_name;
+            GenerateStatement.ItemTable t;
+            textBoxUrl.Text= table.url;
+            textBoxSql.Text = table.sqlurl;
+            textBoxTimeout.Text = table.interval.ToString();
+            
         }
 
 
@@ -492,7 +508,9 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
             }
             try
             {
-                var pack=await DBInterface.SaveAndExecuteETL(conn,package);
+                setTableAttr();
+
+                var pack =await DBInterface.SaveAndExecuteETL(conn,package);
                 if (pack != null)
                 {
                     //GetUML(pack);

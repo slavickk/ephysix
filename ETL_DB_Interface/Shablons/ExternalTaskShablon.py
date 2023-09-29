@@ -2,6 +2,9 @@ import requests
 import json
 import urllib3
 import sys
+from datetime import datetime
+import datetime
+
                                       
 # Suppress the InsecureRequestWarning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -15,7 +18,7 @@ if(len(sys.argv) <= {{package.CountVar}}):
 {% for task in package.UsedExternalTasks %}
 #{{task.topic}}:{{task.description}}
 baseAddress = '{{task.url}}'
-
+print("execute external task ",'{{task.topic}}','{{task.description}}')
 password = "your_password"
 timeout = 30  # Adjust this to your desired timeout value
 
@@ -33,8 +36,21 @@ request_data = {
 }
 
 try:
+    time1 = datetime.datetime.now()
+
+    print(time1.strftime("%Y-%m-%d %H:%M:%S"),"Send post request to url",url,"....",end='')
     # Send a POST request with the JSON payload in the request body
     response = requests.post(url, json=request_data, verify=False)
+
+    delta = datetime.datetime.now() - time1
+
+# time difference in seconds
+    if response.status_code == 200:
+        print("[OK]")
+    else:
+        print("[FAILED]")
+
+    print("Request finished with code ",response.status_code, f" exec {delta.total_seconds()*1000} ms")
     
     # Check the HTTP status code
     if response.status_code == 200:
@@ -55,4 +71,6 @@ try:
 except requests.exceptions.RequestException as e:
     # Handle network-related errors (e.g., connection error)
     print(f"Network Error: {e}")
+    exit(1)
 {% endfor %}
+exit(0)
