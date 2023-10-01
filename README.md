@@ -1,4 +1,4 @@
-# <ServiceName> CamundaExternalTask (v. 0.0.12)
+# <ServiceName> CamundaExternalTask (v. 0.0.13)
 
 ---
 # <Short Description> Sceleton for Camunda External Task by Python 

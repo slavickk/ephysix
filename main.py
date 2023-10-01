@@ -23,7 +23,7 @@ import dns.query
 import dns.flags
 import uuid
 
-logger.info(f'Start service version=0.0.12 ({__name__})')
+logger.info(f'Start service version=0.0.13 ({__name__})')
 
 #TODO переехать на asyncpg для Postgres драйвера
 #TODO переехать на oracledb & SQLAlchemy-3
