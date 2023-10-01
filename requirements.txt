@@ -2,7 +2,7 @@ camunda-external-task-client-python3==4.3.0
 SQLAlchemy==1.4.47
 python-json-logger==2.0.4
 prometheus_client==0.15.0
-Flask==2.3.3
+Flask==3.0.0
 dnspython==2.1.0
 psycopg2==2.9.3
 psycopg2-binary==2.9.1
