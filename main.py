@@ -23,11 +23,12 @@ import dns.query
 import dns.flags
 import uuid
 
-logger.info(f'Start service version=0.0.11 ({__name__})')
+logger.info(f'Start service version=0.0.12 ({__name__})')
 
 #TODO переехать на asyncpg для Postgres драйвера
 #TODO переехать на oracledb & SQLAlchemy-3
 #TODO переехать на Python-311
+#TODO сделать REST интерфейс на базе Flask
 
 def getenv(cfg):
     cfg['maxTasks']             = 1 if 'MAX_TASKS' not in os.environ else int(os.environ['MAX_TASKS'])
@@ -162,6 +163,10 @@ def db2db(task: ExternalTask) -> TaskResult:
     # b = task.get_variables()
     # c = task.get_extension_properties()
     # d = task._context
+    #TODO Забираем переменные, которые передала нам Камунда, если какой-то переменной нет, а она важна - ошибка
+    #TODO Если можем соединится с DM, то запишем ошибку в etl_error, если нет - только в логи
+    #TODO Всю логику - в процедуру, выход из неё: 'BusinessError' (task.bpmn_error), 'Failure' (task.failure), 'Complete' (task.complete)
+    #TODO Сделать рутинг во Flask, там подготовить переменные и тоже вызвать эту же процедуру
     try:
         vars = task.get_variables()
         try:
@@ -184,9 +189,17 @@ def db2db(task: ExternalTask) -> TaskResult:
         except KeyError:
             ErrMessage = ''
 
+        try:
+            SName = vars['SName']
+        except KeyError:
+            SName = ''
+
         # Connect к базе МетаДанных, собираем и забираем строки коннекта к источнику и к цели
         engine_ser = create_engine(cfg['DBDriver'] + '://'+cfg['DBUser']+':'+cfg['DBPassword']+'@'+cfg['DSN'])
         engine_ser.execution_options(stream_results=True)
+        (dsn_src) = (engine_ser.execute(text("""
+            select d.driver||'://'||s.login||':'||s.pass||'@'||s.dsn from md_src s, md_src_driver d where s.driverid=d.driverid and s.name=:name
+            """),{"name": SName}).fetchone())[0]
 
         # Connect к базе Datamart для складирования ошибок ETL
         (dsn_dm) = (engine_ser.execute(text("""
@@ -195,11 +208,9 @@ def db2db(task: ExternalTask) -> TaskResult:
         engine_dm = create_engine(dsn_dm)
         engine_dm.execution_options(stream_results=True, isolation_level='AUTOCOMMIT')
 
-        (dsn_src) = (engine_ser.execute(text("""
-            select d.driver||'://'||s.login||':'||s.pass||'@'||s.dsn from md_src s, md_src_driver d where s.driverid=d.driverid and s.name=:name
-            """),{"name": vars['SName']}).fetchone())[0]
         engine_src = create_engine(dsn_src)
         engine_src.execution_options(stream_results=True, isolation_level='AUTOCOMMIT')
+
         if Oper == 'CloseAction':
             logger.debug(f'Start CloseAction')
             with engine_src.begin() as conn:
@@ -532,6 +543,7 @@ def main(health):
         health.value = 0  # OK
 
     ExternalTaskWorker(worker_id="1", base_url=get_camunda_address(cfg), config=cfg).subscribe(cfg['TOPIC'], db2db)
+    logger.info(f'After subscription db2db')
 
     # try:
     #     while True:

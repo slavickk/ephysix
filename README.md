@@ -1,4 +1,4 @@
-# <ServiceName> CamundaExternalTask (v. 0.0.4)
+# <ServiceName> CamundaExternalTask (v. 0.0.12)
 
 ---
 # <Short Description> Sceleton for Camunda External Task by Python 
@@ -190,6 +190,8 @@ select account.statustime statustime,account.customerid customerid,account.orign
 | DSN                    | master.pgsqlanomaly01.service.consul:5432/fpdb |                 | *            |                     | DSN сервисного подключения                                                                                                                                                                                                                                                                                                                                                |
 | CONSUL_ADDR            | 172.17.0.1                                     |                 | *            |                     | Внутренний адрес Consul (нужен только для DNS)                                                                                                                                                                                                                                                                                                                            |
 | TOPIC                  | LoginDB                                        |                 | *            |                     | Имя топика в Camunda                                                                                                                                                                                                                                                                                                                                                      |
+| CAMUNDA_NAME           | camunda.service.dc1.consul                     |                 | *            |                     | DNS адрес Camunda                                                                                                                                                                                                                                                                                                                                                         |
+| DATAMARTDB             | DATAMART                                       |                 | *            |                     | Имя БД DataMart для фиксации ошибок                                                                                                                                                                                                                                                                                                                                       |
 
 ### Ports
 | PORT_NAME | DEFAULT_VALUE | PROTOCOL | HEALTHCHECK | HEALTHCHECK ROUTE | METRICS | METRICS ROUTE | DESCRIPTION |
