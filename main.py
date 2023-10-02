@@ -23,7 +23,7 @@ import dns.query
 import dns.flags
 import uuid
 
-logger.info(f'Start service version=0.0.14 ({__name__})')
+logger.info(f'Start service version=0.0.15 ({__name__})')
 
 #TODO переехать на asyncpg для Postgres драйвера
 #TODO переехать на oracledb & SQLAlchemy-3
@@ -116,6 +116,9 @@ def db2db(task: ExternalTask) -> TaskResult:
                  CloseAction - закрыть задачу на SName в app_actions. Если есть непустой параметр ErrorMessage,
                                то задача помечается как error. Поиск задачи в app_actions происходит по
                                app_actions.camunda_task_id=task.get_process_instance_id()
+                 7777 - MOC для тестирования. Просто сразу выдает Complete.
+                 6666 - MOC для тестирования. Просто сразу выдает BPMN Error.
+                 5555 - MOC для тестирования. Просто сразу выдает Failure.
      SName     : md_src.name источника данных (из него возьмем SDriver, SDSN, SLogin, SPassword).
                  Например: 'DummySystem3'
      TName     : md_src.name целевой БД (из него возьмем TDriver, TDSN, TLogin, TPassword)
@@ -193,6 +196,16 @@ def db2db(task: ExternalTask) -> TaskResult:
             SName = vars['SName']
         except KeyError:
             SName = ''
+
+        if Oper == '7777':
+            logger.info(f'MOC task completed: OperUUID={operuuid}')
+            return task.complete({"OperUUID": operuuid})
+        elif Oper == '5555':
+            logger.info(f'MOC task failure: OperUUID={operuuid}')
+            return task.failure(error_message="MOC task failure", error_details=f'MOC task failure {operuuid}', max_retries=1, retry_timeout=5000)
+        elif Oper == '6666':
+            logger.info(f'MOC task BPMN Error: OperUUID={operuuid}')
+            return task.bpmn_error(error_code='MOC BPMN Error', error_message=f'MOC BPMN Error', variables={'open_uuid': operuuid})
 
         # Connect к базе МетаДанных, собираем и забираем строки коннекта к источнику и к цели
         engine_ser = create_engine(cfg['DBDriver'] + '://'+cfg['DBUser']+':'+cfg['DBPassword']+'@'+cfg['DSN'])

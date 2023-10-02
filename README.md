@@ -1,4 +1,4 @@
-# <ServiceName> CamundaExternalTask (v. 0.0.14)
+# <ServiceName> CamundaExternalTask (v. 0.0.15)
 
 ---
 # <Short Description> Sceleton for Camunda External Task by Python 
@@ -145,6 +145,12 @@ select account.statustime statustime,account.customerid customerid,account.orign
 }
 ```
 ### Примеры вызова для разных Activities Camunda (Topic=LoginDB):
+| Camunda Activities Name | Inputs Variables | Type    | Value | DESCRIPTION                                           |
+|-------------------------|------------------|---------|-------|-------------------------------------------------------|
+| MOC                     | Oper             | String  | 5555  | MOC для тестирования. Просто сразу выдает Complete.   |
+|                         |                  | String  | 6666  | MOC для тестирования. Просто сразу выдает BPMN Error. |
+|                         |                  | String  | 7777  | MOC для тестирования. Просто сразу выдает Failure.    |
+
 | Camunda Activities Name | Inputs Variables   | Type    | Value                         | DESCRIPTION                                                                                                                                        |
 |-------------------------|--------------------|---------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 | app_parse_alert         | Oper               | String  | ExecSQL                       | Запуск SQL функции и получение ответа в виде {"Result": True} или {"Result": {"Count": 5, "Errors":3}} или {"Result": ["Rule1", "Rule2", "Rule3"]} |
