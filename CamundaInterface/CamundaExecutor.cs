@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -135,7 +137,8 @@ namespace CamundaInterface
                 }
             }
         }
-   
+
+        public static string certPath = "";
         public static async Task fetch(string[] topics)
         {
             if (string.IsNullOrEmpty(camundaPath))
@@ -146,7 +149,20 @@ namespace CamundaInterface
             }
             ExternalTaskAnswer it1 = null;
             if (client == null)
-                client = new HttpClient();
+            {
+                // using System.Net.Http;
+                // using System.Security.Authentication;
+                // using System.Security.Cryptography.X509Certificates;
+                if (!string.IsNullOrEmpty(certPath))
+                {
+                    var handler = new HttpClientHandler();
+                    handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                    handler.SslProtocols = SslProtocols.Tls12;
+                    handler.ClientCertificates.Add(new X509Certificate2(certPath/*"cert.crt"*/));
+                    client = new HttpClient(handler);
+                } else
+                    client = new HttpClient();
+            }
             Log.Information("Start fetching on addr {@camundaPath}", camundaPath);
 
             while (0 == 0)

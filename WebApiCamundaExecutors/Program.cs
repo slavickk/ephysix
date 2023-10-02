@@ -7,8 +7,11 @@ using System.IO.Pipelines;
 using System.Runtime.Loader;
 using CamundaInterface;
 using WebApiCamundaExecutors;
+using System.Security.Cryptography;
+using System.Text.Json;
 
- Prepare();
+//Test().GetAwaiter().GetResult();
+Prepare();
 /*var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -56,7 +59,45 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
             webBuilder.UseStartup<Startup>();
         });
     
+static async Task Test()
+{
+    string json = @"{
+  ""Name"": ""j4iwkkbWO5rAAQz8YMWNto_gGpFJWgCq4wv"",
+  ""Description"": """",
+  ""ReadOnce"": false,
+  ""Fields"": [
+    {
+      ""Type"": ""String"",
+      ""Detail"": """",
+      ""Name"": ""xDyBOhB8UH0bMWYeIcIDggB9NEEpxvvNPjYjqWzYXLqKnp7aZZqY7XIK""
+    }
+  ],
+  ""Key"": ""DTjUJbgJQ3yKqTiDobyhMdOsdpctGWjJthHVvP8g2QJ22yQmjqCQcvcDHdoeMK0wS_0xU_BbYvKyPDSXYhy0K"",
+  ""Type"": ""DICTIONARY""
+}";
+    json = @"{""Name"":""currencyrates"",""Description"":""Dictionary exported from ETL"",""Fields"":[{""Name"":""numericcode"",""Type"":""String"",""Detail"":""Exported from ETL package""},{""Name"":""rate"",""Type"":""Double"",""Detail"":""Exported from ETL package""}],""Key"":""numericcode"",""Type"":""DICTIONARY""}
+";
+    var FID = "Test";
+    var baseAddr = @"https://referenceDataLoader.service.dc1.consul:16666";
+    HttpClient client = new HttpClient();
+    var url1 = $"/api/v0/schema/dict/{FID}";
+    //                                "http://192.168.75.213:16666/api/v0/schema/dict/TEST"
+    Uri uri1 = new Uri(new Uri(baseAddr), url1);
+    var dict = JsonSerializer.Deserialize<SendToRefDataLoader.Dictionary>(json);
 
+    string dict1 = JsonSerializer.Serialize<SendToRefDataLoader.Dictionary>(dict);
+    /*                    HttpContent content = new StringContent(dict1);
+                        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");  //  "application/json";
+                        var res = await client.PostAsync(uri1, content);
+    */
+
+    var options = new JsonSerializerOptions();
+    options.PropertyNameCaseInsensitive = false;
+    Console.WriteLine($"Send request on addr {uri1.ToString()} sended {dict1}");
+    var res = await client.PostAsJsonAsync<SendToRefDataLoader.Dictionary>(uri1, dict, options);
+
+    var ans=await res.Content.ReadAsStringAsync();
+}
 static void Prepare()
 {
     /*AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
