@@ -713,8 +713,8 @@ public partial class Step : ILiquidizable
                     Interlocked.Decrement(ref countDelayMessages);
 
                     FileInfo fi = new FileInfo(file1);
-                    File.Delete(file1);
                     Interlocked.Add(ref SizeDirectory,-(fi.Length));
+                    File.Delete(file1);
                     //SizeDirectoryInMB -= (fi.Length * 1024 * 1024);
                 }
                 catch { }
