@@ -139,8 +139,21 @@ namespace CamundaInterface
         }
 
         public static string certPath = "";
+
+        public static  Metrics.MetricCount metric_AllSendedByWeb;
+        public static Metrics.MetricCount metric_ErrorSendedByWeb;
+        public static Metrics.MetricCount metric_AllSendedByCamunda;
+        public static Metrics.MetricCount metric_ErrorSendedByCamunda;
+        public static void Init()
+        {
+            metric_AllSendedByWeb=(Metrics.MetricCount)Metrics.metric.getMetricCount("all_send_by_rest", "all requests sended by rest");
+            metric_ErrorSendedByWeb = (Metrics.MetricCount)Metrics.metric.getMetricCount("error_send_by_rest",  "requests sended by rest with errors");
+            metric_AllSendedByCamunda = (Metrics.MetricCount)Metrics.metric.getMetricCount("all_send_by_camunda", "all requests sended by camunda");
+            metric_ErrorSendedByCamunda = (Metrics.MetricCount)Metrics.metric.getMetricCount("error_send_by_camunda", "requests sended by camunda with errors");
+        }
         public static async Task fetch(string[] topics)
         {
+            Init();
             if (string.IsNullOrEmpty(camundaPath))
             {
                 var addr = Resolver.ResolveConsulAddr("Camunda");
@@ -192,6 +205,7 @@ namespace CamundaInterface
                                                         else*/
                             if (item.topicName == "url_crowler")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 Log.Information("get from url start");
                                 /*   try
                                    {*/
@@ -210,6 +224,7 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "FimiConnector")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 Log.Information("Start fimi connector ");
                                 /*   try
                                    {*/
@@ -239,6 +254,7 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "to_dict_sender")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 Log.Information("Send to dict start");
                                 /*   try
                                    {*/
@@ -256,6 +272,7 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "to_exec_proc")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 Log.Information("Send to exec proc");
 
 
@@ -282,6 +299,7 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "integrity_utility")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 var ConnString = item.variables["DbConnectionString"].value.ToString();
                                 var task_yaml = item.variables["task_yml"].value.ToString();
                                 if (Regex.Match(task_yaml, @"^@\d+@$").Success)
@@ -340,6 +358,7 @@ namespace CamundaInterface
                 }
                 catch (Exception ex5)
                 {
+                    metric_ErrorSendedByCamunda.Add(DateTime.Now);
                     Log.Error("Error:{@topic} {@err}",it1.topicName, ex5);
                     var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{it1.id}/bpmnError", new ItemBpmnError()
                     {

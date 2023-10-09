@@ -219,13 +219,13 @@ namespace CamundaInterface
                             //"https://referencedataloader.service.dc1.consul:16666/api/v0/schema/aaa/{catalog}?name=bbb"
                                 var options = new JsonSerializerOptions();
                                 options.PropertyNameCaseInsensitive = false;
-                                Console.WriteLine($"Send request on addr {uri1.ToString()} sended {dict1}");
+                                Log.Information($"Send request on addr {uri1.ToString()} sended {dict1}");
                                 var res = await client.PostAsJsonAsync<Dictionary>(uri1, dict, options);
 
                                 if (!res.IsSuccessStatusCode)
                                 {
 
-                                    Console.WriteLine($"Error on web request on addr {uri1.ToString()} sended {dict1}");
+                                    Log.Error($"Error on web request on addr {uri1.ToString()} sended {dict1} StatueCode {res.StatusCode}");
                                     var ans =await  res.Content.ReadAsStringAsync();
                                 }
 
@@ -379,7 +379,7 @@ namespace CamundaInterface
                         int yy = 0;
                     }
                     i1++;
-                    Console.WriteLine(i1);
+                    //Console.WriteLine(i1);
                     int i;
                     for (i = kol + offsetArray - 1; i >= 0; i--)
                         if (buffer[i] == 10)
@@ -463,11 +463,11 @@ namespace CamundaInterface
                         if (!response.IsSuccessStatusCode)
                         {
                             var ans1 = await response.Content.ReadAsStringAsync();
-                            Console.WriteLine($"Error on web request on addr {baseAddr}/api/v0/referencedata/{FID}/{dictName}/reload?delimiter=;");
+                            Log.Error($"Error on web request on addr {baseAddr}/api/v0/referencedata/{FID}/{dictName}/reload?delimiter=; StatusCose:{response.StatusCode}");
                         }
                         response.EnsureSuccessStatusCode();
                         var ans = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"OK: {ans}");
+       //                 Console.WriteLine($"OK: {ans}");
                         Log.Information($"OK: {ans}");
                     }
                     catch (HttpRequestException)
@@ -479,7 +479,7 @@ namespace CamundaInterface
                     catch (Exception e)
                     {
                         Log.Error(e.ToString());
-                        Console.WriteLine(e);
+                       // Console.WriteLine(e);
                         throw;
                     }
                     // if (response.IsSuccessStatusCode)
