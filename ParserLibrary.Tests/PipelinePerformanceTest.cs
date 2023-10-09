@@ -14,14 +14,49 @@ namespace ParserLibrary.Tests
     [TestFixture]
     public class PipelinePerformanceTest
     {
+        static MockHTTPServer httpServer;
+        static bool isLoad=false;
         [Test]
         public static async Task testHTTPPerformance()
         {
+            if(!isLoad)
+            {
+                httpServer = new MockHTTPServer(8070,700) { mockItems = new List<MockHTTPServer.MockItem>()
+                {
+                    new MockHTTPServer.MockItem("healthcheck")
+                    { reqContentPath=(path)=>path.Contains("/healthcheck"), respStatusCode=(a)=>200, respContentBody=(a)=>"[]", respContentType=(a)=>"application/json"   }
+                    ,new MockHTTPServer.MockItem("loadstream")
+                    { reqContentPath=(path)=>path.Contains("/LoadStream"), respStatusCode=(a)=>200, respContentBody=(a)=>"[]", respContentType=(a)=>"application/json"   }
+                    ,new MockHTTPServer.MockItem("unknown")
+                    { respStatusCode=(a)=>200, respContentBody=(a)=>@"<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"">
+<SOAP-ENV:Body>
+<Tran>
+<Response Result=""Approved"" Id=""5802242"">
+<Specific>
+<Tds IssuerInstRid=""DEMO"" Enrolled=""true"" CanBeEnrolled=""true"" AuthenticationType=""Static"" >
+</Tds>
+</Specific>
+</Response>
+</Tran>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>", respContentType=(a)=>"text/xml"   }
+
+                }
+                };
+
+
+
+                isLoad = true;
+            }
 
             Environment.SetEnvironmentVariable("SECRET_WORD", "QWE123");
-            Environment.SetEnvironmentVariable("REX_URL", "http://nginx.service.consul");
-            Environment.SetEnvironmentVariable("AUTH_HOST_URL", "http://10.74.28.30:30212");
-            runTest(@"C:\Users\User\source\repos\Polygons\ACS_TWO_TX\IntegrationTools\ACS_TW.yml");
+            Environment.SetEnvironmentVariable("REX_URL", "http://localhost:8070");
+            //            Environment.SetEnvironmentVariable("REX_URL", "http://nginx.service.consul");
+            Environment.SetEnvironmentVariable("AUTH_HOST_URL", "http://localhost:8070");
+//            Environment.SetEnvironmentVariable("AUTH_HOST_URL", "http://10.74.28.30:30212");
+
+//            runTest(@"C:\Users\User\source\repos\Polygons\ACS_TWO_TX\IntegrationTools\ACS_TW.yml");
+            runTest(@"Data\ACS_TW.yml");
             await Task.Delay(1000);
             HttpClient httpClient = new HttpClient();
 
@@ -89,8 +124,9 @@ namespace ParserLibrary.Tests
         try
         {
             pip = Pipeline.load(path);
-            pip.steps.First(ii=>ii.IDStep=="Step_ToTWO").sender.MocMode = true;
-                pip.steps.First(ii => ii.IDStep == "Step_ToTWO").sender.mocker.MocTimeoutInMilliseconds=0;
+            
+/*            pip.steps.First(ii=>ii.IDStep=="Step_ToTWO").sender.MocMode = true;
+                pip.steps.First(ii => ii.IDStep == "Step_ToTWO").sender.mocker.MocTimeoutInMilliseconds=0;*/
                /* pip.steps.First(ii => ii.IDStep == "Step_0").sender.mocker.MocTimeoutInMilliseconds = 0;
                 pip.steps.First(ii => ii.IDStep == "Step_0").sender.MocMode = true;//.mocker.MocTimeoutInMilliseconds = 0;
                */
