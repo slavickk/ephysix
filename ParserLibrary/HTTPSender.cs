@@ -178,7 +178,7 @@ public  class HTTPSender:Sender,ISelfTested
             if(!result.IsSuccessStatusCode)
             {
                 Logger.log("Error send http request {res}", Serilog.Events.LogEventLevel.Error,result.StatusCode.ToString());
-
+                result.EnsureSuccessStatusCode();//Add throw
             }
 
         }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -81,6 +83,36 @@ namespace CamundaInterface
         static HttpClient client = null;
         public static string workerId = "SimpleExecutor";
 
+
+
+        
+        public class ItemBpmnError
+        {
+            public class AnotherVariable
+            {
+                public bool value { get; set; }
+                public string type { get; set; }
+            }
+            public class AVariable
+            {
+                public string value { get; set; }
+                public string type { get; set; }
+            }
+
+            public class Variables
+            {
+                public AVariable aVariable { get; set; }
+                public AnotherVariable anotherVariable { get; set; }
+            }
+            public string workerId { get; set; }
+            public string errorCode { get; set; }
+            public string errorMessage { get; set; }
+            public Variables variables { get; set; }
+        }
+
+     
+
+
         public class ItemFailure
         {
             public string workerId { get; set; }
@@ -105,9 +137,23 @@ namespace CamundaInterface
                 }
             }
         }
-   
+
+        public static string certPath = "";
+
+        public static  Metrics.MetricCount metric_AllSendedByWeb;
+        public static Metrics.MetricCount metric_ErrorSendedByWeb;
+        public static Metrics.MetricCount metric_AllSendedByCamunda;
+        public static Metrics.MetricCount metric_ErrorSendedByCamunda;
+        public static void Init()
+        {
+            metric_AllSendedByWeb=(Metrics.MetricCount)Metrics.metric.getMetricCount("all_send_by_rest", "all requests sended by rest");
+            metric_ErrorSendedByWeb = (Metrics.MetricCount)Metrics.metric.getMetricCount("error_send_by_rest",  "requests sended by rest with errors");
+            metric_AllSendedByCamunda = (Metrics.MetricCount)Metrics.metric.getMetricCount("all_send_by_camunda", "all requests sended by camunda");
+            metric_ErrorSendedByCamunda = (Metrics.MetricCount)Metrics.metric.getMetricCount("error_send_by_camunda", "requests sended by camunda with errors");
+        }
         public static async Task fetch(string[] topics)
         {
+            Init();
             if (string.IsNullOrEmpty(camundaPath))
             {
                 var addr = Resolver.ResolveConsulAddr("Camunda");
@@ -116,8 +162,21 @@ namespace CamundaInterface
             }
             ExternalTaskAnswer it1 = null;
             if (client == null)
-                client = new HttpClient();
-            Log.Information("Start fetching on addr {camundaPath}", camundaPath);
+            {
+                // using System.Net.Http;
+                // using System.Security.Authentication;
+                // using System.Security.Cryptography.X509Certificates;
+                if (!string.IsNullOrEmpty(certPath))
+                {
+                    var handler = new HttpClientHandler();
+                    handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                    handler.SslProtocols = SslProtocols.Tls12;
+                    handler.ClientCertificates.Add(new X509Certificate2(certPath/*"cert.crt"*/));
+                    client = new HttpClient(handler);
+                } else
+                    client = new HttpClient();
+            }
+            Log.Information("Start fetching on addr {@camundaPath}", camundaPath);
 
             while (0 == 0)
             {
@@ -134,7 +193,7 @@ namespace CamundaInterface
                         foreach (var item in ret)
                         {
                             it1 = item;
-                            Log.Information("topic {item.topicName}", item.topicName);
+                            Log.Information("topic {@topicName} {@vars}", item.topicName, item.variables);
                             var dictOutput = new Dictionary<string, CamundaCompleteItem.Variable>();
                             /*                            if (item.topicName == "rest_executor1")
                                                         {
@@ -146,6 +205,7 @@ namespace CamundaInterface
                                                         else*/
                             if (item.topicName == "url_crowler")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 Log.Information("get from url start");
                                 /*   try
                                    {*/
@@ -164,7 +224,8 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "FimiConnector")
                             {
-                                Log.Information("get from url start");
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
+                                Log.Information("Start fimi connector ");
                                 /*   try
                                    {*/
                                 var trans = new FimiXmlTransport();
@@ -193,6 +254,7 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "to_dict_sender")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 Log.Information("Send to dict start");
                                 /*   try
                                    {*/
@@ -210,6 +272,7 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "to_exec_proc")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 Log.Information("Send to exec proc");
 
 
@@ -236,6 +299,7 @@ namespace CamundaInterface
                             }
                             if (item.topicName == "integrity_utility")
                             {
+                                metric_AllSendedByCamunda.Add(DateTime.Now);
                                 var ConnString = item.variables["DbConnectionString"].value.ToString();
                                 var task_yaml = item.variables["task_yml"].value.ToString();
                                 if (Regex.Match(task_yaml, @"^@\d+@$").Success)
@@ -268,13 +332,14 @@ namespace CamundaInterface
                             }
                             //$"/external-task/{id}/complete"
                                                         var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{item.id}/complete", new CamundaCompleteItem() { workerId = workerId, variables = dictOutput });
-/*                            var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{item.id}/failure", new ItemFailure()
-                            {
-                                workerId = workerId,
-                                errorMessage = "Error Message",
-                                retries = 1,
-                                retryTimeout = 6000
-                            });*/
+                            /*                            var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{item.id}/failure", new ItemFailure()
+                                                        {
+                                                            workerId = workerId,
+                                                            errorMessage = "Error Message",
+                                                            retries = 1,
+                                                            retryTimeout = 6000
+                                                        });*/
+                            Log.Information("End topic execute {@a}", dictOutput);
 
                         }
 
@@ -293,7 +358,19 @@ namespace CamundaInterface
                 }
                 catch (Exception ex5)
                 {
-                    var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{it1.id}/failure", new ItemFailure()
+                    metric_ErrorSendedByCamunda.Add(DateTime.Now);
+                    Log.Error("Error:{@topic} {@err}",it1.topicName, ex5);
+                    var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{it1.id}/bpmnError", new ItemBpmnError()
+                    {
+                        workerId = workerId,
+                        errorCode="ErrorHappening",// $"error hapenned on {it1.topicName}",
+                        errorMessage = $"topic:{it1.topicName} Detail {ex5.Message}!",
+                        /*errorDetails = ex5.ToString(),
+                        retries = 0,
+                        retryTimeout = 600
+                        */
+                    });
+/*                    var ans3 = await client.PostAsJsonAsync($"{camundaPath}external-task/{it1.id}/failure", new ItemFailure()
                     {
                         workerId = workerId,
                         errorMessage = $"error hapenned on {it1.topicName}!",
@@ -301,7 +378,7 @@ namespace CamundaInterface
                         retries = 0,
                         retryTimeout = 600
 
-                    });
+                    });*/
                 }
             }
             //            topics.Select(x => new ItemFetchAndLock.(x)).ToList();

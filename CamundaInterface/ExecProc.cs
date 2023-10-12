@@ -148,7 +148,7 @@ namespace CamundaInterface
                         int yy = 0;
                     }
                     i1++;
-                    Console.WriteLine(i1);
+//                    Log.InformationConsole.WriteLine(i1);
                     int i;
                     for (i = kol + offsetArray - 1; i >= 0; i--)
                         if (buffer[i] == 10)
@@ -225,7 +225,7 @@ namespace CamundaInterface
                     {
                         response.EnsureSuccessStatusCode();
                         var ans = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"OK: {ans}");
+                       // Console.WriteLine($"OK: {ans}");
                         Log.Information($"OK: {ans}");
                     }
                     catch (HttpRequestException)
@@ -237,7 +237,7 @@ namespace CamundaInterface
                     catch (Exception e)
                     {
                         Log.Error(e.ToString());
-                        Console.WriteLine(e);
+                        //Console.WriteLine(e);
                         throw;
                     }
                     // if (response.IsSuccessStatusCode)

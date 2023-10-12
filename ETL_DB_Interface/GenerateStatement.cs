@@ -319,13 +319,16 @@ namespace ETL_DB_Interface
             switch (type.ToUpper())
             {
                 case "DATE":
-                    return $"\"'||to_char({var}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')||'\"";
+                    return $"to_char({var}, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')";
+                case "JSON":
+                    return $"{var}::text";
+
                 case "INTEGER":
                 case "LONG":
                 case "BOOLEAN":
-                    return $"\"'||{var}||'\"";
+                    return $"{var}::text";
                 default:
-                    return $"\"'||{var}||'\"";
+                    return $"{var}::text";
             }
         }
 
@@ -335,6 +338,10 @@ namespace ETL_DB_Interface
             {
                 case "LONG":
                     return "bigint";
+              /*  case "DATE":
+                    return "timestamp with time zone";*/
+                case "JSON":
+                    return "jsonb";
                 case "DATE":
                 case "INTEGER":
                 case "BOOLEAN":
@@ -347,8 +354,9 @@ namespace ETL_DB_Interface
         {
             switch (type.ToUpper())
             {
-
-//                case "DATE":
+                case "JSON":
+                    return "Json";
+                //                case "DATE":
                 case "INTEGER":
                 case "BOOLEAN":
                     return type;
@@ -357,7 +365,7 @@ namespace ETL_DB_Interface
             }
         }
 
-        async static Task<string> formFunctionText(NpgsqlConnection conn,long id,string CamundaID)
+        async static Task<string[]> formFunctionText(NpgsqlConnection conn, ETL_Package package, string CamundaID)
         {
             string packageName = "";
             string packageDescription="";
@@ -375,7 +383,7 @@ where n.nodeid=@id and n.isdeleted=false and a.name is not null";
 
             await using (var cmd = new NpgsqlCommand(command, conn))
             {
-                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@id", package.packet_id);
                 await using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
@@ -384,16 +392,17 @@ where n.nodeid=@id and n.isdeleted=false and a.name is not null";
                         packageDescription = reader.GetString(1);
                         var var1 = reader.GetString(3);
                         var typ=reader.GetString(4);
-                        jsons.Add($"\"{var1}\": {{ \"type\": \"{ToCamundaType(typ)}\", \"value\": {argFromType(var1,typ)}}}");
+                        jsons.Add($"'{var1}',jsonb_build_object('type', '{ToCamundaType(typ)}', 'value', {argFromType(var1, typ)})");// : {{ \"type\": \"{ToCamundaType(typ)}\", \"value\": {argFromType(var1,typ)}}}");
+//                        jsons.Add($"\"{var1}\": {{ \"type\": \"{ToCamundaType(typ)}\", \"value\": {argFromType(var1, typ)}}}");
                         arguments.Add($"{var1} {ToPostgreType( typ)}");
                     }
                 }
             }
-
+      //      "select jsonb_build_object('cardid', jsonb_build_object('type', 'String', 'value', '626262'),'Limits',jsonb_build_object('type', 'Object', 'value', '{\"TEST\":\"hfhfhf\", \"hjfjfjf\":56}'::jsonb))"
 //            select('{"+string.Join(', ',jsons)+ $",\"extProcId\":{{\"value\":\"{CamundaID}\""+ @",""type"":""String""},' || command || '}')::jsonb into params;
 
-            string body = @"CREATE OR REPLACE FUNCTION fp.etlpackage_"+packageName+@"(
-	"+string.Join(',',arguments)+((arguments.Count>0)?",":"")+ @"pgroupid bigint DEFAULT NULL::bigint)
+            string[] body = new string[] { @"CREATE OR REPLACE FUNCTION fp.etlpackage_" + packageName + @"(
+	" + string.Join(',', arguments) + ((arguments.Count > 0) ? "," : "") + @"pgroupid bigint DEFAULT NULL::bigint)
     RETURNS bigint
     LANGUAGE 'plpgsql'
     COST 100
@@ -402,21 +411,38 @@ AS $BODY$
 DECLARE
     params jsonb;
 BEGIN
-    select ('{" + string.Join(',',jsons)+ $",\"extProcId\":{{\"value\":\"{CamundaID}\""+ @",""type"":""String""}}')::jsonb into params;
+    select jsonb_build_object(" + string.Join(',', jsons)+ ((jsons.Count > 0) ? "," : "") + $" 'extProcId',jsonb_build_object('type', 'String', 'value', '{CamundaID}'"+@")) into params;
     /*
-      Автоматически создаваемая задача исполнения ETL "+$"{packageName} {packageDescription}"+ @".
+      Автоматически создаваемая задача исполнения ETL " + $"{packageName} {packageDescription}" + @".
       Входные параметры:
-        Параметры ETL,
-        command text - Описание параметров функции : вызываемой по окончании обработки ETL
-        Пример:
-'""procJob"":{""value"":""{\""procName\"":\""examplefunction\"",\""param_proc\"":[{\""Name\"":\""timeExample\"",\""Type\"":\""Date\"", \""Value\"":\""2023-03-11T00:00:00Z\""},{\""Name\"":\""IDEvent\"",\""Value\"":5,\""Type\"":\""Integer\""},{\""Name\"":\""comment1\"",\""Type\"":\""Text\"",\""Value\"":\""all right\""}]}"",""type"":""String""}'
-      Выходные параметры:
-        id_ - идентификатор запущенного задания
+        Параметры функции:"+$"{string.Join('\n',package.variables.Select (ii=>"\nИмя:"+ii.Name+"\nОписание:"+ii.Description+"\nТип:"+ii.Type+"\nПример:"+ii.DefaultValue))}"+@"
+
     */
     return app_insert_actions(pjparam := params, pcamunda_proc_id := 'main_etl_job',pgroupid := pgroupid);
 END
 $BODY$;
-";
+",
+ @"CREATE OR REPLACE FUNCTION fp.etlaction_" + packageName + @"(
+	" + string.Join(',', arguments) + ((arguments.Count > 0) ? "," : "") + @"pgroupid bigint DEFAULT NULL::bigint)
+    RETURNS bigint
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+    params jsonb;
+BEGIN
+    select jsonb_build_object(" + string.Join(',', jsons) + ((jsons.Count > 0) ? "," : "") + $" 'extProcId',jsonb_build_object('type', 'String', 'value', '{CamundaID}'"+@")) into params;
+    /*
+      Автоматически создаваемая задача исполнения ETL " + $"{packageName} {packageDescription}" + @".
+      Входные параметры:
+        Параметры функции:"+$"{string.Join('\n',package.variables.Select (ii=>"\nИмя:"+ii.Name+"\nОписание:"+ii.Description+"\nТип:"+ii.Type+"\nПример:"+ii.DefaultValue))}"+@"
+
+    */
+    return app_insert_actions(pjparam := params, pcamunda_proc_id := 'main_action_job',pgroupid := pgroupid);
+END
+$BODY$;
+"           };
             return body;
         }
 
@@ -935,7 +961,7 @@ $BODY$;
             public string ETL_add_par { get; set; }
             public string ETL_add_define { get; set; }
             public List<ItemTable> allTables { get; set; } = new List<ItemTable>();
-            public List<CamundaProcess.ExternalTask> usedExternalTasks  = new List<CamundaProcess.ExternalTask>();
+            public List<CamundaProcess.ExternalTask> usedExternalTasks { get; set; } = new List<CamundaProcess.ExternalTask>();
             ItemTable getTable(int i,int countAll)
             {
                 bool isFinishTask = i >= countAll;
@@ -1014,7 +1040,7 @@ $BODY$;
                 }
 
 //                this.allTables.Select(ii=>ii.SelectList)
-                return new Dictionary<string, object> { { "Name", this.NamePacket}, { "Description", this.description }, { "InputTables", this.allTables }, { "OutputTables", outTables },{ "Zones", zones },{ "Parameters",this.variables},{ "Usage", $"select * from fp.etlpackage_{NamePacket.ToLower()}({string.Join(',',variables.Select(ii=> "@" + ii.Name.ToLower()))},[idexternalobj])" },{ "UsedExternalTasks", this.usedExternalTasks} };
+                return new Dictionary<string, object> { { "Name", this.NamePacket}, { "CountVar", this.variables.Count }, { "Description", this.description }, { "InputTables", this.allTables }, { "OutputTables", outTables },{ "Zones", zones },{ "Parameters",this.variables},{ "Usage", $"select * from fp.etlpackage_{NamePacket.ToLower()}({string.Join(',',variables.Select(ii=> "@" + ii.Name.ToLower()))},[idexternalobj])" },{ "UsedExternalTasks", this.usedExternalTasks} };
 
 //                throw new NotImplementedException();
             }
@@ -1093,9 +1119,10 @@ $BODY$;
             process.save(path1);
             string json = JsonSerializer.Serialize<ETL_Package>(package);
 
-            await SaveProcedure(conn, id, package.NamePacket, CamundaID);
+            await SaveProcedure(conn, package, CamundaID);
 
             package.SaveMDDefinition();
+            package.SavePythonDefinition();
 
             //            await SendToCamunda(@"C:\Camunda\Temp6.bpmn", "ETL_Process532730");
             if(sendToCamunda)
@@ -1166,10 +1193,10 @@ $BODY$;
 
         public static string pathToSaveETL = @"C:\CamundaTopics\camundatopics\BPMN\ETL\";
         public static string pathToSaveExternalTask = @"C:\CamundaTopics\camundatopics\ExternalTasks\";
-        private static async Task SaveProcedure(NpgsqlConnection conn, long id,string NamePacket,string CamundaID)
+        private static async Task SaveProcedure(NpgsqlConnection conn, ETL_Package package/*string NamePacket*/,string CamundaID)
         {
          //   return;
-            var body = await formFunctionText(conn, id,CamundaID);
+            var bodies = await formFunctionText(conn, package,CamundaID);
             NpgsqlConnection connAdm = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
             await connAdm.OpenAsync();
            /* var command = @"INSERT INTO fp.app_action(
@@ -1186,6 +1213,7 @@ $BODY$;
                     }
                 }
             }*/
+           foreach(var body in bodies)
             await using (var cmd = new NpgsqlCommand(body,conn))
             {
                 //cmd.Parameters.AddWithValue("@id_packet", NamePacket);
@@ -1960,6 +1988,8 @@ order by n.nodeid
                 retValue.id = $"Id{table.Name}";
                 retValue.name = $"ETL_Task_{table.Name}";
                 retValue.topic = "url_crowler";
+                retValue.url = "http://CSExternalTask.service.dc1.consul:24169/api/Api/url-crowler";
+
                 retValue.parameters.Clear();
                 retValue.Annotation = $"Get data from {"external url"} to {table.Name} ";
                 retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("ConnSelect", ConnectionString));
@@ -2019,7 +2049,10 @@ order by n.nodeid
                 var dest = await GenerateStatement.getSrcInfo(dest_id, conn);
                 foreach( var table in allTables.Where(ii=>!string.IsNullOrEmpty(ii.url)))
                 {
-                    listValue.Add(urlTask(src.connectionString, GenerateStatement.ConnectionStringAdm, table));
+                    var item = urlTask(src.connectionString, GenerateStatement.ConnectionStringAdm, table);
+                    package.usedExternalTasks.Add(item);// Checking needed!
+
+                    listValue.Add(item);
                 }
 
                 CamundaProcess.ExternalTask retValue = new CamundaProcess.ExternalTask();
@@ -2086,11 +2119,12 @@ order by n.nodeid
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Fields", string.Join(',', def.Fields.Select(ii=>ii.Name)), "Fields of dictionary(delimiter ',')"));
 
                     retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Variables", String.Join(", ", variables.Select(ii => ii.Name)),"List of package variables(',' delimiter)"));
-
+                    retValue.url = "http://CSExternalTask.service.dc1.consul:24169/api/Api/to-dict-sender";
                     retValue.topic = "to_dict_sender";
                 }
                 else
                 {
+                    retValue.url = "http://ExternalTask.service.dc1.consul:24169/api/Api/loginDB";
 
                     retValue.noDescribe = true;
 

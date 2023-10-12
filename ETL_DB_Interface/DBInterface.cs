@@ -75,13 +75,22 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
 
             {
                 long oldId = -1;
-                await using (var cmd = new NpgsqlCommand(@"select t1.name,at1.val alias1, at2.val selectList1, att1.toid idTable, t1.nodeid idetlTable,f.val as condition,at3.val from md_node t1 
+                await using (var cmd = new NpgsqlCommand(@"select t1.name,at1.val alias1, at2.val selectList1, att1.toid idTable, t1.nodeid idetlTable,f.val as condition,at3.val,au.val url,asq.val isql,asi.val intrval from md_node t1 
  inner join md_arc a1 on (a1.fromid = @id and t1.nodeid = a1.toid)
      inner join md_arc att1 on(att1.fromid = t1.nodeid)
      left join md_node_attr_val at1 on(t1.nodeid = at1.nodeid and at1.attrid = 39)
      left join md_node_attr_val at2 on(t1.nodeid = at2.nodeid and at2.attrid = 41)
      left join md_node_attr_val at3 on(t1.nodeid = at3.nodeid and at3.attrid = 115)
      left join md_node_attr_val f on (t1.nodeid = f.nodeid and f.attrid = 40)
+
+left join md_node n on(t1.nodeid = a1.toid and t1.typeid = md_get_type('ETLTable') and t1.isdeleted=false)
+left join md_arc a11 on (t1.nodeid=a11.fromid  and a1.isdeleted=false)
+left join md_node torig on(torig.nodeid=a11.toid)
+
+left join md_node_attr_val au on (a11.toid=au.nodeid and au.attrid=107 and au.isdeleted=false)
+left join md_node_attr_val asq on (a11.toid=asq.nodeid and asq.attrid=108 and asq.isdeleted=false)
+left join md_node_attr_val asi on (a11.toid=asi.nodeid and asi.attrid=109 and asi.isdeleted=false)
+
      where t1.typeid = md_get_type('ETLTable') and t1.isdeleted=false
 	 order by t1.nodeid
 ", conn))
@@ -103,12 +112,26 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
                             if (!reader.IsDBNull(1))
                                 alias = reader.GetString(1);
                             var etl_id = reader.GetInt64(4);
+
                             ETL_Package.ItemTable table = package.allTables.FirstOrDefault(ii => ii.etl_id == etl_id);
                             if (table == null)
                             {
                                 table = new ETL_Package.ItemTable() { alias = alias, table_name = table_name, etl_id = etl_id, table_id = table_id };
                                 package.allTables.Add(table);
                             }
+                            if (!reader.IsDBNull(7))
+                            {
+                                table.url = reader.GetString(7);
+                            }
+                            if (!reader.IsDBNull(8))
+                            {
+                                table.sqlurl = reader.GetString(8);
+                            }
+                            if (!reader.IsDBNull(9))
+                            {
+                                table.interval = Convert.ToInt64(reader.GetString(9));
+                            }
+
                             if (etl_id != oldId)
                             {
                                 string outTablesList = "";
@@ -146,10 +169,10 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
                                 package.conditions.Add(new ETL_Package.ItemAddCondition() { condition = reader.GetString(5), table = table });
                             }
 
-                            //                                variables.Add(new VariableItem() { Name = reader.GetString(0), Description = reader.GetString(1) });
+                                //                                variables.Add(new VariableItem() { Name = reader.GetString(0), Description = reader.GetString(1) });
 
+                            }
                         }
-                    }
                 }
             }
 
@@ -178,6 +201,7 @@ where r.isdeleted = false
                             var table_id2 = reader.GetInt64(3);
                             if (package.relations.Count(ii => ii.relationID == fk_id) == 0)
                             {
+                                
                                 package.relations.Add(new ETL_Package.ItemRelation() { relationID = fk_id, relationName = fk_name, table1 = package.allTables.First(ii => ii.etl_id == table_id1), table2 = package.allTables.First(ii => ii.etl_id == table_id2) });
                             }
 
@@ -618,7 +642,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                 {
                     lastKey = item.sourceColumn.table.table_name + item.sourceColumn.table.alias;
                     if(lastItem != null)
-                    lastItem.sourceColumn.table.etl_id =(long) await SaveItem(conn, package.idPackage, selectList, lastItem.sourceColumn.table.table_id, lastItem.sourceColumn.table.alias, outputList);
+                    lastItem.sourceColumn.table.etl_id =(long) await SaveItem(conn, package.idPackage, selectList, lastItem.sourceColumn.table.table_id, lastItem.sourceColumn.table.alias, outputList, lastItem.sourceColumn.table.url, lastItem.sourceColumn.table.sqlurl, lastItem.sourceColumn.table.interval);
                     selectList = "";
                     outputList = "";
 
@@ -628,7 +652,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
                 lastItem = item;
             }
             if (lastItem != null)
-                lastItem.sourceColumn.table.etl_id = (long)await SaveItem(conn, package.idPackage, selectList, lastItem.sourceColumn.table.table_id, lastItem.sourceColumn.table.alias, outputList);
+                lastItem.sourceColumn.table.etl_id = (long)await SaveItem(conn, package.idPackage, selectList, lastItem.sourceColumn.table.table_id, lastItem.sourceColumn.table.alias, outputList, lastItem.sourceColumn.table.url, lastItem.sourceColumn.table.sqlurl, lastItem.sourceColumn.table.interval);
 
 
             foreach (var item in package.relations)
@@ -718,7 +742,7 @@ where nt.name like '%" + findString + "%' and nt.srcid=@src and typeid in (1,10,
             {
                 var selectList = string.Join(",", table.SelectList.Select(ii => ii.expression + " " + ii.alias)); 
                 var outputList= string.Join(",", table.SelectList.Select(ii => ii.outputTable));
-                table.etl_id=(long)await SaveItem(conn, package.packet_id, selectList,table.TableId, table.Alias, outputList);
+                table.etl_id=(long)await SaveItem(conn, package.packet_id, selectList,table.TableId, table.Alias, outputList,table.url,table.sqlurl,table.IntervalUpdateInSec);
                 /*foreach (var item in package.selectedFields.OrderBy(ii => ii.sourceColumn.table.table_name + ii.sourceColumn.table.alias))
             {
                 if (item.sourceColumn.table.table_name + item.sourceColumn.table.alias != lastKey)
@@ -823,11 +847,11 @@ and rk.nodeid=rc.fromid
 
 
 
-        private static async Task<long?> SaveItem(NpgsqlConnection conn, long idPackage, string selectList, long table_id,string table_alias/* ETL_Package.ItemSelectedList lastItem*/,string outputList)
+        private static async Task<long?> SaveItem(NpgsqlConnection conn, long idPackage, string selectList, long table_id,string table_alias/* ETL_Package.ItemSelectedList lastItem*/,string outputList,string url,string sqlurl,long interval)
         {
             if (table_alias != null)
             {
-                await using (var cmd = new NpgsqlCommand(@"select * from md_addetltable(5,@etlid,@tableid,@alias,@select_list,@output_list)", conn))
+                await using (var cmd = new NpgsqlCommand(@"select * from md_addetltable(5,@etlid,@tableid,@alias,@select_list,@output_list,@url,@sqlurl,@timeout)", conn))
                 {
                     cmd.Parameters.AddWithValue("@etlid", idPackage);
                     cmd.Parameters.AddWithValue("@tableid",table_id/* lastItem.sourceColumn.table.table_id*/);
@@ -835,6 +859,9 @@ and rk.nodeid=rc.fromid
         
                     cmd.Parameters.AddWithValue("@select_list", selectList);
                     cmd.Parameters.AddWithValue("@output_list", outputList);
+                        cmd.Parameters.AddWithValue("@url", url);
+                        cmd.Parameters.AddWithValue("@sqlurl", sqlurl);
+                        cmd.Parameters.AddWithValue("@timeout",interval.ToString());
                     await using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())

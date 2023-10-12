@@ -12,9 +12,30 @@ namespace ETL_DB_Interface
 {
     public static class PacketDescriber
     {
-       // static string DocPath = @"C:\CamundaTopics\camundatopics\BPMN\ETL";
-        public static void SaveMDDefinition(this GenerateStatement.ETL_Package package)
+        // static string DocPath = @"C:\CamundaTopics\camundatopics\BPMN\ETL";
+        public static void SavePythonDefinition(this GenerateStatement.ETL_Package package)
         {
+
+            if (File.Exists(@"Shablons/ExternalTaskShablon.py"))
+            {
+                using (StreamReader sr = new StreamReader(@"Shablons/ExternalTaskShablon.py"))
+                {
+                    var TemplateBody = sr.ReadToEnd();
+                    Template template = Template.Parse(TemplateBody); // Parses and compiles the template
+                                                                      //        Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
+                    var res = template.Render((DotLiquid.Hash.FromDictionary(new Dictionary<string, object>() { { "package", package } }))); // => "hi tobi"
+                    using (StreamWriter sw = new StreamWriter($"{GenerateStatement.pathToSaveETL}{package.NamePacket}.py"))
+                    {
+                        sw.Write(res);
+                    }
+
+                }
+                return;
+            }
+        }
+            public static void SaveMDDefinition(this GenerateStatement.ETL_Package package)
+        {
+           
             if (File.Exists(@"Shablons/Shablon.txt"))
             {
                 using (StreamReader sr = new StreamReader(@"Shablons/Shablon.txt"))

@@ -70,7 +70,9 @@ namespace CamundaInterface
             public string Description { get; set; } = "Dictionary exported from ETL";
             public List<Field> Fields { get; set; } = new List<Field>();
             public string Key { get; set; } = "";
-
+            public string Type { get; set; } = "DICTIONARY";
+            bool ReadOnce { get; set; } = false;
+            
 
         }
         public static string StringSha256Hash(string text) =>
@@ -95,7 +97,8 @@ namespace CamundaInterface
                         yield return i;
             }
         }
-        static IFormatProvider formatter = new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "" };
+//        static IFormatProvider formatter = new NumberFormatInfo { NumberDecimalSeparator = ",", NumberGroupSeparator = "" };
+        static IFormatProvider formatter = new NumberFormatInfo { NumberDecimalSeparator = ".", NumberGroupSeparator = "" };
 
         public static async Task<ExportItem> putRequestToRefDataLoader(HttpClient client, string processId = "asdfa", string connectionStringBase = "User ID=postgres;Password=test;Host=localhost;Port=5432;", string connectionStringAdmin = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;",
             string dictName = "People", string FID = "TEST", string command = "SELECT id  ID1,firstname,middlename,lastname,sex FROM public.aa_person", int maxRecord = 500, string baseAddr = "http://192.168.75.212:20226",string sensitiveDataArray="",int CountInKey=1,string columns="" )
@@ -200,21 +203,33 @@ namespace CamundaInterface
                             sw.WriteLine(headerString);
                             if (hash != new_hash)
                             {
-                                var url1 = $"/api/v0/schema/dict/{FID}";
+//                                "https://referencedataloader.service.dc1.consul:16666/api/v0/schema/TEST/"
+                                var url1 = $"api/v0/schema/{FID}/{dict.Name}";
+                                Uri uri2 = new Uri(new Uri(baseAddr), url1);
+                                await client.DeleteAsync(uri2);
+                                url1 = $"/api/v0/schema/dict/{FID}";
 //                                "http://192.168.75.213:16666/api/v0/schema/dict/TEST"
                                 Uri uri1 = new Uri(new Uri(baseAddr), url1);
 
                                 string dict1 = JsonSerializer.Serialize<Dictionary>(dict);
-                                /*                    HttpContent content = new StringContent(dict1);
-                                                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");  //  "application/json";
-                                                    var res = await client.PostAsync(uri1, content);
-                                */
-
+                            /*                    HttpContent content = new StringContent(dict1);
+                                                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");  //  "application/json";
+                                                var res = await client.PostAsync(uri1, content);
+                            */
+                            //"https://referencedataloader.service.dc1.consul:16666/api/v0/schema/aaa/{catalog}?name=bbb"
                                 var options = new JsonSerializerOptions();
                                 options.PropertyNameCaseInsensitive = false;
+                                Log.Information($"Send request on addr {uri1.ToString()} sended {dict1}");
                                 var res = await client.PostAsJsonAsync<Dictionary>(uri1, dict, options);
 
-                                res.EnsureSuccessStatusCode();
+                                if (!res.IsSuccessStatusCode)
+                                {
+
+                                    Log.Error($"Error on web request on addr {uri1.ToString()} sended {dict1} StatueCode {res.StatusCode}");
+                                    var ans =await  res.Content.ReadAsStringAsync();
+                                }
+
+                                //res.EnsureSuccessStatusCode();
 
                                 if (hash != new_hash)
                                     await SetHashToBase(processId, connectionStringBase, connectionStringAdmin, dictName, connAdm, new_hash);
@@ -324,10 +339,10 @@ namespace CamundaInterface
 
         private static async Task<int> SendToCCfa(HttpClient client, string dictName, string FID, string baseAddr, int kolRecord, StringWriter sw)
         {
-            using (StreamWriter sw1 = new StreamWriter(@"C:\d\ex.csv"))
+/*            using (StreamWriter sw1 = new StreamWriter(@"C:\d\ex.csv"))
             {
                 sw1.Write(sw.GetStringBuilder());
-            }
+            }*/
            // if (kolRecord != 0)
             {
                 Log.Information("Send record to" + kolRecord);
@@ -364,7 +379,7 @@ namespace CamundaInterface
                         int yy = 0;
                     }
                     i1++;
-                    Console.WriteLine(i1);
+                    //Console.WriteLine(i1);
                     int i;
                     for (i = kol + offsetArray - 1; i >= 0; i--)
                         if (buffer[i] == 10)
@@ -441,13 +456,18 @@ namespace CamundaInterface
                     //sc.Headers.ContentLength = kol;
                     multiPartFormContent.Add(sc, "file", "people.csv");
 
-                    var response = await client.PostAsync($"{baseAddr}/api/v0/referencedata/{FID}/{dictName}/reload?delimiter=;", multiPartFormContent);
+                    var response = await client.PostAsync($"{baseAddr}/api/v0/file/{FID}/{dictName}/reload?delimiter=;", multiPartFormContent);
                     //var response = await client.PostAsync($"{baseAddr}/api/v0/referencedata/{FID}/{dictName}/append?delimiter=;", multiPartFormContent);
                     try
                     {
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            var ans1 = await response.Content.ReadAsStringAsync();
+                            Log.Error($"Error on web request on addr {baseAddr}/api/v0/referencedata/{FID}/{dictName}/reload?delimiter=; StatusCose:{response.StatusCode}");
+                        }
                         response.EnsureSuccessStatusCode();
                         var ans = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine($"OK: {ans}");
+       //                 Console.WriteLine($"OK: {ans}");
                         Log.Information($"OK: {ans}");
                     }
                     catch (HttpRequestException)
@@ -459,7 +479,7 @@ namespace CamundaInterface
                     catch (Exception e)
                     {
                         Log.Error(e.ToString());
-                        Console.WriteLine(e);
+                       // Console.WriteLine(e);
                         throw;
                     }
                     // if (response.IsSuccessStatusCode)

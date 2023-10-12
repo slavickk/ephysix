@@ -29,6 +29,9 @@
     <None Update="Data\model.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Data\TX-CCFA.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="GeoData\GeoLite2-Country.mmdb">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

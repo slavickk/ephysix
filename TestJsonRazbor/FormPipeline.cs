@@ -262,7 +262,7 @@ namespace TestJsonRazbor
         {
             if (currentStep != null)
             {
-                FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(ISender), tObject = ((currentStep.sender == null) ? new TICSender() : currentStep.sender) };
+                FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject = ((currentStep.sender == null) ? new TICSender() : currentStep.sender) };
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
                     SetSenderObject(frm.tObject);
@@ -559,7 +559,7 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
 
         private async  void button3_Click_1(object sender, EventArgs e)
         {
-            ParserLibrary.PostgresSender.Test();
+           // ParserLibrary.PostgresSender.Test();
             (new FormDMNView(null) {  xml=""}).ShowDialog();
             return;
             dynamic employee = new ExpandoObject();

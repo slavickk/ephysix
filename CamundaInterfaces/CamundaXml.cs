@@ -67,13 +67,18 @@ namespace CamundaInterfaces
         {
             public object ToLiquid()
             {
-                return new Dictionary<string, object> { { "topic", this.topic } };
+                return new Dictionary<string, object> { { "topic", this.topic },{ "description",this.description}, { "url", this.url }, { "parameters", parameters } };
             }
 
             public bool noDescribe = false;
             public string Annotation = "It's example annotation";
-            public class Parameter
+            public class Parameter : ILiquidizable
             {
+                public object ToLiquid()
+                {
+                    return new Dictionary<string, object> { { "Name", this.Name } , { "Value", this.Value }, { "Description", this.description } };
+                }
+
                 public string Name { get; set; }
                 public List<string> listValues = null;
                 public string Value = "";
@@ -93,6 +98,7 @@ namespace CamundaInterfaces
             }
             public List<Parameter> parameters { get; set; } = new List<Parameter>() { new Parameter("PAN","457"), new Parameter("Val",new List<string>() { "aa","bb"})};
             public string id;
+            public string url = "http://will_be_corrected";
             public string name;
             public string topic="PythonExporter";
             public string description;

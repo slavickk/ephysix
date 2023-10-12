@@ -35,6 +35,9 @@ namespace BlazorAppCreateETL.Shared
             public string scema { get; set; }
             public long table_id { get; set; }
             public string alias { get; set; } = "";
+            public string url { get; set; } = "";
+            public string sqlurl { get; set; } = "";
+            public long interval { get; set; } 
 
             long ei;
             public long etl_id 
