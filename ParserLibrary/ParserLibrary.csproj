@@ -97,6 +97,9 @@
     <None Update="Data\items_file.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\LocalStor.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Data\model - Copy.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

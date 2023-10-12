@@ -535,11 +535,13 @@ public partial class Step : ILiquidizable
                 try
                 {
                     if (!isErrorSending)
-                        await SendToSender(rootElement, context, local_rootOutput);
+                    {
+                            await SendToSender(rootElement, context, local_rootOutput);
+                    }
                     else
                         SaveRestoreFile(local_rootOutput);
 
-                    new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode", Value = 0 };
+                    new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode", Value = (isErrorSending?1: 0) };
                 }
                 catch (Exception e77)
                 {
@@ -633,6 +635,7 @@ public partial class Step : ILiquidizable
     bool isErrorSending = false;
     async Task restoreSenderState(string Dir)
     {
+        return;//!!!!!!
 
         var moveDir = Path.Combine(Dir, "Move");
         if (!Directory.Exists(moveDir))
