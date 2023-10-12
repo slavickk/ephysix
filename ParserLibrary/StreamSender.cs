@@ -16,6 +16,8 @@ using YamlDotNet.Serialization;
 using System.Globalization;
 using PluginBase;
 using UniElLib;
+using System.IO;
+using NUnit.Framework;
 
 namespace ParserLibrary;
 
@@ -141,21 +143,27 @@ public class StreamSender:HTTPSender,ISelfTested
             }
         }
     }
-    Dictionary<string, Stream> streams = new Dictionary<string, Stream>();  
+    Dictionary<string, Stream> streams;// = new Dictionary<string, Stream>();  
 
 
-    public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;";
+//    public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;";
+    public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgep01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;";
+    
     public override string getTemplate(string key)
     {
         return formJson(getStream(streamName));
     }
 
     public Stream streamSender;
+    bool first = true;
     public Stream getStream(string key)
     {
+        if(streams== null)
+            streams=FromLocalStorage().ToDictionary(str => str.Name, str => str);
         Stream stream;
         if (streams.TryGetValue(key, out stream))
             return (stream);
+
         //                return JsonSerializer.Serialize<IEnumerable<string>>(stream.fields.Select(ii=>"\"ii.Name)); 
         try
         {
@@ -254,12 +262,43 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
 
         response.EnsureSuccessStatusCode();
     }
-    static public void ToConsul(Stream stream)
-    {
 
+    static public void ToLocalStorage(Stream stream)
+    {
+        var stor = FromLocalStorage();
+        if (stor.Count(ii => ii.Name == stream.Name) == 0)
+            stor.Add(stream);
+        else
+        {
+            stor.RemoveAll(ii => ii.Name == stream.Name);
+            stor.Add(stream);
+        }
+        using (StreamWriter sw= new StreamWriter(storagePath))
+        {
+            sw.Write(System.Text.Json.JsonSerializer.Serialize<List<Stream>>(stor));
+
+        }
+    }
+    static string  storagePath = @"..\..\..\..\ParserLibrary\Data\LocalStor.json";
+    static List<Stream> FromLocalStorage()
+    {
+//        Path.GetFullPath(@"..\..\");
+
+
+        if (File.Exists(storagePath))
+            using (StreamReader sr = new StreamReader(storagePath))
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<List<Stream>>(sr.ReadToEnd());
+            }
+        return new List<Stream>();
+    }
+
+        static public void ToConsul(Stream stream)
+    {
+        ToLocalStorage(stream);
         HttpClient httpClient = new HttpClient();
         StreamConsul consul = new StreamConsul() { Name = stream.Name, Description = stream.Description, fields = stream.fields.Select(ii => new StreamConsul.Field() { Name = ii.Name, Detail = ii.Detail, Type = ii.Type,Calculated=(bool)((ii.Calculated==null)?false:ii.Calculated) }).ToList() };
-        string CONSUL_ADDR = "http://192.168.75.204:8500";
+        string CONSUL_ADDR = Environment.GetEnvironmentVariable("CONSUL_ADDR");// "http://192.168.75.204:8500";
         var res =httpClient.PutAsJsonAsync<StreamConsul>($"{CONSUL_ADDR}/v1/kv/ROOT/STREAMS/Schemas/{stream.Name}", consul,new JsonSerializerOptions()).ContinueWith(ii =>
         {
             if (ii.IsCompletedSuccessfully)

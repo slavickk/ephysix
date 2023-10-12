@@ -26,6 +26,28 @@ steps:
         isNegative: false
         valueForCompare: TdsPrepareAuth
     outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: stream
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: AReq
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: FID
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: '{#FID#}'
     - !ExtractFromInputValue
       copyChildsOnly: false
       viewAsJsonString: false

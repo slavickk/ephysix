@@ -50,6 +50,8 @@ namespace ParserLibrary.Tests
             }
 
             Environment.SetEnvironmentVariable("SECRET_WORD", "QWE123");
+            Environment.SetEnvironmentVariable("FID", "Bank1");
+
             Environment.SetEnvironmentVariable("REX_URL", "http://localhost:8070");
             //            Environment.SetEnvironmentVariable("REX_URL", "http://nginx.service.consul");
             Environment.SetEnvironmentVariable("AUTH_HOST_URL", "http://localhost:8070");
