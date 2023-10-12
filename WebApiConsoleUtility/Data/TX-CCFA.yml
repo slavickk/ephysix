@@ -101,6 +101,28 @@ steps:
         isNegative: false
         valueForCompare: TdsPrepareAuth
     outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: stream
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: AReq
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: FID
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: '{#FID#}'
     - !ExtractFromInputValue
       copyChildsOnly: false
       viewAsJsonString: false
@@ -285,7 +307,7 @@ steps:
       valuePath: ''
   sender: !StreamSender
     streamName: AReq
-    dbConnectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;
+    dbConnectionString: User ID=fp;Password=rav1234;Host=master.pgfp01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;
     streamSender:
       name: AReq
       description: AReq transaction
@@ -479,13 +501,6 @@ steps:
           sensitiveData: 
           calculated: false
           linkedColumn: 
-        mbr: &o27
-          name: mbr
-          type: String
-          detail: ''
-          sensitiveData: 
-          calculated: true
-          linkedColumn: 
       fields:
       - *o0
       - *o1
@@ -514,7 +529,6 @@ steps:
       - *o24
       - *o25
       - *o26
-      - *o27
     certName: ''
     certPassword: ''
     certThumbprints:
@@ -1361,7 +1375,7 @@ steps:
       conditionCalcer: 
       valuePath: ''
   sender: !PostgresExecutorSender
-    connectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=fp;
+    connectionString: User ID=fp;Password=rav1234;Host=master.pgep01.service.dev-ep.consul;Port=5432;Database=fpdb;SearchPath=fp;
     statement: select * from fp.app_add_alert(@stream,@rex_result)
     mocFile: ''
     mocBody: ''

@@ -232,6 +232,7 @@ where nc.name like '%" + textBox1.Text + "%' and nc.isdeleted=false and nc.srcid
             try
             {
                 StreamSender.ToConsul(toStream());
+
                 ownerSender.setStream(getContent());
             } 
             catch (Exception ex)

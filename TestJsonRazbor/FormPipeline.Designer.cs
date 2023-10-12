@@ -322,9 +322,9 @@ namespace TestJsonRazbor
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(46, 43);
             this.button3.TabIndex = 34;
-            this.button3.Text = "button3";
+            this.button3.Text = "dmn";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Visible = false;
+            this.button3.Visible = true;
             this.button3.Click += new System.EventHandler(this.button3_Click_1);
             // 
             // button2

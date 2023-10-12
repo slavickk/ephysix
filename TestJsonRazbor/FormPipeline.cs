@@ -559,7 +559,7 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
 
         private async  void button3_Click_1(object sender, EventArgs e)
         {
-            ParserLibrary.PostgresSender.Test();
+           // ParserLibrary.PostgresSender.Test();
             (new FormDMNView(null) {  xml=""}).ShowDialog();
             return;
             dynamic employee = new ExpandoObject();

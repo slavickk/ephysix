@@ -88,7 +88,7 @@ steps:
     responseType: text/xml
     saver: 
     cantTryParse: true
-    mocFile: C:\D\OutACS\xz2r4dkb.aaa
+    mocFile: C:\D\OutACS\xz2r4dkb.bbb
     mocBody: ''
   converters:
   - name: FilterToTW
@@ -98,6 +98,28 @@ steps:
         isNegative: false
         valueForCompare: TdsPrepareAuth
     outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: stream
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: AReq
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: FID
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: '{#FID#}'
     - !ExtractFromInputValue
       copyChildsOnly: false
       viewAsJsonString: false
@@ -282,7 +304,7 @@ steps:
       valuePath: ''
   sender: !StreamSender
     streamName: AReq
-    dbConnectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;
+    dbConnectionString: User ID={#DB_USER_FPDB#};Password={#DB_PASSWORD_FPDB#};Host={#DB_URL_FPDB#};Port=5432;Database=fpdb;SearchPath=md;
     streamSender:
       name: AReq
       description: AReq transaction
@@ -879,7 +901,7 @@ steps:
       conditionCalcer: 
       valuePath: ''
   sender: !PostgresExecutorSender
-    connectionString: User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=fp;
+    connectionString: User ID={#DB_USER_FPDB#};Password={#DB_PASSWORD_FPDB#};Host={#DB_URL_FPDB#};Port=5432;Database=fpdb;SearchPath=fp;
     statement: select * from fp.app_add_alert(@stream,@rex_result)
     mocFile: ''
     mocBody: ''
