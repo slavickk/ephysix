@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Http;
+using Microsoft.AspNetCore.Http;
 using ParserLibrary;
 using Serilog.Events;
 
@@ -67,7 +67,7 @@ public partial class HTTPReceiverSwagger
             metricCountOpened.Increment();
             DateTime time1 = DateTime.Now;
 
-            var statusCode = HttpStatusCode.OK;
+            var statusCode = StatusCodes.Status200OK;
 
             try
             {
@@ -76,7 +76,7 @@ public partial class HTTPReceiverSwagger
                 {
                     metricCountOpened.Decrement();
                     metricErrors.Increment();
-                    statusCode = HttpStatusCode.NotFound;
+                    statusCode = StatusCodes.Status404NotFound;
                     item.semaphore.Set();
                 }, TaskContinuationOptions.OnlyOnFaulted);
             }
@@ -87,13 +87,13 @@ public partial class HTTPReceiverSwagger
 
                 metricCountOpened.Decrement();
                 metricErrors.Increment();
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return Results.NotFound();
             }
 
             // Wait for the pipeline to signal the completion
             await item.semaphore.WaitAsync();
-            if (statusCode != HttpStatusCode.OK)
-                throw new HttpResponseException(statusCode);
+            if (statusCode != StatusCodes.Status200OK)
+                return Results.StatusCode(statusCode);
 
             Interlocked.Increment(ref item.unwait);
 
