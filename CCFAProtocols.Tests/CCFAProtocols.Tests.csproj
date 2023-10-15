@@ -7,39 +7,39 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.12"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.12"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.10"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0"/>
-        <PackageReference Include="NUnit" Version="3.13.1"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0"/>
-        <PackageReference Include="coverlet.collector" Version="3.0.2"/>
-        <PackageReference Include="Serilog" Version="2.10.0"/>
-        <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0"/>
-        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0"/>
-        <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.12" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.10" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+        <PackageReference Include="NUnit" Version="3.13.1" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+        <PackageReference Include="coverlet.collector" Version="3.0.2" />
+        <PackageReference Include="Serilog" Version="2.12.0" />
+        <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
         <AdditionalFiles Include="TestData\test100.tic">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AdditionalFiles>
-        <None Remove="TestData\test400.tic"/>
+        <None Remove="TestData\test400.tic" />
         <AdditionalFiles Include="TestData\test400.tic">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AdditionalFiles>
-        <None Remove="TestData\test200.tic"/>
+        <None Remove="TestData\test200.tic" />
         <AdditionalFiles Include="TestData\test200.tic">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AdditionalFiles>
         <None Update="TestData\TEST.sqlite">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Remove="TestData\TIC.TIC"/>
+        <None Remove="TestData\TIC.TIC" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CCFAProtocols\CCFAProtocols.csproj"/>
+        <ProjectReference Include="..\CCFAProtocols\CCFAProtocols.csproj" />
     </ItemGroup>
 
 </Project>
