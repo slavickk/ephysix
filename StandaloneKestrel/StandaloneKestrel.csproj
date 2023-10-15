@@ -8,6 +8,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>XParserLibrary.StandaloneKestrel</PackageId>
     <Authors>Authors of StandaloneKestrel</Authors>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
