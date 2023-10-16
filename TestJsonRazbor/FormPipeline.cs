@@ -626,5 +626,24 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         {
 
         }
+
+        Step.ItemFilter copyFilter = null;
+        private void buttonCopy_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex >= 0)
+                copyFilter = currentStep.converters[listBox1.SelectedIndex];
+
+        }
+
+        private void buttonPaste_Click(object sender, EventArgs e)
+        {
+            if(copyFilter != null)
+            {
+                string ans=Newtonsoft.Json.JsonConvert.SerializeObject(copyFilter);
+                var newEl=Newtonsoft.Json.JsonConvert.DeserializeObject<Step.ItemFilter>(ans);
+                currentStep.converters.Add(newEl);
+            }
+
+        }
     }
 }

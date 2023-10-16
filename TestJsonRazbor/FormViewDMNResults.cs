@@ -18,15 +18,24 @@ namespace WinFormsETLPackagedCreator
             InitializeComponent();
         }
 
-        public void setVars(DMNExecutorSender.ItemVar[] vars)
+        public void setVars(IEnumerable<DMNExecutorSender.ItemTest> test)
         {
-            listView1.Items.Clear();
-            foreach(var item in vars)
-            {
-                listView1.Items.Add(new ListViewItem(new string[] { item.Name, item.Value?.ToString() }));
-            }
+            comboBox1.Items.Clear();
+            comboBox1.Items.AddRange(test.ToArray());
         }
 
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var sel =comboBox1.SelectedItem as DMNExecutorSender.ItemTest;
+            if(sel != null)
+            {
+                listView1.Items.Clear();
+                foreach (var item in sel.variables)
+                {
+                    listView1.Items.Add(new ListViewItem(new string[] { item.Name, item.Value?.ToString() }));
+                }
 
+            }
+        }
     }
 }

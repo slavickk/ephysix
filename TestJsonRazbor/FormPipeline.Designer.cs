@@ -77,6 +77,8 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.buttonCopy = new System.Windows.Forms.Button();
+            this.buttonPaste = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -225,6 +227,8 @@ namespace TestJsonRazbor
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.buttonPaste);
+            this.groupBox1.Controls.Add(this.buttonCopy);
             this.groupBox1.Controls.Add(this.button5);
             this.groupBox1.Controls.Add(this.textBoxRestorePath);
             this.groupBox1.Controls.Add(this.label7);
@@ -596,6 +600,26 @@ namespace TestJsonRazbor
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // buttonCopy
+            // 
+            this.buttonCopy.Location = new System.Drawing.Point(733, 412);
+            this.buttonCopy.Name = "buttonCopy";
+            this.buttonCopy.Size = new System.Drawing.Size(45, 46);
+            this.buttonCopy.TabIndex = 42;
+            this.buttonCopy.Text = "c";
+            this.buttonCopy.UseVisualStyleBackColor = true;
+            this.buttonCopy.Click += new System.EventHandler(this.buttonCopy_Click);
+            // 
+            // buttonPaste
+            // 
+            this.buttonPaste.Location = new System.Drawing.Point(733, 461);
+            this.buttonPaste.Name = "buttonPaste";
+            this.buttonPaste.Size = new System.Drawing.Size(45, 46);
+            this.buttonPaste.TabIndex = 43;
+            this.buttonPaste.Text = "p";
+            this.buttonPaste.UseVisualStyleBackColor = true;
+            this.buttonPaste.Click += new System.EventHandler(this.buttonPaste_Click);
+            // 
             // FormPipeline
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
@@ -672,5 +696,7 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button buttonPlantUml;
+        private System.Windows.Forms.Button buttonPaste;
+        private System.Windows.Forms.Button buttonCopy;
     }
 }
