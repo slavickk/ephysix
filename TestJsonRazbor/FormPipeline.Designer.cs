@@ -30,19 +30,20 @@ namespace TestJsonRazbor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Steps");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Steps");
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addStepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeStepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.buttonOpen = new System.Windows.Forms.Button();
+            this.buttonPlantUml = new System.Windows.Forms.Button();
             this.buttonNew = new System.Windows.Forms.Button();
             this.buttonSavePipeline = new System.Windows.Forms.Button();
             this.buttonYaml = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.buttonPlantUml = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button5 = new System.Windows.Forms.Button();
             this.textBoxRestorePath = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.checkBoxHandleSendError = new System.Windows.Forms.CheckBox();
@@ -76,7 +77,6 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.button5 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -120,10 +120,10 @@ namespace TestJsonRazbor
             this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Margin = new System.Windows.Forms.Padding(4);
             this.treeView1.Name = "treeView1";
-            treeNode1.Name = "Steps";
-            treeNode1.Text = "Steps";
+            treeNode2.Name = "Steps";
+            treeNode2.Text = "Steps";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1});
+            treeNode2});
             this.treeView1.Size = new System.Drawing.Size(396, 729);
             this.treeView1.TabIndex = 0;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
@@ -174,7 +174,8 @@ namespace TestJsonRazbor
             this.buttonPlantUml.TabIndex = 33;
             this.buttonPlantUml.Text = "ToMd";
             this.buttonPlantUml.UseVisualStyleBackColor = true;
-            this.buttonPlantUml.Click += new System.EventHandler(this.buttonPlantUml_Click);          // 
+            this.buttonPlantUml.Click += new System.EventHandler(this.buttonPlantUml_Click);
+            // 
             // buttonNew
             // 
             this.buttonNew.Location = new System.Drawing.Point(230, 41);
@@ -260,6 +261,16 @@ namespace TestJsonRazbor
             this.groupBox1.Text = "Step detail";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(449, 602);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(253, 46);
+            this.button5.TabIndex = 41;
+            this.button5.Text = "Pipeline metrics";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
             // textBoxRestorePath
             // 
             this.textBoxRestorePath.Location = new System.Drawing.Point(435, 68);
@@ -317,14 +328,13 @@ namespace TestJsonRazbor
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(733, 601);
+            this.button3.Location = new System.Drawing.Point(709, 602);
             this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(46, 43);
+            this.button3.Size = new System.Drawing.Size(74, 43);
             this.button3.TabIndex = 34;
             this.button3.Text = "dmn";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Visible = true;
             this.button3.Click += new System.EventHandler(this.button3_Click_1);
             // 
             // button2
@@ -408,6 +418,7 @@ namespace TestJsonRazbor
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(713, 260);
             this.listBox1.TabIndex = 12;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             this.listBox1.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
             // 
             // contextMenuStripFilters
@@ -584,16 +595,6 @@ namespace TestJsonRazbor
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(449, 602);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(253, 46);
-            this.button5.TabIndex = 41;
-            this.button5.Text = "Pipeline metrics";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // FormPipeline
             // 

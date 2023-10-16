@@ -621,5 +621,10 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
             FormFormCounter frm = new FormFormCounter( pip);
             frm.ShowDialog();
         }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
