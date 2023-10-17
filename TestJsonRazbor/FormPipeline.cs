@@ -639,9 +639,19 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         {
             if(copyFilter != null)
             {
-                string ans=Newtonsoft.Json.JsonConvert.SerializeObject(copyFilter);
-                var newEl=Newtonsoft.Json.JsonConvert.DeserializeObject<Step.ItemFilter>(ans);
-                currentStep.converters.Add(newEl);
+                try
+                {
+                    var jset = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
+                    string ans = Newtonsoft.Json.JsonConvert.SerializeObject(copyFilter,jset);
+                    var newEl = Newtonsoft.Json.JsonConvert.DeserializeObject<Step.ItemFilter>(ans,jset);
+                    newEl.Name += "_1";
+                    currentStep.converters.Add(newEl);
+                    RedrawFilters();
+                }
+                catch(Exception e77)
+                {
+                    MessageBox.Show(e77.Message);
+                }
             }
 
         }
