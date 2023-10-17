@@ -21,8 +21,6 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="XParserLibrary.Core" Version="1.1.2" />
-        <PackageReference Include="XParserLibrary.PluginBase" Version="1.0.1" />
     </ItemGroup>
 
     <ItemGroup>

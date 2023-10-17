@@ -56,9 +56,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="System.Data.HashFunction.xxHash" Version="2.0.0" />
     <PackageReference Include="System.Text.Json" Version="6.0.6" />
-    <PackageReference Include="XParserLibrary.DMN" Version="1.0.0" />
-    <PackageReference Include="XParserLibrary.PluginBase" Version="1.0.1" />
-    <PackageReference Include="XParserLibrary.StandaloneKestrel" Version="1.0.0" />
     <PackageReference Include="YamlDotNet" Version="12.0.0" />
     <PackageReference Include="zlib.net" Version="1.0.4" />
     <PackageReference Include="OpenTelemetry" Version="1.4.0-rc.1" />
@@ -119,6 +116,12 @@
     <None Update="SwaggerTemplate.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\DMN_lib\DMN_lib.csproj" />
+    <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
+    <ProjectReference Include="..\StandaloneKestrel\StandaloneKestrel.csproj" />
   </ItemGroup>
 
 </Project>
