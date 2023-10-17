@@ -25,6 +25,14 @@ namespace ParserLibrary
         public static Metrics.MetricCount metricPerformance = new Metrics.MetricCount("DMNTime", "DMN time performance");
         public static Metrics.MetricCount metricCount = new Metrics.MetricCount("DMNOpenCount", "DMN open exec counter");
         public static Metrics.MetricCount metricContexts = new Metrics.MetricCount("DMNCountContexts", "DMN context counter");
+
+        public class ItemTest
+        {
+            public bool valid = true;
+            public string xml{ get; set; }
+            public ItemVar[] variables { get; set; }
+        }
+        public List<ItemTest> test_cases { get; set; } = new List<ItemTest>();
         public override void Init(Pipeline owner)
         {
             for (int i = 0; i < countPrewarmingIntances; i++)

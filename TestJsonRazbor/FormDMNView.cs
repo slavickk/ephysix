@@ -182,6 +182,7 @@ namespace TestJsonRazbor
 
         }
         string fileNameVars = @"C:\Users\User\source\repos\Polygons\DMN_DATA_EXAMPLE\vars.json";
+        ItemVar[] variables;
         private async void button4_Click(object sender, EventArgs e)
         {
             toolStripStatusLabel1.Text = "";
@@ -192,7 +193,7 @@ namespace TestJsonRazbor
                 var_body = sr.ReadToEnd();
             }
             string message ;
-           var variables = DMNExecutorSender.ExecDMNForXML(xml, var_body,out message);
+           variables = DMNExecutorSender.ExecDMNForXML(xml, var_body,out message);
             if(variables == null)
             {
 
@@ -206,10 +207,35 @@ namespace TestJsonRazbor
                 return;
             }
             FormViewDMNResults frm = new FormViewDMNResults();
-            frm.setVars(variables);
+            frm.setVars(new ItemTest[] { new ItemTest() { xml=xml,
+                variables=variables} });
             frm.Show();
 
            // this.sender.setXML(xml);
+
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            this.sender.test_cases.Add(new ItemTest() { xml = xml, variables = variables });
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            string var_body;
+            using (StreamReader sr = new StreamReader(fileNameVars))
+            {
+                var_body = sr.ReadToEnd();
+            }
+            string message;
+            foreach (var it in this.sender.test_cases)
+            {
+               var variables1 = DMNExecutorSender.ExecDMNForXML(it.xml, var_body, out message);
+
+            }
+            FormViewDMNResults frm = new FormViewDMNResults();
+            frm.setVars(this.sender.test_cases);
+            frm.Show();
 
         }
     }

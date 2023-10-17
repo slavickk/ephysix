@@ -621,5 +621,39 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
             FormFormCounter frm = new FormFormCounter( pip);
             frm.ShowDialog();
         }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        Step.ItemFilter copyFilter = null;
+        private void buttonCopy_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex >= 0)
+                copyFilter = currentStep.converters[listBox1.SelectedIndex];
+
+        }
+
+        private void buttonPaste_Click(object sender, EventArgs e)
+        {
+            if(copyFilter != null)
+            {
+                try
+                {
+                    var jset = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
+                    string ans = Newtonsoft.Json.JsonConvert.SerializeObject(copyFilter,jset);
+                    var newEl = Newtonsoft.Json.JsonConvert.DeserializeObject<Step.ItemFilter>(ans,jset);
+                    newEl.Name += "_1";
+                    currentStep.converters.Add(newEl);
+                    RedrawFilters();
+                }
+                catch(Exception e77)
+                {
+                    MessageBox.Show(e77.Message);
+                }
+            }
+
+        }
     }
 }
