@@ -16,7 +16,7 @@ namespace CamundaInterface
         {
             var countSuc=(Metrics.MetricCount)Metrics.metric.getMetricCount("suc_autoload_count", "count of success loading curses retries");
             var countFail = (Metrics.MetricCount)Metrics.metric.getMetricCount("fail_autoload_count", "count of failed loading curses retries");
-            Logger.log($"current directory {Directory.GetCurrentDirectory()}");
+            Logger.log($"current directory {Directory.GetCurrentDirectory()} path {Path.GetFullPath(filePath)}");
             string body = string.Empty;
             if (File.Exists(filePath))
             {
@@ -28,6 +28,7 @@ namespace CamundaInterface
             }
             if (string.IsNullOrEmpty(body))
             {
+                Logger.log($"start handler load curses");
                 var checker = CSScript.RoslynEvaluator.CreateDelegate<Task<int>>(body);
                 var ConnSelect = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;";
                 var ConnAdm = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;SearchPath=md;";
