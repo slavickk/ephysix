@@ -26,7 +26,7 @@ namespace CamundaInterface
                     body = sr.ReadToEnd();
                 }
             }
-            if (string.IsNullOrEmpty(body))
+            if (!string.IsNullOrEmpty(body))
             {
                 Logger.log($"start handler load curses");
                 var checker = CSScript.RoslynEvaluator.CreateDelegate<Task<int>>(body);
