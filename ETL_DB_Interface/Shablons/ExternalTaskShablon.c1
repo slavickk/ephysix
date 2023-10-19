@@ -1,0 +1,32 @@
+using System;
+using System.Threading.Tasks;
+using System.Net.Http;
+using CamundaInterface;
+using System.Linq;
+async Task<(int,int)> ConvObject(string ConnSelect1,string ConnAdm1)
+{
+    var client = new HttpClient();
+{% for task in package.UsedExternalTasks %}
+    //{{task.url}} {{task.description}}
+    {
+{% for par in task.parameters %}
+        var {{par.Name}}=@"{{par.Value}}";{% endfor %}
+
+{% if task.topic == "url_crowler" %}
+        var itog = await url_crowler.execGet(client
+                                     , ConnSelect1,ConnAdm1
+                                     , Table, URL
+                                     ,SQL 
+                                     , Convert.ToInt32(UpdateTimeout));
+{% else %}
+       var itog = await SendToRefDataLoader.putRequestToRefDataLoader(client, "XXXXXXX:to-dict-sender"
+     , ConnSelect1, ConnAdm1, DictName, "TEST", SQLText
+     , Convert.ToInt32(MaxRecords), DictAddr, SensitiveData, Convert.ToInt32(CountInKey), Fields);
+      all = itog.all;
+      errors = itog.errors;
+
+{% endif %}
+    }
+{% endfor %}
+return (all,errors);
+}

@@ -8,7 +8,7 @@
         "AUTH_HOST_URL": "http://10.74.28.30:30212",
         "FID": "Bank1",
         "CONSUL_ADDR": "http://10.74.32.21:8500/",
-        "DB_URL_FPDB": "master.pgep01.service.dev-fp.consul",
+        "DB_URL_FPDB": "master.pgsqlanomaly01.service.dc1.consul",
         "DB_USER_FPDB": "fp",
         "DB_PASSWORD_FPDB": "rav1234"
       }

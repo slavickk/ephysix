@@ -30,10 +30,25 @@ namespace ETL_DB_Interface
                     }
 
                 }
-                return;
             }
+            if (File.Exists(@"Shablons/ExternalTaskShablon.c1"))
+            {
+                using (StreamReader sr = new StreamReader(@"Shablons/ExternalTaskShablon.c1"))
+                {
+                    var TemplateBody = sr.ReadToEnd();
+                    Template template = Template.Parse(TemplateBody); // Parses and compiles the template
+                                                                      //        Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
+                    var res = template.Render((DotLiquid.Hash.FromDictionary(new Dictionary<string, object>() { { "package", package } }))); // => "hi tobi"
+                    using (StreamWriter sw = new StreamWriter($"{GenerateStatement.pathToSaveETL}{package.NamePacket}.cs"))
+                    {
+                        sw.Write(res);
+                    }
+
+                }
+            }
+            return;
         }
-            public static void SaveMDDefinition(this GenerateStatement.ETL_Package package)
+        public static void SaveMDDefinition(this GenerateStatement.ETL_Package package)
         {
            
             if (File.Exists(@"Shablons/Shablon.txt"))

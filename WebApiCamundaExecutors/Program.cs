@@ -10,7 +10,7 @@ using WebApiCamundaExecutors;
 using System.Security.Cryptography;
 using System.Text.Json;
 using ParserLibrary;
-
+//CSScripterExecutor.testScript().GetAwaiter().GetResult();
 //Test().GetAwaiter().GetResult();
 Prepare();
 /*var builder = WebApplication.CreateBuilder(args);
@@ -143,6 +143,11 @@ static void Prepare()
     if (levelInfo != "")
         Log.Error(levelInfo);
     //            ParserLibrary.Logger.levelSwitch.MinimumLevel = LogEventLevel.Debug;
+    var env_var = Environment.GetEnvironmentVariable("CRON_STRING");
+    if (env_var != null)
+    {
+        CSScripterExecutor.Start("Data/DictCurrencyRates.cs", env_var);
+    }
     try
     {
         Log.Information(" Run executors.");

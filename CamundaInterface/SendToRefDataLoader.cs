@@ -206,7 +206,14 @@ namespace CamundaInterface
 //                                "https://referencedataloader.service.dc1.consul:16666/api/v0/schema/TEST/"
                                 var url1 = $"api/v0/schema/{FID}/{dict.Name}";
                                 Uri uri2 = new Uri(new Uri(baseAddr), url1);
-                                await client.DeleteAsync(uri2);
+                                try
+                                {
+                                    await client.DeleteAsync(uri2);
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
                                 url1 = $"/api/v0/schema/dict/{FID}";
 //                                "http://192.168.75.213:16666/api/v0/schema/dict/TEST"
                                 Uri uri1 = new Uri(new Uri(baseAddr), url1);
