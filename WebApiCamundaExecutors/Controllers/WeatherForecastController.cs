@@ -44,7 +44,7 @@ Description = "¬озвращает последовательность строк "
         public async Task<string> GetMetrics()
         {
             _logger.LogDebug("Metrics request");
-            return Pipeline.metrics.getPrometeusMetric();
+            return Metrics.metric.getPrometeusMetric();
             //            return 1;
         }
 

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Net.Http;
 using CamundaInterface;
+using ParserLibrary;
 using System.Linq;
 async Task<int> ConvObject(string ConnSelect1, string ConnAdm1)
 {
@@ -79,6 +80,7 @@ select 'RUB','Russian rouble',810,'2'
 
 
     }
+    Logger.log($"exec load curses all:{all} errors:{errors}");
 
     return errors;//, errors);
 }
