@@ -129,9 +129,9 @@ static void Prepare()
 .Enrich.FromLogContext()
 .Enrich.WithProperty("Machine", System.Environment.MachineName)
 
-        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("GetHealthCheck"))
+//        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("GetHealthCheck"))
          .Filter.ByExcluding(c =>
-         c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck"))
+         c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck") || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics"))
          )
 
 //        .Enrich.With<>
