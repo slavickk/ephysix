@@ -109,6 +109,7 @@ static void Prepare()
     string LogPath = Environment.GetEnvironmentVariable("LOG_PATH");
     //string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
     string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
+    bool LogHealthAndMonitoring = (Environment.GetEnvironmentVariable("LOG_HELTH_CHECK") != null);
     LogEventLevel defLevel = LogEventLevel.Debug;
     object outVal;
     string levelInfo = "";
@@ -130,8 +131,8 @@ static void Prepare()
 .Enrich.WithProperty("Machine", System.Environment.MachineName)
 
 //        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("GetHealthCheck"))
-         .Filter.ByExcluding(c =>
-         c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck") || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics"))
+         .Filter.ByExcluding(c =>!LogHealthAndMonitoring &&
+         (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
          )
 
 //        .Enrich.With<>
