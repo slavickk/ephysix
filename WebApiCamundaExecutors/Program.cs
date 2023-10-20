@@ -121,10 +121,11 @@ static void Prepare()
         levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
 
     //  ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
-
+    
     if (LogPath == null)
         Log.Logger = new LoggerConfiguration()
         .MinimumLevel.ControlledBy(new Serilog.Core.LoggingLevelSwitch())
+        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("GetHealthCheck"))
 .Enrich.FromLogContext()
 .Enrich.WithProperty("Machine", System.Environment.MachineName)
 //        .Enrich.With<>

@@ -34,6 +34,10 @@ namespace CamundaInterface
                 var ConnAdm = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;SearchPath=md;";
                 var schedule = CrontabSchedule.Parse("1 2 * * *");
                 var errors = await checker(ConnSelect, ConnAdm);
+                if (errors == 0)
+                    countSuc.Increment();
+                else
+                    countFail.Increment();
                 Task.Run(async () =>
                 {
                     while (true)
