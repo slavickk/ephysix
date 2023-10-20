@@ -125,11 +125,15 @@ static void Prepare()
     if (LogPath == null)
         Log.Logger = new LoggerConfiguration()
         .MinimumLevel.ControlledBy(new Serilog.Core.LoggingLevelSwitch())
-        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("GetHealthCheck"))
-         .Filter.ByExcluding(c => c.Properties.Any(p => p.Value.ToString().Contains("GetHealthCheck")))
 
 .Enrich.FromLogContext()
 .Enrich.WithProperty("Machine", System.Environment.MachineName)
+
+        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("GetHealthCheck"))
+         .Filter.ByExcluding(c =>
+         c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck"))
+         )
+
 //        .Enrich.With<>
 .WriteTo.Console(new RenderedCompactJsonFormatter())
 .CreateLogger();
