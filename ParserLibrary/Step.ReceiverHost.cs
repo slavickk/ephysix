@@ -87,6 +87,8 @@ public partial class Step
                 {
                     Logger.log("Receive step:{o} {input} {thr}", Serilog.Events.LogEventLevel.Debug, "any", owner, input.MaskSensitive(), Thread.CurrentThread.ManagedThreadId);
                 }
+
+
                 if (saver != null)
                     saver.save(input);
                 await owner.Receiver_stringReceived(input, context);

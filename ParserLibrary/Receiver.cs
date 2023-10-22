@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using DotLiquid;
 using PluginBase;
 using UniElLib;
 using YamlDotNet.Serialization;
@@ -11,6 +12,18 @@ namespace ParserLibrary;
 
 public abstract class Receiver/*:IReceiver*/
 {
+    public int port = -1;
+
+    public enum ProtocolType { unknown,tcp,http};
+    [YamlIgnore]
+    virtual public ProtocolType protocolType
+    {
+        get
+        {
+            return ProtocolType.unknown;
+        }
+    }
+
     public int MaxConcurrentConnections = 1000;
     public int ConnectionTimeoutInMilliseconds = 5000;
 
@@ -127,8 +140,10 @@ public abstract class Receiver/*:IReceiver*/
     {
         if (debugMode)
             Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any",owner, response);
-        if (owner?.owner.saver != null)
-            contextItem.currentScenario.getStepItem(this.owner.IDStep).MocFileResponce=owner.owner.saver.save(response);
+        if (owner?.owner.saver?.enable??false)
+            owner.owner.saver.save(response,contextItem+owner.IDStep+"RecAns");
+        if (Pipeline.isSaveHistory)
+            Logger.log("{data} {context}", Serilog.Events.LogEventLevel.Information, "hist", response.MaskSensitive(), contextItem.GetPrefix(owner.IDStep + "RecAns"));
 
         if (!MocMode)
             await sendResponseInternal(response, contextItem.context);

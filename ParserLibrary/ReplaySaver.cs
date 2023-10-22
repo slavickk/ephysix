@@ -2,11 +2,18 @@ using Microsoft.Extensions.Hosting;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
+using UniElLib;
+using YamlDotNet.Serialization;
 
 namespace ParserLibrary;
 
 public class ReplaySaver
 {
+    [YamlIgnore]
+    public bool enable
+    {
+        get => string.IsNullOrEmpty(path);
+    }
     public string path;
 
     public class SaveItem
@@ -39,23 +46,28 @@ public class ReplaySaver
             }
         }
     }
-    public virtual string save(string input, string extension = "")
+    public virtual string save(string input, string context = "")
     {
-        if (queue == null)
+        if (enable)
         {
-            queue = new ConcurrentQueue<SaveItem>();
-            t = new Thread(writeToReplay);
-            t.Start();
+            if (queue == null)
+            {
+                if(!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                } 
+                queue = new ConcurrentQueue<SaveItem>();
+                t = new Thread(writeToReplay);
+                t.Start();
 
+            }
+            var fileName = context + Path.GetRandomFileName();
+            SaveItem item = new SaveItem() { fileName = fileName, value = input.MaskSensitive() };
+            queue.Enqueue(item);
+            return item.fileName;
         }
-        var fileName = Path.GetRandomFileName();
-        if(extension!="")
-        {
-            fileName=path.Replace(Path.GetExtension(fileName), extension);
-        }
-        SaveItem item = new SaveItem() { fileName = fileName, value = input }; 
-        queue.Enqueue(item);
-        return item.fileName;
+        else
+            return "";
     }
 
     public void Init()
