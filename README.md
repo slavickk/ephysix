@@ -19,7 +19,10 @@ About WebCamundaExecutors see [CamundaExecutors](WebApiCamundaExecutors/readme.m
  it is not recommended to turn on in working mode
 
 ## Pipeline debug control 
- Switch on set  DEBUG_MODE environment variablede
+ Switch on set  DEBUG_MODE environment variable, if DEBUG_MODE is absent , debugging info is switch off. 
+
+## Pipeline save history control 
+ Switch on set  LOG_HISTORY_MODE environment variable, if LOG_HISTORY_MODE is absent , logging input/output streams are switch off. 
 
 ## About OpenApi support
  HTTPReceiver also support Swagger emulation (based on json definition) . Each call transform to internal structure and after transfomation convert internal structure to return method of call. 
@@ -29,30 +32,23 @@ About WebCamundaExecutors see [CamundaExecutors](WebApiCamundaExecutors/readme.m
 
 ## Nearest aims
 * OpenAPI Support
-* Bult-in documentation(DocFX) https://dotnet.github.io/docfx/tutorial/docfx_getting_started.html
+* Bult-in documentation(DocFX) ```https://dotnet.github.io/docfx/tutorial/docfx_getting_started.html```
 * Kafka sender and receivier, CDC(Change Data Capture) receiver
 * GUI Web-based tools for build integration pipelines
  
  
-## ENVIRONMENTS(obsolete)
+## ENVIRONMENTS
 |ENV_NAME|DEFAULT_VALUE|POSSIBLE VALUES|IS NECESSARY|DEPENDENT VARIABLES|DESCRIPTION|
 | ------ | ------ | ------ | ------ | ------ | ------ |
 |YAML_PATH|/app/Data/model.yml||true|None|YAML configuration file path|
 |LOG_LEVEL|Debug|Verbose, Debug, Information, Warning, Error, Fatal|true|None|Logging level|
 |LOG_PATH|||false|None|FilePath for logging.If variable absent-logging into default input/output |
-## PORTS(obsolete)
+## PORTS
 |PORT_NAME|DEFAULT_VALUE|PROTOCOL|HEALTHCHECK|HEALTHCHEK ROUTE|METRICS|METRICS ROUTE|DESCRIPTION|
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-|PACKET_BEAT_PORT|15001|tcp|false|None|false||PACKETBEAT port (if listening PACKETBEAT)|
 |http port|80|http|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|http port|
 |https port|443|https|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|https port|
 
-# Development environment
 
-Don't forget to configure the user name and email to be used in commits. Do this on every machine you use to work on the project.
+See ENVIRONMETS and PORTS  specific  to the selected pipeline (YAML configuration file path with .md extension)
 
-Here is how to do it for the project (not globally):
-```
-git config --local user.name "Your Name"
-git config --local user.email "Your Email"
-```
