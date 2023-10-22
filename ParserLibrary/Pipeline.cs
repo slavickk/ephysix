@@ -81,6 +81,8 @@ public class Pipeline:ILiquidizable
     /// </summary>
     public static string traceSaveDirectoryStat = "C:\\D\\Store";
     public string traceSaveDirectory = "C:\\D\\Store";
+
+    public static bool isSaveHistory = false;
     public string hashWord { get; set; } = "QWE123";
     public string pipelineDescription = "Pipeline example";
     [YamlIgnore]
@@ -114,12 +116,13 @@ public class Pipeline:ILiquidizable
     /// Performs a self-test on the pipeline by calling the SelfTest() method of each sender that implements ISelfTested.
     /// </summary>
     /// <returns>A boolean value indicating whether the self-test passed or failed.</returns>
-    public async Task<bool> SelfTest()
+    public async Task<(bool Result,string Description)> SelfTest()
     {
         // check that sender implemented ISelfTested
 /*        if (steps[0].sender is not ISelfTested testableSender)
             return false; // treating this as a failed self test*/
         bool retValue = true;
+        string description = "";
         foreach (var step in steps)
         {
             if (step.isender != null)
@@ -130,9 +133,15 @@ public class Pipeline:ILiquidizable
 
                     var res1 = await testableSender.isOK();
                     if (res1.Item3 == null)
+                    {
                         Logger.log("{Item}.Results:{Res}", Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+                        description += $"{res1.Item2} returns {(res1.Item1 ? "OK" : "Fail")}\r\n";
+                    }
                     else
+                    {
                         Logger.log("{Item}.Results:{Res}", res1.Item3, Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+                        description += $"{res1.Item2} returns {(res1.Item1 ? "OK" : "Fail")}\r\n";
+                    }
                     if (!res1.Item1)
                         retValue = false;
                 }
@@ -145,15 +154,22 @@ public class Pipeline:ILiquidizable
 
                     var res1 = await testableSender.isOK();
                     if (res1.Item3 == null)
+                    {
                         Logger.log("{Item}.Results:{Res}", Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+                        description += $"{res1.Item2} returns {(res1.Item1 ? "OK" : "Fail")}\r\n";
+
+                    }
                     else
+                    {
                         Logger.log("{Item}.Results:{Res}", res1.Item3, Serilog.Events.LogEventLevel.Information, "any", res1.Item2.ToString(), (res1.Item1 ? "OK" : "Fail"));
+                        description += $"{res1.Item2} returns {(res1.Item1 ? "OK" : "Fail")}\r\n";
+                    }
                     if (!res1.Item1)
                         retValue = false;
                 }
             }
         }
-        return retValue;
+        return (retValue,description);
     }
     
     /// <summary>
@@ -166,7 +182,7 @@ public class Pipeline:ILiquidizable
         bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t) || typeof(Receiver).IsAssignableFrom(t) || typeof(Sender).IsAssignableFrom(t);
 
         // TODO: make the list of plugin assemblies configurable
-        var pluginAssemblyNames = new[] { "Plugins.dll" };
+        var pluginAssemblyNames = new string [] { /*"Plugins.dll"*/ };
         var pluginAssemblies = pluginAssemblyNames.Select(Assembly.LoadFrom).ToList();
 
         // Find all types that must be accessible during pipeline deserialization
@@ -514,6 +530,9 @@ public class Pipeline:ILiquidizable
                     }
 
                 }
+                
+
+
             }
         }
         using (StreamWriter sw = new StreamWriter(md_fileName))
@@ -531,6 +550,22 @@ public class Pipeline:ILiquidizable
                     sw.WriteLine($" * {item.variable} {item.comment}");
                 }
             }
+            sw.WriteLine($"## PORTS(input)");
+            sw.WriteLine(@"|PORT|PROTOCOL|
+| ------ | ------ |");
+            foreach (var step in steps.Where(ii => ii.receiver?.port > 0))
+            {
+                sw.WriteLine($"| {step.receiver.port} | {step.receiver.protocolType} |");
+                if(step.receiver.protocolType == Receiver.ProtocolType.http)
+                {
+                    sw.WriteLine("\r\nTo check the correctness of the pipeline settings, run ```curl http://<entry_point_url>:<entry_point_port>/SelfTest``` \r\n\r\nOR\r\n\r\n");
+                }
+
+            }
+            sw.WriteLine(" run ```curl -X 'GET' 'https://<entry_point_url>:<monitoring_port>/api/Monitoring/SelfTest'  -H 'accept: */*'```");
+            sw.WriteLine();
+            sw.WriteLine("\r\n\r\nOther ports( output ) see in ENVIRONMENT VARIABLES section");
+
         }
     }
     public void Save( string fileName = @"C:\d\aa1.yml")

@@ -69,6 +69,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCPServer", "TCPServer\TCPS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphShablons", "GraphShablons\GraphShablons.csproj", "{61A0E38B-F399-4930-9C44-E9672851003E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProject", "DataProject\DataProject.csproj", "{A02362DD-88A5-4950-93BE-FADDCDD30077}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -207,6 +209,10 @@ Global
 		{61A0E38B-F399-4930-9C44-E9672851003E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61A0E38B-F399-4930-9C44-E9672851003E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61A0E38B-F399-4930-9C44-E9672851003E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A02362DD-88A5-4950-93BE-FADDCDD30077}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A02362DD-88A5-4950-93BE-FADDCDD30077}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A02362DD-88A5-4950-93BE-FADDCDD30077}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A02362DD-88A5-4950-93BE-FADDCDD30077}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

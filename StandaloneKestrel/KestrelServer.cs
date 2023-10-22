@@ -104,6 +104,10 @@ namespace Kestrel
         {
             await httpContext.Response.Body.WriteAsync(Encoding.ASCII.GetBytes(content));
         }
+        public static async Task SetResponseStatusCode(HttpContext httpContext, int StatusCode)
+        {
+            httpContext.Response.StatusCode=StatusCode;
+        }
 
         public static void SetResponseType(HttpContext httpContext,string type= "text/plain")
         {

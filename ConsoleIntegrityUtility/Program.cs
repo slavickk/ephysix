@@ -40,7 +40,7 @@ namespace ConsoleIntegrityUtility
             try
             {
                 pip = Pipeline.load(args[0]);
-                var suc=pip.SelfTest().GetAwaiter().GetResult();
+                var suc=pip.SelfTest().GetAwaiter().GetResult().Result;
 
 //                pip = pips[0];
             }  

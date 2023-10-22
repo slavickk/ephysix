@@ -24,7 +24,8 @@ namespace ParserLibrary
 {
     public class HTTPReceiver : Receiver
     {
-        public int port = 8080;
+        public override ProtocolType protocolType => ProtocolType.http;
+        //        public int port = 8080;
 
         public string swaggerSpecPath = null;        
 
@@ -32,6 +33,8 @@ namespace ParserLibrary
         public string ResponseType = "application/json";
         public HTTPReceiver()
         {
+            if (port == -1)
+                port = 8080;
             server = new KestrelServer(this);
         }
         protected override async Task startInternal()
@@ -118,6 +121,19 @@ namespace ParserLibrary
             // List<Header> headers = new List<Header>();
             public override async Task ReceiveRequest(HttpContext httpContext)
             {
+                if (httpContext.Request.Path.Value.ToLower().Contains("/selftest"))
+                {
+                    SetResponseType(httpContext, "text/plain");
+                    var res=await owner.owner.owner.SelfTest();
+                    if (res.Result)
+                        await SetResponseStatusCode(httpContext, 200);
+                    else
+                        await SetResponseStatusCode(httpContext, 502);
+                    await SetResponseContent(httpContext, res.Description);
+
+
+                    return;
+                }
                 if (httpContext.Request.Path.Value.Contains("/healthcheck"))
                 {
                     SetResponseType(httpContext, "text/plain");

@@ -1,0 +1,635 @@
+pipelineDescription: Pipeline ACS-CCFA-TWO
+metricsBuilder:
+- name: HOST_ANSWER
+  description: Host Result answer of auth
+  labels:
+  - name: Result
+    value: !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: 
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/-Result/#text
+      conditionCalcer: 
+      valuePath: ''
+- name: DMN_ANSWER
+  description: DMN recomendation
+  labels:
+  - name: Result
+    value: !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: 
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
+      conditionCalcer: !ComparerForValue
+        isNegative: false
+        valueForCompare: v3ds
+      valuePath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
+- name: RULE_ANSWER
+  description: Answer of each rule
+  labels:
+  - name: IDRule
+    value: !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: 
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/name
+      conditionCalcer: 
+      valuePath: ''
+  - name: Answer
+    value: !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: 
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
+      conditionCalcer: 
+      valuePath: ''
+hashWord: QWE123
+steps:
+- isBridge: false
+  isHandleSenderError: true
+  maxSavedLimitInMB: 10
+  saveErrorSendDirectory: /CACHE
+  iDStep: Step_0
+  iDPreviousStep: ''
+  iDResponsedReceiverStep: ''
+  description: Check registration extract
+  receiver: !HTTPReceiver
+    port: 8080
+    swaggerSpecPath: 
+    responseType: text/xml
+    cantTryParse: true
+    mocFile: C:\D\OutACS\xz2r4dkb.mbg
+    mocBody: ''
+    saver: 
+  converters:
+  - name: FilterToTW
+    filter: !ConditionFilter
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/-Kind/#text
+      conditionCalcer: !ComparerForValue
+        isNegative: false
+        valueForCompare: TdsPrepareAuth
+    outputFields:
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: originalTime
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/-OrigTime/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: acctNumber
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Parties/Cust/Token/Card/-Pan/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: cardExpiryDate
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Parties/Cust/Token/Card/-ExpDate/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: acquirerBIN
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Parties/Term/-AcquirerRid/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: acquirerMerchantID
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Parties/Term/Owner/-Rid/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserAcceptHeader
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserAcceptHeaders/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserIP
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserIpAddress/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserLanguage
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserLanguage/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserTZ
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserTZ/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: browserUserAgent
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserUserAgent/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: dsTransID
+      isUniqOutputPath: true
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Match/-Key/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: dsTransID
+      isUniqOutputPath: true
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Match/-Nrn/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseAmount
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Moneys/Cust/-Amt/#text
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: purchaseCurrency
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Moneys/Cust/-Ccy/#text
+      conditionCalcer: 
+      valuePath: ''
+  sender: !StreamSender
+    streamName: AReq
+    dbConnectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;
+    certName: ''
+    certPassword: ''
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInSeconds: 5
+    headers: 
+    responseType: application/json
+    urls:
+    - http://192.168.75.214/api/Streams/LoadStream2
+    timeoutsBetweenRetryInMilli:
+    - 100
+    mocFile: ''
+    mocBody: ''
+    url: http://192.168.75.214/api/Streams/LoadStream2
+- isBridge: false
+  isHandleSenderError: false
+  maxSavedLimitInMB: 0
+  saveErrorSendDirectory: ''
+  iDStep: Step_DMN
+  iDPreviousStep: Step_0
+  iDResponsedReceiverStep: ''
+  description: Some comments in this place
+  receiver: 
+  converters:
+  - name: FilterSignalledRule
+    filter: !ConditionFilter
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: InputParameters
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/RuleID
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/name
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/Severity
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/severity
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputParameters/Result
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/rule/answerOnSignal
+      conditionCalcer: 
+      valuePath: ''
+  - name: FilterDataField
+    filter: !ConditionFilter
+      conditionPath: Step_0/Send/To/*
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: InputRecordFields
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputRecordFields/Key
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: true
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Send/To/*
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InputRecordFields/Value
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Send/To/*
+      conditionCalcer: 
+      valuePath: ''
+  - name: FilterInactiveRules
+    filter: !ConditionFilter
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/Inactive
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: InactiveRule
+      isUniqOutputPath: true
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: InactiveRule/Item
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Rec/ItemList/Inactive
+      conditionCalcer: 
+      valuePath: ''
+  sender: !DMNExecutorSender
+    countPrewarmingIntances: 4
+    xML: !include decision.dmn
+    mocFile: ''
+    mocBody: ''
+- isBridge: false
+  isHandleSenderError: false
+  maxSavedLimitInMB: 0
+  saveErrorSendDirectory: ''
+  iDStep: Step_ToTWO
+  iDPreviousStep: Step_DMN
+  iDResponsedReceiverStep: Step_0
+  description: Some comments in this place
+  receiver: 
+  converters:
+  - name: FilterCopyToTWBody
+    filter: !ConditionFilter
+      conditionPath: Step_0/Rec
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ExtractFromInputValue
+      copyChildsOnly: true
+      viewAsJsonString: false
+      outputPath: ''
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec
+      conditionCalcer: 
+      valuePath: ''
+  - name: FilterCopyToTWDMNResult
+    filter: !ConditionFilter
+      conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec
+      conditionCalcer: !ComparerAlwaysTrue {}
+    outputFields:
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/Extensions/Extension
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/Extensions/Extension/-name/#text
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: CCFA_3DS
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/Extensions/Extension/-id/#text
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: 374890234
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/Extensions/Extension/-criticalityIndicator/#text
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: false
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/Extensions/Extension/#text
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ConstantValue
+      typeConvert: String
+      viewAsJsonString: false
+      outputPath: SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/Extensions/Extension/#text/DMNResult
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: true
+      value: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/Extensions/Extension/#text/DMNResult/3ds
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
+      conditionCalcer: !ComparerForValue
+        isNegative: false
+        valueForCompare: v3ds
+      valuePath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/Extensions/Extension/#text/DMNResult/declinereason
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Name
+      conditionCalcer: !ComparerForValue
+        isNegative: false
+        valueForCompare: OutComment
+      valuePath: Step_0/Step_DMN/Step_ToTWO/Rec/ItemList/Value
+  sender: !HTTPSender
+    certName: ''
+    certPassword: ''
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInSeconds: 5
+    headers: 
+    responseType: text/xml
+    urls:
+    - http://192.168.75.173:30212
+    timeoutsBetweenRetryInMilli:
+    - 100
+    mocFile: ''
+    mocBody: ''
+    url: http://192.168.75.173:30212
+- isBridge: false
+  isHandleSenderError: false
+  maxSavedLimitInMB: 0
+  saveErrorSendDirectory: ''
+  iDStep: Step_SaveAlert
+  iDPreviousStep: Step_ToTWO
+  iDResponsedReceiverStep: ''
+  description: Some comments in this place
+  receiver: 
+  converters:
+  - name: FilterToPostgres
+    filter: !AndOrFilter
+      filters:
+      - !ConditionFilter
+        conditionPath: Step_0/Step_DMN/Step_ToTWFA/Step_2/Rec/ItemList/Name
+        conditionCalcer: !ComparerForValue
+          isNegative: false
+          valueForCompare: SaveAlert
+      - !ConditionFilter
+        conditionPath: Step_0/Step_DMN/Step_2/Rec/ItemList/Value
+        conditionCalcer: !ComparerForValue
+          isNegative: false
+          valueForCompare: true
+      action: AND
+    outputFields:
+    - !ExtractFromInputValue
+      copyChildsOnly: true
+      viewAsJsonString: false
+      outputPath: '@stream'
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Send/To
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: true
+      viewAsJsonString: false
+      outputPath: '@rex_result'
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_DMN/Send/To/InputParameters
+      conditionCalcer: 
+      valuePath: ''
+  sender: !PostgresExecutorSender
+    connectionString: User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=fp;
+    statement: select * from fp.add_alert(@stream,@rex_result)
+    mocFile: ''
+    mocBody: ''

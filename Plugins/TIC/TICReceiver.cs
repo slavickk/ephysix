@@ -9,12 +9,16 @@ namespace ParserLibrary
 {
     public class TICReceiver : Receiver, IDisposable
     {
+        public override ProtocolType protocolType => ProtocolType.tcp;
+
         private readonly IDisposable pushProperty;
         private IPEndPoint endpoint;
         private TICFrame Frame;
 
         public TICReceiver()
         {
+            if (port == -1)
+                port = 15001;
             cantTryParse = true;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             pushProperty = LogContext.PushProperty("reciever", "TIC");
@@ -27,7 +31,7 @@ namespace ParserLibrary
                 }*/
 
         //        [YamlMember(Alias = "Port")]
-        public int port = 15001; //{ get; set; }
+//        public int port = 15001; //{ get; set; }
 /*              {
                   set => endpoint = new IPEndPoint(IPAddress.Any, value);
                   get => endpoint.Port;

@@ -13,14 +13,19 @@ namespace ParserLibrary
 {
     public class PacketBeatReceiver : Receiver
     {
-        public int port = 15001;
+        public override ProtocolType protocolType => ProtocolType.tcp;
+
+        //        public int port = 15001;
         protected async override Task startInternal()
         {
             Start(port);
         }
         public PacketBeatReceiver()
         {
-//            this.saver = new ReplaySaver() { path = @"C:\D\Out" };
+            if (port == -1)
+                port = 15001;
+
+            //            this.saver = new ReplaySaver() { path = @"C:\D\Out" };
         }
 
         int Start(int port)

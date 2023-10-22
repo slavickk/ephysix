@@ -273,27 +273,34 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
             stor.RemoveAll(ii => ii.Name == stream.Name);
             stor.Add(stream);
         }
-        using (StreamWriter sw= new StreamWriter(storagePath))
+        using (StreamWriter sw= new StreamWriter(GetStoragePath()))
         {
             sw.Write(System.Text.Json.JsonSerializer.Serialize<List<Stream>>(stor));
 
         }
     }
-    static string  storagePath = @"..\..\..\..\ParserLibrary\Data\LocalStor.json";
+//    static string  storagePath = @"Data\LocalStor.json";
     static List<Stream> FromLocalStorage()
     {
-//        Path.GetFullPath(@"..\..\");
-
-
-        if (File.Exists(storagePath))
-            using (StreamReader sr = new StreamReader(storagePath))
+//        "curl -X POST http://localhost:8080 -d"<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><Tran><Request InitiatorRid=\"RcScheme Test\" Kind=\"TdsProcessAuth\" LifePhase=\"Single\" NetworkRid=\"VISA\" OrigTime=\"2022-10-11T02:02:01\" ProcessorInstRid=\"ACS\"><Parties><Cust Presence=\"true\"><Token Kind=\"Card\"><Card ExpDate=\"2025-12-01T00:00:00\" Pan=\"2220000000000200\"><Tds NetworkType=\"MIR\"/></Card></Token></Cust><Term AcquirerRid=\"2201380101\"><Caps Interactive=\"true\"/><Owner Country=\"643\" Rid=\"compass_mrc_1\" Title=\"compass_mrc_1\" Url=\"http://compassplus.ru\"/></Term></Parties><Link Id=\"5802262\" Kind=\"PrevStep2NextStep\"/><Match Key=\"9D313DB97181F159505725BF06A1928421E9794CEC10731E48C71F84AF0890E8b1a03daa-352f-4909-87c6-a33868162c19\" Nrn=\"b1a03daa-352f-4909-87c6-a33868162c19\" Rrn=\"bbc44d41-71ee-4eff-b0f0-49e2308be233\"/><Moneys><Cust Amt=\"25.0\" Ccy=\"840\"/></Moneys><Specific><Tds Version=\"2.2.0\"><Extensions><Extension criticalityIndicator=\"false\" id=\"ID1\" name=\"extensionField1\">{\"valueOne\":\"value\"}</Extension></Extensions></Tds></Specific></Request></Tran></SOAP-ENV:Body></SOAP-ENV:Envelope>"
+       // GetStoragePath();
+        if (File.Exists(GetStoragePath()))
+            using (StreamReader sr = new StreamReader(GetStoragePath()))
             {
                 return System.Text.Json.JsonSerializer.Deserialize<List<Stream>>(sr.ReadToEnd());
             }
         return new List<Stream>();
     }
 
-        static public void ToConsul(Stream stream)
+    private static string GetStoragePath()
+    {
+        //        Path.GetFullPath(@"..\..\");
+        if (Environment.GetEnvironmentVariable("YAML_PATH") == null)
+            return "aa.nl";
+        return Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("YAML_PATH")), "LocalStor.json");
+    }
+
+    static public void ToConsul(Stream stream)
     {
         ToLocalStorage(stream);
         HttpClient httpClient = new HttpClient();

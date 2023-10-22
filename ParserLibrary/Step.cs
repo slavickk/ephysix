@@ -238,11 +238,13 @@ public partial class Step : ILiquidizable
 
 
     Task saveScenarious = null;
+
+    public static int incrValue = 0;
     private async Task Receiver_stringReceived(string input, object context)
     {
 //        owner.mainActivity = owner.GetActivity("receive package", null);
         DateTime time2 = DateTime.Now;
-        ContextItem contextItem = new ContextItem() { context = context ,mainActivity= owner.GetActivity("receive package", null) };
+        ContextItem contextItem = new ContextItem() { context = context ,mainActivity= owner.GetActivity("receive package", null), increment=Interlocked.Increment(ref incrValue) };
         if (contextItem?.mainActivity != null)
         {
             contextItem?.mainActivity?.SetTag("context.url", owner.SaveContext(input));
@@ -250,13 +252,15 @@ public partial class Step : ILiquidizable
         //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
-        if(owner.saver != null)
+        if(owner.saver?.enable ?? false)
         {
-            contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
-            if (owner.saver != null)
-                contextItem.currentScenario.getStepItem(this.IDStep).MocFileReceiver=owner.saver.save(input);
+/*            contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
+            if (owner.saver != null)*/
+                owner.saver.save(input, contextItem + IDStep + "Receiver");
 
         }
+        if (Pipeline.isSaveHistory)
+            Logger.log("{data} {context}", Serilog.Events.LogEventLevel.Information, "hist", input.MaskSensitive(), contextItem.GetPrefix( IDStep + "Receiver"));
 
         /*        if (saveAllResponses)
                 {
@@ -294,10 +298,10 @@ public partial class Step : ILiquidizable
                 else 
                 await receiver.sendResponse(ans, contextItem);
 
-                if (contextItem?.currentScenario != null)
+                /*if (owner.saver?.enable ?? false)
                 {
                     owner.saver.save(JsonSerializer.Serialize<Scenario>(contextItem?.currentScenario), ".scn");
-                }
+                }*/
    /*             if(saveAllResponses)
                 {
                     Scenario.Item item= contextItem.currentScenario.mocs.FirstOrDefault(ii=>ii.IDStep== this.IDStep);

@@ -23,7 +23,7 @@ namespace WebApiConsoleUtility
         public static int MaxConcurrentRequests = -1;
         //Request queue length limit
         public static int RequestQueueLimit = -1;
-        static Pipeline pip;
+        public static Pipeline pip;
         static bool IgnoreAll = false;
         public static async Task Main(string[] args)
         {
@@ -51,6 +51,7 @@ namespace WebApiConsoleUtility
             string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
             string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
+            string LOG_HISTORY_MODE = Environment.GetEnvironmentVariable("LOG_HISTORY_MODE");
             Pipeline.AgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
             string sport= Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
             string SAVE_CONTEXT = Environment.GetEnvironmentVariable("JAEGER_SAVE_CONTEXT");
@@ -66,6 +67,8 @@ namespace WebApiConsoleUtility
             if(Pipeline.ServiceAddr == null)    
                 Pipeline.ServiceAddr = "localhost:44352";
             LogEventLevel defLevel = LogEventLevel.Information;
+            bool LogHealthAndMonitoring = (Environment.GetEnvironmentVariable("LOG_HELTH_CHECK") != null);
+
             object outVal;
             string levelInfo = "";
             if (!IgnoreAll)
@@ -85,6 +88,10 @@ namespace WebApiConsoleUtility
                     .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
             .Enrich.FromLogContext()
             .Enrich.WithProperty("Machine", System.Environment.MachineName)
+                     .Filter.ByExcluding(c => !LogHealthAndMonitoring &&
+         (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
+         )
+
             //        .Enrich.With<>
             .WriteTo.Console(new RenderedCompactJsonFormatter())
             .CreateLogger();
@@ -150,12 +157,18 @@ namespace WebApiConsoleUtility
                         pip.debugMode = true;
                         Log.Information("Set debugMode ");
                     }
+                    if (LOG_HISTORY_MODE != null)
+                    {
+                        Pipeline.isSaveHistory = true;
+                        Log.Information("Set logHistoryMode ");
+                    }
 
                     Log.Information("Parsing done");
                     if (!pip.skipSelfTest)
                     {
                         Log.Information("Making self test.");
-                        var suc = await pip.SelfTest();
+                        var res = await pip.SelfTest();
+                        var suc = res.Result;
                         if (suc)
                         {
                             Log.Information("Self test OK. Run pipeline.");

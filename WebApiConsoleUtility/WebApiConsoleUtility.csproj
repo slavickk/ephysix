@@ -28,7 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataProject\DataProject.csproj" />
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
+    <ProjectReference Include="..\Plugins\Plugins.csproj" />
     <ProjectReference Include="..\UniElLib\UniElLib.csproj" />
   </ItemGroup>
 

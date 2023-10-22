@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataProject\DataProject.csproj" />
     <ProjectReference Include="..\ETL_DB_Interface\ETL_DB_Interface.csproj" />
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
     <ProjectReference Include="..\PluginBase\PluginBase.csproj" />
