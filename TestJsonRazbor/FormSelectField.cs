@@ -310,18 +310,27 @@ namespace TestJsonRazbor
         {
             if(comboBox2.SelectedIndex == 1)
             {
-                label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = false;
+                userControlSwitch1.Visible=  label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = false;
                 textBoxScript.Visible = true;
                 checkBox2.Visible = false;
             }
             else
             {
-                checkBox2.Visible = true;
-                textBoxScript.Visible = false;
-                if (checkBox2.Checked == false)
-                    label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = false;
-                else
-                    label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = true;
+                if (comboBox2.SelectedIndex == 0)
+                {
+                    checkBox2.Visible = true;
+                    userControlSwitch1.Visible = textBoxScript.Visible = false;
+                    if (checkBox2.Checked == false)
+                        label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = false;
+                    else
+                        label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = true;
+                } else
+                {
+                    userControlSwitch1.Visible = label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = false;
+                    textBoxScript.Visible = false;
+                    checkBox2.Visible = false;
+                    userControlSwitch1.Visible = true;
+                }
 
             }
         }
@@ -726,6 +735,8 @@ namespace TestJsonRazbor
                     else
                         return new ExtractFromInputValueWithScript() {viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
                 case 2:
+                        return new ExtractFromInputValueWithSwitch() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text,  SwitchItems =userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
+                case 3:
                     return new TemplateOutputValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, getNodeNameOnly = checkBoxNameOnly.Checked, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody=textBoxTemplate.Text };  
                     break;
                 default:
@@ -860,14 +871,22 @@ namespace TestJsonRazbor
                     }
                     else
                     {
-                        comboBox2.SelectedIndex = 0;
-                        if (val1.valuePath != "")
+                        if (val1 is ExtractFromInputValueWithSwitch)
                         {
-                            checkBox2.Checked = true;
-                            textBoxAddFieldPath.Text = val1.valuePath;
+                            comboBox2.SelectedIndex = 2;
+                            userControlSwitch1.switches = (val1 as ExtractFromInputValueWithSwitch).SwitchItems;
                         }
                         else
-                            checkBox2.Checked = false;
+                        {
+                            comboBox2.SelectedIndex = 0;
+                            if (val1.valuePath != "")
+                            {
+                                checkBox2.Checked = true;
+                                textBoxAddFieldPath.Text = val1.valuePath;
+                            }
+                            else
+                                checkBox2.Checked = false;
+                        }
                     }
                     //                    , conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ""/*((textBoxValueFieldPath.Text == "") ? "" : textBoxValueFieldPath.Text)*/ };
                 }
