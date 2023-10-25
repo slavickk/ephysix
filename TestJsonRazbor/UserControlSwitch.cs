@@ -88,5 +88,16 @@ namespace TestJsonRazbor
                 redrawList();
             }
         }
+
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listView1.SelectedIndices.Count > 0)
+            {
+                var index = listView1.SelectedIndices[0];
+                textBox1.Text=switches[index].Key;
+                textBox2.Text = switches[index].Value;
+                checkBox1.Checked = switches[index].overwise;
+            }
+        }
     }
 }
