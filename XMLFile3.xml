@@ -1,0 +1,36 @@
+﻿<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header/>
+  <SOAP-ENV:Body>
+    <Tran>
+      <Request InitiatorRid="ACS" Kind="TdsPrepareAuth" LifePhase="Single" NetworkRid="ACS" OrigTime="2023-10-23T12:33:26" ProcessorInstRid="ACS">
+        <Parties>
+          <Cust Presence="true">
+            <Token Kind="Card">
+              <Card ExpDate="2025-12-01T00:00:00" Pan="22200*****200">
+                <Tds NetworkType="MIR"/>
+              </Card>
+            </Token>
+          </Cust>
+          <Term AcquirerRid="2201380101">
+            <Caps DeviceCategory="02"/>
+            <Owner Country="643" Mcc="3000" MerchantRid="2201380101" MerchantTitle="compass" Rid="POS_1" Title="compass_mrc_1" Url="http://compassplus.ru"/>
+          </Term>
+        </Parties>
+        <Match Key="9D313DB97181F159505725BF06A1928421E9794CEC10731E48C71F84AF0890E81bbf0a0a-0c9e-45fa-aab6-c799354c132d" Nrn="1bbf0a0a-0c9e-45fa-aab6-c799354c132d" Rrn="b1adad94-d525-4c48-aeae-d2befebdcdab"/>
+        <Moneys>
+          <Cust Amt="25" Ccy="840"/>
+        </Moneys>
+        <Specific>
+          <Tds Version="2.2.0">
+            <Extensions>
+              <Extension criticalityIndicator="false" id="ID1" name="extensionField1">{"valueOne":"value"}</Extension>
+              <Extension criticalityIndicator="false" id="CpDummySystem1DeviceGuid" name="CpDummySystem1DeviceGuid">{ "guid": "3823479b-fc38-4835-af6c-db99f90db669" }</Extension>
+            </Extensions>
+            <CardholderInfo/>
+            <TranDetails BrowserInfo="eyJ2ZXJzaW9uIjoiMS4wIiwiYWNjZXB0TGFuZ3VhZ2UiOiJSVSIsImFjY2VwdEhlYWRlcnMiOiJ0ZXh0L2h0bWwsYXBwbGljYXRpb24veGh0bWwreG1sLGFwcGxpY2F0aW9uL3htbDtxPTAuOSxpbWFnZS9hdmlmLGltYWdlL3dlYnAsKi8qO3E9MC44IiwidXNlckFnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NDsgcnY6MTA5LjApIEdlY2tvLzIwMTAwMTAxIEZpcmVmb3gvMTE4LjAiLCJicm93c2VySXAiOiIxMC44LjE0LjEwOSIsInRpbWVab25lIjoiLTMwMCIsImNvbG9yRGVwdGgiOiIyNCIsInNjcmVlbkhlaWdodCI6IjI0Iiwic2NyZWVuV2lkdGgiOiIxOTIwIiwiamF2YXNjcmlwdEVuYWJsZWQiOiJ0cnVlIiwiamF2YUVuYWJsZWQiOiJmYWxzZSJ9" DsReferenceNumber="1000" MessageCategory="01" TdsReqAuthIndicator="01" TdsServerTranId="e7d7e22d-5f30-408a-b4c2-8a3930e0b11a"/>
+          </Tds>
+        </Specific>
+      </Request>
+    </Tran>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
