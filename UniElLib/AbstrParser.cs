@@ -490,24 +490,27 @@ namespace UniElLib
 
             public IEnumerable<UniEl> getAllDescentants(string[] path,int index)
             {
-                if (isEqual(this.Name ,path[index]))
+                if (index < path.Length)
                 {
-                    if (index == path.Length - 1)
-                        yield return this;
-                    else
+                    if (isEqual(this.Name, path[index]))
                     {
-                        foreach (var el in this.childs)
+                        if (index == path.Length - 1)
+                            yield return this;
+                        else
                         {
-//                            el.getAllDescentants(path, index + 1);
-                            foreach (var el2 in el.getAllDescentants(path, index + 1))
-                                yield return el2;
+                            foreach (var el in this.childs)
+                            {
+                                //                            el.getAllDescentants(path, index + 1);
+                                foreach (var el2 in el.getAllDescentants(path, index + 1))
+                                    yield return el2;
 
-                            /*                            yield return el;
-                                                        foreach (var el1 in el.childs)
-                                                        {
-                            //                                yield return el1;
-                                                            return  el1.getAllDescentants(path,index+1));
-                                                        }*/
+                                /*                            yield return el;
+                                                            foreach (var el1 in el.childs)
+                                                            {
+                                //                                yield return el1;
+                                                                return  el1.getAllDescentants(path,index+1));
+                                                            }*/
+                            }
                         }
                     }
                 }

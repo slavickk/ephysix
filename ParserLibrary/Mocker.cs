@@ -27,11 +27,11 @@ namespace ParserLibrary
             else
             if ((MocFile ?? "") != "")
             {
-                if (MocContent == "")
+                if (string.IsNullOrEmpty(MocContent))
                 {
                     lock (syncro)
                     {
-                        if (MocContent == "")
+                        if (string.IsNullOrEmpty(MocContent))
                         {
 
                             // string ans;
