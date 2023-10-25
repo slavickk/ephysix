@@ -1,209 +1,36 @@
-﻿<SOAP-ENV:Envelope xmlns:obj=\"http://schemas.mobix.compassplus.com/1.0/objects.xsd\" xmlns:mcp=\"http://schemas.mobix.compassplus.com/1.0/mcp.xsd\" xmlns:mcpw=\"http://schemas.mobix.compassplus.com/1.0/mcp.wsdl\" xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">
-	<SOAP-ENV:Header>
-		<RequestId>1</RequestId>
-	</SOAP-ENV:Header>
-	<SOAP-ENV:Body>
-		<mcpw:Invoke>
-			<mcp:ActionRq ClassUri=\"MobiCash.Customer/Customers/Customer\">
-				<mcp:Context ClassUri=\"Mobix/Core/Mcp/StatelessContext\">
-					<mcp:Pid>
-						<obj:Field Name=\"AppNamespace\">MobiCash.Customer</obj:Field>
-						<obj:Field Name=\"AppVersion\">8.2.5</obj:Field>
-						<obj:Field Name=\"Lang\">en</obj:Field>
-						<obj:Field Name=\"Platform\">AndroidPhone</obj:Field>
-						<obj:Field Name=\"OSVersion\">9</obj:Field>
-						<obj:Field Name=\"ScreenDensity\">xxhdpi</obj:Field>
-						<obj:Field Name=\"PowerMode\">true</obj:Field>
-						<obj:Field Name=\"Latitude\">55.1570816</obj:Field>
-						<obj:Field Name=\"Longitude\">61.3684105</obj:Field>
-						<obj:Field Name=\"LatLongAccuracy\">14.9580001831055</obj:Field>
-						<obj:Field Name=\"DeviceTime\">2021-09-14T13:19:33.731+05:00</obj:Field>
-						<obj:Field Name=\"Challenge\">e19275f6-a3d6-48df-ae28-253905344d11-e0d736d565dd1993568982260cda35df1fefcde56c8c786037229072feb05628</obj:Field>
-						<obj:Field Name=\"Login\">+409127935207</obj:Field>
-						<obj:Field Name=\"DeviceSpecs\">2DB5B51D2EDEBEFC45161E2AF2B46A82AD509C292C6B0546AAE5EA567AAE1886</obj:Field>
-					</mcp:Pid>
-				</mcp:Context>
-				<mcp:Action Name=\"CheckRegistration\">
-					<mcp:Params>
-						<mcp:Param Name=\"LegalDocuments\">
-							<obj:ArrObject>
-								<obj:Item ClassUri=\"MobiCash.Customer/Customers/LegalDoc\">
-									<obj:Properties>
-										<obj:Property Name=\"Code\">
-											<obj:String>CustomerTermsOfService</obj:String>
-										</obj:Property>
-										<obj:Property Name=\"Version\">
-											<obj:String>1.13</obj:String>
-										</obj:Property>
-										<obj:Property Name=\"AcceptTime\" />
-									</obj:Properties>
-								</obj:Item>
-								<obj:Item ClassUri=\"MobiCash.Customer/Customers/LegalDoc\">
-									<obj:Properties>
-										<obj:Property Name=\"Code\">
-											<obj:String>CustomerPrivacy</obj:String>
-										</obj:Property>
-										<obj:Property Name=\"Version\">
-											<obj:String>1.12</obj:String>
-										</obj:Property>
-										<obj:Property Name=\"AcceptTime\" />
-									</obj:Properties>
-								</obj:Item>
-							</obj:ArrObject>
-						</mcp:Param>
-						<mcp:Param Name=\"DeviceInfo\">
-							<obj:String>eyJCcmFuZCI6IkhVQVdFSSIsIkhhc0ZwU2Nhbm5lciI6ZmFsc2UsIkhhc05mY0hjZSI6ZmFsc2UsIklkIjoiMzFjNjlhODM1MGFmYTE2Mi11bmtub3duIiwiTWFudWZhY3RvcmVyIjoiSFVBV0VJIiwiTW9kZWwiOiJKRE4yLUwwOSIsIk9zVmVyc2lvbiI6IjkiLCJQcm9kdWN0IjoiSkROMi1MMDlSVSIsIlJhbU1iIjoyNzE1LCJTY3JlZW5EcGkiOiJ4eGhkcGkiLCJTY3JlZW5IZWlnaHRQeCI6MTkyMCwiU2NyZWVuU2l6ZUluY2hlcyI6OC4wMjkyOTgsIlNjcmVlbldpZHRoUHgiOjEyMDAsIlRpdGxlIjoiSkROMi1MMDkifQ==</obj:String>
-						</mcp:Param>
-						<mcp:Param Name=\"IsSilent\">
-							<obj:Bool>true</obj:Bool>
-						</mcp:Param>
-					</mcp:Params>
-				</mcp:Action>
-			</mcp:ActionRq>
-		</mcpw:Invoke>
-	</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>","bytes":2690}},"response":{"headers":{"content-length":1196,"content-type":"text/xml;charset=UTF-8"},"status_code":200,"body":{"content":"<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:i=\"http://schemas.mobix.compassplus.com/1.0/inputFormat.xsd\" xmlns:m=\"http://schemas.mobix.compassplus.com/1.0/mcp.wsdl\" xmlns:o=\"http://schemas.mobix.compassplus.com/1.0/objects.xsd\" xmlns:t=\"http://schemas.mobix.compassplus.com/1.0/mcp.xsd\">
-	<SOAP-ENV:Header>
-		<RequestId>1</RequestId>
-	</SOAP-ENV:Header>
-	<SOAP-ENV:Body>
-		<m:Invoke xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:i=\"http://schemas.mobix.compassplus.com/1.0/inputFormat.xsd\" xmlns:m=\"http://schemas.mobix.compassplus.com/1.0/mcp.wsdl\" xmlns:o=\"http://schemas.mobix.compassplus.com/1.0/objects.xsd\" xmlns:t=\"http://schemas.mobix.compassplus.com/1.0/mcp.xsd\">
-			<t:ActionRs>
-				<t:ActionResult>
-					<t:Item Name=\"Result\">
-						<o:String>Approved</o:String>
-					</t:Item>
-					<t:Item Name=\"Rrn\">
-						<o:String>210914299737109211</o:String>
-					</t:Item>
-					<t:Item Name=\"Status\">
-						<o:String>Confirmed</o:String>
-					</t:Item>
-					<t:Item xmlns:co=\"http://schemas.compassplus.com/mc/common.xsd\" xmlns:cu=\"http://schemas.compassplus.com/mc/customer.xsd\" Name=\"Profile\">
-						<o:Object ClassUri=\"MobiCash.Customer/Customers/CustomerProfile\">
-							<o:Pid>
-								<o:Field Name=\"Id\">+4091-37918</o:Field>
-							</o:Pid>
-							<o:Properties>
-								<o:Property Name=\"Id\">
-									<o:Long>27155</o:Long>
-								</o:Property>
-								<o:Property Name=\"CryptoMethod\">
-									<o:String>SHA256</o:String>
-								</o:Property>
-								<o:Property Name=\"PwdStrong\">
-									<o:Bool>false</o:Bool>
-								</o:Property>
-								<o:Property Name=\"PwdMempad\">
-									<o:Bool>false</o:Bool>
-								</o:Property>
-								<o:Property Name=\"LastLoginTime\">
-									<o:DateTime>2021-09-14T11:51:05.000+05:00</o:DateTime>
-								</o:Property>
-								<o:Property Name=\"LastPinChangeTime\">
-									<o:DateTime>2021-09-14T10:35:32.000+05:00</o:DateTime>
-								</o:Property>
-								<o:Property Name=\"LastPhotoUpdateTime\">
-									<o:DateTime/>
-								</o:Property>
-								<o:Property Name=\"LastLoginDevice\">
-									<o:String>JDN2-L09</o:String>
-								</o:Property>
-								<o:Property Name=\"SendPaymentNotifications\">
-									<o:Bool>false</o:Bool>
-								</o:Property>
-								<o:Property Name=\"SendNewsNotifications\">
-									<o:Bool>false</o:Bool>
-								</o:Property>
-								<o:Property Name=\"UnpaidBillsCount\">
-									<o:Int/>
-								</o:Property>
-								<o:Property Name=\"PaidBillsCount\">
-									<o:Int/>
-								</o:Property>
-								<o:Property Name=\"CloudMsgAddrScheme\">
-									<o:String>GCM</o:String>
-								</o:Property>
-								<o:Property Name=\"AutoLogoutDelay\">
-									<o:Int>5</o:Int>
-								</o:Property>
-								<o:Property Name=\"SoundsEnabled\">
-									<o:Bool>true</o:Bool>
-								</o:Property>
-								<o:Property Name=\"PwdState\">
-									<o:String>Safe</o:String>
-								</o:Property>
-								<o:Property Name=\"Login\">
-									<o:String>+409127935207</o:String>
-								</o:Property>
-								<o:Property Name=\"LoginExtRid\">
-									<o:String>J734TQYDERHYXIBDFGTH26GYDI</o:String>
-								</o:Property>
-								<o:Property Name=\"Name\">
-									<o:String/>
-								</o:Property>
-								<o:Property Name=\"Email\">
-									<o:String/>
-								</o:Property>
-								<o:Property Name=\"Rid\">
-									<o:String>+4091-37918</o:String>
-								</o:Property>
-								<o:Property Name=\"MemPad\">
-									<o:String>{\"CellLayout\":0,\"ColCount\":7,\"RowCount\":9,\"Rows\":[[{\"C\":6,\"T\":\"v\",\"V\":\"1\"},{\"C\":6,\"T\":\"v\",\"V\":\"1\"},{\"C\":6,\"T\":\"v\",\"V\":\"1\"},{\"C\":6,\"T\":\"v\",\"V\":\"1\"}],[{\"C\":6,\"T\":\"v\",\"V\":\"2\"},{\"C\":6,\"T\":\"v\",\"V\":\"2\"},{\"C\":6,\"T\":\"v\",\"V\":\"2\"}],[{\"C\":6,\"T\":\"v\",\"V\":\"3\"},{\"C\":6,\"T\":\"v\",\"V\":\"3\"},{\"C\":6,\"T\":\"v\",\"V\":\"3\"},{\"C\":6,\"T\":\"v\",\"V\":\"3\"}],[{\"C\":6,\"T\":\"v\",\"V\":\"4\"},{\"C\":6,\"T\":\"v\",\"V\":\"4\"},{\"C\":6,\"T\":\"v\",\"V\":\"4\"}],[{\"C\":6,\"T\":\"v\",\"V\":\"5\"},{\"C\":6,\"T\":\"v\",\"V\":\"5\"},{\"C\":6,\"T\":\"v\",\"V\":\"5\"},{\"C\":6,\"T\":\"v\",\"V\":\"5\"}],[{\"C\":6,\"T\":\"v\",\"V\":\"6\"},{\"C\":6,\"T\":\"v\",\"V\":\"6\"},{\"C\":6,\"T\":\"v\",\"V\":\"6\"}],[{\"C\":6,\"T\":\"v\",\"V\":\"7\"},{\"C\":6,\"T\":\"v\",\"V\":\"7\"},{\"C\":6,\"T\":\"v\",\"V\":\"7\"},{\"C\":6,\"T\":\"v\",\"V\":\"7\"}],[{\"C\":6,\"T\":\"v\",\"V\":\"8\"},{\"C\":6,\"T\":\"v\",\"V\":\"8\"},{\"C\":6,\"T\":\"v\",\"V\":\"8\"}],[{\"C\":6,\"T\":\"v\",\"V\":\"9\"},{\"C\":6,\"T\":\"v\",\"V\":\"9\"},{\"C\":6,\"T\":\"v\",\"V\":\"0\"},{\"C\":8,\"T\":\"c\",\"V\":\"\"}]]}</o:String>
-								</o:Property>
-								<o:Property Name=\"Photo\">
-									<o:String/>
-								</o:Property>
-								<o:Property Name=\"NeedAttentionPayeeRids\">
-									<o:String/>
-								</o:Property>
-								<o:Property Name=\"Secrets\">
-									<o:ArrObject/>
-								</o:Property>
-								<o:Property Name=\"CloudMsgAddrToken\">
-									<o:String>dalOdwka6uw:APA91bHVfOKVFp2q7qekY4_9-T_eL9fZsKfVN0FAUjAyNF3lSevEaSX8HLouLwQdd6jCHkbzfUpw0KMsDff2HR89hfPIqwE9qAIAo2e3MQ82gvKM_JX5U_p54p5FPX3JnDIHBUWkc4i-</o:String>
-								</o:Property>
-								<o:Property Name=\"LegalDocuments\">
-									<o:ArrObject>
-										<o:Item ClassUri=\"MobiCash.Customer/Customers/LegalDoc\">
-											<o:Pid>
-												<o:Field Name=\"Code\">CustomerTermsOfService</o:Field>
-											</o:Pid>
-											<o:Properties>
-												<o:Property Name=\"Code\">
-													<o:String>CustomerTermsOfService</o:String>
-												</o:Property>
-												<o:Property Name=\"Version\">
-													<o:String>1.13</o:String>
-												</o:Property>
-												<o:Property Name=\"AcceptTime\">
-													<o:DateTime>2021-09-14T10:35:32.243+05:00</o:DateTime>
-												</o:Property>
-											</o:Properties>
-										</o:Item>
-										<o:Item ClassUri=\"MobiCash.Customer/Customers/LegalDoc\">
-											<o:Pid>
-												<o:Field Name=\"Code\">CustomerPrivacy</o:Field>
-											</o:Pid>
-											<o:Properties>
-												<o:Property Name=\"Code\">
-													<o:String>CustomerPrivacy</o:String>
-												</o:Property>
-												<o:Property Name=\"Version\">
-													<o:String>1.12</o:String>
-												</o:Property>
-												<o:Property Name=\"AcceptTime\">
-													<o:DateTime>2021-09-14T10:35:32.243+05:00</o:DateTime>
-												</o:Property>
-											</o:Properties>
-										</o:Item>
-									</o:ArrObject>
-								</o:Property>
-							</o:Properties>
-						</o:Object>
-					</t:Item>
-				</t:ActionResult>
-			</t:ActionRs>
-		</m:Invoke>
-	</SOAP-ENV:Body>
+﻿<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header/>
+  <SOAP-ENV:Body>
+    <Tran>
+      <Request InitiatorRid="ACS" Kind="TdsProcessAuth" LifePhase="Single" NetworkRid="ACS" OrigTime="2023-10-23T05:26:01" ProcessorInstRid="ACS">
+        <Parties>
+          <Cust Presence="true">
+            <Token Kind="Card">
+              <Card ExpDate="2025-12-01T00:00:00" Pan="22200*****200">
+                <Tds NetworkType="MIR"/>
+              </Card>
+            </Token>
+          </Cust>
+          <Term AcquirerRid="2201380101">
+            <Caps Interactive="true"/>
+            <Owner Country="643" Rid="POS_1" Title="compass_mrc_1" Url="http://compassplus.ru"/>
+          </Term>
+        </Parties>
+        <Link Id="7763851" Kind="PrevStep2NextStep"/>
+        <Link Id="7763852" Kind="Refined2Refinement"/>
+        <Match Key="9D313DB97181F159505725BF06A1928421E9794CEC10731E48C71F84AF0890E839d807eb-ea5f-4808-855b-2b67d765363b" Nrn="39d807eb-ea5f-4808-855b-2b67d765363b" Rrn="fd5fa862-e979-4b63-9c79-81f636341476"/>
+        <Moneys>
+          <Cust Amt="25" Ccy="840"/>
+        </Moneys>
+        <Specific>
+          <Tds Version="2.2.0">
+            <Extensions>
+              <Extension criticalityIndicator="false" id="ID1" name="extensionField1">{"valueOne":"value"}</Extension>
+            </Extensions>
+          </Tds>
+        </Specific>
+        <RefineRs Kind="CardPassword" Value="7D4F76F0C837A944"/>
+      </Request>
+    </Tran>
+  </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

@@ -1,0 +1,11 @@
+﻿<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Body>
+    <Tran>
+      <Response Result="Approved" Id="7763853" >
+        <Specific>
+          <Tds Cavv="AAEBBHk4UwAAAAAHdjhTIiIiIiI=" CavvAlgo="" Eci="02" AuthenticationMethod="CardPassword" AuthMethod="01" />
+        </Specific>
+      </Response>
+    </Tran>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
