@@ -287,7 +287,28 @@ public class TemplateOutputValue : OutputValue
         return null;
     }
 }
+public class ExtractFromInputValueWithSwitch:ExtractFromInputValue
+{
+    public class SwitchItem
+    {
+        public bool overwise { get; set; } = false;
+        public string Key { get; set; }
+        public string Value { get; set; }   
+    }
+    public List<SwitchItem> SwitchItems { get; set; } = new List<SwitchItem>();
 
+
+    public override object getValue(AbstrParser.UniEl rootEl)
+    {
+        var val= base.getValue(rootEl).ToString();
+        var retValue = SwitchItems.FirstOrDefault(ii => ii.Key == val);
+        if(retValue== null)
+        {
+            retValue = SwitchItems.FirstOrDefault(ii => ii.overwise);
+        }
+        return retValue;
+    }
+}
 public class ExtractFromInputValue : OutputValue
 {
     public string preoPath(string path)
