@@ -483,6 +483,15 @@ public class Pipeline:ILiquidizable
                 occurencyItems.Add(new occurencyItem() { pattern =((indexBeg>=0)? (Body.Substring(indexBeg+1,index-indexBeg-1)):""), variable = var , value=val});
             }
            // Body.
+        }
+        foreach (var var in getEnvVariables(Body))
+        {
+            string val = Environment.GetEnvironmentVariable(var);
+            if (val == null)
+            {
+                throw new Exception($"Unknown environment variable {var}");
+            }
+            //    MessageBox.Show($"{var}:{val}");
             Body = Body.Replace("{#" + var + "#}", val);
         }
         //        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();

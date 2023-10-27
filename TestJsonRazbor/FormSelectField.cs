@@ -730,13 +730,16 @@ namespace TestJsonRazbor
                 case 0:
                     return new ConstantValue() {viewAsJsonString= checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
                 case 1:
-                    if (comboBox2.SelectedIndex != 1)
+                    if (comboBox2.SelectedIndex == 0)
                         return new ExtractFromInputValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text,isUniqOutputPath=checkBoxIsUniq.Checked, getNodeNameOnly=checkBoxNameOnly.Checked,returnOnlyFirstRow=checkBoxReturnFirstField.Checked, copyChildsOnly=checkBoxCopyChildOnly.Checked,  conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
                     else
+                        if(comboBox2.SelectedIndex==2)
+                        return new ExtractFromInputValueWithSwitch() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, SwitchItems = userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
+                    else
                         return new ExtractFromInputValueWithScript() {viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
+                /*case 2:
+                        return new ExtractFromInputValueWithSwitch() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text,  SwitchItems =userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };*/
                 case 2:
-                        return new ExtractFromInputValueWithSwitch() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text,  SwitchItems =userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
-                case 3:
                     return new TemplateOutputValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, getNodeNameOnly = checkBoxNameOnly.Checked, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody=textBoxTemplate.Text };  
                     break;
                 default:
@@ -843,11 +846,19 @@ namespace TestJsonRazbor
                 } else
                 if (val is TemplateOutputValue)
                 {
-                    comboBox3.SelectedIndex = 2;
+                    comboBox3.SelectedIndex = 3;
                     textBoxTemplate.Text=(val as TemplateOutputValue).templateBody;
 
                 }
                 else
+/*                if (val is ExtractFromInputValueWithSwitch)
+                {
+                    comboBox3.SelectedIndex = 1;
+                    comboBox2.SelectedIndex = 2;
+                    userControlSwitch1.switches = (val as ExtractFromInputValueWithSwitch).SwitchItems;
+
+                }
+                else*/
                 {
 
                     comboBox3.SelectedIndex = 1;

@@ -237,21 +237,28 @@ namespace TestJsonRazbor
         TimeSpan periodMeasure = new TimeSpan(0, 0, 10);
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (DateTime.Now - lastPerfTime >= periodMeasure)
+            try
             {
-                if (HTTPReceiver.KestrelServer.metricCountExecuted.getCount() - lastPerfCount > 0)
-                    labelPerf.Text = $"{(int)(1000.0/((HTTPReceiver.KestrelServer.metricTimeExecuted.sum - lastPerfValue) / (HTTPReceiver.KestrelServer.metricCountExecuted.getCount() - lastPerfCount)))} in sec";
-                lastPerfTime = DateTime.Now;
-                lastPerfCount = HTTPReceiver.KestrelServer.metricCountExecuted.getCount();
-                lastPerfValue = HTTPReceiver.KestrelServer.metricTimeExecuted.sum;
-            }
-            listBox2.Items.Clear();
-            foreach(var metric in Metrics.metric.allMetrics)
-            listBox2.Items.Add(metric);
-            labelRexRequest.Text = $"Opened rex:{StreamSender.countOpenRexRequest}";
+                if (DateTime.Now - lastPerfTime >= periodMeasure)
+                {
+                    if (HTTPReceiver.KestrelServer.metricCountExecuted.getCount() - lastPerfCount > 0)
+                        labelPerf.Text = $"{(int)(1000.0 / ((HTTPReceiver.KestrelServer.metricTimeExecuted.sum - lastPerfValue) / (HTTPReceiver.KestrelServer.metricCountExecuted.getCount() - lastPerfCount)))} in sec";
+                    lastPerfTime = DateTime.Now;
+                    lastPerfCount = HTTPReceiver.KestrelServer.metricCountExecuted.getCount();
+                    lastPerfValue = HTTPReceiver.KestrelServer.metricTimeExecuted.sum;
+                }
+                listBox2.Items.Clear();
+                foreach (var metric in Metrics.metric.allMetrics)
+                    listBox2.Items.Add(metric);
+                labelRexRequest.Text = $"Opened rex:{StreamSender.countOpenRexRequest}";
 
-            labelCount.Text = $"Executed:{HTTPReceiver.KestrelServer.CountExecuted}";
-            labelOpened.Text = $"Open:{HTTPReceiver.KestrelServer.CountOpened}";
+                labelCount.Text = $"Executed:{HTTPReceiver.KestrelServer.CountExecuted}";
+                labelOpened.Text = $"Open:{HTTPReceiver.KestrelServer.CountOpened}";
+            } 
+            catch
+            {
+
+            }
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)

@@ -140,8 +140,11 @@ public partial class Step : ILiquidizable
         {
             if (this._senderHost != null)
                 this._senderHost.Release();
-            this._senderHost = new SenderHost(this, value);
-            this._senderHost.Init(owner);
+            if (value != null)
+            {
+                this._senderHost = new SenderHost(this, value);
+                this._senderHost.Init(owner);
+            }
         }
     }
     
@@ -639,7 +642,7 @@ public partial class Step : ILiquidizable
     bool isErrorSending = false;
     async Task restoreSenderState(string Dir)
     {
-        return;//!!!!!!
+    //    return;//!!!!!!
 
         var moveDir = Path.Combine(Dir, "Move");
         if (!Directory.Exists(moveDir))

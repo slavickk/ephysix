@@ -90,7 +90,7 @@ steps:
     connectionTimeoutInMilliseconds: 5000
     saver: 
     cantTryParse: true
-    mocFile: C:\D\OutACS\ProcessAuth.req
+    mocFile: C:\D\OutACS\xz2r4dkb.bbb
     mocBody: ''
   ireceiver: 
   converters:
@@ -307,7 +307,7 @@ steps:
       valuePath: ''
   sender: !StreamSender
     streamName: AReq
-    dbConnectionString: User ID={#DB_USER_FPDB#};Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;
+    dbConnectionString: User ID={#DB_USER_FPDB#};Password={#DB_PASSWORD_FPDB#};Host={#DB_URL_FPDB#};Port=5432;Database=fpdb;SearchPath=md;
     streamSender:
       name: AReq
       description: AReq transaction
@@ -1446,11 +1446,17 @@ steps:
   ireceiver: 
   converters:
   - name: RREQ_filter
-    filter: !ConditionFilter
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/-Kind/#text
-      conditionCalcer: !ComparerForValue
-        isNegative: false
-        valueForCompare: TdsProcessAuth
+    filter: !AndOrFilter
+      filters:
+      - !ConditionFilter
+        conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/-Kind/#text
+        conditionCalcer: !ComparerForValue
+          isNegative: false
+          valueForCompare: TdsProcessAuth
+      - !ConditionFilter
+        conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/Specific/Tds/-Cavv/#text
+        conditionCalcer: !ComparerAlwaysTrue {}
+      action: AND
     outputFields:
     - !ConstantValue
       typeConvert: String
@@ -1515,7 +1521,7 @@ steps:
       conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/Specific/Tds/-Cavv/#text
       conditionCalcer: 
       valuePath: ''
-    - !ExtractFromInputValue
+    - !ExtractFromInputValueWithSwitch
       copyChildsOnly: false
       viewAsJsonString: false
       outputPath: transStatus
@@ -1525,35 +1531,93 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
+      switchItems:
+      - overwise: true
+        key: 
+        value: N
+      - overwise: false
+        key: Approved
+        value: Y
       conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/-Result/#text
-      conditionCalcer: !ComparerForValue
-        isNegative: false
-        valueForCompare: Approved
+      conditionCalcer: 
+      valuePath: ''
+    - !ExtractFromInputValue
+      copyChildsOnly: false
+      viewAsJsonString: false
+      outputPath: transStatusReason
+      isUniqOutputPath: false
+      typeCopy: Value
+      onEmptyValueAction: Skip
+      converter: 
+      getNodeNameOnly: false
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/-Result/#text
+      conditionCalcer: 
       valuePath: ''
   sender: !StreamSender
     streamName: RReq
     dbConnectionString: User ID={#DB_USER_FPDB#};Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;
     streamSender:
-      name: CheckRegistration
-      description: 
+      name: RReq
+      description: RReq transaction
       fieldsDict:
         stream: &o29
           name: stream
           type: String
           detail: Name of stream
           sensitiveData: 
-          calculated: 
+          calculated: false
           linkedColumn: 
         originalTime: &o30
           name: originalTime
-          type: DateTime
+          type: String
           detail: Time of stream
           sensitiveData: 
-          calculated: 
+          calculated: false
+          linkedColumn: 
+        dsTransID: &o31
+          name: dsTransID
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        transStatus: &o32
+          name: transStatus
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        transStatusReason: &o33
+          name: transStatusReason
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        authenticationMethod: &o34
+          name: authenticationMethod
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
+          linkedColumn: 
+        authenticationValue: &o35
+          name: authenticationValue
+          type: String
+          detail: ''
+          sensitiveData: 
+          calculated: false
           linkedColumn: 
       fields:
       - *o29
       - *o30
+      - *o31
+      - *o32
+      - *o33
+      - *o34
+      - *o35
     certName: ''
     certPassword: ''
     certThumbprints:
@@ -1623,7 +1687,7 @@ steps:
       conditionCalcer: 
       valuePath: ''
   sender: !PostgresExecutorSender
-    connectionString: User ID={#DB_USER_FPDB#};Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=fp;
+    connectionString: User ID={#DB_USER_FPDB#};Password={#DB_PASSWORD_FPDB#};Host={#DB_URL_FPDB#};Port=5432;Database=fpdb;SearchPath=fp;
     statement: select * from fp.app_add_alert(@stream,@rex_result)
     mocFile: ''
     mocBody: ''

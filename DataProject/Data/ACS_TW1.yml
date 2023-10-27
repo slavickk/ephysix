@@ -90,7 +90,7 @@ steps:
     connectionTimeoutInMilliseconds: 5000
     saver: 
     cantTryParse: true
-    mocFile: C:\D\OutACS\ProcessAuth.req
+    mocFile: C:\D\OutACS\xz2r4dkb.bbb
     mocBody: ''
   ireceiver: 
   converters:
@@ -1467,10 +1467,8 @@ steps:
           isNegative: false
           valueForCompare: TdsProcessAuth
       - !ConditionFilter
-        conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/-Result/#text
-        conditionCalcer: !ComparerForValue
-          isNegative: false
-          valueForCompare: SecretValueTryExceeded
+        conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/Specific/Tds/-Cavv/#text
+        conditionCalcer: !ComparerAlwaysTrue {}
       action: AND
     outputFields:
     - !ConstantValue

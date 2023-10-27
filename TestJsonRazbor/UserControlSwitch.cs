@@ -13,7 +13,16 @@ namespace TestJsonRazbor
 {
     public partial class UserControlSwitch : UserControl
     {
-        public List<ExtractFromInputValueWithSwitch.SwitchItem> switches = new List<ExtractFromInputValueWithSwitch.SwitchItem>();
+        public List<ExtractFromInputValueWithSwitch.SwitchItem> switches
+        {
+            get => switches1;
+            set
+            {
+                switches1 = value;
+                redrawList();
+            }
+        }
+        List<ExtractFromInputValueWithSwitch.SwitchItem> switches1 = new List<ExtractFromInputValueWithSwitch.SwitchItem>();
         public UserControlSwitch()
         {
             InitializeComponent();
@@ -23,14 +32,14 @@ namespace TestJsonRazbor
         {
             if (checkBox1.Checked)
             {
-                var it = switches.FirstOrDefault(ii => ii.overwise);
+                var it = switches1.FirstOrDefault(ii => ii.overwise);
                 if (it == null)
-                    switches.Add(new ExtractFromInputValueWithSwitch.SwitchItem() { overwise = true, Value = textBox2.Text });
+                    switches1.Add(new ExtractFromInputValueWithSwitch.SwitchItem() { overwise = true, Value = textBox2.Text });
                 else
                     it.Value = textBox2.Text;
             }
             else
-                switches.Add(new ExtractFromInputValueWithSwitch.SwitchItem() { overwise = false, Key = textBox1.Text, Value = textBox2.Text });
+                switches1.Add(new ExtractFromInputValueWithSwitch.SwitchItem() { overwise = false, Key = textBox1.Text, Value = textBox2.Text });
             redrawList();
         }
 
@@ -41,7 +50,7 @@ namespace TestJsonRazbor
         void redrawList()
         {
             listView1.Items.Clear();
-            foreach(var item in  switches)
+            foreach(var item in  switches1)
             {
                 if(item.overwise)
                     listView1.Items.Add(new ListViewItem(new string[] { "overwise", item.Value }));
@@ -52,8 +61,8 @@ namespace TestJsonRazbor
         }
         private void UserControlSwitch_Load(object sender, EventArgs e)
         {
-            if (switches.Count == 0)
-                switches.Add(new ExtractFromInputValueWithSwitch.SwitchItem() { overwise = true });
+            if (switches1.Count == 0)
+                switches1.Add(new ExtractFromInputValueWithSwitch.SwitchItem() { overwise = true });
             redrawList();
         }
 
@@ -61,14 +70,14 @@ namespace TestJsonRazbor
         {
             if(checkBox1.Checked) 
             {
-                var it=switches.FirstOrDefault(ii => ii.overwise);
+                var it=switches1.FirstOrDefault(ii => ii.overwise);
                 if(it  != null)
                 {
                     it.Value = textBox2.Text;
                 }
             } else
             {
-                var it = switches.FirstOrDefault(ii => ii.Key==textBox1.Text);
+                var it = switches1.FirstOrDefault(ii => ii.Key==textBox1.Text);
                 if (it != null)
                 {
                     it.Value = textBox2.Text;
@@ -84,7 +93,7 @@ namespace TestJsonRazbor
             if(listView1.SelectedIndices.Count > 0)
             {
                 var index = listView1.SelectedIndices[0];
-                switches.RemoveAt(index);
+                switches1.RemoveAt(index);
                 redrawList();
             }
         }
@@ -94,9 +103,9 @@ namespace TestJsonRazbor
             if (listView1.SelectedIndices.Count > 0)
             {
                 var index = listView1.SelectedIndices[0];
-                textBox1.Text=switches[index].Key;
-                textBox2.Text = switches[index].Value;
-                checkBox1.Checked = switches[index].overwise;
+                textBox1.Text=switches1[index].Key;
+                textBox2.Text = switches1[index].Value;
+                checkBox1.Checked = switches1[index].overwise;
             }
         }
     }

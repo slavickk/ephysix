@@ -1,6 +1,7 @@
 ﻿using CamundaInterface;
 using Confluent.Kafka;
 using Microsoft.OpenApi.Services;
+using Namotion.Reflection;
 using Npgsql;
 using NpgsqlTypes;
 using NUnit.Framework.Constraints;
@@ -15,6 +16,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -98,7 +101,8 @@ namespace FimiConsoleApp
         }
         async static Task Main(string[] args)
         {
-           // new FIMIHelper().Init();
+            await Send();
+            // new FIMIHelper().Init();
             Dictionary<string, NpgsqlTypes.NpgsqlDbType> db_types = new Dictionary<string, NpgsqlTypes.NpgsqlDbType> {
                 { "NUMBER", NpgsqlTypes.NpgsqlDbType.Numeric }, { "DECIMAL", NpgsqlTypes.NpgsqlDbType.Numeric },
                 { "SMALLINT", NpgsqlTypes.NpgsqlDbType.Smallint },
@@ -115,8 +119,8 @@ namespace FimiConsoleApp
             }
             var tables = JsonSerializer.Deserialize<TableDefine[]>(content);
             APIExecutor ex = new APIExecutor();
-            
-            await ex.ExecuteApiRequest(new FimiXmlTransport(), new APIExecutor.ExecContextItem[] { new APIExecutor.ExecContextItem("GetCardInfo") { Params = new List<APIExecutor.ExecContextItem.ItemParam> { new APIExecutor.ExecContextItem.ItemParam() {  Key="PAN", Variable="PAN"}, new APIExecutor.ExecContextItem.ItemParam("RequiredData", "2047") } } }, tables);
+
+            await ex.ExecuteApiRequest(new FimiXmlTransport(), new APIExecutor.ExecContextItem[] { new APIExecutor.ExecContextItem("GetCardInfo") { Params = new List<APIExecutor.ExecContextItem.ItemParam> { new APIExecutor.ExecContextItem.ItemParam() { Key = "PAN", Variable = "PAN" }, new APIExecutor.ExecContextItem.ItemParam("RequiredData", "2047") } } }, tables);
             foreach (TableDefine table in tables)
             {
                 foreach (var col in table.Columns)
@@ -136,7 +140,7 @@ namespace FimiConsoleApp
             }
             var currentIndexes = paths.Select(ii => 0).ToArray();
             var ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;";
-//            var ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=dm;";
+            //            var ConnString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=dm;";
 
             string baseQuery = "select closedate from dm.card limit 10";
             NpgsqlConnection conn = new NpgsqlConnection(ConnString);
@@ -152,9 +156,9 @@ namespace FimiConsoleApp
                         for (int i = 0; i < reader.FieldCount; i++)
                         {
                             object val = null;
-                            if(!reader.IsDBNull(i))
-                            val = reader.GetValue(i);
-                            var colName="$"+reader.GetName(i);
+                            if (!reader.IsDBNull(i))
+                                val = reader.GetValue(i);
+                            var colName = "$" + reader.GetName(i);
                             foreach (var path in paths.Where(ii => ii.path == colName))
                                 path.values = new string[] { val?.ToString() };
 
@@ -212,14 +216,14 @@ namespace FimiConsoleApp
                         string out_par = "";
                         foreach (var path in paths.Where(ii => ii.tableName == table.Table))
                         {
-                            cmd1.Parameters.AddWithValue($"@P{index}"/*, db_types[path.columnType]*/,(object) path.values[path.currentIndex] ?? DBNull.Value);
+                            cmd1.Parameters.AddWithValue($"@P{index}"/*, db_types[path.columnType]*/, (object)path.values[path.currentIndex] ?? DBNull.Value);
                             out_par += $"@P{index}={path.values[path.currentIndex]}\r\n";
                             index++;
                         }
                         for (int i = 0; i < table.KeyColumns.Length; i++)
                         {
                             var path = paths.First(ii => ii.tableName == table.Table && ii.columnName == table.KeyColumns[i]);
-                            cmd1.Parameters.AddWithValue($"@P{i + kolVar}"/*, db_types[path.columnType]*/,(object) path.values[path.currentIndex] ?? DBNull.Value);
+                            cmd1.Parameters.AddWithValue($"@P{i + kolVar}"/*, db_types[path.columnType]*/, (object)path.values[path.currentIndex] ?? DBNull.Value);
                             out_par += $"@P{i + kolVar}={path.values[path.currentIndex]}\n";
                         }
 
@@ -228,20 +232,20 @@ namespace FimiConsoleApp
                     }
 
                 }
-//                var columns = tables.SelectMany(ii1 => ii1.ExtIDs).Where(ii => ii.Table == table.Table).Select(ii => new ItemIIDS() { columnName= ii.Column }).Distinct().ToList();
-                List<ItemIIDS> columns= new List<ItemIIDS>();
-                foreach(var tab in tables.Where(ii=>ii.ExtIDs.Count(i1=>i1.Table== table.Table)>0))
-                    columns.AddRange(tab.ExtIDs.Where(ii => ii.Table == table.Table).Select(ii => new ItemIIDS() { tableName=tab.Table, columnName = ii.Column }).Distinct().ToList());
-                if(columns.Count>0)
-                { 
-                commandText = $"select {string.Join(',', columns.Select(ii=>ii.columnName))} from {table.Table}  {WhereClause(db_types, paths, table)}";
+                //                var columns = tables.SelectMany(ii1 => ii1.ExtIDs).Where(ii => ii.Table == table.Table).Select(ii => new ItemIIDS() { columnName= ii.Column }).Distinct().ToList();
+                List<ItemIIDS> columns = new List<ItemIIDS>();
+                foreach (var tab in tables.Where(ii => ii.ExtIDs.Count(i1 => i1.Table == table.Table) > 0))
+                    columns.AddRange(tab.ExtIDs.Where(ii => ii.Table == table.Table).Select(ii => new ItemIIDS() { tableName = tab.Table, columnName = ii.Column }).Distinct().ToList());
+                if (columns.Count > 0)
+                {
+                    commandText = $"select {string.Join(',', columns.Select(ii => ii.columnName))} from {table.Table}  {WhereClause(db_types, paths, table)}";
 
                     await using (var cmd1 = new NpgsqlCommand(commandText, conn))
                     {
                         for (int i = 0; i < table.KeyColumns.Length; i++)
                         {
                             var path = paths.First(ii => ii.tableName == table.Table && ii.columnName == table.KeyColumns[i]);
-                            cmd1.Parameters.AddWithValue($"@P{i}", db_types[path.columnType],(object) path.values[path.currentIndex] ?? DBNull.Value);
+                            cmd1.Parameters.AddWithValue($"@P{i}", db_types[path.columnType], (object)path.values[path.currentIndex] ?? DBNull.Value);
                         }
                         await using (var reader = await cmd1.ExecuteReaderAsync())
                         {
@@ -251,8 +255,8 @@ namespace FimiConsoleApp
                                 {
                                     var val = reader.GetInt64(i);
                                     var varName = "$" + columns[i].columnName;
-                                    var columnType=table.Columns.First(ii=>ii.Name== columns[i].columnName).Type;
-//                                    var path = paths.First(ii => ii.tableName == table.Table && ii.columnName == columns[i].columnName);
+                                    var columnType = table.Columns.First(ii => ii.Name == columns[i].columnName).Type;
+                                    //                                    var path = paths.First(ii => ii.tableName == table.Table && ii.columnName == columns[i].columnName);
                                     paths.Add(new Item() { currentIndex = 0, path = varName, columnName = columns[i].columnName, columnType = columnType, tableName = columns[i].tableName, values = new string[] { val.ToString() } });
                                     /*if (variables.ContainsKey(varName))
                                         variables[varName] = val.ToString();
@@ -269,47 +273,103 @@ namespace FimiConsoleApp
                 }
             }
 
-                conn.Close();
+            conn.Close();
             connBase.Close();
             //    file.Where()
 
             {
                 var currentKey = "InitSession";
-                    FimiXmlTransport tr = new FimiXmlTransport();
-                    XmlFimi fimi = new XmlFimi();
-                    fimi.setPath("FIMI/InitSessionRq/Rq/NeedDicts", "0");
-                    fimi.setPath("FIMI/InitSessionRq/Rq/AllVendors", "0");
-                    fimi.setPath("FIMI/InitSessionRq/Rq/AvoidSession", "0");
-                    var ans = await tr.send(fimi, currentKey);
-                    //                var pwd =XmlFimi.GetChallengePassword(tr.NextChallenge/* ans.getPath("FIMI/InitSessionRp/Rp/@NextChallenge")*/);
-                    XmlFimi fimiLogon = new XmlFimi();
-                    /*              fimiLogon.setPath("FIMI/LogonRq/Rq/@Password", pwd);
-                                  fimiLogon.setPath("FIMI/LogonRq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
-                    var ans11 = await tr.send(fimiLogon, "Logon");
-                    //                pwd = XmlFimi.GetChallengePassword(tr.NextChallenge/*ans11.getPath("FIMI/LogonRp/Rp/@NextChallenge")*/);
-                    XmlFimi fimiRate = new XmlFimi();
+                FimiXmlTransport tr = new FimiXmlTransport();
+                XmlFimi fimi = new XmlFimi();
+                fimi.setPath("FIMI/InitSessionRq/Rq/NeedDicts", "0");
+                fimi.setPath("FIMI/InitSessionRq/Rq/AllVendors", "0");
+                fimi.setPath("FIMI/InitSessionRq/Rq/AvoidSession", "0");
+                var ans = await tr.send(fimi, currentKey);
+                //                var pwd =XmlFimi.GetChallengePassword(tr.NextChallenge/* ans.getPath("FIMI/InitSessionRp/Rp/@NextChallenge")*/);
+                XmlFimi fimiLogon = new XmlFimi();
+                /*              fimiLogon.setPath("FIMI/LogonRq/Rq/@Password", pwd);
+                              fimiLogon.setPath("FIMI/LogonRq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
+                var ans11 = await tr.send(fimiLogon, "Logon");
+                //                pwd = XmlFimi.GetChallengePassword(tr.NextChallenge/*ans11.getPath("FIMI/LogonRp/Rp/@NextChallenge")*/);
+                XmlFimi fimiRate = new XmlFimi();
 
-                    currentKey = "GetCardInfo";
-                    /*    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Password", pwd);
-                        fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
-                    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/PAN", "2220000000000200");
-                    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/RequiredData", "2047");
-                    var ans12 = await tr.send(fimiRate, currentKey);
-                    XmlFimi fimiAccount = new XmlFimi();
-                    currentKey = "GetAcctInfo";
-                    /*    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Password", pwd);
-                        fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
-                    fimiAccount.setPath($"FIMI/{currentKey}Rq/Rq/Account", "01021");
-                    var ans15 = await tr.send(fimiAccount, currentKey);
-                    ans12.extract("Accounts/Row/AcctNo", currentKey);
-                    var ans14 = await tr.send(new XmlFimi(), "Logoff");
-
-
-
-                }
+                currentKey = "GetCardInfo";
+                /*    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Password", pwd);
+                    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
+                fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/PAN", "2220000000000200");
+                fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/RequiredData", "2047");
+                var ans12 = await tr.send(fimiRate, currentKey);
+                XmlFimi fimiAccount = new XmlFimi();
+                currentKey = "GetAcctInfo";
+                /*    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Password", pwd);
+                    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
+                fimiAccount.setPath($"FIMI/{currentKey}Rq/Rq/Account", "01021");
+                var ans15 = await tr.send(fimiAccount, currentKey);
+                ans12.extract("Accounts/Row/AcctNo", currentKey);
+                var ans14 = await tr.send(new XmlFimi(), "Logoff");
 
 
-            
+
+            }
+
+
+
+        }
+        static void ValidationEventHandler(object sender, ValidationEventArgs e)
+        {
+            XmlSeverityType type = XmlSeverityType.Warning;
+            if (Enum.TryParse<XmlSeverityType>("Error", out type))
+            {
+                if (type == XmlSeverityType.Error) throw new Exception(e.Message);
+            }
+        }
+        public static async Task   Send()
+        {
+            HttpClient client = new HttpClient();
+            string request1 = @"<soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/""> <soap:Body>
+<Tran xmlns=""http://schemas.tranzaxis.com/tran.wsdl"">
+<tran:Request InitiatorRid=""akhramov_rtp"" LifePhase=""Single"" Kind=""ReadToken"" ProcessorInstName=""Test"" xmlns:tran=""http://schemas.tranzaxis.com/tran.xsd"" xmlns:tok=""http://schemas.tranzaxis.com/tokens-admin.xsd"">
+<tran:Specific>
+<tran:Admin ObjectMustExist=""true"">
+<tran:Token> <tok:Card  Pan=""1234560000000009"">
+<tok:ExpTime>2023-09-01T00:00:00.000</tok:ExpTime>
+</tok:Card>
+</tran:Token> </tran:Admin>
+</tran:Specific> </tran:Request>
+</Tran> </soap:Body> </soap:Envelope>
+";// fimi.outerXml;
+  //<tok:ExtRid>12345</tok:ExtRid> </tok:Card>
+//<tok:ExpTime>2030-01-01T00:00:00.000</tok:ExpTime>
+            /*var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(request1);
+            xmlDoc.Validate(ValidationEventHandler);*/
+
+            /*var path = new Uri(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase)).LocalPath;
+            XmlSchemaSet schema = new XmlSchemaSet();
+            schema.Add("", path + "\\input.xsd");
+            XmlReader rd = XmlReader.Create(path + "\\input.xml");
+            XDocument doc = XDocument.loa.Load(rd);
+            doc.Validate(schema, ValidationEventHandler);
+            */
+            StringContent httpContent = new StringContent(request1, System.Text.Encoding.UTF8, "application/xml");
+            var addr = "http://10.74.28.40:25404";
+            var ans = await client.PostAsync(addr, httpContent);
+            //.PostAsJsonAsync($"{camundaPath}external-task/fetchAndLock", new ItemFetchAndLock() { maxTasks = 1, usePriority = true, workerId = workerId, topics = topics.Select(ii => new ItemFetchAndLock.Topic() { lockDuration = 100000, topicName = ii }).ToList() });
+            if (ans.IsSuccessStatusCode)
+            {
+                var ret = new XmlFimi(await ans.Content.ReadAsStringAsync());
+
+            }
+            else
+            {
+                var ret = new XmlFimi(await ans.Content.ReadAsStringAsync());
+                //var errorContent = await ans.Content.ReadAsStringAsync();
+                XmlSerializer ser = new XmlSerializer(typeof(Envelope));
+
+                return ;
+            }
+
+
         }
 
         private static string WhereClause(Dictionary<string, NpgsqlDbType> db_types, List<Item> paths, TableDefine? table,int beforeKol=0)
