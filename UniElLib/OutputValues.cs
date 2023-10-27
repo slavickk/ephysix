@@ -289,6 +289,7 @@ public class TemplateOutputValue : OutputValue
 }
 public class ExtractFromInputValueWithSwitch:ExtractFromInputValue
 {
+    public override bool canReturnObject => false;
     public class SwitchItem
     {
         public bool overwise { get; set; } = false;
@@ -306,7 +307,7 @@ public class ExtractFromInputValueWithSwitch:ExtractFromInputValue
         {
             retValue = SwitchItems.FirstOrDefault(ii => ii.overwise);
         }
-        return retValue;
+        return retValue.Value;
     }
 }
 public class ExtractFromInputValue : OutputValue
