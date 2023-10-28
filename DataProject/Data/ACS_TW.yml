@@ -1468,9 +1468,11 @@ steps:
           valueForCompare: TdsProcessAuth
       - !ConditionFilter
         conditionPath: Step_0/Step_ToTWO/Step_0/Resp/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Response/-Result/#text
-        conditionCalcer: !ComparerForValue
+        conditionCalcer: !ComparerForValueList
           isNegative: false
-          valueForCompare: SecretValueTryExceeded
+          valuesForCompare:
+          - SecretValueTryExceeded
+          - Approved
       action: AND
     outputFields:
     - !ConstantValue

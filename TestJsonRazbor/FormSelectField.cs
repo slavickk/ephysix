@@ -605,6 +605,13 @@ namespace TestJsonRazbor
                     condCtrl.textBoxFilterValue.Text = (flt.conditionCalcer as ComparerForValue).value_for_compare;
                 }
                 else
+                if (flt.conditionCalcer is ComparerForValueList)
+                {
+                    condCtrl.comboBoxTypeCompare.SelectedIndex = 3;
+                    condCtrl.comboBoxListValues.Items.AddRange((flt.conditionCalcer as ComparerForValueList).values_for_compare);
+
+                }
+                else
                 {
                     condCtrl.comboBoxTypeCompare.SelectedIndex = 1;
 

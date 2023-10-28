@@ -30,9 +30,9 @@ namespace WinFormsETLPackagedCreator
         long id_package;
         APIExecutor._ApiExecutor trans;
         
-        public FormConnectFimi(long id_package)
+        public FormConnectFimi(long id_package, APIExecutor._ApiExecutor trans1)
         {
-            trans = new FimiXmlTransport();
+            trans = trans1;
             this.id_package = id_package;
             InitializeComponent();
         }

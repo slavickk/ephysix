@@ -746,7 +746,7 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
             }
             await DBInterface.SavePackage(conn, package);
 
-            FormConnectFimi frm = new FormConnectFimi(package.idPackage);
+            FormConnectFimi frm = new FormConnectFimi(package.idPackage, new FimiXmlTransport());
             frm.ShowDialog();
         }
     }

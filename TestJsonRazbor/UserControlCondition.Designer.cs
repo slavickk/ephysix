@@ -61,7 +61,7 @@
             // textBoxFilterValue
             // 
             this.textBoxFilterValue.Location = new System.Drawing.Point(330, 57);
-            this.textBoxFilterValue.Multiline = true;
+            this.textBoxFilterValue.Multiline = false;
             this.textBoxFilterValue.Name = "textBoxFilterValue";
             this.textBoxFilterValue.Size = new System.Drawing.Size(191, 93);
             this.textBoxFilterValue.TabIndex = 18;
