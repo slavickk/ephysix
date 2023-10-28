@@ -29,6 +29,8 @@ namespace UniElLib
         {
             value_for_compare = val;
         }
+
+       
         public ComparerForValue()
         {
         }
