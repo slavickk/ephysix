@@ -65,59 +65,59 @@
             // comboBoxFimiCommand
             // 
             this.comboBoxFimiCommand.FormattingEnabled = true;
-            this.comboBoxFimiCommand.Location = new System.Drawing.Point(147, 88);
-            this.comboBoxFimiCommand.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.comboBoxFimiCommand.Location = new System.Drawing.Point(273, 188);
+            this.comboBoxFimiCommand.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.comboBoxFimiCommand.Name = "comboBoxFimiCommand";
-            this.comboBoxFimiCommand.Size = new System.Drawing.Size(257, 23);
+            this.comboBoxFimiCommand.Size = new System.Drawing.Size(474, 40);
             this.comboBoxFimiCommand.TabIndex = 0;
             this.comboBoxFimiCommand.SelectedIndexChanged += new System.EventHandler(this.comboBoxFimiCommand_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 71);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Location = new System.Drawing.Point(22, 151);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(90, 15);
+            this.label1.Size = new System.Drawing.Size(166, 32);
             this.label1.TabIndex = 1;
-            this.label1.Text = "FIMI Command";
+            this.label1.Text = "API Command";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(705, 55);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Location = new System.Drawing.Point(1309, 117);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(67, 15);
+            this.label2.Size = new System.Drawing.Size(138, 32);
             this.label2.TabIndex = 3;
             this.label2.Text = "Select table";
             // 
             // comboBoxTable
             // 
             this.comboBoxTable.FormattingEnabled = true;
-            this.comboBoxTable.Location = new System.Drawing.Point(704, 71);
-            this.comboBoxTable.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.comboBoxTable.Location = new System.Drawing.Point(1307, 151);
+            this.comboBoxTable.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.comboBoxTable.Name = "comboBoxTable";
-            this.comboBoxTable.Size = new System.Drawing.Size(349, 23);
+            this.comboBoxTable.Size = new System.Drawing.Size(645, 40);
             this.comboBoxTable.TabIndex = 4;
             this.comboBoxTable.SelectedIndexChanged += new System.EventHandler(this.comboBoxTable_SelectedIndexChanged);
             // 
             // textBoxPrefix
             // 
-            this.textBoxPrefix.Location = new System.Drawing.Point(704, 31);
-            this.textBoxPrefix.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.textBoxPrefix.Location = new System.Drawing.Point(1307, 66);
+            this.textBoxPrefix.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.textBoxPrefix.Name = "textBoxPrefix";
-            this.textBoxPrefix.Size = new System.Drawing.Size(110, 23);
+            this.textBoxPrefix.Size = new System.Drawing.Size(201, 39);
             this.textBoxPrefix.TabIndex = 6;
             this.textBoxPrefix.TextChanged += new System.EventHandler(this.textBoxPrefix_TextChanged);
             this.textBoxPrefix.Leave += new System.EventHandler(this.textBoxPrefix_Leave);
             // 
             // buttonLink
             // 
-            this.buttonLink.Location = new System.Drawing.Point(972, 96);
-            this.buttonLink.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.buttonLink.Location = new System.Drawing.Point(1805, 205);
+            this.buttonLink.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.buttonLink.Name = "buttonLink";
-            this.buttonLink.Size = new System.Drawing.Size(81, 22);
+            this.buttonLink.Size = new System.Drawing.Size(150, 47);
             this.buttonLink.TabIndex = 7;
             this.buttonLink.Text = "Link";
             this.buttonLink.UseVisualStyleBackColor = true;
@@ -125,10 +125,10 @@
             // 
             // buttonTest
             // 
-            this.buttonTest.Location = new System.Drawing.Point(10, 352);
-            this.buttonTest.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.buttonTest.Location = new System.Drawing.Point(19, 751);
+            this.buttonTest.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.buttonTest.Name = "buttonTest";
-            this.buttonTest.Size = new System.Drawing.Size(81, 22);
+            this.buttonTest.Size = new System.Drawing.Size(150, 47);
             this.buttonTest.TabIndex = 8;
             this.buttonTest.Text = "Test";
             this.buttonTest.UseVisualStyleBackColor = true;
@@ -141,10 +141,10 @@
             this.columnHeader2,
             this.columnHeader3});
             this.listViewFIMIInputParams.FullRowSelect = true;
-            this.listViewFIMIInputParams.Location = new System.Drawing.Point(10, 124);
-            this.listViewFIMIInputParams.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.listViewFIMIInputParams.Location = new System.Drawing.Point(19, 265);
+            this.listViewFIMIInputParams.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.listViewFIMIInputParams.Name = "listViewFIMIInputParams";
-            this.listViewFIMIInputParams.Size = new System.Drawing.Size(260, 217);
+            this.listViewFIMIInputParams.Size = new System.Drawing.Size(479, 458);
             this.listViewFIMIInputParams.TabIndex = 9;
             this.listViewFIMIInputParams.UseCompatibleStateImageBehavior = false;
             this.listViewFIMIInputParams.View = System.Windows.Forms.View.Details;
@@ -168,67 +168,67 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 3);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Location = new System.Drawing.Point(19, 6);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(61, 15);
+            this.label3.Size = new System.Drawing.Size(124, 32);
             this.label3.TabIndex = 10;
             this.label3.Text = "SQL query";
             // 
             // textBoxSQL
             // 
-            this.textBoxSQL.Location = new System.Drawing.Point(80, 0);
-            this.textBoxSQL.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.textBoxSQL.Location = new System.Drawing.Point(149, 0);
+            this.textBoxSQL.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.textBoxSQL.Name = "textBoxSQL";
-            this.textBoxSQL.Size = new System.Drawing.Size(593, 23);
+            this.textBoxSQL.Size = new System.Drawing.Size(1098, 39);
             this.textBoxSQL.TabIndex = 11;
             this.textBoxSQL.Leave += new System.EventHandler(this.textBoxSQL_Leave);
             // 
             // comboBoxSqlColumn
             // 
             this.comboBoxSqlColumn.FormattingEnabled = true;
-            this.comboBoxSqlColumn.Location = new System.Drawing.Point(10, 31);
-            this.comboBoxSqlColumn.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.comboBoxSqlColumn.Location = new System.Drawing.Point(19, 66);
+            this.comboBoxSqlColumn.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.comboBoxSqlColumn.Name = "comboBoxSqlColumn";
-            this.comboBoxSqlColumn.Size = new System.Drawing.Size(132, 23);
+            this.comboBoxSqlColumn.Size = new System.Drawing.Size(242, 40);
             this.comboBoxSqlColumn.TabIndex = 12;
             // 
             // buttonAddSQLColumn
             // 
-            this.buttonAddSQLColumn.Location = new System.Drawing.Point(142, 31);
-            this.buttonAddSQLColumn.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.buttonAddSQLColumn.Location = new System.Drawing.Point(264, 66);
+            this.buttonAddSQLColumn.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.buttonAddSQLColumn.Name = "buttonAddSQLColumn";
-            this.buttonAddSQLColumn.Size = new System.Drawing.Size(100, 22);
+            this.buttonAddSQLColumn.Size = new System.Drawing.Size(186, 47);
             this.buttonAddSQLColumn.TabIndex = 13;
-            this.buttonAddSQLColumn.Text = "Add To Fimi";
+            this.buttonAddSQLColumn.Text = "Add To API";
             this.buttonAddSQLColumn.UseVisualStyleBackColor = true;
             this.buttonAddSQLColumn.Click += new System.EventHandler(this.buttonAddSQLColumn_Click);
             // 
             // textBoxConstant
             // 
-            this.textBoxConstant.Location = new System.Drawing.Point(257, 29);
-            this.textBoxConstant.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.textBoxConstant.Location = new System.Drawing.Point(477, 62);
+            this.textBoxConstant.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.textBoxConstant.Name = "textBoxConstant";
-            this.textBoxConstant.Size = new System.Drawing.Size(110, 23);
+            this.textBoxConstant.Size = new System.Drawing.Size(201, 39);
             this.textBoxConstant.TabIndex = 14;
             // 
             // buttonAddConst
             // 
-            this.buttonAddConst.Location = new System.Drawing.Point(380, 29);
-            this.buttonAddConst.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.buttonAddConst.Location = new System.Drawing.Point(706, 62);
+            this.buttonAddConst.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.buttonAddConst.Name = "buttonAddConst";
-            this.buttonAddConst.Size = new System.Drawing.Size(122, 22);
+            this.buttonAddConst.Size = new System.Drawing.Size(227, 47);
             this.buttonAddConst.TabIndex = 15;
-            this.buttonAddConst.Text = "Add Const To Fimi";
+            this.buttonAddConst.Text = "Add Const To API";
             this.buttonAddConst.UseVisualStyleBackColor = true;
             this.buttonAddConst.Click += new System.EventHandler(this.buttonAddConst_Click);
             // 
             // textBoxCommandPrefix
             // 
-            this.textBoxCommandPrefix.Location = new System.Drawing.Point(17, 88);
-            this.textBoxCommandPrefix.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.textBoxCommandPrefix.Location = new System.Drawing.Point(32, 188);
+            this.textBoxCommandPrefix.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.textBoxCommandPrefix.Name = "textBoxCommandPrefix";
-            this.textBoxCommandPrefix.Size = new System.Drawing.Size(120, 23);
+            this.textBoxCommandPrefix.Size = new System.Drawing.Size(219, 39);
             this.textBoxCommandPrefix.TabIndex = 16;
             this.textBoxCommandPrefix.Leave += new System.EventHandler(this.textBoxCommandPrefix_Leave);
             // 
@@ -238,10 +238,10 @@
             this.columnHeader4,
             this.columnHeader5});
             this.listViewFimiOutputParam.FullRowSelect = true;
-            this.listViewFimiOutputParam.Location = new System.Drawing.Point(274, 124);
-            this.listViewFimiOutputParam.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.listViewFimiOutputParam.Location = new System.Drawing.Point(509, 265);
+            this.listViewFimiOutputParam.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.listViewFimiOutputParam.Name = "listViewFimiOutputParam";
-            this.listViewFimiOutputParam.Size = new System.Drawing.Size(427, 217);
+            this.listViewFimiOutputParam.Size = new System.Drawing.Size(790, 458);
             this.listViewFimiOutputParam.TabIndex = 17;
             this.listViewFimiOutputParam.UseCompatibleStateImageBehavior = false;
             this.listViewFimiOutputParam.View = System.Windows.Forms.View.Details;
@@ -258,10 +258,10 @@
             // 
             // buttonAddColumnToTable
             // 
-            this.buttonAddColumnToTable.Location = new System.Drawing.Point(142, 55);
-            this.buttonAddColumnToTable.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.buttonAddColumnToTable.Location = new System.Drawing.Point(264, 117);
+            this.buttonAddColumnToTable.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.buttonAddColumnToTable.Name = "buttonAddColumnToTable";
-            this.buttonAddColumnToTable.Size = new System.Drawing.Size(100, 22);
+            this.buttonAddColumnToTable.Size = new System.Drawing.Size(186, 47);
             this.buttonAddColumnToTable.TabIndex = 18;
             this.buttonAddColumnToTable.Text = "Add To Table";
             this.buttonAddColumnToTable.UseVisualStyleBackColor = true;
@@ -269,10 +269,10 @@
             // 
             // buttonAddConstantToTable
             // 
-            this.buttonAddConstantToTable.Location = new System.Drawing.Point(380, 51);
-            this.buttonAddConstantToTable.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.buttonAddConstantToTable.Location = new System.Drawing.Point(706, 109);
+            this.buttonAddConstantToTable.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.buttonAddConstantToTable.Name = "buttonAddConstantToTable";
-            this.buttonAddConstantToTable.Size = new System.Drawing.Size(122, 22);
+            this.buttonAddConstantToTable.Size = new System.Drawing.Size(227, 47);
             this.buttonAddConstantToTable.TabIndex = 19;
             this.buttonAddConstantToTable.Text = "Add Const To Table";
             this.buttonAddConstantToTable.UseVisualStyleBackColor = true;
@@ -287,10 +287,10 @@
             this.columnHeader9,
             this.columnHeader10});
             this.listViewTableColumns.FullRowSelect = true;
-            this.listViewTableColumns.Location = new System.Drawing.Point(704, 124);
-            this.listViewTableColumns.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.listViewTableColumns.Location = new System.Drawing.Point(1307, 265);
+            this.listViewTableColumns.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.listViewTableColumns.Name = "listViewTableColumns";
-            this.listViewTableColumns.Size = new System.Drawing.Size(359, 502);
+            this.listViewTableColumns.Size = new System.Drawing.Size(663, 1066);
             this.listViewTableColumns.TabIndex = 20;
             this.listViewTableColumns.UseCompatibleStateImageBehavior = false;
             this.listViewTableColumns.View = System.Windows.Forms.View.Details;
@@ -323,9 +323,10 @@
             // 
             // buttonFullTest
             // 
-            this.buttonFullTest.Location = new System.Drawing.Point(12, 378);
+            this.buttonFullTest.Location = new System.Drawing.Point(22, 806);
+            this.buttonFullTest.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.buttonFullTest.Name = "buttonFullTest";
-            this.buttonFullTest.Size = new System.Drawing.Size(79, 23);
+            this.buttonFullTest.Size = new System.Drawing.Size(147, 49);
             this.buttonFullTest.TabIndex = 21;
             this.buttonFullTest.Text = "Test full";
             this.buttonFullTest.UseVisualStyleBackColor = true;
@@ -334,26 +335,28 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(438, 91);
+            this.label4.Location = new System.Drawing.Point(813, 194);
+            this.label4.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(22, 15);
+            this.label4.Size = new System.Drawing.Size(43, 32);
             this.label4.TabIndex = 22;
             this.label4.Text = "Alt";
             // 
             // comboBoxAlternatives
             // 
             this.comboBoxAlternatives.FormattingEnabled = true;
-            this.comboBoxAlternatives.Location = new System.Drawing.Point(466, 88);
+            this.comboBoxAlternatives.Location = new System.Drawing.Point(865, 188);
+            this.comboBoxAlternatives.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.comboBoxAlternatives.Name = "comboBoxAlternatives";
-            this.comboBoxAlternatives.Size = new System.Drawing.Size(233, 23);
+            this.comboBoxAlternatives.Size = new System.Drawing.Size(429, 40);
             this.comboBoxAlternatives.TabIndex = 23;
             this.comboBoxAlternatives.SelectedIndexChanged += new System.EventHandler(this.comboBoxAlternatives_SelectedIndexChanged);
             // 
             // FormConnectFimi
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1064, 628);
+            this.ClientSize = new System.Drawing.Size(1976, 1340);
             this.Controls.Add(this.comboBoxAlternatives);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.buttonFullTest);
@@ -376,9 +379,9 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBoxFimiCommand);
-            this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.Name = "FormConnectFimi";
-            this.Text = "FormConnectFimi";
+            this.Text = "FormConnectApi";
             this.Load += new System.EventHandler(this.FormConnectFimi_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
