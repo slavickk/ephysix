@@ -32,7 +32,7 @@ namespace CamundaInterface
                 var checker = CSScript.RoslynEvaluator.CreateDelegate<Task<int>>(body);
                 var ConnSelect = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;";
                 var ConnAdm = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;SearchPath=md;";
-                var schedule = CrontabSchedule.Parse("1 2 * * *");
+                var schedule = CrontabSchedule.Parse(cronString);
                 var errors = await checker(ConnSelect, ConnAdm);
                 if (errors == 0)
                     countSuc.Increment();
