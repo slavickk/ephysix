@@ -47,6 +47,7 @@ namespace CamundaInterface
                         await Task.Delay((int)(nextTime - DateTime.Now).TotalMilliseconds);
                         try
                         {
+
                             Logger.log("Start loading curses ", Serilog.Events.LogEventLevel.Information);
                             errors = await checker(ConnSelect, ConnAdm);
                             if (errors == 0)
