@@ -56,7 +56,7 @@ namespace CamundaInterface
                         catch (Exception ex)
                         {
                             countFail.Increment();
-                            Logger.log("Error of loading curses ", Serilog.Events.LogEventLevel.Error, ex);
+                            Logger.log("Error of loading curses  "+ex.ToString(), Serilog.Events.LogEventLevel.Error, ex);
                         }
 
                     }

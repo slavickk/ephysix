@@ -194,7 +194,10 @@ namespace CamundaInterface
 
         public static string FormName(XmlNode el, string name)
         {
-            var nameEl = el.Name;
+            if (el.GetType() != typeof(XmlText) && el.GetType() != typeof(XmlDocument) && el.GetType() != typeof(XmlAttribute) && string.IsNullOrEmpty(el.Prefix))
+                el.Prefix = "default";
+
+                var nameEl = el.Name;
             if (el.GetType() == typeof(XmlAttribute))
                 nameEl = "@" + nameEl;
             if (el.GetType() != typeof(XmlText) && el.GetType() !=typeof(XmlDocument))                
@@ -371,6 +374,7 @@ namespace CamundaInterface
             }
         public static string TransformXml(string xmlContent)
         {
+            return xmlContent;
             xmlContent = xmlContent.Replace("<Tran xmlns=", "<a1:Tran xmlns:a1=");
             xmlContent = xmlContent.Replace("<Tran>", "<a1:Tran xmlns:a1=\"http://schemas.tranzaxis.com/tran.wsdl\">");
             //xmlns="http://schemas.tranzaxis.com/tran.wsdl"
@@ -402,10 +406,14 @@ namespace CamundaInterface
                         namespaces.Add("m", "http://schemas.compassplus.com/two/1.0/fimi.wsdl");*/
             nsManager = new XmlNamespaceManager(xmlDoc.NameTable);
             foreach (var item in namespaces)
-                //if (!string.IsNullOrEmpty(item.Key))
+//                if (!string.IsNullOrEmpty(item.Key))
                     nsManager.AddNamespace(item.Key, item.Value);
-                /*else
-                    xmlDoc..NamespaceURI = item.Value;*/
+  /*              else
+                    nsManager.AddNamespace("default", item.Value);*/
+
+
+            /*else
+                xmlDoc..NamespaceURI = item.Value;*/
         }
 
         private void AddNameSpaces(XmlElement? el)
@@ -417,7 +425,7 @@ namespace CamundaInterface
                     int index = attr.Name.IndexOf("xmlns");
                     if (index >= 0)
                     {
-                        string attrName = string.Empty;
+                        string attrName = "default";
                         if(attr.Name.Contains("xmlns:"))
                             attrName = attr.Name.Substring(index+6);
 
@@ -431,7 +439,7 @@ namespace CamundaInterface
                     AddNameSpaces(el1 as XmlElement);
         }
 
-        public static string XmlPath(string path)
+      /*  public static string XmlPath(string path)
             {
                 var lex = path.Replace("FIMI/", "").Replace("/Rq/", "/m1:Request/").Replace("/Rp/", "/Response/").Split("/").ToList();
                 lex[0] = "m1:" + lex[0];
@@ -446,7 +454,7 @@ namespace CamundaInterface
             public string getPath(string path)
             {
                 return xmlDoc.SelectSingleNode(XmlPath(path), nsManager).InnerText;
-            }
+            }*/
             public string outerXml
             {
                 get
@@ -513,7 +521,7 @@ namespace CamundaInterface
 */
         }
 
-        private void SetNodeRq(string? Value, string[] tokens, int index)
+     /*   private void SetNodeRq(string? Value, string[] tokens, int index)
         {
             var nodes = xmlDoc.SelectNodes(string.Join('/', tokens.Take(index)), nsManager);
             var obj = nodes[nodes.Count - 1];
@@ -532,7 +540,7 @@ namespace CamundaInterface
                     replaced.InnerText = Value;
             }
         }
-
+     */
         public string[] filter(string path)
         {
             if (string.IsNullOrEmpty(path))

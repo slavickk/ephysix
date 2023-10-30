@@ -338,21 +338,33 @@ namespace FimiConsoleApp
 </tran:Specific> </tran:Request>
 </Tran> </soap:Body> </soap:Envelope>
 ";// fimi.outerXml;
-
+           // 00hf4k5W15    008g7b5W11
             request1 = @"<soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/""> <soap:Body>
 <Tran xmlns=""http://schemas.tranzaxis.com/tran.wsdl""><tran:Request InitiatorRid=""akhramov_rtp"" LifePhase=""Single"" Kind=""GetContractInfo"" ProcessorInstName=""Test"" xmlns:tran=""http://schemas.tranzaxis.com/tran.xsd"">
 <tran:Parties>
-<tran:Cust ContractRid=""00hf4k5W15""/>
+<tran:Cust ContractRid=""008g7b5W11""/>
 </tran:Parties> <tran:Specific>
-<tran:CustInfo Kinds=""ContractRid ContractCcy ContractAvailBalance ContractStatus ContractOwnerRid ContractOwnerTitle ContractTypeId ContractTypeTitle"" Language=""en""/> </tran:Specific>
+<tran:CustInfo Kinds=""ContractRid ContractCcy ContractAvailBalance ContractStatus ContractOwnerRid ContractOwnerTitle ContractTypeId ContractTitle ContractTypeTitle C2CContract2Rid ContractBranchId BranchInstId"" Language=""en""/> </tran:Specific>
 </tran:Request></Tran> </soap:Body> </soap:Envelope>";
 
-  //<tok:ExtRid>12345</tok:ExtRid> </tok:Card>
-  //<tok:ExpTime>2030-01-01T00:00:00.000</tok:ExpTime>
+/*            request1 = @"<soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/""> <soap:Body>
+<Tran xmlns=""http://schemas.tranzaxis.com/tran.wsdl"">
+<tran:Request InitiatorRid=""akhramov_rtp"" LifePhase=""Single"" Kind=""ReadSubject"" ProcessorInstName=""Test"" xmlns:tran=""http://schemas.tranzaxis.com/tran.xsd"" xmlns:sub=""http://schemas.tranzaxis.com/subjects-admin.xsd"">
+<tran:Specific>
+<tran:Admin ObjectMustExist=""true"">
+<tran:Subject> <sub:Person>
+<sub:Rid>potentialIP</sub:Rid> </sub:Person>
+</tran:Subject> </tran:Admin>
+</tran:Specific> </tran:Request>
+</Tran> </soap:Body> </soap:Envelope>";
+*/
+
+            //<tok:ExtRid>12345</tok:ExtRid> </tok:Card>
+            //<tok:ExpTime>2030-01-01T00:00:00.000</tok:ExpTime>
             /*var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(request1);
-            xmlDoc.Validate(ValidationEventHandler);*/
-
+            xmlDoc.Validate(ValidationEventHandler);
+*/
             /*var path = new Uri(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase)).LocalPath;
             XmlSchemaSet schema = new XmlSchemaSet();
             schema.Add("", path + "\\input.xsd");
