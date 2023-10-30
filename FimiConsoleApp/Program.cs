@@ -120,7 +120,7 @@ namespace FimiConsoleApp
             var tables = JsonSerializer.Deserialize<TableDefine[]>(content);
             APIExecutor ex = new APIExecutor();
 
-            await ex.ExecuteApiRequest(new FimiXmlTransport(), new APIExecutor.ExecContextItem[] { new APIExecutor.ExecContextItem("GetCardInfo") { Params = new List<APIExecutor.ExecContextItem.ItemParam> { new APIExecutor.ExecContextItem.ItemParam() { Key = "PAN", Variable = "PAN" }, new APIExecutor.ExecContextItem.ItemParam("RequiredData", "2047") } } }, tables);
+            //??? Justify this!!! await ex.ExecuteApiRequest(new FimiXmlTransport(), new APIExecutor.ExecContextItem[] { new APIExecutor.ExecContextItem("GetCardInfo") { Params = new List<APIExecutor.ExecContextItem.ItemParam> { new APIExecutor.ExecContextItem.ItemParam() { Key = "PAN", Variable = "PAN" }, new APIExecutor.ExecContextItem.ItemParam("RequiredData", "2047") } } }, tables);
             foreach (TableDefine table in tables)
             {
                 foreach (var col in table.Columns)
@@ -338,8 +338,17 @@ namespace FimiConsoleApp
 </tran:Specific> </tran:Request>
 </Tran> </soap:Body> </soap:Envelope>
 ";// fimi.outerXml;
+
+            request1 = @"<soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/""> <soap:Body>
+<Tran xmlns=""http://schemas.tranzaxis.com/tran.wsdl""><tran:Request InitiatorRid=""akhramov_rtp"" LifePhase=""Single"" Kind=""GetContractInfo"" ProcessorInstName=""Test"" xmlns:tran=""http://schemas.tranzaxis.com/tran.xsd"">
+<tran:Parties>
+<tran:Cust ContractRid=""00hf4k5W15""/>
+</tran:Parties> <tran:Specific>
+<tran:CustInfo Kinds=""ContractRid ContractCcy ContractAvailBalance ContractStatus ContractOwnerRid ContractOwnerTitle ContractTypeId ContractTypeTitle"" Language=""en""/> </tran:Specific>
+</tran:Request></Tran> </soap:Body> </soap:Envelope>";
+
   //<tok:ExtRid>12345</tok:ExtRid> </tok:Card>
-//<tok:ExpTime>2030-01-01T00:00:00.000</tok:ExpTime>
+  //<tok:ExpTime>2030-01-01T00:00:00.000</tok:ExpTime>
             /*var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(request1);
             xmlDoc.Validate(ValidationEventHandler);*/

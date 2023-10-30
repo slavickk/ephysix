@@ -18,17 +18,22 @@ namespace CamundaInterface
         {
             public class ItemCommand
             {
+                public string environment;
                 public override string ToString()
                 {
-                    return Name;
+                    return ((Name.Length>15)?("..."+Name.Substring(Name.Length-20)):Name);
                 }
                 public string Name;
                 public class Parameter
                 {
                     public string name;
+                    public string fullPath;
                     public bool isDemand = false;
                     public List<string> alternatives = new List<string>();
+                    
                 }
+                public string outputPath;
+
                 public List<Parameter> parameters = new List<Parameter>();
                 public class OutputItems
                 {
@@ -59,14 +64,18 @@ namespace CamundaInterface
         public interface _ApiFilter
         {
             string[] filter(string path);
+
+            (string name,string value)[] filterWithNames(string path);
+
         }
 
         public class ExecContextItem
             {
-                public class ItemParam
-                {
-                    public string Key { get; set; } 
-                    public object? Value { get; set; }
+            public class ItemParam
+            {
+                public string Key { get; set; }
+                public string FullAddr { get; set; }
+                public object? Value { get; set; }
                 public string? Variable { get; set; }
 
                 public ItemParam()
@@ -79,16 +88,16 @@ namespace CamundaInterface
                     Value = value;
                 }
 
-                }
+            }
             public ExecContextItem()
             {
 
             }
-            public ExecContextItem(string command)
+            public ExecContextItem(APIExecutor._ApiExecutor.ItemCommand command)
             {
                 Command = command;
             }
-                public string Command { get; set; }
+                public APIExecutor._ApiExecutor.ItemCommand Command { get; set; }
                 public List<ItemParam> Params { get; set; }
             }
 

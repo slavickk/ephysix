@@ -138,7 +138,7 @@ namespace CamundaInterface
                     else
                         fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value.ToString());
                 }
-                retValue = await send(fimiCommand, currentKey);
+                retValue = await send(fimiCommand, currentKey.Name);
             }
             return retValue;
         }
@@ -395,6 +395,11 @@ namespace CamundaInterface
             if (string.IsNullOrEmpty(path))
                 return null;
             return extractMulti(path).ToArray();
+        }
+
+        public (string name, string value)[] filterWithNames(string path)
+        {
+            throw new NotImplementedException();
         }
     }
         /*

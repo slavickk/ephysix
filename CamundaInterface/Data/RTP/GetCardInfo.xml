@@ -1,12 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"> <soap:Body>
-<Tran xmlns="http://schemas.tranzaxis.com/tran.wsdl">
-<tran:Request InitiatorRid="akhramov_rtp" LifePhase="Single" Kind="ReadToken" ProcessorInstName="Test" xmlns:tran="http://schemas.tranzaxis.com/tran.xsd" xmlns:tok="http://schemas.tranzaxis.com/tokens-admin.xsd">
-<tran:Specific>
-<tran:Admin ObjectMustExist="true">
-<tran:Token> <tok:Card  Pan="?">
-<tok:ExpTime>?</tok:ExpTime>
-</tok:Card>
-</tran:Token> </tran:Admin>
-</tran:Specific> </tran:Request>
-</Tran> </soap:Body> </soap:Envelope>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" outpath="//tran:Token/*/*"> <soap:Body>
+  <Tran xmlns="http://schemas.tranzaxis.com/tran.wsdl">
+    <tran:Request InitiatorRid="akhramov_rtp" LifePhase="Single" Kind="ReadToken" ProcessorInstName="Test" xmlns:tran="http://schemas.tranzaxis.com/tran.xsd" xmlns:tok="http://schemas.tranzaxis.com/tokens-admin.xsd">
+      <tran:Specific>
+        <tran:Admin ObjectMustExist="true">
+          <tran:Token>
+            <tok:Card  Pan="?">
+              <tok:ExpTime>?</tok:ExpTime>
+            </tok:Card>
+          </tran:Token>
+        </tran:Admin>
+      </tran:Specific>
+    </tran:Request>
+  </Tran> </soap:Body> </soap:Envelope>
