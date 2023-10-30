@@ -43,9 +43,11 @@ namespace CamundaInterface
                     while (true)
                     {
                         var nextTime = schedule.GetNextOccurrence(DateTime.Now);
+                        Logger.log("Next loading curses on {time}", Serilog.Events.LogEventLevel.Information, nextTime);
                         await Task.Delay((int)(nextTime - DateTime.Now).TotalMilliseconds);
                         try
                         {
+                            Logger.log("Start loading curses ", Serilog.Events.LogEventLevel.Information);
                             errors = await checker(ConnSelect, ConnAdm);
                             if (errors == 0)
                                 countSuc.Increment();
