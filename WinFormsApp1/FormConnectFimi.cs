@@ -191,14 +191,14 @@ namespace WinFormsETLPackagedCreator
         {
             APIExecutor.ExecContextItem[] commands = new APIExecutor.ExecContextItem[1];
             commands[0] = new APIExecutor.ExecContextItem();
-            commands[0].Command = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand);
+            commands[0].CommandItem = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand);
             commands[0].Params = new List<APIExecutor.ExecContextItem.ItemParam>();
             for (int i = 0; i < listViewFIMIInputParams.Items.Count; i++)
             {
                 var subitems = listViewFIMIInputParams.Items[i].SubItems;
                 if (subitems[1].Text.Length > 0 || subitems[2].Text.Length > 0)
                 {
-                    commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text,FullAddr=commands[0].Command.parameters.First(ii=>ii.name== subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
+                    commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text,FullAddr=commands[0].CommandItem.parameters.First(ii=>ii.name== subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
                 }
             }
             Dictionary<string, object> dict = getVariables();
@@ -212,10 +212,10 @@ namespace WinFormsETLPackagedCreator
             try
             {
 
-                if (!string.IsNullOrEmpty(commands[0].Command.outputPath))
+                if (!string.IsNullOrEmpty(commands[0].CommandItem.outputPath))
                 {
                     listViewFimiOutputParam.Items.Clear();
-                    foreach(var res in ans.filterWithNames(commands[0].Command.outputPath))
+                    foreach(var res in ans.filterWithNames(commands[0].CommandItem.outputPath))
                     {
                         listViewFimiOutputParam.Items.Add( new ListViewItem(new string[] {res.name, res.value}));
                     }
@@ -340,7 +340,7 @@ namespace WinFormsETLPackagedCreator
                 textBoxSQL.Text = itemSaved.sql_query;
                 foreach (var com1 in itemSaved.commands)
                 {
-                    var comm = def.First(ii => ii.Name == com1.Command.Name);
+                    var comm = def.First(ii => ii.Name == com1.CommandItem.Name);
 
                     FillFimiControls(comm);
                     foreach (var par in com1.Params)
@@ -361,7 +361,7 @@ namespace WinFormsETLPackagedCreator
                     foreach (APIExecutor._ApiExecutor.ItemCommand item in comboBoxFimiCommand.Items)
                     {
 
-                        if (item.Name == com1.Command.Name)
+                        if (item.Name == com1.CommandItem.Name)
                         {
                             comboBoxFimiCommand.SelectedIndex = index;
                             break;
@@ -720,14 +720,14 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                 }
                 APIExecutor.ExecContextItem[] commands = new APIExecutor.ExecContextItem[1];
                 commands[0] = new APIExecutor.ExecContextItem();
-                commands[0].Command = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand);
+                commands[0].CommandItem = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand);
                 commands[0].Params = new List<APIExecutor.ExecContextItem.ItemParam>();
                 for (int i = 0; i < listViewFIMIInputParams.Items.Count; i++)
                 {
                     var subitems = listViewFIMIInputParams.Items[i].SubItems;
                     if (subitems[1].Text.Length > 0 || subitems[2].Text.Length > 0)
                     {
-                        commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text,  FullAddr = commands[0].Command.parameters.First(ii => ii.name == subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
+                        commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text,  FullAddr = commands[0].CommandItem.parameters.First(ii => ii.name == subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
                     }
                 }
                 SavedItem itemSaved = new SavedItem() { commands = commands, def = tables,sql_query=textBoxSQL.Text };

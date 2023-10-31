@@ -112,12 +112,12 @@ namespace CamundaInterface
             RTPFimi retValue = null;
             foreach (var com in commands)
             {
-                RTPFimi rtpCommand = new RTPFimi(com.Command.environment);
+                RTPFimi rtpCommand = new RTPFimi(com.CommandItem.environment);
 
-                var currentKey = com.Command;
+                var currentKey = com.CommandItem;
                 /*    fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Password", pwd);
                     fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
-                foreach(var par1 in com.Command.parameters)
+                foreach(var par1 in com.CommandItem.parameters)
 //                foreach (var par in com.Params)
                 {
                     /*                    if(par.Value.GetType() == typeof(JsonDocument))

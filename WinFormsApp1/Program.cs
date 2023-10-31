@@ -25,7 +25,7 @@ namespace WinFormsApp1
             var executor = new RTPXmlTransport();
             var tt=executor.getDefine();
             
-            var retValue = executor.ExecAsync(new APIExecutor.ExecContextItem[] { new APIExecutor.ExecContextItem() { Command = tt[0], Params= new List<APIExecutor.ExecContextItem.ItemParam>() { new APIExecutor.ExecContextItem.ItemParam() { Key = tt[0].parameters[1].name, FullAddr = tt[0].parameters[1].fullPath, Value= "1234560000000009" } } } }).GetAwaiter().GetResult();
+            var retValue = executor.ExecAsync(new APIExecutor.ExecContextItem[] { new APIExecutor.ExecContextItem() { CommandItem = tt[0], Params= new List<APIExecutor.ExecContextItem.ItemParam>() { new APIExecutor.ExecContextItem.ItemParam() { Key = tt[0].parameters[1].name, FullAddr = tt[0].parameters[1].fullPath, Value= "1234560000000009" } } } }).GetAwaiter().GetResult();
 
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.

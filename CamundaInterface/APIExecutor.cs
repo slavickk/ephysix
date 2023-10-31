@@ -9,6 +9,7 @@ using System.Text.Json;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CamundaInterface.CamundaExecutor;
 using System.Text.RegularExpressions;
+using System.Text.Json.Serialization;
 
 namespace CamundaInterface
 {
@@ -95,10 +96,13 @@ namespace CamundaInterface
             }
             public ExecContextItem(APIExecutor._ApiExecutor.ItemCommand command)
             {
-                Command = command;
+                CommandItem = command;
             }
-                public APIExecutor._ApiExecutor.ItemCommand Command { get; set; }
-                public List<ItemParam> Params { get; set; }
+            [JsonIgnore]
+            public APIExecutor._ApiExecutor.ItemCommand CommandItem;
+                public string Command { get; set; }
+
+            public List<ItemParam> Params { get; set; }
             }
 
         public class Item

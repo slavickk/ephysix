@@ -138,7 +138,7 @@ namespace CamundaInterface
                     else
                         fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value.ToString());
                 }
-                retValue = await send(fimiCommand, currentKey.Name);
+                retValue = await send(fimiCommand, currentKey);
             }
             return retValue;
         }
