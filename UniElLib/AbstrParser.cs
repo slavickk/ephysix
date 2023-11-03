@@ -14,6 +14,7 @@ using MaxMind.GeoIP2.Exceptions;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
+using DotLiquid;
 
 namespace UniElLib
 {
@@ -490,7 +491,7 @@ namespace UniElLib
                 return newEl;
             }
 
-            public IEnumerable<UniEl> getAllDescentants(string[] path,int index)
+            public IEnumerable<UniEl> getAllDescentants(string[] path,int index, ContextItem context)
             {
                 if (index < path.Length)
                 {
@@ -500,10 +501,19 @@ namespace UniElLib
                             yield return this;
                         else
                         {
+                            if (this.childs.Count == 0 && index < path.Length - 1 && this.value1!= null && context != null)
+                            {
+                                foreach (var pars in AbstrParser.availParser)
+                                    if (pars.canRazbor(this.value1.ToString(), this, context.list, true))
+                                    {
+                                        break;
+                                    }
+                            }
+
                             foreach (var el in this.childs)
                             {
                                 //                            el.getAllDescentants(path, index + 1);
-                                foreach (var el2 in el.getAllDescentants(path, index + 1))
+                                foreach (var el2 in el.getAllDescentants(path, index + 1,context))
                                     yield return el2;
 
                                 /*                            yield return el;

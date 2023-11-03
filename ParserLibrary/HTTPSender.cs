@@ -99,7 +99,7 @@ public  class HTTPSender:Sender,ISelfTested
             var result = await client.GetAsync(urls[index]);
             if (!result.IsSuccessStatusCode)
             {
-                Logger.log("Error get http request {res}", Serilog.Events.LogEventLevel.Error, result.StatusCode.ToString());
+                Logger.log("Error get http request {res} url {url}", Serilog.Events.LogEventLevel.Error, result.StatusCode.ToString(), urls[index]);
 
             }
             return true;

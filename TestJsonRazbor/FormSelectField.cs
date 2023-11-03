@@ -262,9 +262,9 @@ namespace TestJsonRazbor
 //                    foreach (var filt in currentStep.filters)
                     {
                         AbstrParser.UniEl rEl1 = null;
-                        foreach (var item1 in filt.filter.filter(list,ref rEl1))
+                        foreach (var item1 in filt.filter.filter(list,ref rEl1,null))
 
-                            filt.exec(item1, ref outRoot);
+                            filt.exec(item1, ref outRoot,null);
                     }
                 }
 
@@ -279,8 +279,8 @@ namespace TestJsonRazbor
                 //                itemFilter.outputFields.Add(el);
                 AbstrParser.UniEl rEl = null;
 
-                if (comboBoxTypeTest.SelectedIndex >0 &&   itemFilter.filter.filter(list,ref rEl).Count()  >0)
-                itemFilter.exec(list[0], ref outRoot);
+                if (comboBoxTypeTest.SelectedIndex >0 &&   itemFilter.filter.filter(list,ref rEl,null).Count()  >0)
+                itemFilter.exec(list[0], ref outRoot,null);
                 treeView2.Nodes.Clear();
                 TreeDrawerFactory fac = new TreeDrawerFactory(treeView2,true);
 
@@ -707,7 +707,7 @@ namespace TestJsonRazbor
             {
                 AbstrParser.UniEl rEl = null;
 
-                var res = itemFilter.filter.filter(list,ref rEl);
+                var res = itemFilter.filter.filter(list,ref rEl,null);
                 MessageBox.Show("found " + res.ToList().Count + " item");
             } 
             catch(Exception e88 )

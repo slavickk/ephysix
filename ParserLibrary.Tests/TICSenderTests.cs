@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using CCFAProtocols.TIC;
 using NUnit.Framework;
 using PluginBase;
+using UniElLib;
+
 
 namespace ParserLibrary.Tests
 {

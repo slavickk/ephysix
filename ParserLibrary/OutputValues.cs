@@ -4,6 +4,7 @@ using System.Linq;
 using CSScriptLib;
 using YamlDotNet.Serialization;
 using DotLiquid;
+using UniElLib;
 namespace ParserLibrary;
 
 public class ExtractFromInputValueWithScript: ExtractFromInputValue
@@ -75,7 +76,7 @@ public abstract class OutputValue:ILiquidizable
 
     public abstract object getValue(AbstrParser.UniEl rootEl);
     public abstract AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl);
-    public abstract IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl);
+    public abstract IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl, ContextItem context);
 
     string[] outs = null;
 
@@ -158,13 +159,13 @@ public abstract class OutputValue:ILiquidizable
         }
 
     }
-    public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+    public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot,ContextItem context)
     {
        
         // skipped--------------------------- Пока поддерживается только линейная структура записи
         //     if (typeCopy == TypeCopy.Value)
         bool found = false;
-        foreach (var el1 in getNodes(inputRoot))
+        foreach (var el1 in getNodes(inputRoot,context))
         {
             found = true;
             if (!this.canReturnObject)
@@ -266,7 +267,7 @@ public class TemplateSenderOutputValue : OutputValue
 
     public override bool canReturnObject => false;
 
-    public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+    public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot,ContextItem context)
     {
         foreach (var el in rootElement.childs)
             el.copy(outputRoot);
@@ -319,7 +320,7 @@ public class TemplateOutputValue : OutputValue
 
     public override bool canReturnObject => false;
 
-    public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+    public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot, ContextItem context)
     {
         foreach (var el in rootElement.childs)
             el.copy(outputRoot);

@@ -7,6 +7,8 @@ using Serilog;
 using Serilog.Context;
 
 namespace Plugins.TIC;
+using UniElLib;
+
 
 /// <summary>
 /// A drop-in replacement for the TICReceiver class, but using the new IReceiver interface.

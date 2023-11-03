@@ -35,7 +35,7 @@ public class TemplateSenderOutputValue : OutputValue
 
     public override bool canReturnObject => false;
 
-    public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+    public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot, ContextItem context)
     {
         foreach (var el in rootElement.childs)
             el.copy(outputRoot);
@@ -53,7 +53,7 @@ public class TemplateSenderOutputValue : OutputValue
         return null;
     }
 
-    public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl)
+    public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl,ContextItem context)
     {
         return new AbstrParser.UniEl[] { null };
     }

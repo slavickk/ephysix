@@ -2,6 +2,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using ParserLibrary.TIC.TICFrames;
 using PluginBase;
+using UniElLib;
 
 namespace ParserLibrary
 {

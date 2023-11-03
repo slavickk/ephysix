@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using ParserLibrary.TIP;
 using PluginBase;
+using UniElLib;
 
 namespace ParserLibrary.Tests
 {
