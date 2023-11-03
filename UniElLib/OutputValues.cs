@@ -76,7 +76,7 @@ public abstract class OutputValue:ILiquidizable
 
     public abstract object getValue(AbstrParser.UniEl rootEl);
     public abstract AbstrParser.UniEl getNode(AbstrParser.UniEl rootEl);
-    public abstract IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl);
+    public abstract IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl,ContextItem context);
 
     string[] outs = null;
 
@@ -107,10 +107,10 @@ public abstract class OutputValue:ILiquidizable
     public bool returnOnlyFirstRow = true;
 
 
-    public IEnumerable<object> getAllObject(AbstrParser.UniEl inputRoot)
+    public IEnumerable<object> getAllObject(AbstrParser.UniEl inputRoot,ContextItem context)
     {
         bool found = false;
-        foreach (var el1 in getNodes(inputRoot))
+        foreach (var el1 in getNodes(inputRoot,context))
         {
             AbstrParser.UniEl el = new AbstrParser.UniEl();
             found = true;
@@ -159,13 +159,13 @@ public abstract class OutputValue:ILiquidizable
         }
 
     }
-    public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+    public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot, ContextItem context)
     {
        
         // skipped--------------------------- Пока поддерживается только линейная структура записи
         //     if (typeCopy == TypeCopy.Value)
         bool found = false;
-        foreach (var el1 in getNodes(inputRoot))
+        foreach (var el1 in getNodes(inputRoot,context))
         {
             found = true;
             if (!this.canReturnObject)
@@ -264,7 +264,7 @@ public class TemplateOutputValue : OutputValue
 
     public override bool canReturnObject => false;
 
-    public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot)
+    public override bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot, ContextItem context)
     {
         foreach (var el in rootElement.childs)
             el.copy(outputRoot);
@@ -277,7 +277,7 @@ public class TemplateOutputValue : OutputValue
         return null;
     }
 
-    public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl)
+    public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl, ContextItem context)
     {
         return new AbstrParser.UniEl[] { null };
     }
@@ -394,14 +394,14 @@ public class ExtractFromInputValue : OutputValue
         return node;
     }
 
-    public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl)
+    public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl, ContextItem context)
     {
         if (conditionPathToken == null)
             conditionPathToken = conditionPath.Split("/");
 
         var rootEl1 = AbstrParser.getLocalRoot(rootEl, conditionPathToken);
 
-        foreach (var item in rootEl1.getAllDescentants(conditionPathToken, rootEl1.rootIndex)
+        foreach (var item in rootEl1.getAllDescentants(conditionPathToken, rootEl1.rootIndex,context)
                      .Where(ii => ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
         {
             var item1 = item;
@@ -410,7 +410,7 @@ public class ExtractFromInputValue : OutputValue
                 if (valuePathToken == null)
                     valuePathToken = valuePath.Split("/");
                 item1 = AbstrParser.getLocalRoot(item1, valuePathToken);
-                foreach (var item2 in item1.getAllDescentants(valuePathToken, item1.rootIndex))
+                foreach (var item2 in item1.getAllDescentants(valuePathToken, item1.rootIndex,context))
                     yield return getFinalNode(item2);
             }
             else
@@ -427,7 +427,7 @@ public class ExtractFromInputValue : OutputValue
 
             var rootEl1 = AbstrParser.getLocalRoot(rootEl, conditionPathToken);
 
-            foreach (var item in rootEl1.getAllDescentants(conditionPathToken, rootEl1.rootIndex)
+            foreach (var item in rootEl1.getAllDescentants(conditionPathToken, rootEl1.rootIndex,null)
                          .Where(ii => ((conditionCalcer == null) ? true : conditionCalcer.Compare(ii))))
             {
                 var item1 = item;
@@ -436,7 +436,7 @@ public class ExtractFromInputValue : OutputValue
                     if (valuePathToken == null)
                         valuePathToken = valuePath.Split("/");
                     item1 = AbstrParser.getLocalRoot(item1, valuePathToken);
-                    foreach (var item2 in item1.getAllDescentants(valuePathToken, item1.rootIndex))
+                    foreach (var item2 in item1.getAllDescentants(valuePathToken, item1.rootIndex,null))
                         return getFinalNode(item2);
                 }
                 else
@@ -523,7 +523,7 @@ public class ConstantValue : OutputValue
         return null;
     }
 
-    public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl)
+    public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl, ContextItem context)
     {
         return new AbstrParser.UniEl[] { null };
     }

@@ -112,7 +112,7 @@ public partial class Step : ILiquidizable
         }
         public Filter filter { get; set; } = new ConditionFilter();
         public List<OutputValue> outputFields { get; set; } = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
-        public int exec(AbstrParser.UniEl rootElInput, ref AbstrParser.UniEl local_rootOutput)
+        public int exec(AbstrParser.UniEl rootElInput, ref AbstrParser.UniEl local_rootOutput, ContextItem context)
         {
             int count = 0;
             if (local_rootOutput == null)
@@ -120,7 +120,11 @@ public partial class Step : ILiquidizable
 
             foreach (var ff in outputFields)
             {
-                if (ff.addToOutput(rootElInput, ref local_rootOutput))
+                if(ff.outputPath=="browserIP")
+                {
+                    int yy = 0;
+                }
+                if (ff.addToOutput(rootElInput, ref local_rootOutput,context))
                     count++;
             }
             return count;
@@ -385,7 +389,7 @@ public partial class Step : ILiquidizable
     {
         int count = 0;
         var local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
-        count = item.exec(rootElInput, ref local_rootOutput);
+        count = item.exec(rootElInput, ref local_rootOutput, context);
         /*            foreach (var ff in item.outputFields)
                         {
                             if(ff.addToOutput(rootElInput, ref local_rootOutput))
@@ -421,7 +425,7 @@ public partial class Step : ILiquidizable
                         foreach (var item in converters/*.First().filter(list)*/)
                         {
                             AbstrParser.UniEl rEl = null;
-                            foreach (var item1 in item.filter.filter(list, ref rEl))
+                            foreach (var item1 in item.filter.filter(list, ref rEl, context))
                             {
                                 var st = await FindAndCopy1(rootElement, time1, item, item1, list,context);
                                 if (st != "")
@@ -524,11 +528,11 @@ public partial class Step : ILiquidizable
             foreach (var item in converters/*.First().filter(list)*/)
             {
                 AbstrParser.UniEl rEl = null;
-                if (this.IDStep == "Step_ToTWO")
+                if (this.IDStep == "Step_0")
                 {
                     int y = 0;
                 }
-                foreach (var item1 in item.filter.filter(context.list, ref rEl))
+                foreach (var item1 in item.filter.filter(context.list, ref rEl,context))
                     found = await FindAndCopy(rootElement, time1, item, item1, context, local_rootOutput);
                 //                    found = true;
             }
@@ -742,7 +746,7 @@ public partial class Step : ILiquidizable
     private async Task<bool> FindAndCopy(AbstrParser.UniEl rootElInput, DateTime time1,ItemFilter item,AbstrParser.UniEl el,ContextItem context, AbstrParser.UniEl local_rootOutput)
     {
         int count = 0;
-        count = item.exec(el/*rootElInput*/, ref local_rootOutput);
+        count = item.exec(el/*rootElInput*/, ref local_rootOutput,context);
         /*            foreach (var ff in item.outputFields)
                         {
                             if(ff.addToOutput(rootElInput, ref local_rootOutput))

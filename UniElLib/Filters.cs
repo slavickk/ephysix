@@ -25,7 +25,7 @@ public class ConditionFilter : Filter
     public static bool isNew = true;
 
     public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list,
-        ref AbstrParser.UniEl rootElement)
+        ref AbstrParser.UniEl rootElement,ContextItem context)
     {
         if (isNew)
         {
@@ -43,7 +43,7 @@ public class ConditionFilter : Filter
                 index = rootElement.rootIndex;
             }
 
-            return rootElement.getAllDescentants(tokens, index).Where(ii => conditionCalcer.Compare(ii));
+            return rootElement.getAllDescentants(tokens, index, context).Where(ii => conditionCalcer.Compare(ii));
         }
         else
             return list.Where(ii => ii.path == conditionPath && conditionCalcer.Compare(ii));
@@ -65,21 +65,21 @@ public class AndOrFilter : Filter
     //public bool isRelativePathFind = true;
 
 
-    IEnumerable<AbstrParser.UniEl> filterForFilterAnd(List<AbstrParser.UniEl> list, int index, AbstrParser.UniEl el)
+    IEnumerable<AbstrParser.UniEl> filterForFilterAnd(List<AbstrParser.UniEl> list, int index, AbstrParser.UniEl el,ContextItem context)
     {
         AbstrParser.UniEl rootEl = el;
-        foreach (var it in filters[index].filter(list, ref rootEl))
+        foreach (var it in filters[index].filter(list, ref rootEl,context))
             if (index >= filters.Length - 1)
                 yield return it;
             else
-                foreach (var it1 in filterForFilterAnd(list, index + 1, it))
+                foreach (var it1 in filterForFilterAnd(list, index + 1, it,context))
                     yield return it1;
     }
 
     public override IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list,
-        ref AbstrParser.UniEl rootElement)
+        ref AbstrParser.UniEl rootElement, ContextItem context)
     {
-        return filt(list);
+        return filt(list, context);
         //            List<AbstrParser.UniEl> answers = new List<AbstrParser.UniEl>();
         /*  if (action == Action.OR)
             {
@@ -98,7 +98,7 @@ public class AndOrFilter : Filter
             */
     }
 
-    IEnumerable<AbstrParser.UniEl> filt(List<AbstrParser.UniEl> list)
+    IEnumerable<AbstrParser.UniEl> filt(List<AbstrParser.UniEl> list,ContextItem context)
     {
         //            List<AbstrParser.UniEl> answers = new List<AbstrParser.UniEl>();
         if (action == Action.OR)
@@ -106,12 +106,12 @@ public class AndOrFilter : Filter
             foreach (var flt in filters)
             {
                 AbstrParser.UniEl rEl = null;
-                foreach (var res in flt.filter(list, ref rEl))
+                foreach (var res in flt.filter(list, ref rEl,context))
                     yield return res;
             }
         }
         else
-            foreach (var res in filterForFilterAnd(list, 0, null))
+            foreach (var res in filterForFilterAnd(list, 0, null,context))
                 yield return res;
     }
 }
@@ -119,5 +119,5 @@ public class AndOrFilter : Filter
 public abstract class Filter
 {
     public abstract IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list,
-        ref UniElLib.AbstrParser.UniEl rootElement);
+        ref UniElLib.AbstrParser.UniEl rootElement,ContextItem context);
 }

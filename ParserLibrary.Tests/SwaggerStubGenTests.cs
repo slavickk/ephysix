@@ -15,6 +15,8 @@ using Microsoft.CSharp;
 using NSwag.CodeGeneration.CSharp;
 using PluginBase;
 using Plugins;
+using UniElLib;
+
 
 namespace ParserLibrary.Tests;
 

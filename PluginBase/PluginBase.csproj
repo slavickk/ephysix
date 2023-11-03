@@ -11,6 +11,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="ContextItem.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\UniElLib\UniElLib.csproj" />
     </ItemGroup>
 

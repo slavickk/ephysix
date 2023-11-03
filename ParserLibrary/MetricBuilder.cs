@@ -32,7 +32,7 @@ namespace ParserLibrary
                 int i = 0;
                 foreach (var el in labels)
                 {
-                    el.current_values = el.Value.getAllObject(rootElement).ToArray();
+                    el.current_values = el.Value.getAllObject(rootElement,null).ToArray();
                     if (el.current_values.Length == 0)
                         return;
                     if (el.current_values.Length > maxCount)
