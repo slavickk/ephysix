@@ -786,5 +786,10 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
             listViewFIMIInputParams.Items[index].SubItems[2].Text= comboBoxAlternatives.SelectedItem.ToString();
 
         }
+
+        private void buttonMXGraph_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

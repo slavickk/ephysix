@@ -60,6 +60,7 @@
             this.buttonFullTest = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.comboBoxAlternatives = new System.Windows.Forms.ComboBox();
+            this.buttonMXGraph = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // comboBoxFimiCommand
@@ -324,7 +325,7 @@
             // buttonFullTest
             // 
             this.buttonFullTest.Location = new System.Drawing.Point(22, 806);
-            this.buttonFullTest.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.buttonFullTest.Margin = new System.Windows.Forms.Padding(6);
             this.buttonFullTest.Name = "buttonFullTest";
             this.buttonFullTest.Size = new System.Drawing.Size(147, 49);
             this.buttonFullTest.TabIndex = 21;
@@ -346,17 +347,28 @@
             // 
             this.comboBoxAlternatives.FormattingEnabled = true;
             this.comboBoxAlternatives.Location = new System.Drawing.Point(865, 188);
-            this.comboBoxAlternatives.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.comboBoxAlternatives.Margin = new System.Windows.Forms.Padding(6);
             this.comboBoxAlternatives.Name = "comboBoxAlternatives";
             this.comboBoxAlternatives.Size = new System.Drawing.Size(429, 40);
             this.comboBoxAlternatives.TabIndex = 23;
             this.comboBoxAlternatives.SelectedIndexChanged += new System.EventHandler(this.comboBoxAlternatives_SelectedIndexChanged);
+            // 
+            // buttonMXGraph
+            // 
+            this.buttonMXGraph.Location = new System.Drawing.Point(22, 864);
+            this.buttonMXGraph.Name = "buttonMXGraph";
+            this.buttonMXGraph.Size = new System.Drawing.Size(150, 46);
+            this.buttonMXGraph.TabIndex = 24;
+            this.buttonMXGraph.Text = "ToMXGraph";
+            this.buttonMXGraph.UseVisualStyleBackColor = true;
+            this.buttonMXGraph.Click += new System.EventHandler(this.buttonMXGraph_Click);
             // 
             // FormConnectFimi
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1976, 1340);
+            this.Controls.Add(this.buttonMXGraph);
             this.Controls.Add(this.comboBoxAlternatives);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.buttonFullTest);
@@ -422,5 +434,6 @@
         private Button buttonFullTest;
         private Label label4;
         private ComboBox comboBoxAlternatives;
+        private Button buttonMXGraph;
     }
 }
