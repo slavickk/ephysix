@@ -1,0 +1,402 @@
+{
+  "boxes": [
+    {
+      "id": "selector_rows_example",
+      "header": {
+        "position": {
+          "left": 890,
+          "top": 90
+        },
+        "size": {
+          "width": 290,
+          "height": 840
+        },
+        "caption": "Selector1 name"
+      },
+      "body": {
+        "header": [ { "value": "Columns" } ],
+        "rows": [
+          {
+            "columns": [
+              {
+                "json": {
+                  "type": "basket",
+                  "beans": "47",
+                  "apples": "7",
+                  "oranges": "23",
+                  "brand": "ConvertSimple",
+                  "ratio": { "box_id": "item1212" },
+                  "fees": {
+                    "cleaning": "$4.50",
+                    "baking": "$27.30",
+                    "commission": {
+                      "box_id": "item4324",
+                      "box_links": [ { "link": { "box_id": "box_json_example:item1" } } ]
+                    },
+                    "descriptors": {
+                      "0": "clean",
+                      "1": "fresh",
+                      "2": "juicy",
+                      "3": "delicious"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "<img class=\"fit-picture\" src=\"icons/image-src.png\" alt=\"Grapefruit slice atop a pile of other slices\" width=\"200px\" height=\"200px\">",
+                  "box_id": "selector_rows_example-2"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "title",
+                  "box_id": "selector_rows_example-3"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "selectorid",
+                  "box_id": "selector_rows_example-4"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "status",
+                  "box_id": "selector_rows_example-5"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "jparam",
+                  "box_id": "selector_rows_example-6"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "act_id",
+                  "box_id": "selector_rows_example-7"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "jresult",
+                  "box_id": "selector_rows_example-8"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "lock_id",
+                  "box_id": "selector_rows_example-9"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "camunda_proc_id",
+                  "box_id": "selector_rows_example-10"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "description",
+                  "box_id": "selector_rows_example-11"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "roles_rows_example",
+      "header": {
+        "position": {
+          "left": 20,
+          "top": 70
+        },
+        "size": {
+          "width": 685,
+          "height": 580
+        },
+        "caption": "Roles"
+      },
+      "body": {
+        "header": [
+          { "value": "Column name" },
+          { "value": "Filter Counts" },
+          { "value": "Actions Counts" },
+          { "value": "Counts" }
+        ],
+        "rows": [
+          {
+            "columns": [
+              {
+                "json": {
+                  "type": "basket",
+                  "beans": "47",
+                  "apples": "7",
+                  "oranges": "23",
+                  "brand": "ConvertSimple",
+                  "ratio": { "box_id": "item12w12" },
+                  "fees": {
+                    "cleaning": "$4.50",
+                    "baking": "$27.30",
+                    "commission": { "box_id": "item43s24" },
+                    "descriptors": {
+                      "0": "clean",
+                      "1": "fresh",
+                      "2": "juicy",
+                      "3": "delicious"
+                    }
+                  }
+                }
+              },
+              {
+                "item": {
+                  "caption": "17",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "22",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "22",
+                  "box_id": "roles_rows_example-4",
+                  "box_links": [ { "link": { "box_id": "selector_rows_example:item1212" } } ]
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "db_proc",
+                  "box_id": "roles_rows_example-5",
+                  "box_links": [ { "link": { "box_id": "selector_rows_example:selector_rows_example-3" } } ]
+                }
+              },
+              {
+                "item": {
+                  "caption": "17",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "23",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "23",
+                  "box_id": "roles_rows_example-8"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "sign",
+                  "box_id": "roles_rows_example-9"
+                }
+              },
+              {
+                "item": {
+                  "caption": "17",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "22",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "22",
+                  "box_id": "roles_rows_example-12"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "title",
+                  "box_id": "roles_rows_example-13"
+                }
+              },
+              {
+                "item": {
+                  "caption": "17",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "22",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "22",
+                  "box_id": "roles_rows_example-16"
+                }
+              }
+            ]
+          },
+          {
+            "columns": [
+              {
+                "item": {
+                  "caption": "selecorid",
+                  "box_id": "roles_rows_example-17"
+                }
+              },
+              {
+                "item": {
+                  "caption": "17",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "22",
+                  "box_id": null
+                }
+              },
+              {
+                "item": {
+                  "caption": "22",
+                  "box_id": "roles_rows_example-20"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "box_json_example",
+      "header": {
+        "position": {
+          "left": 1300,
+          "top": 10
+        },
+        "size": {
+          "width": 241,
+          "height": 523
+        },
+        "caption": "Test2"
+      },
+      "body": {
+        "rows": [
+          {
+            "columns": [
+              {
+
+                "json": {
+                  "type": "basket",
+                  "beans": "47",
+                  "apples": "7",
+                  "oranges": "23",
+                  "brand": "ConvertSimple",
+                  "ratio": { "box_id": "item1" },
+                  "fees": {
+                    "cleaning": "$4.50",
+                    "baking": "$27.30",
+                    "commission": {
+                      "value": "commission value",
+                      "box_id": "item3"
+                    },
+                    "descriptors": {
+                      "0": "clean",
+                      "1": "fresh",
+                      "2": "juicy",
+                      "3": "delicious"
+                    }
+                  }
+                }
+              },
+              {
+                "item": {
+                 
+                    "columns": [
+                      {
+                        "rows": [
+                          {
+                            "item": {
+                              "caption": "22"
+                            }
+                          },
+                          {
+                            "item": {
+                              "caption": "23"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                 
+                }
+
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
