@@ -91,6 +91,7 @@
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.buttonRTP = new System.Windows.Forms.Button();
+            this.buttonMXGraph = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -678,11 +679,23 @@
             this.buttonRTP.UseVisualStyleBackColor = true;
             this.buttonRTP.Click += new System.EventHandler(this.buttonRTP_Click);
             // 
+            // buttonMXGraph
+            // 
+            this.buttonMXGraph.Location = new System.Drawing.Point(747, 780);
+            this.buttonMXGraph.Name = "buttonMXGraph";
+            this.buttonMXGraph.Size = new System.Drawing.Size(128, 46);
+            this.buttonMXGraph.TabIndex = 56;
+            this.buttonMXGraph.TabStop = false;
+            this.buttonMXGraph.Text = "MXGraph";
+            this.buttonMXGraph.UseVisualStyleBackColor = true;
+            this.buttonMXGraph.Click += new System.EventHandler(this.buttonMXGraph_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1333, 1506);
+            this.Controls.Add(this.buttonMXGraph);
             this.Controls.Add(this.buttonRTP);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.label12);
@@ -807,5 +820,6 @@
         private Label label12;
         private Label label13;
         private Button buttonRTP;
+        private Button buttonMXGraph;
     }
 }

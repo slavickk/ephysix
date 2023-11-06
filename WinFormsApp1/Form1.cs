@@ -764,5 +764,15 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
             frm.ShowDialog();
 
         }
+
+        private async void buttonMXGraph_Click(object sender, EventArgs e)
+        {
+            if (package?.idPackage != null)
+            {
+                var pack = await GenerateStatement.getPackage(conn, package.idPackage);
+                await pack.DrawMXGraph(conn);
+
+            }
+        }
     }
 }
