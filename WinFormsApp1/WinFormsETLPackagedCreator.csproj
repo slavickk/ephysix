@@ -21,6 +21,7 @@
     <ProjectReference Include="..\ETL_DB_Interface\ETL_DB_Interface.csproj" />
     <ProjectReference Include="..\GraphShablons\GraphShablons.csproj" />
     <ProjectReference Include="..\GraphVizWrapper\GraphVizWrapper.csproj" />
+    <ProjectReference Include="..\MXGraphHelperLibrary\MXGraphHelperLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

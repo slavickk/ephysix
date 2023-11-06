@@ -1091,6 +1091,8 @@ $BODY$;
 
         public static async Task<ETL_Package> Generate(NpgsqlConnection conn, ETL_Package package,bool saveToCamunda)
         {
+            await package.DrawMXGraph(conn);
+
             var id = package.packet_id;
             if (package.relations.Count == 0)
             {

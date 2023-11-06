@@ -15,6 +15,7 @@
     <ProjectReference Include="..\BlazorAppCreateETL\Shared\BlazorAppCreateETL.Shared.csproj" />
     <ProjectReference Include="..\CamundaInterfaces\CamundaDefinitionInterfaces.csproj" />
     <ProjectReference Include="..\CamundaInterface\CamundaInterface.csproj" />
+    <ProjectReference Include="..\MXGraphHelperLibrary\MXGraphHelperLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

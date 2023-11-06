@@ -22,6 +22,7 @@ using static ETL_DB_Interface.GenerateStatement.ItemTask;
 using static CamundaInterface.CamundaExecutor;
 using System.Linq;
 using YamlDotNet.Core.Tokens;
+using MXGraphHelperLibrary;
 
 namespace WinFormsETLPackagedCreator
 {
@@ -336,11 +337,16 @@ namespace WinFormsETLPackagedCreator
             }
             if (pack != null && !string.IsNullOrEmpty(pack.ETL_add_define))
             {
-                var itemSaved = JsonSerializer.Deserialize<SavedItem>(pack.ETL_add_define);
+                var itemSaved = JsonSerializer.Deserialize<MXHelper.SavedItem>(pack.ETL_add_define);
                 textBoxSQL.Text = itemSaved.sql_query;
                 foreach (var com1 in itemSaved.commands)
                 {
-                    var comm = def.First(ii => ii.Name == com1.CommandItem.Name);
+                    _ApiExecutor.ItemCommand comm;
+                    if(com1.CommandItem!= null)
+                        comm = def.First(ii => ii.Name == com1.CommandItem.Name);
+                    else
+                        comm = def.First(ii => ii.Name == com1.Command);
+
 
                     FillFimiControls(comm);
                     foreach (var par in com1.Params)
@@ -361,7 +367,7 @@ namespace WinFormsETLPackagedCreator
                     foreach (APIExecutor._ApiExecutor.ItemCommand item in comboBoxFimiCommand.Items)
                     {
 
-                        if (item.Name == com1.CommandItem.Name)
+                        if (item.Name == (com1.CommandItem?.Name??com1.Command))
                         {
                             comboBoxFimiCommand.SelectedIndex = index;
                             break;
@@ -602,12 +608,6 @@ namespace WinFormsETLPackagedCreator
             return variables.Select(x => new KeyValuePair<string, ExternalTaskAnswer.Variables>(x.Name,new ExternalTaskAnswer.Variables() { type = x.Type, value = x.DefaultValue }))
             .ToDictionary(x => x.Key, x => x.Value);
         }
-        public class SavedItem
-        {
-            public string sql_query { get; set; }
-            public TableDefine[] def { get; set; }
-            public APIExecutor.ExecContextItem[] commands { get; set; }
-        }
         async Task<(string type_col,long tableid,long colid)> getColAttr(NpgsqlConnection conn,long colid)
         {
             var cmd = @"select  n1.nodeid,n2.nodeid,n2.Name,a2.key,nav3.val,n2.synonym,md.md_find_sensitive(n2.nodeid)
@@ -648,91 +648,76 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
             }
             return ("", -1, -1);
         }
+
+        async Task<(bool retValue, TableDefine[] tables, APIExecutor.ExecContextItem[] commands, ETL_DB_Interface.MXHelper.SavedItem itemSaved)> PrepareData()
+        {
+            TableDefine[] tables=null;
+            APIExecutor.ExecContextItem[] commands=null;
+            MXHelper.SavedItem itemSaved=null;
+
+
+            tables = listAllColumns.Select(ii => ii.table.table_name).Distinct().Select(i1 => new TableDefine() { Table = i1, Columns = new List<TableDefine.Column>() }).ToArray();
+            foreach (ListViewItem item in listViewTableColumns.Items)
+            {
+                if (item.SubItems[1].Text.Length > 0 || item.SubItems[0].Text.Length > 0 || item.SubItems[2].Text.Length > 0 || relations.Count(ii => ii.pktable == item.SubItems[4].Text && ii.pkcolumns == item.SubItems[3].Text) > 0 || relations.Count(ii => ii.fktable == item.SubItems[4].Text && ii.fkcolumn == item.SubItems[3].Text) > 0)
+                {
+                    var col = listAllColumns.First(ii => ii.table.table_name == item.SubItems[4].Text && ii.col_name == item.SubItems[3].Text);
+                    var att = await getColAttr(conn, col.col_id);
+                    tables.First(ii => ii.Table == item.SubItems[4].Text).table_id = att.tableid;
+                    tables.First(ii => ii.Table == item.SubItems[4].Text).Columns.Add(new TableDefine.Column() { col_id = att.colid, Type = att.type_col, Name = item.SubItems[3].Text, constant = item.SubItems[1].Text, path = item.SubItems[0].Text, variable = item.SubItems[2].Text });
+                }
+                else
+                {
+                    if (item.ForeColor == Color.Red)
+                    {
+                        MessageBox.Show($"Column {item.SubItems[3].Text} on table {item.SubItems[4].Text} must have source");
+                        return (false,tables,commands,itemSaved);
+                    }
+                }
+            }
+            foreach (var table in tables)
+            {
+                var col = list.FirstOrDefault(ii => ii.col_name == "operuuid" && ii.table.table_name == table.Table);
+                if (col != null)
+                {
+                    var att = await getColAttr(conn, col.col_id);
+                    table.Columns.Add(new TableDefine.Column() { col_id = col.col_id, uid = true, Name = col.col_name, Type = att.type_col });
+                }
+                table.KeyColumns = this.listKeyColumns.First(ii => ii.table == table.Table).keyColumns.ToArray();
+
+                //var t=this.relations.Where(ii => ii.fktable == table.Table).Select(i1 => new TableDefine.ExtID() { Column = i1.pkcolumns, Table = i1.pktable }).ToArray();
+                table.ExtIDs = this.relations.Where(ii => ii.fktable == table.Table).Select(i1 => new TableDefine.ExtID() { Column = i1.pkcolumns, Table = i1.pktable }).ToList();
+            }
+            commands = new APIExecutor.ExecContextItem[1];
+            commands[0] = new APIExecutor.ExecContextItem();
+            commands[0].CommandItem = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand);
+            commands[0].Params = new List<APIExecutor.ExecContextItem.ItemParam>();
+            for (int i = 0; i < listViewFIMIInputParams.Items.Count; i++)
+            {
+                var subitems = listViewFIMIInputParams.Items[i].SubItems;
+                if (subitems[1].Text.Length > 0 || subitems[2].Text.Length > 0)
+                {
+                    commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text, FullAddr = commands[0].CommandItem.parameters.First(ii => ii.name == subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
+                }
+            }
+            itemSaved = new MXHelper.SavedItem() { commands = commands, def = tables, sql_query = textBoxSQL.Text };
+            return (true, tables, commands, itemSaved);
+
+        }
+
         private async void buttonFullTest_Click(object sender, EventArgs e)
         {
             try
             {
-  
-                TableDefine[] tables = listAllColumns.Select(ii => ii.table.table_name).Distinct().Select(i1 => new TableDefine() { Table = i1, Columns = new List<TableDefine.Column>() }).ToArray();
-                foreach (ListViewItem item in listViewTableColumns.Items)
-                {
-                    if (item.SubItems[1].Text.Length > 0 || item.SubItems[0].Text.Length > 0 || item.SubItems[2].Text.Length > 0 || relations.Count(ii=>ii.pktable == item.SubItems[4].Text && ii.pkcolumns==item.SubItems[3].Text)> 0 || relations.Count(ii => ii.fktable == item.SubItems[4].Text && ii.fkcolumn == item.SubItems[3].Text) > 0)
-                    {
-                        var col= listAllColumns.First(ii=>ii.table.table_name== item.SubItems[4].Text && ii.col_name == item.SubItems[3].Text);
-                        var att=await getColAttr(conn,col.col_id);
-/*                        long tableid = -1, colid = -1;
-                        string type_col ="";
-                        var cmd = @"select  n1.nodeid,n2.nodeid,n2.Name,a2.key,nav3.val,n2.synonym,md.md_find_sensitive(n2.nodeid)
-    from md_node n1, md_arc a1, 
-md_node n2 
-left join md_node_attr_val nav3 on(n2.NodeID=nav3.NodeID and nav3.AttrID=29 )
-left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_attr('Addon','SensData') )
+                var itRet=await PrepareData();
+                if (!itRet.retValue)
+                    return;
+                TableDefine[] tables=itRet.tables;
+                APIExecutor.ExecContextItem[] commands=itRet.commands;
+                MXHelper.SavedItem itemSaved=itRet.itemSaved;
 
 
-, md_node_attr_val nav2,
-    md_attr a2
-    where n1.typeid=md_get_type('Table') and a1.toid=n1.nodeid and a1.fromid=n2.nodeid and a1.typeid=md_get_type('Column2Table')
-      and n2.typeid=md_get_type('Column')
-      and n2.NodeID=nav2.NodeID
-      and nav2.AttrID=a2.AttrID
-      and a2.attrPID=1
-      and n2.nodeid=@id and n1.isdeleted=false and n2.isdeleted=false  and a1.isdeleted=false";
-                    await using (var cmdCommand = new NpgsqlCommand(cmd, conn))
-                        {
-                            cmdCommand.Parameters.AddWithValue("@id", col.col_id);
-                            await using (var readerCom = await cmdCommand.ExecuteReaderAsync())
-                            {
-                                while (await readerCom.ReadAsync())
-                                {
-                                    tableid = readerCom.GetInt64(0);
-                                    colid = readerCom.GetInt64(1);
-                                    type_col = readerCom.GetString(3);
-                                    break;
-
-
-                                }
-                            }
-                        }*/
-                        tables.First(ii => ii.Table == item.SubItems[4].Text).table_id=att.tableid;
-                        tables.First(ii => ii.Table == item.SubItems[4].Text).Columns.Add(new TableDefine.Column() { col_id=att.colid, Type=att.type_col, Name = item.SubItems[3].Text, constant = item.SubItems[1].Text, path = item.SubItems[0].Text, variable = item.SubItems[2].Text });
-                    }
-                    else
-                    {
-                        if (item.ForeColor == Color.Red)
-                        {
-                            MessageBox.Show($"Column {item.SubItems[3].Text} on table {item.SubItems[4].Text} must have source");
-                            return;
-                        }
-                    }
-                }
-                foreach (var table in tables)
-                {
-                    var col = list.FirstOrDefault(ii => ii.col_name == "operuuid" && ii.table.table_name == table.Table);
-                    if (col != null)
-                    {
-                        var att = await getColAttr(conn, col.col_id);
-                        table.Columns.Add(new TableDefine.Column() { col_id = col.col_id, uid = true, Name = col.col_name, Type = att.type_col });
-                    }
-                    table.KeyColumns = this.listKeyColumns.First(ii => ii.table == table.Table).keyColumns.ToArray();
-
-                    //var t=this.relations.Where(ii => ii.fktable == table.Table).Select(i1 => new TableDefine.ExtID() { Column = i1.pkcolumns, Table = i1.pktable }).ToArray();
-                    table.ExtIDs = this.relations.Where(ii => ii.fktable == table.Table).Select(i1 => new TableDefine.ExtID() { Column = i1.pkcolumns, Table = i1.pktable }).ToList();
-                }
-                APIExecutor.ExecContextItem[] commands = new APIExecutor.ExecContextItem[1];
-                commands[0] = new APIExecutor.ExecContextItem();
-                commands[0].CommandItem = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand);
-                commands[0].Params = new List<APIExecutor.ExecContextItem.ItemParam>();
-                for (int i = 0; i < listViewFIMIInputParams.Items.Count; i++)
-                {
-                    var subitems = listViewFIMIInputParams.Items[i].SubItems;
-                    if (subitems[1].Text.Length > 0 || subitems[2].Text.Length > 0)
-                    {
-                        commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text,  FullAddr = commands[0].CommandItem.parameters.First(ii => ii.name == subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
-                    }
-                }
-                SavedItem itemSaved = new SavedItem() { commands = commands, def = tables,sql_query=textBoxSQL.Text };
-
-                pack.ETL_add_define=JsonSerializer.Serialize<SavedItem>(itemSaved);
+                pack.ETL_add_define=JsonSerializer.Serialize<MXHelper.SavedItem>(itemSaved);
                 await DBInterface.SavePackage(conn, pack);
 
                 pack.allTables.Clear();
@@ -787,9 +772,12 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
 
         }
 
-        private void buttonMXGraph_Click(object sender, EventArgs e)
-        {
 
+ 
+        
+        private async void buttonMXGraph_Click(object sender, EventArgs e)
+        {
+            await pack.DrawMXGraph(conn);
         }
     }
 }

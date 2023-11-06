@@ -22,7 +22,7 @@ namespace CamundaInterface
                 public string environment;
                 public override string ToString()
                 {
-                    return ((Name.Length>15)?("..."+Name.Substring(Name.Length-20)):Name);
+                    return Name;
                 }
                 public string Name;
                 public class Parameter
