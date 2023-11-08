@@ -1,4 +1,5 @@
 ﻿using CSScriptLib;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using NCrontab;
 using OpenTelemetry.Metrics;
 using ParserLibrary;
@@ -28,16 +29,25 @@ namespace CamundaInterface
             }
             if (!string.IsNullOrEmpty(body))
             {
-                Logger.log($"start handler load curses");
+                Logger.log($"start handler load courses");
                 var checker = CSScript.RoslynEvaluator.CreateDelegate<Task<int>>(body);
                 var ConnSelect = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;";
                 var ConnAdm = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;SearchPath=md;";
                 var schedule = CrontabSchedule.Parse(cronString);
-                var errors = await checker(ConnSelect, ConnAdm);
-                if (errors == 0)
-                    countSuc.Increment();
-                else
+                int errors; 
+                try
+                {
+                    errors = await checker(ConnSelect, ConnAdm);
+                    if (errors == 0)
+                        countSuc.Increment();
+                    else
+                        countFail.Increment();
+                }
+                catch (Exception ex)
+                {
                     countFail.Increment();
+                    Logger.log($"Exceptions on load courses {ex.ToString()} ", Serilog.Events.LogEventLevel.Error, ex);
+                }
                 Task.Run(async () =>
                 {
                     while (true)

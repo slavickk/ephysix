@@ -9,6 +9,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static ParserLibrary.ReplaySaver;
 using MXGraphHelperLibrary;
+using NUnit.Framework;
+using static ETL_DB_Interface.GenerateStatement.ETL_Package;
 
 namespace ETL_DB_Interface
 {
@@ -40,13 +42,12 @@ namespace ETL_DB_Interface
             {
                 foreach (var col in row.columns)
                 {
-                    if (col.item.box_id?.ToUpper() == id?.ToUpper())
+                    if (col.item?.box_id?.ToUpper() == id?.ToUpper())
                         return col.item;
                 }
             }
             return null;
         }
-
 
         public  static async Task DrawMXGraph(this GenerateStatement.ETL_Package pack,NpgsqlConnection conn)
         {
@@ -54,9 +55,17 @@ namespace ETL_DB_Interface
             {
                 int left = 190;
                 int top = 90;
-                var itemSaved = JsonSerializer.Deserialize<SavedItem>(pack.ETL_add_define);
+                SavedItem itemSaved = null;
+                if(!string.IsNullOrEmpty(pack.ETL_add_define))
+                    itemSaved = JsonSerializer.Deserialize<SavedItem>(pack.ETL_add_define);
+                var trans = new FimiXmlTransport();//????
+                var def = trans.getDefine();// FIMIHelper.getDefine();
 
-                APIExecutor.ExecContextItem[] commands = itemSaved.commands;
+                APIExecutor.ExecContextItem[] commands = itemSaved?.commands;
+                if(commands != null && commands.Length > 0)
+                {
+                    commands[0].CommandItem = def.FirstOrDefault(ii => ii.Name == commands[0].Command);
+                }
                 MXGraphDoc doc = new MXGraphDoc();
                 doc.boxes = new List<MXGraphDoc.Box>();
                 /*
@@ -89,14 +98,14 @@ namespace ETL_DB_Interface
                     boxVars.header.size = new MXGraphDoc.Box.Header.Size() { height = 500, width = 290 };
                     var rows = new List<MXGraphDoc.Box.Body.Row>();
                     boxVars.body = new MXGraphDoc.Box.Body() { rows = rows };
-                    boxVars.body.header = new List<MXGraphDoc.Box.Header>() { new MXGraphDoc.Box.Header() { value = "Name" }, new MXGraphDoc.Box.Header() { value = "Type" } };
+                    boxVars.body.header = new List<MXGraphDoc.Box.Header>() { new MXGraphDoc.Box.Header() { value = "Name" }, new MXGraphDoc.Box.Header() { value = "Type" }, new MXGraphDoc.Box.Header() { value = "DefaulValue" } };
                     foreach (var variable in pack.variables)
                     {
-                        rows.Add(new MXGraphDoc.Box.Body.Row() { columns = new List<MXGraphDoc.Box.Body.Row.Column>() { new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item() { caption = variable.Name } }, new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item() { caption = variable.Type, box_id = variable.Name } } } });
+                        rows.Add(new MXGraphDoc.Box.Body.Row() { columns = new List<MXGraphDoc.Box.Body.Row.Column>() { new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item() { caption = variable.Name } }, new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item() { caption = variable.Type } }, new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item() { caption = variable.DefaultValue, box_id = variable.Name } } } });
                     }
                 }
                 MXGraphDoc.Box boxSql = null;
-                if (!string.IsNullOrEmpty(itemSaved.sql_query))
+                if (!string.IsNullOrEmpty(itemSaved?.sql_query))
                 {
                     left += 400;
                     boxSql = new MXGraphDoc.Box();
@@ -104,7 +113,7 @@ namespace ETL_DB_Interface
 
                     doc.boxes.Add(boxSql);
                     boxSql.header = new MXGraphDoc.Box.Header();
-                    boxSql.header.caption = "SQL query";
+                    boxSql.header.caption = "SQL query:"+ itemSaved?.sql_query ;
                     boxSql.header.position = new MXGraphDoc.Box.Header.Position() { left = left, top = top };
                     boxSql.header.size = new MXGraphDoc.Box.Header.Size() { height = 300, width = 290 };
                     var rows = new List<MXGraphDoc.Box.Body.Row>();
@@ -142,14 +151,17 @@ namespace ETL_DB_Interface
                 {
                     left += 400;
                     top += 300;
+                    List<JsonHelper.ItemLink> alls = new List<JsonHelper.ItemLink>();
+                    foreach(var it in itemSaved.def)
+                        alls.AddRange(it.Columns.Select(i1 =>new JsonHelper.ItemLink() { jsonPath = "Results/" + i1.path, tablePath = "Table_" + it.Table + ":id_" + i1.Name }));
                     foreach (var command in commands)
                     {
                         MXGraphDoc.Box box = new MXGraphDoc.Box();
-                        box.id = "Fimi_" + command.CommandItem.Name;
+                        box.id = "Fimi_" + command.Command;
 
                         doc.boxes.Add(box);
                         box.header = new MXGraphDoc.Box.Header();
-                        box.header.caption = $"Fimi command:{command.CommandItem.Name}";
+                        box.header.caption = $"Fimi command:{command.Command}";
                         box.header.position = new MXGraphDoc.Box.Header.Position() { left = left, top = top };
                         box.header.size = new MXGraphDoc.Box.Header.Size() { height = 500, width = 290 };
                         var rows = new List<MXGraphDoc.Box.Body.Row>();
@@ -161,9 +173,9 @@ namespace ETL_DB_Interface
                             if (!string.IsNullOrEmpty(par.Variable))
                             {
                                 if (pack.variables.Count(ii => ii.Name.ToUpper() == par.Variable.ToUpper()) > 0)
-                                    getItemForID(boxVars, par.Variable)?.AddBoxLink(box, par.Key);
+                                    getItemForID(boxVars, par.Variable)?.AddBoxLink(box,"Params/"+ par.Key);
                                 else
-                                    getItemForID(boxSql, par.Variable)?.AddBoxLink(box, par.Key);
+                                    getItemForID(boxSql, par.Variable)?.AddBoxLink(box, "Params/" + par.Key);
 
                             }
                             pars_json.AddVal(par.Key);
@@ -175,8 +187,8 @@ namespace ETL_DB_Interface
                         {
                             out_json.AddVal(outp.path);
                         }
-                        var colRight = new MXGraphDoc.Box.Body.Row.Column() { json = JsonDocument.Parse(out_json.getJsonBody()).RootElement };
-
+                        var colRight = new MXGraphDoc.Box.Body.Row.Column() { json = JsonDocument.Parse(out_json.getJsonBody(alls)).RootElement };
+                        
                         rows.Add(new MXGraphDoc.Box.Body.Row() { columns = new List<MXGraphDoc.Box.Body.Row.Column>() { colLeft, colRight } });
 
 
@@ -188,6 +200,50 @@ namespace ETL_DB_Interface
 
                                                     command.CommandItem.parameters */
                     }
+                    left += 600;
+                   // foreach(var command in commands)
+                    foreach (var table in itemSaved.def)
+                    {
+                        top += 300;
+                        MXGraphDoc.Box box = new MXGraphDoc.Box();
+                        box.id = "Table_" + table.Table;
+                        pack.allTables.RemoveAll(ii => ii.Name == table.Table);
+
+                        doc.boxes.Add(box);
+                        box.header = new MXGraphDoc.Box.Header();
+                        box.header.caption = $"Table:{table.Table}";
+                        box.header.position = new MXGraphDoc.Box.Header.Position() { left = left, top = top };
+                        box.header.size = new MXGraphDoc.Box.Header.Size() { height = 500, width = 290 };
+                        var rows = new List<MXGraphDoc.Box.Body.Row>();
+                        box.body = new MXGraphDoc.Box.Body() { rows = rows };
+
+                        foreach (var col in table.Columns)
+                        {
+                            rows.Add(new MXGraphDoc.Box.Body.Row()
+                            {
+                                columns = new List<MXGraphDoc.Box.Body.Row.Column>()
+                        { new MXGraphDoc.Box.Body.Row.Column() {
+                            item= new MXGraphDoc.Box.Body.Row.Column.Item() { box_id="id_"+col.Name, caption=col.Name  },
+                        }
+
+                        ,
+                                new MXGraphDoc.Box.Body.Row.Column()
+                                {
+                                    item = new MXGraphDoc.Box.Body.Row.Column.Item() { box_id = "out_" + col.Name, caption = col.Type },
+                                }
+                            }
+                            });
+                            if(string.IsNullOrEmpty(col.path))
+                            {
+                                getItemForID(doc.boxes.First(ii => ii.id == "Vars"), col.variable)?.AddBoxLink(box.id, "id_"+col.Name);
+
+                            }
+
+                            //    getItemForID(doc.boxes.First(ii => ii.id == "Fimi_" + commands[0].Command), "Results/" + col.path)?.AddBoxLink(box.id, "id_" + col.Name);
+
+                        }
+                    }
+
                 }
                 left += 400;
                 top -= 300;
@@ -222,8 +278,69 @@ namespace ETL_DB_Interface
                         });
 
 
+
                     }
                 }
+                var outputTables = pack.outputTable.Split(',');
+                List<OutTableToLiquid> outTables = new List<OutTableToLiquid>();
+                foreach (var tab in pack.allTables)
+                {
+                    var sel = tab.SelectList;
+                    foreach (var col in sel)
+                    {
+                        var ot = outTables.FirstOrDefault(ii => (ii.Name == col.outputTable && outputTables.Contains(col.outputTable)) || (outputTables.Length == 1 && outputTables.First() == ii.Name));
+                        col.outputTable = CorrectOutTab(outputTables, col);
+                        if (ot == null)
+                        {
+                            ot = new OutTableToLiquid() {  Name = col.outputTable };
+                            outTables.Add(ot);
+                        }
+                        if (!ot.Columns.Contains(col.alias))
+                            ot.Columns.Add(col.alias);
+                        getItemForID(doc.boxes.First(ii => ii.id == "Table_" + tab.Name), "out_" + col.expression)?.AddBoxLink("OutTable_" + col.outputTable, col.alias);
+                    }
+                }
+                foreach (var rel in pack.relations)
+                {
+                    getItemForID(doc.boxes.First(ii => ii.id == "Table_" + rel.Name1Table), "id_" + rel.NameColumns1)?.AddBoxLink(doc.boxes.First(ii => ii.id == "Table_" + rel.Name2Table).id,"id_" +rel.NameColumns2);
+
+                }
+
+                    foreach (var table in outTables)
+                {
+                    left += 400;
+                    top -= 300;
+                    MXGraphDoc.Box box = new MXGraphDoc.Box();
+                    box.id = "OutTable_" + table.Name;
+
+
+                    doc.boxes.Add(box);
+                    box.header = new MXGraphDoc.Box.Header();
+                    box.header.caption = $"Table:{table.Name}";
+                    box.header.position = new MXGraphDoc.Box.Header.Position() { left = left, top = top };
+                    box.header.size = new MXGraphDoc.Box.Header.Size() { height = 500, width = 290 };
+                    var rows = new List<MXGraphDoc.Box.Body.Row>();
+                    box.body = new MXGraphDoc.Box.Body() { rows = rows };
+
+                    foreach (var col in table.Columns)
+                    {
+                        rows.Add(new MXGraphDoc.Box.Body.Row()
+                        {
+                            columns = new List<MXGraphDoc.Box.Body.Row.Column>()
+                        { new MXGraphDoc.Box.Body.Row.Column() {
+                            item= new MXGraphDoc.Box.Body.Row.Column.Item() { box_id=col, caption=col  }
+                        }
+                            }
+                        }
+                            
+
+                       );
+
+
+                    }
+
+                }
+
                 doc.Save();
             }
             catch (Exception ex)

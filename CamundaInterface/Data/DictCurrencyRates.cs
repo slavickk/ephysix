@@ -21,7 +21,7 @@ union
 select 'RUB','Russian rouble',810,'2'
 ;
 ";
-        var Table = @"dictcurrency";
+        var Table = @"dm.dictcurrency";
         var UpdateTimeout = @"86400";
 
 
@@ -41,7 +41,7 @@ select 'RUB','Russian rouble',810,'2'
         var URL = @"https://openexchangerates.org/api/latest.json?app_id=bc0094ab2e33483fb7a58c1d317c8c70";
         var SQL = @"SELECT key, value::float
   FROM jsonb_each(@body::jsonb  -> 'rates')  as users;";
-        var Table = @"dictcurrencyrate";
+        var Table = @"dm.dictcurrencyrate";
         var UpdateTimeout = @"86400";
 
 

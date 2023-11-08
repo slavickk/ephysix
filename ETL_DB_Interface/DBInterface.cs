@@ -82,8 +82,7 @@ inner join md_arc c on(c.toid = a.nodeid and c.fromid = @id and c.isdeleted = fa
      left join md_node_attr_val at2 on(t1.nodeid = at2.nodeid and at2.attrid = 41)
      left join md_node_attr_val at3 on(t1.nodeid = at3.nodeid and at3.attrid = 115)
      left join md_node_attr_val f on (t1.nodeid = f.nodeid and f.attrid = 40)
-
-left join md_node n on(t1.nodeid = a1.toid and t1.typeid = md_get_type('ETLTable') and t1.isdeleted=false)
+left join md_node n on(t1.nodeid = n.nodeid and t1.typeid = md_get_type('ETLTable') and t1.isdeleted=false)
 left join md_arc a11 on (t1.nodeid=a11.fromid  and a1.isdeleted=false)
 left join md_node torig on(torig.nodeid=a11.toid)
 

@@ -1045,7 +1045,7 @@ $BODY$;
 //                throw new NotImplementedException();
             }
 
-            private static string CorrectOutTab(string[] outputTables, ItemTable.SelectListItem col)
+            public static string CorrectOutTab(string[] outputTables, ItemTable.SelectListItem col)
             {
                 var outTab = col.outputTable;
                 if (outputTables.Length == 1 && !outputTables.Contains(outTab))

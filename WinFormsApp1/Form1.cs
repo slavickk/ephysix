@@ -7,8 +7,10 @@ using Microsoft.Web.WebView2.Core;
 using Npgsql;
 using System;
 using System.IO.Pipelines;
+using System.Text.Json;
 using System.Windows.Documents;
 using WinFormsETLPackagedCreator;
+using static ETL_DB_Interface.MXHelper;
 //using Graphviz;
 
 namespace WinFormsApp1
@@ -620,6 +622,7 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
             {
                 if (isBusy)
                     return;
+                this.Text += "*";
                 try
                 {
                     isBusy = true;
@@ -629,6 +632,7 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
                 } 
                 catch (Exception ex)
                 {
+                    this.Text=this.Text.Replace("*","");
                     MessageBox.Show(ex.ToString());
                     return;
                 }
@@ -638,9 +642,10 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
                 RefreshListViewCondition();
                 RefreshComboBoxDestTables();
                 var package1 = await GenerateStatement.getPackage(conn, package.idPackage);
-//                var ans = await webView21.CoreWebView2.ExecuteScriptAsync($"render('{GraphvizTest.drawContent(package1)}')");
+                //                var ans = await webView21.CoreWebView2.ExecuteScriptAsync($"render('{GraphvizTest.drawContent(package1)}')");
 
                 //    pictureBox1.Image= GraphvizTest.drawContent(package1);
+                this.Text = this.Text.Replace("*", "");
                 isBusy = false;
             }
         }
@@ -771,6 +776,14 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
             {
                 var pack = await GenerateStatement.getPackage(conn, package.idPackage);
                 await pack.DrawMXGraph(conn);
+                using (StreamWriter sw = new StreamWriter(@"c:\d\pack.json"))
+                {
+                    sw.Write(JsonSerializer.Serialize<GenerateStatement.ETL_Package>(pack));
+                }
+                using (StreamWriter sw = new StreamWriter(@"c:\d\pack1.json"))
+                {
+                    sw.Write(JsonSerializer.Serialize<SavedItem> (JsonSerializer.Deserialize<SavedItem>(pack.ETL_add_define)));
+                }
 
             }
         }

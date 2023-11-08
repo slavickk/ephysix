@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿//using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace MXGraphHelperLibrary
@@ -41,6 +43,12 @@ namespace MXGraphHelperLibrary
                                 if (box_links == null)
                                     box_links = new List<BoxLink>();
                                 box_links.Add(new BoxLink() { link = new BoxLink.Link() { typelink=typeLink, box_id = box.id + ":" + id } });
+                            }
+                            public void AddBoxLink(string box_id, string id, int typeLink = 2)
+                            {
+                                if (box_links == null)
+                                    box_links = new List<BoxLink>();
+                                box_links.Add(new BoxLink() { link = new BoxLink.Link() { typelink = typeLink, box_id = box_id + ":" + id } });
                             }
                             public class BoxLink
                             {
@@ -98,6 +106,12 @@ namespace MXGraphHelperLibrary
 
     public class JsonHelper
     {
+        public class ItemLink
+        {
+            public string jsonPath;
+            public string tablePath;
+        }
+
         string Name;
 
         Dictionary<string,object> root= new Dictionary<string, object>();
@@ -122,25 +136,60 @@ namespace MXGraphHelperLibrary
                     first = valw as Dictionary<string, object>;
             }
         }
+        //        public List<string> allIds= new List<string>();
 
-        void An(string id,Dictionary<string, object> dict)
+        private Dictionary<string, object> deserializeToDictionary(string jo)
+        {
+            var values = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(jo);
+                        var values2 = new Dictionary<string, object>();
+                        foreach (KeyValuePair<string, object> d in values)
+                        {
+                            // if (d.Value.GetType().FullName.Contains("Newtonsoft.Json.Linq.JObject"))
+                            if (d.Value is JObject)
+                            {
+                                values2.Add(d.Key, deserializeToDictionary(d.Value.ToString()));
+                            }
+                            else
+                            {
+                                values2.Add(d.Key, d.Value);
+                            }
+                        }
+                        return  values2 ;
+            return values;
+        }
+        void An(string id,Dictionary<string, object> dict, List<ItemLink> allIds)
         {
             if(dict.Count==0)
             {
 
                 dict.Add("box_id", id);
+                var ids = allIds?.FirstOrDefault(ii => ii.jsonPath== id);
+                if(ids != null)
+                {
+                    dict.Add("box_links", new Dictionary<string, object>[]{ deserializeToDictionary(@"
+                    {
+                      ""link"": {
+                        ""typelink"": 2,
+                        ""box_id"": """ + ids.tablePath + @"""
+                      }
+                    }
+                  
+")});
+                    
+                }
             } else
             {
                 foreach(var el in dict.Keys)
                 {
-                    An(el, dict[el] as Dictionary<string,object>);
+                    An(id+"/"+el, dict[el] as Dictionary<string,object>,allIds);
                 }
             }
         }
 
-        public string getJsonBody()
+        public string getJsonBody(List<ItemLink> allIds=null)
         {
-            An(Name,root[Name] as Dictionary<string, object>);
+           // allIds?.Clear();
+            An(Name,root[Name] as Dictionary<string, object>,allIds);
 
 
 
