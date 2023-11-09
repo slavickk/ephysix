@@ -134,7 +134,7 @@ static void Prepare()
 
 //        .Filter.ByExcluding(c => c.MessageTemplate.Text.Contains("GetHealthCheck"))
          .Filter.ByExcluding(c =>!LogHealthAndMonitoring &&
-         (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
+         (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("GetMetrics")))
          )
 
 //        .Enrich.With<>
