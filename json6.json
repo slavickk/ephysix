@@ -1,0 +1,15 @@
+{
+  "@t": "2023-11-09T06:46:23.6913141Z",
+  "@m": "HTTP \"POST\" \"/api/Streams/LoadStreamFull?IDRuleOnly=CCFA-421-EC-4v1&trace=true\" responded 500 in 2.1436 ms",
+  "@i": "62d0885c",
+  "@l": "Error",
+  "@x": "System.ArgumentNullException: Value cannot be null. (Parameter 'source')\n   at System.Linq.ThrowHelper.ThrowArgumentNullException(ExceptionArgument argument)\n   at System.Linq.Enumerable.TryGetFirst[TSource](IEnumerable`1 source, Boolean& found)\n   at WebApiNsbpRex.Controllers.StreamsController.PostBodyFull(JsonElement json1, String IDRuleOnly, Boolean trace) in /src/rex/WebApiNsbpRex/Controllers/StreamsController.cs:line 246\n   at lambda_method40(Closure , Object )\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()\n--- End of stack trace from previous location ---\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)\n   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)\n   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)\n   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)",
+  "RequestMethod": "POST",
+  "RequestPath": "/api/Streams/LoadStreamFull?IDRuleOnly=CCFA-421-EC-4v1&trace=true",
+  "StatusCode": 500,
+  "Elapsed": 2.1436,
+  "SourceContext": "Serilog.AspNetCore.RequestLoggingMiddleware",
+  "RequestId": "0HMV0F39CFUNQ:0000000E",
+  "ConnectionId": "0HMV0F39CFUNQ",
+  "TraceID": "-"
+}
