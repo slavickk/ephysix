@@ -59,7 +59,7 @@ namespace CamundaInterface
                 }
                 string body= await client.GetStringAsync( URL);
 
-                await using (var cmd1 = new NpgsqlCommand($"delete from dm.{TableName};", conn))
+                await using (var cmd1 = new NpgsqlCommand($"delete from {TableName};", conn))
                 {
                     cmd1.ExecuteNonQuery();
                 }
@@ -68,7 +68,7 @@ namespace CamundaInterface
 
 //                List<ItemType> fields = new List<ItemType>();
 
-                await using (var cmd = new NpgsqlCommand($"insert into  dm.{TableName}  {SQL}", conn))
+                await using (var cmd = new NpgsqlCommand($"insert into  {TableName}  {SQL}", conn))
                 {
                     cmd.Parameters.AddWithValue("@body",body);
                     retValue.all++;

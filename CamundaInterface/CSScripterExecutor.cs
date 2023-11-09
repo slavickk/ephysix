@@ -15,8 +15,8 @@ namespace CamundaInterface
     {
         public static async Task Start(string filePath = @"C:\Users\User\source\repos\projectx\WebApiCamundaExecutors\bin\Debug\net6.0\Data\DictCurrencyRates.cs ", string cronString = "15 9 * * *")
         {
-            var countSuc=(Metrics.MetricCount)Metrics.metric.getMetricCount("suc_autoload_count", "count of success loading curses retries");
-            var countFail = (Metrics.MetricCount)Metrics.metric.getMetricCount("fail_autoload_count", "count of failed loading curses retries");
+            var countSuc=(Metrics.MetricCount)Metrics.metric.getMetricCount("suc_autoload_count", "count of success loading rates retries");
+            var countFail = (Metrics.MetricCount)Metrics.metric.getMetricCount("fail_autoload_count", "count of failed loading rates retries");
             Logger.log($"current directory {Directory.GetCurrentDirectory()} path {Path.GetFullPath(filePath)}");
             string body = string.Empty;
             if (File.Exists(filePath))
@@ -29,7 +29,7 @@ namespace CamundaInterface
             }
             if (!string.IsNullOrEmpty(body))
             {
-                Logger.log($"start handler load courses");
+                Logger.log($"start handler load rates(specially for Alexander P.)");
                 var checker = CSScript.RoslynEvaluator.CreateDelegate<Task<int>>(body);
                 var ConnSelect = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;";
                 var ConnAdm = $"User ID={Environment.GetEnvironmentVariable("DB_USER_FPDB")};Password={Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB")};Host={Environment.GetEnvironmentVariable("DB_URL_FPDB")};Port=5432;Database=fpdb;SearchPath=md;";
@@ -46,19 +46,19 @@ namespace CamundaInterface
                 catch (Exception ex)
                 {
                     countFail.Increment();
-                    Logger.log($"Exceptions on load courses {ex.ToString()} ", Serilog.Events.LogEventLevel.Error, ex);
+                    Logger.log($"Exceptions on load rates {ex.ToString()} ", Serilog.Events.LogEventLevel.Error, ex);
                 }
                 Task.Run(async () =>
                 {
                     while (true)
                     {
                         var nextTime = schedule.GetNextOccurrence(DateTime.Now);
-                        Logger.log("Next loading curses on {time}", Serilog.Events.LogEventLevel.Information, nextTime);
+                        Logger.log("Next loading rates on {time}", Serilog.Events.LogEventLevel.Information, nextTime);
                         await Task.Delay((int)(nextTime - DateTime.Now).TotalMilliseconds);
                         try
                         {
 
-                            Logger.log("Start loading curses ", Serilog.Events.LogEventLevel.Information);
+                            Logger.log("Start loading rates ", Serilog.Events.LogEventLevel.Information);
                             errors = await checker(ConnSelect, ConnAdm);
                             if (errors == 0)
                                 countSuc.Increment();
@@ -69,7 +69,7 @@ namespace CamundaInterface
                         catch (Exception ex)
                         {
                             countFail.Increment();
-                            Logger.log("Error of loading curses  "+ex.ToString(), Serilog.Events.LogEventLevel.Error, ex);
+                            Logger.log("Error of loading rates  "+ex.ToString(), Serilog.Events.LogEventLevel.Error, ex);
                         }
 
                     }

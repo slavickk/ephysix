@@ -12,32 +12,34 @@ using System.Text.Json;
 using ParserLibrary;
 //CSScripterExecutor.testScript().GetAwaiter().GetResult();
 //Test().GetAwaiter().GetResult();
-Prepare();
-/*var builder = WebApplication.CreateBuilder(args);
+/*static void Main(string[] args)
+{*/
+    Prepare();
+    /*var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+    // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-var app = builder.Build();
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    builder.Services.AddControllers();
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+    var app = builder.Build();
+    // Configure the HTTP request pipeline.
+    //if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
 
-app.UseAuthorization();
+    app.UseAuthorization();
 
-app.MapControllers();
-//Prepare();
-app.Run();*/
-CreateHostBuilder(args).Build().Run();
-
+    app.MapControllers();
+    //Prepare();
+    app.Run();*/
+    CreateHostBuilder(args).Build().Run();
+//}
 
 // Prepare();
 static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -154,7 +156,7 @@ static void Prepare()
     var env_var = Environment.GetEnvironmentVariable("CRON_STRING");
     if (env_var != null)
     {
-        CSScripterExecutor.Start("Data/DictCurrencyRates.cs", env_var);
+        CSScripterExecutor.Start("Data/DictCurrencyRates.cs", env_var).GetAwaiter().GetResult();
     }
     try
     {
