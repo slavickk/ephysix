@@ -1,0 +1,15 @@
+{
+  "FID": "Bank1",
+  "stream": "AReq",
+  "dsTransID": "f49bad14-eaa8-4401-92cc-2f912ff28cd6",
+  "acctNumber": {
+    "a": "2220***257",
+    "h": "cn2k3SfFWjAmuQokHClNdG0FvwG6TmurneEekmjX6/o="
+  },
+  "acquirerBIN": "2201380101",
+  "originalTime": "2023-11-02T01:06:07",
+  "cardExpiryDate": "2025-12-01T00:00:00",
+  "purchaseAmount": "25000",
+  "purchaseCurrency": "840",
+  "acquirerMerchantID": "POS_1"
+}
