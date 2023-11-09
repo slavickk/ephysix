@@ -6,6 +6,11 @@
 | ------ | ------ | ------ | ------ | ------ | ------ |
 |CONSUL_ADDR|||true|None|Addr of consul|
 |LOG_LEVEL|Debug|Verbose, Debug, Information, Warning, Error, Fatal|true|None|Logging level|
+|DB_URL_FPDB||||None|URL of database|
+|DB_USER_FPDB||||None|username of database|
+|DB_PASSWORD_FPDB||||None|password of database|
+|CRON_STRING||||None|cron string for sheluling of loading rates e.g.1 2 * * *|
+|RDL_URL||||None|url of ReferenceDataLoader e.g.1 https://aa.dd.com:8853|
 ## PORTS
 |PORT_NAME|DEFAULT_VALUE|PROTOCOL|HEALTHCHECK|HEALTHCHEK ROUTE|METRICS|METRICS ROUTE|DESCRIPTION|
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |

@@ -10,6 +10,11 @@ async Task<int> ConvObject(string ConnSelect1, string ConnAdm1)
     var client = new HttpClient();
     int all = 0, errors = 0;
     ExportItem itog1=null, itog2=null;
+    if(Environment.GetEnvironmentVariable("RDL_URL")==null)
+    {
+        Logger.log($"RDL_URL not define ,exec load rates impossible!!!!!!!!!!!!!");
+        return 1;
+    }
     //http://CSExternalTask.service.dc1.consul:24169/api/Api/url-crowler 
     {
 
@@ -63,7 +68,7 @@ select 'RUB','Russian rouble',810,'2'
         var ConnSelect = @"User ID=dm;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;";
 
         var ConnAdm = @"User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;";
-        var DictAddr ="https://"+ Resolver.ResolveConsulAddr("referenceDataLoader");// @"https://referenceDataLoader.service.dc1.consul:16666";
+        var DictAddr = Environment.GetEnvironmentVariable("RDL_URL");
         var MaxRecords = @"1000";
         var SQLText = @"select dictcurrency.numericcode numericcode,dictcurrencyrate.rate rate from dm.dictcurrency   
  inner join   dm.dictcurrencyrate  on (dictcurrency.alphabeticcode=dictcurrencyrate.scode)  
