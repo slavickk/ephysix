@@ -90,7 +90,7 @@ steps:
     connectionTimeoutInMilliseconds: 5000
     saver: 
     cantTryParse: true
-    mocFile: C:\D\OutACS\PrepareAuth.3ze
+    mocFile: C:\D\OutACS\ProcessAuth.req
     mocBody: ''
   ireceiver: 
   converters:
@@ -123,8 +123,8 @@ steps:
       getNodeNameOnly: false
       returnOnlyFirstRow: true
       value: {#FID#}
-    - !ConstantValue
-      typeConvert: String
+    - !ExtractFromInputValue
+      copyChildsOnly: false
       viewAsJsonString: false
       outputPath: originalTime
       isUniqOutputPath: false
@@ -132,8 +132,10 @@ steps:
       onEmptyValueAction: Skip
       converter: 
       getNodeNameOnly: false
-      returnOnlyFirstRow: true
-      value: $curr_time$
+      returnOnlyFirstRow: false
+      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/-OrigTime/#text
+      conditionCalcer: 
+      valuePath: ''
     - !ExtractFromInputValue
       copyChildsOnly: false
       viewAsJsonString: false
