@@ -151,7 +151,7 @@ namespace CamundaInterface
             metric_AllSendedByCamunda = (Metrics.MetricCount)Metrics.metric.getMetricCount("all_send_by_camunda", "all requests sended by camunda");
             metric_ErrorSendedByCamunda = (Metrics.MetricCount)Metrics.metric.getMetricCount("error_send_by_camunda", "requests sended by camunda with errors");
         }
-        public static async Task fetch(string[] topics)
+        public static async Task<bool> fetch(string[] topics)
         {
             bool isError=false;
             Init();
@@ -163,7 +163,7 @@ namespace CamundaInterface
                     metric_ErrorSendedByCamunda.Add(DateTime.Now);
                     Log.Error("Camunda not present in dns ");
                     isError = true;
-                }
+                } else
 //                addr = "localhost:8080";
                 camundaPath = $"http://{addr}/engine-rest/";
             }
@@ -184,7 +184,7 @@ namespace CamundaInterface
                     client = new HttpClient();
             }
             if (isError)
-                return;
+                return false;
             Log.Information("Start fetching on addr {@camundaPath}", camundaPath);
 
             while (0 == 0)
@@ -391,6 +391,7 @@ namespace CamundaInterface
                 }
             }
             //            topics.Select(x => new ItemFetchAndLock.(x)).ToList();
+            return true;
         }
     }
 

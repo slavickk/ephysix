@@ -76,7 +76,7 @@ steps:
 - isBridge: false
   isHandleSenderError: true
   maxSavedLimitInMB: 10
-  saveErrorSendDirectory: /CACHE1
+  saveErrorSendDirectory: {#BUFF_DIR#}
   saveScenariousDirectory: C:\d\Scenarious\
   iDStep: Step_0
   iDPreviousStep: ''
@@ -1011,8 +1011,8 @@ steps:
       getNodeNameOnly: false
       returnOnlyFirstRow: true
       value: RReq
-    - !ExtractFromInputValue
-      copyChildsOnly: false
+    - !ConstantValue
+      typeConvert: String
       viewAsJsonString: false
       outputPath: originalTime
       isUniqOutputPath: false
@@ -1020,10 +1020,8 @@ steps:
       onEmptyValueAction: Skip
       converter: 
       getNodeNameOnly: false
-      returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/-OrigTime/#text
-      conditionCalcer: 
-      valuePath: ''
+      returnOnlyFirstRow: true
+      value: $curr_time$
     - !ExtractFromInputValue
       copyChildsOnly: false
       viewAsJsonString: false

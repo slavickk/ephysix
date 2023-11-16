@@ -1,6 +1,7 @@
 # Pipeline ACS-CCFA-TWO
 ## ENVIRONMENT VARIABLES
  * SECRET_WORD :Phrase which used for hash sensivity information  
+ * BUFF_DIR :Directory for saved messages (if ccfa not available) e.g. /CACHE1
  * FID :Financial identifier of bank e.g. CUB_BANK 
  * DB_USER_FPDB :If fpdb not available , set empty (not skipped) 
  * DB_PASSWORD_FPDB :If fpdb not available , set empty (not skipped) 

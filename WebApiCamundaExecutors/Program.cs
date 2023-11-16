@@ -169,7 +169,12 @@ static void Prepare()
                 {
                     Log.Information(" Fetching...");
 
-                    await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler", "to_exec_proc", "FimiConnector" });
+                    var res=await CamundaExecutor.fetch(new string[] { "integrity_utility", "to_dict_sender", "url_crowler", "to_exec_proc", "FimiConnector" });
+                    if (!res)
+                    {
+                        Log.Error("Fetching stopped ");
+                        return;
+                    }
                 }
                 catch (Exception e)
                 {
