@@ -153,10 +153,17 @@ namespace CamundaInterface
         }
         public static async Task fetch(string[] topics)
         {
+            bool isError=false;
             Init();
             if (string.IsNullOrEmpty(camundaPath))
             {
                 var addr = Resolver.ResolveConsulAddr("Camunda");
+                if(string.IsNullOrEmpty(addr)) 
+                {
+                    metric_ErrorSendedByCamunda.Add(DateTime.Now);
+                    Log.Error("Camunda not present in dns ");
+                    isError = true;
+                }
 //                addr = "localhost:8080";
                 camundaPath = $"http://{addr}/engine-rest/";
             }
@@ -176,6 +183,8 @@ namespace CamundaInterface
                 } else
                     client = new HttpClient();
             }
+            if (isError)
+                return;
             Log.Information("Start fetching on addr {@camundaPath}", camundaPath);
 
             while (0 == 0)
