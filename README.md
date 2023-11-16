@@ -50,5 +50,5 @@ About WebCamundaExecutors see [CamundaExecutors](WebApiCamundaExecutors/readme.m
 |https port|443|https|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|https port|
 
 
-See ENVIRONMETS and PORTS  specific  to the selected pipeline (YAML configuration file path with .md extension)
+See ENVIRONMETS and PORTS  specific  to the selected pipeline (YAML configuration file path with .md extension).Default directory ./DataProject/Data/
 
