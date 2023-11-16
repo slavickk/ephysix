@@ -111,6 +111,8 @@ namespace CamundaInterface
             var columnList =columns.Split(',');
             if (columnList.Length == 0)
                 return null;
+            Log.Information($"Start  putRequestToRefDataLoader");
+
             NpgsqlConnection conn = null, connAdm = null;
 
             try
@@ -203,7 +205,8 @@ namespace CamundaInterface
                             sw.WriteLine(headerString);
                             if (hash != new_hash)
                             {
-//                                "https://referencedataloader.service.dc1.consul:16666/api/v0/schema/TEST/"
+                                Log.Information($"Log schema new ");
+                                //                                "https://referencedataloader.service.dc1.consul:16666/api/v0/schema/TEST/"
                                 var url1 = $"api/v0/schema/{FID}/{dict.Name}";
                                 Uri uri2 = new Uri(new Uri(baseAddr), url1);
                                 try

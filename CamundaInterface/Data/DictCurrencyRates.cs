@@ -59,9 +59,10 @@ select 'RUB','Russian rouble',810,'2'
                                      , Convert.ToInt32(UpdateTimeout));
 
     }
+    Logger.log($"on  all1:{itog1?.all} all2:{itog2?.all} err11:{ itog1?.errors} err11:{itog2?.errors}");
 
     //http://CSExternalTask.service.dc1.consul:24169/api/Api/to-dict-sender Transfer data from one sources(SQL) and  to NoSQL(key/value ) destination
-    if((itog1?.all>0 || itog2?.all > 0) && ((itog1 != null) && itog2 != null && itog1.errors==0 && itog2.errors==0))
+    if ((itog1?.all>0 || itog2?.all > 0) && ((itog1 != null) && itog2 != null && itog1.errors==0 && itog2.errors==0))
     {
 
         var DictName = @"currencyrates";

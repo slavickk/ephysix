@@ -97,6 +97,8 @@ namespace MXGraphHelperLibrary
 
             public string id { get; set; }
             public Header header { get; set; }
+
+            public JsonElement? AppData { get; set; } = null;
             public Body body { get; set; }
         }
 
