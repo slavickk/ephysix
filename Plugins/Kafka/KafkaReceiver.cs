@@ -36,7 +36,8 @@ public class KafkaReceiver : IReceiver, IDisposable
         {
             BootstrapServers = this.BootstrapServers,
             GroupId = this.ConsumerGroup,
-            AutoOffsetReset = AutoOffsetReset.Earliest
+            AutoOffsetReset = AutoOffsetReset.Earliest,
+            EnableAutoCommit = false
         };
     
         _consumer = new ConsumerBuilder<Ignore, string>(config).Build();
@@ -66,12 +67,8 @@ public class KafkaReceiver : IReceiver, IDisposable
                 if (message != null)
                 {
                     Console.WriteLine($"Received message: {message.Message.Value}");
-                    
-                    // TODO: what should we respond to Kafka?
-                    
                     await _host.signal(message.Message.Value, "hz-context");
-                    
-                    // TODO: and how?
+                    _consumer.Commit(message);
                 }
                 else
                 {
