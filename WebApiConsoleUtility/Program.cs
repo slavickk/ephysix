@@ -69,6 +69,8 @@ namespace WebApiConsoleUtility
             LogEventLevel defLevel = LogEventLevel.Information;
             bool LogHealthAndMonitoring = (Environment.GetEnvironmentVariable("LOG_HELTH_CHECK") != null);
 
+            // TODO: add Enrich with error details in the Serilog.Exception initialization
+            
             object outVal;
             string levelInfo = "";
             if (!IgnoreAll)

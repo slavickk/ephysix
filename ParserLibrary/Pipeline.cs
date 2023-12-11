@@ -182,7 +182,7 @@ public class Pipeline:ILiquidizable
         bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t) || typeof(Receiver).IsAssignableFrom(t) || typeof(Sender).IsAssignableFrom(t);
 
         // TODO: make the list of plugin assemblies configurable
-        var pluginAssemblyNames = new string [] { /*"Plugins.dll"*/ };
+        var pluginAssemblyNames = new string [] { "bin/Debug/net6.0/Plugins.dll" };
         var pluginAssemblies = pluginAssemblyNames.Select(Assembly.LoadFrom).ToList();
 
         // Find all types that must be accessible during pipeline deserialization

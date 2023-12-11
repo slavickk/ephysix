@@ -239,6 +239,12 @@ public partial class Step : ILiquidizable
 
     //   LongLifeRepositorySender repo = new LongLifeRepositorySender();
 
+    /// <summary>
+    /// In the bridge mode, after the Step receives an input message from the Receiver,
+    /// it immediately sends it to the Sender object, receives the response from the Sender,
+    /// and sends its back as the response to the initiating Receiver call.
+    /// Receiver --(received request)--> Sender --(response)--> Receiver
+    /// </summary>
     public bool isBridge = false;
 
     public static bool saveAllResponses = false;

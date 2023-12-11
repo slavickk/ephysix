@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <None Remove="Data\swagger.json" />
+    <None Update="Data\dummy_pipeline_KafkaReceiver.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
