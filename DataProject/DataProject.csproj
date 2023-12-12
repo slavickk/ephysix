@@ -11,6 +11,9 @@
     <None Update="Data\dummy_pipeline_KafkaReceiver.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Data\dummy_pipeline_KafkaSender.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

@@ -15,7 +15,8 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "YAML_PATH": "..\\DataProject\\Data\\ACS_TW.yml",
+        "YAML_PATH": "../DataProject/Data/dummy_pipeline_KafkaReceiver.yml",
+//        "YAML_PATH": "../DataProject/Data/dummy_pipeline_KafkaSender.yml",
         "SECRET_WORD": "qwe1234",
         "REX_URL": "http://nginx.service.consul",
         "DB_URL_FPDB": "master.pgsqlanomaly01.service.dc1.consul",

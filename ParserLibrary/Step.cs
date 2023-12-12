@@ -96,8 +96,8 @@ public partial class Step : ILiquidizable
         {
             if (this._receiverHost != null)
                 this._receiverHost.Release();
-            this._receiverHost = new ReceiverHost(this, value);
-            this._receiverHost.Init(owner);
+            if (value != null)
+                this._receiverHost = new ReceiverHost(this, value);
         }
     }
     private ReceiverHost _receiverHost;
@@ -145,10 +145,7 @@ public partial class Step : ILiquidizable
             if (this._senderHost != null)
                 this._senderHost.Release();
             if (value != null)
-            {
                 this._senderHost = new SenderHost(this, value);
-                this._senderHost.Init(owner);
-            }
         }
     }
     
@@ -161,24 +158,15 @@ public partial class Step : ILiquidizable
     public void Init(Pipeline owner)
     {
         this.owner = owner;
-
-        if (this.ireceiver != null)
-        {
-            _receiverHost = new ReceiverHost(this, ireceiver);
-            _receiverHost.Init(owner);
-        }
+        
+        _receiverHost?.Init(owner);
         if (receiver != null)
         {
             receiver.owner = this;
             receiver.Init(owner);
         }
-        
-        if (this.isender != null)
-        {
-            // TODO: this may be unnecessary because the sender host is initialized when this.sender is set 
-            _senderHost = new SenderHost(this, isender);
-            _senderHost.Init(owner);
-        }
+
+        _senderHost?.Init(owner);
         if (this.sender != null)
         {
             this.sender.owner = this;

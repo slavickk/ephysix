@@ -1,0 +1,15 @@
+pipelineDescription: Pipeline example
+hashWord: aaa
+steps:
+- isBridge: true
+  isHandleSenderError: true
+  saveErrorSendDirectory: Data/Restore
+  iDStep: Step_0
+  iDPreviousStep: ''
+  iDResponsedReceiverStep: ''
+  description: Check registration extract
+  ireceiver: !Plugins.FileReceiver
+    fileName: Data/items_file.txt
+  isender: !Plugins.Kafka.KafkaSender
+    topic: topic1
+    bootstrapServers: 'localhost:9092'
