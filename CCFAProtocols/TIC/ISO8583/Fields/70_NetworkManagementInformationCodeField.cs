@@ -12,14 +12,14 @@ namespace CCFAProtocols.TIC.Fields
         {
             if (isomessage.CheckBitExist(FieldNumber))
             {
-                isomessage.NetworkManagementInformationCode = (NetworkManagementInformationCodes) reader.ReadUshort(3);
+                isomessage.NetworkManagementInformationCode = (NetworkManagementInformationCodes)reader.ReadUshort(3);
             }
         }
 
         public static void Serialize(BinaryWriter writer, ISO8583.ISO8583 isomessage)
         {
             if (isomessage.NetworkManagementInformationCode is null) return;
-            writer.Write(3, isomessage.NetworkManagementInformationCode);
+            writer.Write(3, (ushort)isomessage.NetworkManagementInformationCode);
         }
     }
 }
