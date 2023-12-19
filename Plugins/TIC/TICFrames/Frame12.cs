@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using ParserLibrary.TIC.TICFrames;
 
 namespace TIC.TICFrames
@@ -14,14 +10,22 @@ namespace TIC.TICFrames
         {
             var bytes = new byte[4];
             await reader.ReadAsync(bytes, cancellationToken);
-            Array.Reverse(bytes);
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+
             return BitConverter.ToUInt32(bytes);
         }
 
         public override async Task SerializeLength(Stream writer, long length, CancellationToken cancellationToken)
         {
-            var bytes = BitConverter.GetBytes((uint) length);
-            Array.Reverse(bytes);
+            var bytes = BitConverter.GetBytes((uint)length);
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+            }
+
             await writer.WriteAsync(bytes, cancellationToken);
         }
     }

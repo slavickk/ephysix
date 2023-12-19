@@ -1,8 +1,4 @@
-using System;
-using System.IO;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using CCFAProtocols.TIC;
 using Serilog;
 using TIC.TICFrames;
@@ -16,7 +12,8 @@ namespace ParserLibrary.TIC.TICFrames
         public abstract Task<long> DeserializeLength(Stream reader, CancellationToken cancellationToken);
         public abstract Task SerializeLength(Stream writer, long length, CancellationToken cancellationToken);
 
-        public async Task<string?> DeserializeToJson(NetworkStream reader, CancellationToken cancellationToken = default)
+        public async Task<string?> DeserializeToJson(NetworkStream reader,
+            CancellationToken cancellationToken = default)
         {
             var length = await DeserializeLength(reader, cancellationToken);
             Log.Debug("Recieve {length}", length);
@@ -26,6 +23,8 @@ namespace ParserLibrary.TIC.TICFrames
             {
                 readBytes += await reader.ReadAsync(bytes, readBytes, bytes.Length - readBytes, cancellationToken);
             } while (readBytes < length);
+
+            Log.Debug("Bytes Read {bytes}", readBytes);
 
             if (readBytes == 0)
             {

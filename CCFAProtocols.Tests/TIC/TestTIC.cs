@@ -93,7 +93,7 @@ namespace CCFAProtocols.Tests.TIC
 
         public static IEnumerable FileTestCases()
         {
-            foreach (var s in new[] {"100", "200", "400"})
+            foreach (var s in new[] { "100", "200", "400", "echo" })
                 using (var file = File.Open($"TestData/test{s}.tic", FileMode.Open))
                 {
                     file.ReadByte();
