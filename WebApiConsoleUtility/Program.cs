@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
@@ -147,7 +148,7 @@ namespace WebApiConsoleUtility
                     Log.Information("... Parsing " + yamlFullPath);
                     try
                     {
-                        pip = Pipeline.load(yamlFullPath);
+                        pip = Pipeline.load(yamlFullPath, Assembly.GetAssembly(typeof(TICReceiver)));
                     }
                     catch(Exception e66) 
                     {

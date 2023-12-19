@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CCFAProtocols\CCFAProtocols.csproj" />
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
+    <ProjectReference Include="..\Plugins\Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>

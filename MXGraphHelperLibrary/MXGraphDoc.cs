@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MXGraphHelperLibrary
 {
@@ -29,6 +30,8 @@ namespace MXGraphHelperLibrary
         }
         public class Box
         {
+            [JsonIgnore]
+            public int xCurrent = 0;  // for arrow position control
             public class Body
             {
                 public class Row
@@ -38,11 +41,11 @@ namespace MXGraphHelperLibrary
                         public class Item
                         {
 
-                            public void AddBoxLink(Box box,string id,int typeLink=2)
+                            public void AddBoxLink( Box boxDest,string id,int typeLink=2)
                             {
                                 if (box_links == null)
                                     box_links = new List<BoxLink>();
-                                box_links.Add(new BoxLink() { link = new BoxLink.Link() { typelink=typeLink, box_id = box.id + ":" + id } });
+                                box_links.Add(new BoxLink() { link = new BoxLink.Link() { typelink=typeLink, box_id = boxDest.id + ":" + id } });
                             }
                             public void AddBoxLink(string box_id, string id, int typeLink = 2)
                             {
@@ -54,27 +57,48 @@ namespace MXGraphHelperLibrary
                             {
                                 public class Link
                                 {
-
+                                    public class Points
+                                    {
+                                        public int x { get; set; }
+                                        public int y { get; set; }
+                                        public Points(int x,int y)
+                                        {
+                                            this.x = x;
+                                            this.y = y;
+                                        }
+                                    }
                                     public int typelink { get; set; } = 1;
                                     public string box_id { get; set; }
+                                    public Points points { get; set; } = null;
                                 }
                                 public Link link { get; set; }
+                            }
+                            public class Points
+                            {
+                                public int x { get; set; }
                             }
 
 
                             public string caption { get; set; }
                             public string box_id { get; set; }
+                            public int? colspan { get; set; }
+                            public string? style { get; set; }
                             public List<BoxLink> box_links { get; set; }
+                            public Points points { get; set; }
                         }
 
                         public JsonElement? json { get; set; } = null;
                         public Item item { get; set; }
                     }
                     public List<Column> columns { get; set; }
+                    public Dictionary<string, string>? tooltip_info { get; set; }
+
                 }
                 public List<Header> header { get; set; }
                 public List<Row> rows { get; set; }
                 public JsonElement? json { get; set; } = null;
+                public JsonElement? appdata { get; set; } = null;
+
             }
             public class Header
             {

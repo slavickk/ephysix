@@ -334,6 +334,7 @@ namespace TestJsonRazbor
             this.checkBox1.TabIndex = 37;
             this.checkBox1.Text = "bridge";
             this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += CheckBox1_CheckedChanged;
             // 
             // textBoxResponceStep
             // 
@@ -656,6 +657,7 @@ namespace TestJsonRazbor
             this.ResumeLayout(false);
 
         }
+
 
         #endregion
 

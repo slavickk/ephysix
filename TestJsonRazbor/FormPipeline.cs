@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 //using Newtonsoft.Json;
@@ -46,6 +47,11 @@ namespace TestJsonRazbor
         }
         TreeNode selectedNode;
         Step currentStep;
+        private void CheckBox1_CheckedChanged(object sender, System.EventArgs e)
+        {
+            currentStep.isBridge = checkBox1.Checked;
+        }
+
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             selectedNode = e.Node;
@@ -158,14 +164,14 @@ namespace TestJsonRazbor
                         LoadYaml(fileName);
                     } else
                     {
-                        pip = new Pipeline();
+                        pip = new Pipeline(Assembly.GetAssembly(typeof(TICReceiver)));
                         this.Text = (pipelinePath == "") ? "new Pipeline" : pipelinePath;
 
                     }
                 }
                 else
                 {
-                    pip = new Pipeline();
+                    pip = new Pipeline(Assembly.GetAssembly(typeof(TICReceiver)));
                     this.Text = (pipelinePath == "") ? "new Pipeline" : pipelinePath;
                 }
             }
@@ -176,9 +182,16 @@ namespace TestJsonRazbor
             using (StreamReader sr = new StreamReader(fileName))
             {
                 //                pipelinePath = sr.ReadToEnd();
-                pip = Pipeline.load(fileName);
-                RefreshPipeline();
+                try
+                {
+                    pip = Pipeline.load(fileName, Assembly.GetAssembly(typeof(TICReceiver)));
 
+                    RefreshPipeline();
+                }
+                catch(Exception e)
+                {
+                    MessageBox.Show(e.ToString());
+                }
             }
         }
 
@@ -385,7 +398,7 @@ namespace TestJsonRazbor
             {
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    pip.Save(saveFileDialog1.FileName);
+                    pip.Save(saveFileDialog1.FileName, Assembly.GetAssembly(typeof(TICReceiver)));
                     saveStorageContext(saveFileDialog1.FileName);
                 }
             }
@@ -455,7 +468,7 @@ namespace TestJsonRazbor
         private void buttonYaml_Click(object sender, EventArgs e)
         {
             var sw= new StringWriter();
-            pip.Save(sw);
+            pip.Save(sw, Assembly.GetAssembly(typeof(TICReceiver)));
             sw.Flush();
             new FormYamlCode(sw.ToString()).ShowDialog();
 //            MessageBox.Show(sw.ToString());
@@ -552,7 +565,7 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         }
         private void buttonNew_Click(object sender, EventArgs e)
         {
-            pip = new Pipeline();
+            pip = new Pipeline(Assembly.GetAssembly(typeof(TICReceiver)));
             this.Text = "new Pipeline";
             RefreshPipeline();
         }

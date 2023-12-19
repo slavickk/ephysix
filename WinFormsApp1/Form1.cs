@@ -780,9 +780,12 @@ class ""{{table.Name}}"" as {{table.Name}}_D << (D,{{table.Color}}) >>
                 {
                     sw.Write(JsonSerializer.Serialize<GenerateStatement.ETL_Package>(pack));
                 }
-                using (StreamWriter sw = new StreamWriter(@"c:\d\pack1.json"))
+                if (pack.ETL_add_define != null)
                 {
-                    sw.Write(JsonSerializer.Serialize<SavedItem> (JsonSerializer.Deserialize<SavedItem>(pack.ETL_add_define)));
+                    using (StreamWriter sw = new StreamWriter(@"c:\d\pack1.json"))
+                    {
+                        sw.Write(JsonSerializer.Serialize<SavedItem>(JsonSerializer.Deserialize<SavedItem>(pack.ETL_add_define)));
+                    }
                 }
 
             }

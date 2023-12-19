@@ -25,6 +25,7 @@ using ETL_DB_Interface;
 using CamundaInterface;
 using PluginBase;
 using ParserLibrary;
+using System.Reflection;
 
 namespace TestJsonRazbor
 {
@@ -180,9 +181,9 @@ namespace TestJsonRazbor
             Step.Test();
 //            Pipeline
 //            var pip=Pipeline.load(@"C:\Users\User\Documents\model.yml");
-            Pipeline pip = new Pipeline();
+            Pipeline pip = new Pipeline(Assembly.GetAssembly(typeof(TICReceiver)));
             pip.steps.First().sender = new HTTPSender();
-            pip.Save(@"C:\Users\User\Documents\aa3.yml");
+            pip.Save(@"C:\Users\User\Documents\aa3.yml", Assembly.GetAssembly(typeof(TICReceiver)));
  
 /*            var pip2 = Pipeline.load();// (@"C:\D\aa1.yml");
             var pip1 = new Pipeline();
@@ -550,7 +551,7 @@ namespace TestJsonRazbor
                     listBox2.Items.Add(item);
                 }*/
 
-                textBoxYaml.Text = Pipeline.ToStringValue(new Pipeline());
+                textBoxYaml.Text = Pipeline.ToStringValue(new Pipeline(Assembly.GetAssembly(typeof(TICReceiver))));
                 
 /*                RecordExtractor ext = buildExtractor();
 

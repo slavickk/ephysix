@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ETL_DB_Interface;
 using ParserLibrary;
 
 namespace TestJsonRazbor
@@ -18,6 +19,7 @@ namespace TestJsonRazbor
         [STAThread]
         static void Main(string[] args)
         {
+         //   MXHelper.getExample();
             if(args.Length >0)
                 ExecutedPath = args[0];
            // var assm=ParserLibrary.PluginsInterface.loadPlugins(new string[] { @"C:\Users\User\source\repos\projectx\Plugins\bin\Debug\net6.0\CCFAProtocols.dll" , @"C:\Users\User\source\repos\projectx\Plugins\bin\Debug\net6.0\UAMP.dll",  @"C:\Users\User\source\repos\projectx\Plugins\bin\Debug\net6.0\Plugins.dll" });

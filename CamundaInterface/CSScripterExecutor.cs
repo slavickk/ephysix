@@ -15,6 +15,7 @@ namespace CamundaInterface
     {
         public static async Task Start(string filePath = @"C:\Users\User\source\repos\projectx\WebApiCamundaExecutors\bin\Debug\net6.0\Data\DictCurrencyRates.cs ", string cronString = "15 9 * * *")
         {
+///            CSScript.RoslynEvaluator.
             var countSuc=(Metrics.MetricCount)Metrics.metric.getMetricCount("suc_autoload_count", "count of success loading rates retries");
             var countFail = (Metrics.MetricCount)Metrics.metric.getMetricCount("fail_autoload_count", "count of failed loading rates retries");
             Logger.log($"current directory {Directory.GetCurrentDirectory()} path {Path.GetFullPath(filePath)}");
@@ -100,6 +101,8 @@ WHERE x.""""AlphabeticCode"""" is not null and x.""""NumericCode"""" is not null
 return true;
 }
 ";
+
+
             var schedule = CrontabSchedule.Parse("15 9 * * *");
             var nextTime= schedule.GetNextOccurrence(DateTime.Now);
 

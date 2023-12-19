@@ -18,6 +18,12 @@ namespace WinFormsApp1
         [STAThread]
         static void Main()
         {
+          /*  string a = "ass=:b1 and fff=:b2";
+           foreach(var t in  a.getQueryVariables())
+            {
+                Console.WriteLine(t);
+            }
+          */
             /* var localTime = DateTime.Now;
              DateTimeOffset localTimeAndOffset = new DateTimeOffset(localTime, TimeZoneInfo.Local.GetUtcOffset(localTime));
 

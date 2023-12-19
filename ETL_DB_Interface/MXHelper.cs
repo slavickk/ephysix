@@ -11,6 +11,7 @@ using static ParserLibrary.ReplaySaver;
 using MXGraphHelperLibrary;
 using NUnit.Framework;
 using static ETL_DB_Interface.GenerateStatement.ETL_Package;
+using System.Text.RegularExpressions;
 
 namespace ETL_DB_Interface
 {
@@ -21,6 +22,17 @@ namespace ETL_DB_Interface
             public string sql_query { get; set; }
             public TableDefine[] def { get; set; }
             public APIExecutor.ExecContextItem[] commands { get; set; }
+        }
+
+
+        public static IEnumerable<string> getQueryVariables(this string body)
+        {
+            string pattern = @"\:\w+";
+            foreach (Match match in Regex.Matches(body, pattern,
+                         RegexOptions.None,
+                         TimeSpan.FromSeconds(1)))
+                if(match.Success && match.Length>0)
+                yield return match.Value.Substring(1, match.Value.Length - 1);
         }
 
 
@@ -47,6 +59,85 @@ namespace ETL_DB_Interface
                 }
             }
             return null;
+        }
+
+
+
+        static string getStyle(bool topleft,bool topright,bool bottomleft,bool bottomright,bool drawdelimiter=false)
+        {
+            return $"padding: 5px 30px;background: var(--global-white);vertical-align: top;border-bottom: 1px solid var(--grey-10); border-top:none;{(!drawdelimiter ? "border-bottom:none;" : "")} {(!topleft ? "border-top-left-radius: 0;" : "")}{(!topright ? "border-top-right-radius: 0;" : "")}{(!bottomleft ? "border-bottom-left-radius: 0;" : "")}{(!bottomright ? "border-bottom-right-radius: 0;" : "")}";
+        }
+
+        public static MXGraphDoc.Box getConditionsRows(this MXGraphDoc.Box box, string Caption, string[] leftStrings, string[] rightStrings)
+        {
+            if (box.body.rows == null)
+                box.body.rows = new List<MXGraphDoc.Box.Body.Row>();
+//            List<MXGraphDoc.Box.Body.Row> rows = new List<MXGraphDoc.Box.Body.Row>();
+            if(string.IsNullOrEmpty(Caption))
+            {
+                box.body.rows.Add(new MXGraphDoc.Box.Body.Row() { columns = new List<MXGraphDoc.Box.Body.Row.Column>() { new MXGraphDoc.Box.Body.Row.Column() { item=new MXGraphDoc.Box.Body.Row.Column.Item() {  caption=Caption, colspan=2, style= "\"padding: 5px 30px;border-top: 1px solid var(--grey-10); border-bottom: none; background: var(--global-white);vertical-align: top;border-bottom-right-radius: 0;border-bottom-left-radius: 0; font: var(--font-h3-semibold-14);\"" } } } });
+            }
+            int kol = Math.Max(leftStrings.Length, rightStrings.Length);
+            int kol1 = kol - 1;
+            for(int i=0;  i<kol; i++)
+            {
+                box.body.rows.Add(new MXGraphDoc.Box.Body.Row() { columns = new List<MXGraphDoc.Box.Body.Row.Column>() { new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item()
+                {
+
+                    box_id = ((leftStrings.Length > i) ? (box.id + "_Inp" + i) : null), caption = ((leftStrings.Length > i) ? leftStrings[i] : ""),
+                    style =getStyle(i==0,false,i==kol-1,false,!( i<kol-1))
+
+                }
+                },
+                    new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item()
+                    {
+                    box_id = ((rightStrings.Length > i) ? (box.id + "_Out" + i) : null), caption = ((rightStrings.Length > i) ? rightStrings[i] : ""),
+                    style =getStyle(false,i==0,false,i==kol-1,!( i<kol-1))
+
+                    } }
+                } });
+            }
+            return box;
+        }
+        public static MXGraphDoc.Box getNewRow(this MXGraphDoc.Box box, string id, string Caption, bool left, bool right)
+        {
+            if (box.body.rows == null)
+                box.body.rows = new List<MXGraphDoc.Box.Body.Row>();
+
+            //            List<MXGraphDoc.Box.Body.Row> rows = new List<MXGraphDoc.Box.Body.Row>();
+            box.body.rows.Add(new MXGraphDoc.Box.Body.Row()
+            {
+                columns = new List<MXGraphDoc.Box.Body.Row.Column>() { new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item()
+                {
+
+                    box_id = ((left) ? (box.id + id + "_left") : null), caption = Caption,
+                    style = "position: relative;box-sizing: border-box;width: calc(100% - 20px);height: 30px;padding: 5px 30px;margin: 0px auto;border-radius: 8px;border: 1px dashed var(--grey-10);background: var(--grey-1);border-bottom-right-radius: 0;border-top-right-radius: 0;border-right:none;"
+
+
+                }
+                },
+                    new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item()
+                {
+
+                    box_id = ((right) ? (box.id + id + "_right") : null), caption = "",
+                    style = "position: relative;box-sizing: border-box;width: calc(100% - 20px);height: 30px;padding: 5px 30px;margin: 0px auto;border-radius: 8px;border: 1px dashed var(--grey-10);background: var(--grey-1);border-bottom-left-radius: 0;border-top-left-radius: 0;border-left:none;"
+
+
+                } }
+                }
+            });
+            return box;
+        }
+        public static MXGraphDoc getExample()
+        {
+            MXGraphDoc doc = new MXGraphDoc() ;
+            
+            doc.boxes = new List<MXGraphDoc.Box>();
+            doc.boxes.Add(new MXGraphDoc.Box() { id = "Script", header = new MXGraphDoc.Box.Header() { caption = "Script:aaa", position = new MXGraphDoc.Box.Header.Position() { left = 100, top = 100 }, size = new MXGraphDoc.Box.Header.Size() { height = 200, width = 200 } }, body = new MXGraphDoc.Box.Body() }.getConditionsRows( "Fix",new string[] {"Input1","Input2","Input3"},new string[] {"Output1" }));
+            doc.boxes.Add(new MXGraphDoc.Box() { id = "AAA", header = new MXGraphDoc.Box.Header() { caption = "Transform", position = new MXGraphDoc.Box.Header.Position() { left = 100, top = 300 }, size = new MXGraphDoc.Box.Header.Size() { height = 200, width = 200 } }, body = new MXGraphDoc.Box.Body() }.getConditionsRows("Cond", new string[] { "Condition1","Condition2" }, new string[] {  }).getNewRow("Item1", "Item1", true, true).getNewRow("Item2", "Item2", true, true));
+            doc.boxes.Add(new MXGraphDoc.Box() { id = "CondConverter", header = new MXGraphDoc.Box.Header() { caption = "CondConvert", position = new MXGraphDoc.Box.Header.Position() { left = 400, top = 100 }, size = new MXGraphDoc.Box.Header.Size() { height = 200, width = 200 } }, body = new MXGraphDoc.Box.Body() }.getNewRow("Item1", "Item1", true, true).getNewRow("Item2", "Item2", true, false));
+            doc.Save("C:\\d\\ex1.json");
+            return doc;
         }
 
         public  static async Task DrawMXGraph(this GenerateStatement.ETL_Package pack,NpgsqlConnection conn)
@@ -249,8 +340,10 @@ namespace ETL_DB_Interface
                 top -= 300;
                 foreach (var table in pack.allTables)
                 {
+
                     top += 300;
                     MXGraphDoc.Box box = new MXGraphDoc.Box();
+                    box.AppData = JsonDocument.Parse(JsonSerializer.Serialize<GenerateStatement.ItemTable>(table)).RootElement; 
                     box.id = "Table_" + table.Name ;
 
 
@@ -299,10 +392,32 @@ namespace ETL_DB_Interface
                             ot.Columns.Add(col.alias);
                         getItemForID(doc.boxes.First(ii => ii.id == "Table_" + tab.Name), "out_" + col.expression)?.AddBoxLink("OutTable_" + col.outputTable, col.alias);
                     }
+                    if(!string.IsNullOrEmpty(tab.Condition))
+                    {
+                        MXGraphDoc.Box.Body.Row.Column captCol = new MXGraphDoc.Box.Body.Row.Column() { item = new MXGraphDoc.Box.Body.Row.Column.Item() {  caption = "Conditions", colspan=2,
+                            style= "padding: 5px 30px;border-top: 1px solid var(--grey-10); border-bottom: none; background: var(--global-white);vertical-align: top;border-bottom-right-radius: 0;border-bottom-left-radius: 0; font: var(--font-h3-semibold-14);" } };
+                        MXGraphDoc.Box.Body.Row newRowCapt = new MXGraphDoc.Box.Body.Row() { columns = new List<MXGraphDoc.Box.Body.Row.Column>() { captCol } };
+                        doc.boxes.First(ii => ii.id == "Table_" + tab.Name).body.rows.Add(newRowCapt);
+
+                        MXGraphDoc.Box.Body.Row.Column condCol = new MXGraphDoc.Box.Body.Row.Column() 
+                        { item = new MXGraphDoc.Box.Body.Row.Column.Item() { box_id = $"Cond_{tab.Name}", caption = tab.Condition,colspan=2,
+                            style= "position: relative;    box-sizing: border-box;    width: calc(100% - 20px);    height: 30px;    padding: 5px 30px;    margin: 0px auto;    border-radius: 8px;\n    border: 1px dashed var(--grey-10);\n    background: var(--grey-1);"
+                        } };
+                        MXGraphDoc.Box.Body.Row newRow = new MXGraphDoc.Box.Body.Row() { columns = new List<MXGraphDoc.Box.Body.Row.Column>() { condCol } };
+                        doc.boxes.First(ii => ii.id == "Table_" + tab.Name).body.rows.Add(newRow);
+                        foreach(var field in  tab.Condition.getQueryVariables())
+                        {
+                            getItemForID(doc.boxes.First(ii => ii.id == "Vars"), field)?.AddBoxLink(doc.boxes.First(ii => ii.id == "Table_" + tab.Name).id, $"Cond_{tab.Name}");
+
+                        }
+                    }
                 }
                 foreach (var rel in pack.relations)
                 {
-                    getItemForID(doc.boxes.First(ii => ii.id == "Table_" + rel.Name1Table), "id_" + rel.NameColumns1)?.AddBoxLink(doc.boxes.First(ii => ii.id == "Table_" + rel.Name2Table).id,"id_" +rel.NameColumns2);
+                    var split1 = rel.NameColumns1.Split(',');
+                    var split2 = rel.NameColumns2.Split(',');
+                    for(int i=0;i<split1.Length; i++)   
+                        getItemForID(doc.boxes.First(ii => ii.id == "Table_" + rel.Name1Table ), "id_" + split1[i])?.AddBoxLink(doc.boxes.First(ii => ii.id == "Table_" + rel.Name2Table).id,"id_" + split2[i], 1);
 
                 }
 
