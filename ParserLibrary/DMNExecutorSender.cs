@@ -220,7 +220,7 @@ namespace ParserLibrary
 
                 foreach (var item in PrepareData(root))
                     ctx.WithInputParameter(item.Name, item.Value);
-
+                var str = JsonSerializer.Serialize<List<ItemInputVar>>(PrepareData(root));
                 //        ctx.ExecuteDecision("Scoring");
                 ctx.ExecDecisions();
             }

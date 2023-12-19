@@ -20,6 +20,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Collections.Concurrent;
 using PluginBase;
+using Plugins;
 using UniElLib;
 using DotLiquid;
 using System.Xml.Linq;
@@ -182,7 +183,7 @@ public class Pipeline:ILiquidizable
         bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t) || typeof(Receiver).IsAssignableFrom(t) || typeof(Sender).IsAssignableFrom(t);
 
         // TODO: make the list of plugin assemblies configurable
-        var pluginAssemblyNames = new string [] { "bin/Debug/net6.0/Plugins.dll" };
+        var pluginAssemblyNames = new string [] { "Plugins.dll" };
         var pluginAssemblies = pluginAssemblyNames.Select(Assembly.LoadFrom).ToList();
 
         // Find all types that must be accessible during pipeline deserialization
@@ -207,16 +208,19 @@ public class Pipeline:ILiquidizable
              ||
             t.IsAssignableTo(typeof(Sender));
     }
-    static List<Type> getAllRegTypes()
+    static List<Type> getAllRegTypes(Assembly addAssembly)
     {
         return Assembly.GetAssembly(typeof(OutputValue)).GetTypes().Where(t => predicate(t)).Union(
-            Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(t=>predicate(t))).ToList();
+            Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(t=>predicate(t)).Union(
+            addAssembly.GetTypes().Where(t => predicate(t)))).ToList();
 
         //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
     }
     DateTime timeStart=DateTime.Now;
-    public Pipeline()
+    public Assembly addAssembly;
+    public Pipeline(Assembly addAssembly)
     {
+        this.addAssembly = addAssembly;
         Metrics.MetricAuto metric1 = new Metrics.MetricAuto("iu_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds);
         Metrics.MetricAuto metric2 = new Metrics.MetricAuto("iu_privileged_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().PrivilegedProcessorTime.TotalMilliseconds);
         Metrics.MetricAuto metric3 = new Metrics.MetricAuto("iu_user_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().UserProcessorTime.TotalMilliseconds);
@@ -227,7 +231,7 @@ public class Pipeline:ILiquidizable
     public static string ToStringValue(Pipeline pipes)
     {
         var ser = new SerializerBuilder();
-        foreach (var type in getAllRegTypes())
+        foreach (var type in getAllRegTypes(pipes.addAssembly))
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
         var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         using (StringWriter sw = new StringWriter())
@@ -331,7 +335,7 @@ public class Pipeline:ILiquidizable
     [YamlIgnore]
     public string fileName;
     public static string basepath;
-    public static Pipeline load(string fileName = @"C:\d\model.yml")
+    public static Pipeline load(string fileName,Assembly assembly)
     {
         string Body;
         basepath= Path.GetDirectoryName(fileName);
@@ -339,7 +343,7 @@ public class Pipeline:ILiquidizable
         {
             Body = sr.ReadToEnd();
         }
-        var pip= loadFromString(Body);
+        var pip= loadFromString(Body,assembly);
         pip.fileName= fileName;
         return pip;
     }
@@ -454,11 +458,11 @@ public class Pipeline:ILiquidizable
         public string comment = "";
     }
     static List<occurencyItem> occurencyItems= new List<occurencyItem>()   ;
-    public static Pipeline loadFromString(string Body)
+    public static Pipeline loadFromString(string Body,Assembly assembly)
     {
         occurencyItems.Clear();
         var ser = new DeserializerBuilder();
-        foreach (var type in getAllRegTypes())
+        foreach (var type in getAllRegTypes(assembly))
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
         // Now register the plugins, but use their FullName for tags
         foreach (var type in getAllPluginTypes())
@@ -577,9 +581,9 @@ public class Pipeline:ILiquidizable
 
         }
     }
-    public void Save( string fileName = @"C:\d\aa1.yml")
+    public void Save( string fileName,Assembly assembly)
     {
-        ISerializer serializer = getSerializer();
+        ISerializer serializer = getSerializer(assembly);
 
       
         using (StringWriter sw1 = new StringWriter())
@@ -599,18 +603,18 @@ public class Pipeline:ILiquidizable
 
     }
 
-    private static ISerializer getSerializer()
+    private static ISerializer getSerializer(Assembly assembly)
     {
         var ser = new SerializerBuilder();
-        foreach (var type in getAllRegTypes())
+        foreach (var type in getAllRegTypes(assembly))
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
         var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         return serializer;
     }
 
-    public void Save(TextWriter stream)
+    public void Save(TextWriter stream,Assembly assembly)
     {
-        ISerializer serializer = getSerializer();
+        ISerializer serializer = getSerializer(assembly);
         serializer.Serialize(stream, this);
 
     }

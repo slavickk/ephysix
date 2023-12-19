@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -125,7 +126,7 @@ namespace ParserLibrary.Tests
     {
         try
         {
-            pip = Pipeline.load(path);
+            pip = Pipeline.load(path, Assembly.GetAssembly(typeof(DummyProtocol1Receiver)));
             
 /*            pip.steps.First(ii=>ii.IDStep=="Step_ToTWO").sender.MocMode = true;
                 pip.steps.First(ii => ii.IDStep == "Step_ToTWO").sender.mocker.MocTimeoutInMilliseconds=0;*/
