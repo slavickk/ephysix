@@ -217,10 +217,10 @@ public class Pipeline:ILiquidizable
         //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
     }
     DateTime timeStart=DateTime.Now;
-    public Assembly addAssembly;
-    public Pipeline(Assembly addAssembly)
+    //public Assembly addAssembly;
+    public Pipeline()
     {
-        this.addAssembly = addAssembly;
+      //  this.addAssembly = addAssembly;
         Metrics.MetricAuto metric1 = new Metrics.MetricAuto("iu_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds);
         Metrics.MetricAuto metric2 = new Metrics.MetricAuto("iu_privileged_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().PrivilegedProcessorTime.TotalMilliseconds);
         Metrics.MetricAuto metric3 = new Metrics.MetricAuto("iu_user_cpu_milliseconds_total", "CPU usage", () => Process.GetCurrentProcess().UserProcessorTime.TotalMilliseconds);
@@ -228,10 +228,10 @@ public class Pipeline:ILiquidizable
         Metrics.MetricAuto metric5 = new Metrics.MetricAuto("iu_uptime", "Uptime in seconds", () => {  return (DateTime.Now-timeStart).TotalSeconds; });
 
     }
-    public static string ToStringValue(Pipeline pipes)
+    public static string ToStringValue(Pipeline pipes,Assembly assembly)
     {
         var ser = new SerializerBuilder();
-        foreach (var type in getAllRegTypes(pipes.addAssembly))
+        foreach (var type in getAllRegTypes(assembly))
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
         var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         using (StringWriter sw = new StringWriter())
