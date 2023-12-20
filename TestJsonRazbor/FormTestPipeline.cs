@@ -100,6 +100,7 @@ namespace TestJsonRazbor
                 .WriteTo.Console(formatProvider: new CultureInfo("en-AU")) // Console 1
                 .WriteTo.Console(formatProvider: formatter)                // Console 2
                     .WriteTo.Sink(TbsLoggerSink.LoggerSink, Serilog.Events.LogEventLevel.Debug)
+                    .WriteTo.File(path: @"c:\d\TestJsonRazborLog.txt")
                     .CreateLogger();
             TbsLoggerSink.LoggerSink.NewLogHandler += LogHandler;
 

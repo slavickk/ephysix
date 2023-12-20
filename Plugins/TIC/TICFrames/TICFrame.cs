@@ -1,5 +1,8 @@
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using CCFAProtocols.TIC;
 using Serilog;
 using TIC.TICFrames;
@@ -33,9 +36,19 @@ namespace ParserLibrary.TIC.TICFrames
                 return null;
             }
 
+            Log.Debug("Recieve bytes {bytes}", PrintByteArray(bytes));
             return TICMessage.DeserializeToJSON(bytes);
         }
-
+        public static string PrintByteArray(byte[] bytes)
+        {
+            var sb = new StringBuilder("new byte[] { ");
+            foreach (var b in bytes)
+            {
+                sb.Append(b + ", ");
+            }
+            sb.Append("}");
+            return sb.ToString();
+        }
         public async Task SerializeFromJson(NetworkStream writer, string ticMessage,
             CancellationToken cancellationToken = default)
         {

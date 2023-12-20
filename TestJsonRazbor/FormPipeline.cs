@@ -164,14 +164,14 @@ namespace TestJsonRazbor
                         LoadYaml(fileName);
                     } else
                     {
-                        pip = new Pipeline(Assembly.GetAssembly(typeof(TICReceiver)));
+                        pip = new Pipeline();
                         this.Text = (pipelinePath == "") ? "new Pipeline" : pipelinePath;
 
                     }
                 }
                 else
                 {
-                    pip = new Pipeline(Assembly.GetAssembly(typeof(TICReceiver)));
+                    pip = new Pipeline();
                     this.Text = (pipelinePath == "") ? "new Pipeline" : pipelinePath;
                 }
             }
@@ -565,7 +565,7 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         }
         private void buttonNew_Click(object sender, EventArgs e)
         {
-            pip = new Pipeline(Assembly.GetAssembly(typeof(TICReceiver)));
+            pip = new Pipeline();
             this.Text = "new Pipeline";
             RefreshPipeline();
         }

@@ -181,7 +181,7 @@ namespace TestJsonRazbor
             Step.Test();
 //            Pipeline
 //            var pip=Pipeline.load(@"C:\Users\User\Documents\model.yml");
-            Pipeline pip = new Pipeline(Assembly.GetAssembly(typeof(TICReceiver)));
+            Pipeline pip = new Pipeline();
             pip.steps.First().sender = new HTTPSender();
             pip.Save(@"C:\Users\User\Documents\aa3.yml", Assembly.GetAssembly(typeof(TICReceiver)));
  
@@ -551,7 +551,7 @@ namespace TestJsonRazbor
                     listBox2.Items.Add(item);
                 }*/
 
-                textBoxYaml.Text = Pipeline.ToStringValue(new Pipeline(Assembly.GetAssembly(typeof(TICReceiver))));
+                textBoxYaml.Text = Pipeline.ToStringValue(new Pipeline(), Assembly.GetAssembly(typeof(TICReceiver)));
                 
 /*                RecordExtractor ext = buildExtractor();
 
