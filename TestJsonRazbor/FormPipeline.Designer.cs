@@ -30,7 +30,7 @@ namespace TestJsonRazbor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Steps");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Steps");
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -43,6 +43,8 @@ namespace TestJsonRazbor
             this.buttonYaml = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonPaste = new System.Windows.Forms.Button();
+            this.buttonCopy = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.textBoxRestorePath = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -77,8 +79,8 @@ namespace TestJsonRazbor
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.buttonCopy = new System.Windows.Forms.Button();
-            this.buttonPaste = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -101,6 +103,7 @@ namespace TestJsonRazbor
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.button6);
             this.splitContainer1.Panel2.Controls.Add(this.buttonOpen);
             this.splitContainer1.Panel2.Controls.Add(this.buttonPlantUml);
             this.splitContainer1.Panel2.Controls.Add(this.buttonNew);
@@ -122,10 +125,10 @@ namespace TestJsonRazbor
             this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Margin = new System.Windows.Forms.Padding(4);
             this.treeView1.Name = "treeView1";
-            treeNode2.Name = "Steps";
-            treeNode2.Text = "Steps";
+            treeNode1.Name = "Steps";
+            treeNode1.Text = "Steps";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode2});
+            treeNode1});
             this.treeView1.Size = new System.Drawing.Size(396, 729);
             this.treeView1.TabIndex = 0;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
@@ -264,6 +267,26 @@ namespace TestJsonRazbor
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Step detail";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // buttonPaste
+            // 
+            this.buttonPaste.Location = new System.Drawing.Point(733, 461);
+            this.buttonPaste.Name = "buttonPaste";
+            this.buttonPaste.Size = new System.Drawing.Size(45, 46);
+            this.buttonPaste.TabIndex = 43;
+            this.buttonPaste.Text = "p";
+            this.buttonPaste.UseVisualStyleBackColor = true;
+            this.buttonPaste.Click += new System.EventHandler(this.buttonPaste_Click);
+            // 
+            // buttonCopy
+            // 
+            this.buttonCopy.Location = new System.Drawing.Point(733, 412);
+            this.buttonCopy.Name = "buttonCopy";
+            this.buttonCopy.Size = new System.Drawing.Size(45, 46);
+            this.buttonCopy.TabIndex = 42;
+            this.buttonCopy.Text = "c";
+            this.buttonCopy.UseVisualStyleBackColor = true;
+            this.buttonCopy.Click += new System.EventHandler(this.buttonCopy_Click);
             // 
             // button5
             // 
@@ -600,25 +623,15 @@ namespace TestJsonRazbor
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // buttonCopy
+            // button6
             // 
-            this.buttonCopy.Location = new System.Drawing.Point(733, 412);
-            this.buttonCopy.Name = "buttonCopy";
-            this.buttonCopy.Size = new System.Drawing.Size(45, 46);
-            this.buttonCopy.TabIndex = 42;
-            this.buttonCopy.Text = "c";
-            this.buttonCopy.UseVisualStyleBackColor = true;
-            this.buttonCopy.Click += new System.EventHandler(this.buttonCopy_Click);
-            // 
-            // buttonPaste
-            // 
-            this.buttonPaste.Location = new System.Drawing.Point(733, 461);
-            this.buttonPaste.Name = "buttonPaste";
-            this.buttonPaste.Size = new System.Drawing.Size(45, 46);
-            this.buttonPaste.TabIndex = 43;
-            this.buttonPaste.Text = "p";
-            this.buttonPaste.UseVisualStyleBackColor = true;
-            this.buttonPaste.Click += new System.EventHandler(this.buttonPaste_Click);
+            this.button6.Location = new System.Drawing.Point(22, 32);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(184, 46);
+            this.button6.TabIndex = 34;
+            this.button6.Text = "button6";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // FormPipeline
             // 
@@ -698,5 +711,7 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button buttonPlantUml;
         private System.Windows.Forms.Button buttonPaste;
         private System.Windows.Forms.Button buttonCopy;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }

@@ -655,5 +655,10 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
             }
 
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
