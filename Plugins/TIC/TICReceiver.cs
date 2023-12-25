@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -9,11 +10,13 @@ namespace ParserLibrary
 {
     public class TICReceiver : Receiver, IDisposable
     {
-        public override ProtocolType protocolType => ProtocolType.tcp;
+        private readonly ActivitySource _activitySource = new(nameof(TICReceiver));
 
         private readonly IDisposable pushProperty;
         private IPEndPoint endpoint;
         private TICFrame Frame;
+
+        public int ticFrame = 5; //; { get; set; }
 
         public TICReceiver()
         {
@@ -24,7 +27,7 @@ namespace ParserLibrary
             pushProperty = LogContext.PushProperty("reciever", "TIC");
         }
 
-        public int ticFrame = 5; //; { get; set; }
+        public override ProtocolType protocolType => ProtocolType.tcp;
 /*                {
                     get => Frame.FrameNum;
                     set { Frame = TICFrame.GetFrame(value); }
@@ -91,11 +94,14 @@ namespace ParserLibrary
             using (LogContext.PushProperty("client", client.Client.RemoteEndPoint))
             {
                 Log.Information("Accepting client");
+                using var activity = _activitySource.StartActivity(ActivityKind.Server);
+                activity?.AddBaggage("client", client.Client.RemoteEndPoint?.ToString());
                 using var clientStream = client.GetStream();
                 try
                 {
                     while (!cancellationToken.IsCancellationRequested)
                     {
+                        using var inner_activity = _activitySource.StartActivity();
                         string TICMessageJson;
                         try
                         {

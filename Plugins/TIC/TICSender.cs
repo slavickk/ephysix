@@ -1,7 +1,6 @@
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using ParserLibrary.TIC.TICFrames;
-using PluginBase;
+using Serilog;
 using UniElLib;
 
 namespace ParserLibrary
@@ -9,13 +8,14 @@ namespace ParserLibrary
     public class TICSender : Sender
     {
         private TICFrame Frame;
-        private TcpClient? twfaclient;
-        public string twfaHost= "192.168.75.148";
-        public int twfaPort=5553;
-        public override TypeContent typeContent => TypeContent.json;
 
 
         public int ticFrame = 6;
+        private TcpClient? twfaclient;
+        public string twfaHost = "192.168.75.148";
+        public int twfaPort = 5553;
+
+        public override TypeContent typeContent => TypeContent.json;
 /*        {
             get => Frame.FrameNum;
             set => Frame = TICFrame.GetFrame(value);
@@ -30,9 +30,12 @@ namespace ParserLibrary
                 await twfaclient.ConnectAsync(twfaHost, twfaPort);
             }
 
+            Log.Debug("Request: {request}", JsonBody);
             NetworkStream stream = twfaclient.GetStream();
             await Frame.SerializeFromJson(stream, JsonBody);
-            return await Frame.DeserializeToJson(stream);
+            var resp = await Frame.DeserializeToJson(stream);
+            Log.Debug("Response: {response}", resp);
+            return resp;
         }
     }
 }

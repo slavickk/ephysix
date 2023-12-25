@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Sockets;
 using CCFAProtocols.TIC;
 using Serilog;
@@ -8,6 +9,7 @@ namespace ParserLibrary.TIC.TICFrames
     public abstract class TICFrame
     {
         public abstract int FrameNum { get; }
+        protected abstract ActivitySource _activitySource { get; init; }
 
         public abstract Task<long> DeserializeLength(Stream reader, CancellationToken cancellationToken);
         public abstract Task SerializeLength(Stream writer, long length, CancellationToken cancellationToken);
@@ -38,6 +40,7 @@ namespace ParserLibrary.TIC.TICFrames
             CancellationToken cancellationToken = default)
         {
             var bytes = TICMessage.SerializeFromJson(ticMessage);
+            Log.Debug("Serialized: {bytes}", bytes);
             await SerializeLength(writer, bytes.LongLength, cancellationToken);
             await writer.WriteAsync(bytes);
         }
