@@ -12,11 +12,7 @@ namespace ParserLibrary.TIC.TICFrames
             using var activity = _activitySource.StartActivity();
             var bytes = new byte[2];
             await reader.ReadAsync(bytes, cancellationToken);
-            if (!BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
+            Array.Reverse(bytes);
             return BitConverter.ToUInt16(bytes);
         }
 
@@ -26,11 +22,7 @@ namespace ParserLibrary.TIC.TICFrames
             using var activity = _activitySource.StartActivity();
             var _length = (ushort)length;
             var bytes = BitConverter.GetBytes(_length);
-            if (!BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
+            Array.Reverse(bytes);
             await writer.WriteAsync(bytes, cancellationToken);
         }
     }

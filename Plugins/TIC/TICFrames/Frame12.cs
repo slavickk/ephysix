@@ -14,11 +14,7 @@ namespace TIC.TICFrames
             using var activity = _activitySource.StartActivity();
             var bytes = new byte[4];
             await reader.ReadAsync(bytes, cancellationToken);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
+            Array.Reverse(bytes);
             return BitConverter.ToUInt32(bytes);
         }
 
@@ -26,11 +22,7 @@ namespace TIC.TICFrames
         {
             using var activity = _activitySource.StartActivity();
             var bytes = BitConverter.GetBytes((uint)length);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
+            Array.Reverse(bytes);
             await writer.WriteAsync(bytes, cancellationToken);
         }
     }
