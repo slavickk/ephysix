@@ -238,6 +238,7 @@ namespace ParserLibrary
                     }
                     catch (Exception e77)
                     {
+                        
                         metricCountOpened.Decrement();
                         metricErrors.Increment();
                         Logger.log("Error on input request ", e77, Serilog.Events.LogEventLevel.Error);

@@ -55,6 +55,9 @@
     <None Update="Data\model.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Data\TIC.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Data\TX-CCFA.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

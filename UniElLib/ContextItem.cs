@@ -15,6 +15,7 @@ namespace UniElLib
         public object context;
         public Activity mainActivity;
         public int increment;
+        public string fileNameT;
         //    public Scenario currentScenario = null;
 
         public string GetPrefix(string context)

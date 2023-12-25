@@ -46,6 +46,8 @@ public  class HTTPSender:Sender,ISelfTested
         }
         client = new HttpClient(handler);
         client.Timeout = TimeSpan.FromSeconds(timeoutSendInSeconds);
+       // client.DefaultRequestHeaders.Add("Content-Type", ResponseType);
+
     }
     private bool ServerCertificateCustomValidation(HttpRequestMessage requestMessage, X509Certificate2 certificate, X509Chain chain, SslPolicyErrors sslErrors)
     {
@@ -96,6 +98,8 @@ public  class HTTPSender:Sender,ISelfTested
 
         try
         {
+           // var stringContent = new StringContent("", UnicodeEncoding.UTF8, ResponseType);
+    
             var result = await client.GetAsync(urls[index]);
             if (!result.IsSuccessStatusCode)
             {

@@ -200,7 +200,7 @@ namespace TestJsonRazbor
             treeView1.Nodes.Clear();
             listBox1.Items.Clear();
             textBoxPipelineDescription.Text = pip.pipelineDescription;
-
+            button6.Text = pip.saver?.path ?? "no_log";
 
             buttonReceiverMoc.Enabled = buttonSenderMoc.Enabled = false;
             var prevStep = "";
@@ -671,6 +671,14 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
 
         private void button6_Click(object sender, EventArgs e)
         {
+            if (this.folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+                if (pip.saver == null)
+                    pip.saver = new ReplaySaver();
+                pip.saver.path = this.folderBrowserDialog1.SelectedPath;
+//                pip.saver.enable = true;
+                button6.Text=pip.saver.path;
+            }
 
         }
     }
