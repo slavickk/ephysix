@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Serilog;
 
 namespace ParserLibrary.TIC.TICFrames
 {
@@ -13,6 +14,7 @@ namespace ParserLibrary.TIC.TICFrames
             var bytes = new byte[2];
             await reader.ReadAsync(bytes, cancellationToken);
             Array.Reverse(bytes);
+            Log.Debug("Length bytes [{0} {1}]", bytes[0], bytes[1]);
             return BitConverter.ToUInt16(bytes);
         }
 
@@ -23,6 +25,7 @@ namespace ParserLibrary.TIC.TICFrames
             var _length = (ushort)length;
             var bytes = BitConverter.GetBytes(_length);
             Array.Reverse(bytes);
+            Log.Debug("Length bytes [{0} {1}]", bytes[0], bytes[1]);
             await writer.WriteAsync(bytes, cancellationToken);
         }
     }

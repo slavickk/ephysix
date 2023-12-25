@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Sockets;
 using ParserLibrary.TIC.TICFrames;
 using Serilog;
@@ -7,6 +8,7 @@ namespace ParserLibrary
 {
     public class TICSender : Sender
     {
+        private readonly ActivitySource _activitySource = new(nameof(TICSender));
         private TICFrame Frame;
 
 
@@ -23,8 +25,10 @@ namespace ParserLibrary
 
         public override async Task<string> send(string JsonBody, ContextItem context)
         {
+            using var activity = _activitySource.StartActivity();
             if (twfaclient is null || !twfaclient.Connected)
             {
+                activity.AddEvent(new ActivityEvent("Connect to twfa"));
                 Frame = TICFrame.GetFrame(ticFrame);
                 twfaclient = new TcpClient();
                 await twfaclient.ConnectAsync(twfaHost, twfaPort);
