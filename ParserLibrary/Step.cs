@@ -255,9 +255,10 @@ public partial class Step : ILiquidizable
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
         if(owner.saver?.enable ?? false)
         {
+            contextItem.fileNameT = Path.GetRandomFileName();
 /*            contextItem.currentScenario = new Scenario() { Description = $"new Scenario on {DateTime.Now}", mocs = new List<Scenario.Item>() };
             if (owner.saver != null)*/
-                owner.saver.save(input, contextItem + IDStep + "Receiver");
+                owner.saver.save(input, contextItem + IDStep + "Receiver_"+contextItem.fileNameT);
 
         }
         if (Pipeline.isSaveHistory)

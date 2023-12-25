@@ -12,7 +12,7 @@ public class ReplaySaver
     [YamlIgnore]
     public bool enable
     {
-        get => string.IsNullOrEmpty(path);
+        get => !string.IsNullOrEmpty(path);
     }
     public string path;
 
@@ -46,6 +46,12 @@ public class ReplaySaver
             }
         }
     }
+
+    /*string fileNamePatt = "";
+    public void setContext()
+    {
+        fileNamePatt = Path.GetRandomFileName();
+    }*/
     public virtual string save(string input, string context = "")
     {
         if (enable)
@@ -61,7 +67,7 @@ public class ReplaySaver
                 t.Start();
 
             }
-            var fileName = context + Path.GetRandomFileName();
+            var fileName = context ;
             SaveItem item = new SaveItem() { fileName = fileName, value = input.MaskSensitive() };
             queue.Enqueue(item);
             return item.fileName;
