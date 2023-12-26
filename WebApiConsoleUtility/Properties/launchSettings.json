@@ -16,7 +16,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "YAML_PATH": "../DataProject/Data/dummy_pipeline_KafkaReceiver.yml",
-//        "YAML_PATH": "../DataProject/Data/dummy_pipeline_KafkaSender.yml",
+        //        "YAML_PATH": "../DataProject/Data/dummy_pipeline_KafkaSender.yml",
         "SECRET_WORD": "qwe1234",
         "REX_URL": "http://nginx.service.consul",
         "DB_URL_FPDB": "master.pgsqlanomaly01.service.dc1.consul",
@@ -33,7 +33,14 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "YAML_PATH": "/app/Data/ACS_TW.yml",
+        "YAML_PATH": "/app/Data/TIC.yml",
+        "SECRET_WORD": "qwe1234",
+        "REX_URL": "http://nginx.service.consul",
+        "DB_URL_FPDB": "master.pgsqlanomaly01.service.dc1.consul",
+        "DB_USER_FPDB": "fp",
+        "DB_PASSWORD_FPDB": "rav1234",
+        "LOG_HISTORY_MODE": "yes",
+        "AUTH_HOST_URL": "http://10.74.28.30:30212",
         "LOG_LEVEL": "Debug"
       },
       "publishAllPorts": true,

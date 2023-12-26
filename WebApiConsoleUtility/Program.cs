@@ -5,7 +5,9 @@ using Microsoft.Extensions.Logging;
 using ParserLibrary;
 using Serilog;
 using Serilog.Core;
+using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
+using Serilog.Exceptions;
 using Serilog.Formatting.Compact;
 using System;
 using System.Collections.Generic;
@@ -26,6 +28,50 @@ namespace WebApiConsoleUtility
         public static int RequestQueueLimit = -1;
         public static Pipeline pip;
         static bool IgnoreAll = false;
+
+        private static Serilog.ILogger CreateSerilog(string ServiceName, LoggingLevelSwitch levelSwitch, bool isAsync, bool LogHttpRequest, bool maskedSensitive = false)
+        {
+            LoggerConfiguration log = null;
+            log = new LoggerConfiguration()
+                          .MinimumLevel.ControlledBy(levelSwitch)
+                   //            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                   .Enrich.WithExceptionDetails()
+                .Enrich.WithProperty("TraceID", ((System.Diagnostics.Activity.Current != null) ? System.Diagnostics.Activity.Current.TraceId.ToString() : "-"))
+                .Enrich.WithProperty("ThreadID", Thread.CurrentThread.ManagedThreadId)
+                .Enrich.WithProperty("Service", ServiceName)
+                .Filter.ByExcluding(c => !LogHttpRequest && c.Properties.ContainsKey("SourceContext") && c.Exception == null && c.Level != LogEventLevel.Error && c.Level != LogEventLevel.Fatal && c.Level != LogEventLevel.Warning)
+                /*                 .Filter.ByExcluding(c =>
+                                 c.Properties.ContainsKey("Method") && c.Properties["Method"].
+                                 c.Properties.ContainsKey("SourceContext")
+                                                  !LogHealthAndMonitoring &&
+                                                  (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
+                                 )*/
+                .Enrich.FromLogContext();
+            if (isAsync)
+                log = log.WriteTo.Async(writeTo => writeTo.Console(new RenderedCompactJsonFormatter()));
+            else
+                log = log.WriteTo.Console(new RenderedCompactJsonFormatter());
+            if (maskedSensitive)
+                log = log.Enrich.WithSensitiveDataMasking(
+        options =>
+        {
+            options.MaskingOperators = new List<IMaskingOperator>
+            {
+                new EmailAddressMaskingOperator(),
+                new IbanMaskingOperator(),
+                new CreditCardMaskingOperator()
+                // etc etc
+            };
+        });
+            return log.CreateLogger();
+            // <<#<<#<<
+
+
+
+
+        }
+
+
         public static async Task Main(string[] args)
         {
             /*            var req = Environment.GetEnvironmentVariable("MAX_CONCURRENT_REQUEST");
@@ -85,39 +131,39 @@ namespace WebApiConsoleUtility
                     levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
 
                 ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
+                Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch, Environment.GetEnvironmentVariable("SYNC_LOG") == null, Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
+                /*           if (LogPath == null)
+                               Log.Logger = new LoggerConfiguration()
+                               .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
+                       .Enrich.FromLogContext()
+                       .Enrich.WithProperty("Machine", System.Environment.MachineName)
+                                .Filter.ByExcluding(c => !LogHealthAndMonitoring &&
+                    (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
+                    )
 
-                if (LogPath == null)
-                    Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
-            .Enrich.FromLogContext()
-            .Enrich.WithProperty("Machine", System.Environment.MachineName)
-                     .Filter.ByExcluding(c => !LogHealthAndMonitoring &&
-         (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
-         )
+                       //        .Enrich.With<>
+                       .WriteTo.Console(new RenderedCompactJsonFormatter())
+                       .CreateLogger();
+                           else
+                           {
+                               Log.Logger = new LoggerConfiguration()
+                               .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
+                       .Enrich.FromLogContext()
+                       .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
 
-            //        .Enrich.With<>
-            .WriteTo.Console(new RenderedCompactJsonFormatter())
-            .CreateLogger();
-                else
-                {
-                    Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
-            .Enrich.FromLogContext()
-            .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
+                           }
+                       } else
+                       {
+                           Log.Logger = new LoggerConfiguration()
+                           .MinimumLevel.ControlledBy(new LoggingLevelSwitch())
+                   .Enrich.FromLogContext()
+                   .Enrich.WithProperty("Machine", System.Environment.MachineName)
+                   //        .Enrich.With<>
+                   .WriteTo.Console(new RenderedCompactJsonFormatter())
+                   .CreateLogger();
 
-                }
-            } else
-            {
-                Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(new LoggingLevelSwitch())
-        .Enrich.FromLogContext()
-        .Enrich.WithProperty("Machine", System.Environment.MachineName)
-        //        .Enrich.With<>
-        .WriteTo.Console(new RenderedCompactJsonFormatter())
-        .CreateLogger();
-
-            }
-            Log.Information($"Service url on {Pipeline.ServiceAddr}");
+                       }*/
+                Log.Information($"Service url on {Pipeline.ServiceAddr}");
             if (!IgnoreAll)
             {
                 if (levelInfo != "")
