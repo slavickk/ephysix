@@ -15,7 +15,7 @@ import logging
 #from sensitivedatalib import sensitivedatafinder
 
 
-logger.info(f'Start service version=0.0.20 ({__name__})')
+logger.info(f'Start service version=0.0.23 ({__name__})')
 
 def web(h, st):
     logger.info(f'Start WEB component (Health & Metrics)')
@@ -385,10 +385,10 @@ def mdcyrcle(cfg):
     engine_md.dispose()
 
 def getenv(cfg):
-    cfg['mddsn']      = 'master.pgsqlanomaly01.service.consul/fpdb' if 'MDDSN' not in os.environ else os.environ['MDDSN']
+    cfg['mddsn']      = 'master.pgsqlanomaly01.service.consul/fpdb' if 'DB_URL_FPDB' not in os.environ else os.environ['DB_URL_FPDB']
     cfg['mddriver']   = 'postgresql+psycopg2' if 'MDDRIVER' not in os.environ else os.environ['MDDRIVER']
-    cfg['mdlogin']    = 'md' if 'MDLOGIN' not in os.environ else os.environ['MDLOGIN']
-    cfg['mdpasswd']   = 'rav1234' if 'MDPASSWD' not in os.environ else os.environ['MDPASSWD']
+    cfg['mdlogin']    = 'md' if 'DB_USER_FPDB' not in os.environ else os.environ['DB_USER_FPDB']
+    cfg['mdpasswd']   = 'rav1234' if 'DB_PASSWORD_FPDB' not in os.environ else os.environ['DB_PASSWORD_FPDB']
     cfg['cryptopass'] = 'TestovyPass' if 'CRYPTOPASS' not in os.environ else os.environ['CRYPTOPASS']
     return cfg
 
@@ -404,6 +404,7 @@ def main(health):
             with health.get_lock():
                 health.value = 0  # OK
             time.sleep(60)
+            logger.info(f'Hr-r-r')
         except BaseException as err:
             logger.error(f'MAIN error: {err=}, {type(err)=}', extra={"Code": 1})
             with health.get_lock():

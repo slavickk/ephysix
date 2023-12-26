@@ -13,14 +13,14 @@ Service has some calls:
 
 ## Deployment
 ### Environments
-| ENV_NAME   | DEFAULT_VALUE         | POSSIBLE VALUES                       | IS NECCESARY | DEPENDENT VARIABLES | DESCRIPTION                                        |
-|------------|-----------------------|---------------------------------------|--------------|---------------------|----------------------------------------------------|
-| MDDSN      | 192.168.75.220/fpdb   |                                       | *            |                     | DSN базы данных для хранения                       |
-| MDDRIVER   | postgresql+psycopg2   |                                       | *            |                     | Драйвер БД для хранения в стиле SQLAlchemy         |
-| MDLOGIN    | md                    |                                       | *            |                     | Login name в базу MD                               |
-| MDPASSWD   | xxx                   |                                       | *            |                     | Password в базу DM                                 |
-| CRYPTOPASS | TestovyPass           |                                       | *            |                     | Пароль для шифрования чувствительных данных в базе |
-| LOG_LEVEL  | INFO                  | DEBUG, INFO, WARNING, ERROR, CRIDummyProtocol1AL | *            |                     | Уровень логирования                                |
+| ENV_NAME         | DEFAULT_VALUE       | POSSIBLE VALUES                       | IS NECCESARY | DEPENDENT VARIABLES | DESCRIPTION                                        |
+|------------------|---------------------|---------------------------------------|--------------|---------------------|----------------------------------------------------|
+| DB_URL_FPDB      | 192.168.75.220/fpdb |                                       | *            |                     | DSN базы данных для хранения                       |
+| MDDRIVER         | postgresql+psycopg2 |                                       | *            |                     | Драйвер БД для хранения в стиле SQLAlchemy         |
+| DB_USER_FPDB     | md                  |                                       | *            |                     | Login name в базу MD                               |
+| DB_PASSWORD_FPDB | xxx                 |                                       | *            |                     | Password в базу DM                                 |
+| CRYPTOPASS       | TestovyPass         |                                       | *            |                     | Пароль для шифрования чувствительных данных в базе |
+| LOG_LEVEL        | INFO                | DEBUG, INFO, WARNING, ERROR, CRIDummyProtocol1AL | *            |                     | Уровень логирования                                |
 
 ### Ports
 | PORT_NAME | DEFAULT_VALUE | PROTOCOL | HEALTHCHECK | HEALTHCHECK ROUTE | METRICS | METRICS ROUTE | DESCRIPTION |
