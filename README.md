@@ -1,4 +1,4 @@
-# <ServiceName> MetaData (v. 0.0.20)
+# <ServiceName> MetaData (v. 0.0.23)
 
 ---
 # <Short Description> Sync MetaData from all Sources
