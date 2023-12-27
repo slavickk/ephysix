@@ -92,46 +92,47 @@ namespace WebApiConsoleUtility
                                 levelSwitch.MinimumLevel = LogEventLevel.Warning;
                         };
                         levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);*/
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;     
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
             AssemblyLoadContext.Default.Unloading += Default_Unloading;
-            string LogPath =Environment.GetEnvironmentVariable("LOG_PATH");
+            string LogPath = Environment.GetEnvironmentVariable("LOG_PATH");
             string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
             string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
             string LOG_HISTORY_MODE = Environment.GetEnvironmentVariable("LOG_HISTORY_MODE");
             Pipeline.AgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
-            string sport= Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
+            string sport = Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
             string SAVE_CONTEXT = Environment.GetEnvironmentVariable("JAEGER_SAVE_CONTEXT");
             if (string.IsNullOrEmpty(sport))
                 Pipeline.AgentPort = -1;
             else
                 Pipeline.AgentPort = Convert.ToInt32(sport);
-            if(!string.IsNullOrEmpty(SAVE_CONTEXT))
-                Pipeline.saveContext= true;
+            if (!string.IsNullOrEmpty(SAVE_CONTEXT))
+                Pipeline.saveContext = true;
             else
                 Pipeline.saveContext = false;
             Pipeline.ServiceAddr = Environment.GetEnvironmentVariable(Pipeline.EnvironmentVar);
-            if(Pipeline.ServiceAddr == null)    
+            if (Pipeline.ServiceAddr == null)
                 Pipeline.ServiceAddr = "localhost:44352";
             LogEventLevel defLevel = LogEventLevel.Information;
             bool LogHealthAndMonitoring = (Environment.GetEnvironmentVariable("LOG_HELTH_CHECK") != null);
 
             // TODO: add Enrich with error details in the Serilog.Exception initialization
-            
+
             object outVal;
             string levelInfo = "";
             if (!IgnoreAll)
             {
                 if (LogLevel == null)
                     levelInfo = "LOG_LEVEL variable not set.Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
-                else
-                if (Enum.TryParse(typeof(LogEventLevel), LogLevel, true, out outVal))
+                else if (Enum.TryParse(typeof(LogEventLevel), LogLevel, true, out outVal))
                     defLevel = (LogEventLevel)outVal;
                 else
                     levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
 
                 ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
-                Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch, Environment.GetEnvironmentVariable("SYNC_LOG") == null, Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
+                Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch,
+                    Environment.GetEnvironmentVariable("SYNC_LOG") == null,
+                    Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
                 /*           if (LogPath == null)
                                Log.Logger = new LoggerConfiguration()
                                .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
@@ -164,114 +165,115 @@ namespace WebApiConsoleUtility
 
                        }*/
                 Log.Information($"Service url on {Pipeline.ServiceAddr}");
-            if (!IgnoreAll)
-            {
-                if (levelInfo != "")
-                    Log.Error(levelInfo);
-                //            ParserLibrary.Logger.levelSwitch.MinimumLevel = LogEventLevel.Debug;
-                try
+                if (!IgnoreAll)
                 {
-                    if (YamlPath == null)
-                    {
-                        YamlPath = "/app/Data/ACS_TW.yml";
-                        Log.Fatal($"YAML_PATH environment variable not set.Set default config file placed at {YamlPath} (saved in container)");
-                    }
-                    if (!File.Exists(YamlPath))
-                    {
-                        var cc = Directory.GetFiles("/app/Data", "*.*");
-                        Log.Fatal(YamlPath + "not accessible.");
-                        var dir = Directory.GetCurrentDirectory();
-                        var dirs1 = Directory.GetDirectories(dir);
-                        return;
-
-                    }
-                    if (Pipeline.AgentPort > 0)
-                        Log.Information($"set jaeger host {Pipeline.AgentHost} on port {Pipeline.AgentPort}");
-                    else
-                        Log.Information($"jaeger host not set");
-
-                    var yamlFullPath = Path.GetFullPath(YamlPath);
-                    Log.Information("... Parsing " + yamlFullPath);
+                    if (levelInfo != "")
+                        Log.Error(levelInfo);
+                    //            ParserLibrary.Logger.levelSwitch.MinimumLevel = LogEventLevel.Debug;
                     try
                     {
-                        pip = Pipeline.load(yamlFullPath, Assembly.GetAssembly(typeof(TICReceiver)));
-                    }
-                    catch(Exception e66) 
-                    {
-                        Log.Fatal($"Error parsing {e66}");
-                        return;
-                    }
-                    if (DEBUG_MODE != null)
-                    {
-                        pip.debugMode = true;
-                        Log.Information("Set debugMode ");
-                    }
-                    if (LOG_HISTORY_MODE != null)
-                    {
-                        Pipeline.isSaveHistory = true;
-                        Log.Information("Set logHistoryMode ");
-                    }
-
-                    Log.Information("Parsing done");
-                    if (!pip.skipSelfTest)
-                    {
-                        Log.Information("Making self test.");
-                        var res = await pip.SelfTest();
-                        var suc = res.Result;
-                        if (suc)
+                        if (YamlPath == null)
                         {
-                            Log.Information("Self test OK. Run pipeline.");
-                            pip.run().ContinueWith((runner) =>
+                            YamlPath = "/app/Data/ACS_TW.yml";
+                            Log.Fatal($"YAML_PATH environment variable not set.Set default config file placed at {YamlPath} (saved in container)");
+                        }
+                        if (!File.Exists(YamlPath))
+                        {
+                            var cc = Directory.GetFiles("/app/Data", "*.*");
+                            Log.Fatal(YamlPath + "not accessible.");
+                            var dir = Directory.GetCurrentDirectory();
+                            var dirs1 = Directory.GetDirectories(dir);
+                            return;
+
+                        }
+                        if (Pipeline.AgentPort > 0)
+                            Log.Information($"set jaeger host {Pipeline.AgentHost} on port {Pipeline.AgentPort}");
+                        else
+                            Log.Information($"jaeger host not set");
+
+                        var yamlFullPath = Path.GetFullPath(YamlPath);
+                        Log.Information("... Parsing " + yamlFullPath);
+                        try
+                        {
+                            pip = Pipeline.load(yamlFullPath, Assembly.GetAssembly(typeof(TICReceiver)));
+                        }
+                        catch (Exception e66)
+                        {
+                            Log.Fatal($"Error parsing {e66}");
+                            return;
+                        }
+                        if (DEBUG_MODE != null)
+                        {
+                            pip.debugMode = true;
+                            Log.Information("Set debugMode ");
+                        }
+                        if (LOG_HISTORY_MODE != null)
+                        {
+                            Pipeline.isSaveHistory = true;
+                            Log.Information("Set logHistoryMode ");
+                        }
+
+                        Log.Information("Parsing done");
+                        if (!pip.skipSelfTest)
+                        {
+                            Log.Information("Making self test.");
+                            var res = await pip.SelfTest();
+                            var suc = res.Result;
+                            if (suc)
+                            {
+                                Log.Information("Self test OK. Run pipeline.");
+                                pip.run().ContinueWith((runner) =>
                                 {
                                     Log.Information($"Pipeline execution stopped: IsFaulted={runner.IsFaulted}, exception: {runner.Exception?.ToString() ?? "None"}. Terminating application...");
                                     Console.WriteLine(runner.Exception?.ToString());
                                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                                     return;
                                 });
+                            }
+                            else
+                            {
+                                Log.Error("Self test failed. Pipeline won't be started. Running just the Integration Utility web host.");
+                                //                        return;
+
+                            }
                         }
                         else
                         {
-                            Log.Error("Self test failed. Pipeline won't be started. Running just the Integration Utility web host.");
-    //                        return;
-
+                            // TODO: deduplicate the code that runs the pipeline
+                            Log.Information("Running the pipeline without self-test because SkipSelfTest is true.");
+                            pip.run().ContinueWith((runner) =>
+                            {
+                                Log.Information("Pipeline execution stopped with result {a} exception {exc}.Terminating application...", runner.IsFaulted, runner.Exception?.ToString());
+                                Console.WriteLine(runner.Exception?.ToString());
+                                System.Diagnostics.Process.GetCurrentProcess().Kill();
+                            });
                         }
+
+                        Log.Information("Starting Integrity Utility web host ");
+                        if (LogPath == null)
+                            Log.Information("Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
+                        else
+                            Log.Information("Logging to " + LogPath + ".");
+                        await CreateHostBuilder(args).Build().RunAsync();
+
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        // TODO: deduplicate the code that runs the pipeline
-                        Log.Information("Running the pipeline without self-test because SkipSelfTest is true.");
-                        pip.run().ContinueWith((runner) =>
-                        {
-                            Log.Information("Pipeline execution stopped with result {a} exception {exc}.Terminating application...", runner.IsFaulted, runner.Exception?.ToString());
-                            Console.WriteLine(runner.Exception?.ToString());
-                            System.Diagnostics.Process.GetCurrentProcess().Kill();
-                        });
+                        Log.Fatal(ex, "Integrity Utility Host terminated unexpectedly");
+                        return;
                     }
-
+                    finally
+                    {
+                        Log.CloseAndFlush();
+                    }
+                }
+                else
+                {
                     Log.Information("Starting Integrity Utility web host ");
-                    if (LogPath == null)
-                        Log.Information("Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
-                    else
-                        Log.Information("Logging to " + LogPath + ".");
                     await CreateHostBuilder(args).Build().RunAsync();
-
                 }
-                catch (Exception ex)
-                {
-                    Log.Fatal(ex, "Integrity Utility Host terminated unexpectedly");
-                    return;
-                }
-                finally
-                {
-                    Log.CloseAndFlush();
-                }
-            } else
-            {
-                Log.Information("Starting Integrity Utility web host ");
-                await CreateHostBuilder(args).Build().RunAsync();
+                
             }
-
-
         }
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
