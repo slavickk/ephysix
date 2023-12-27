@@ -42,17 +42,18 @@ public class KafkaSender : ISender, IDisposable
         if (_producer == null)
             throw new InvalidOperationException("KafkaSender is not initialized");
         
-        var deliveryReport = await _producer.ProduceAsync(this.Topic, new Message<Null, string> { Value = message });
-        Logger.log($"Sent message to partition {deliveryReport.Partition} with offset {deliveryReport.Offset}. Status is {deliveryReport.Status}", LogEventLevel.Debug);
+        var deliveryResult = await _producer.ProduceAsync(this.Topic, new Message<Null, string> { Value = message });
+        Logger.log($"Sent message to partition {deliveryResult.Partition} with offset {deliveryResult.Offset}. Status is {deliveryResult.Status}", LogEventLevel.Debug);
 
-        return deliveryReport.Status switch
+        // DEBUG: this was to test Serilog enrichment with exception details - should be removed eventually
+        // throw new KafkaException("Test exception without any error", deliveryResult);
+
+        return deliveryResult.Status switch
         {
-            // TODO: more specific error?
-            PersistenceStatus.NotPersisted => throw new Exception("Message not delivered"),
-            // TODO: what should we do in this case?
-            PersistenceStatus.PossiblyPersisted => throw new Exception("Message may have been lost"),
+            PersistenceStatus.NotPersisted => throw new KafkaException("Message not delivered", deliveryResult: deliveryResult),
+            PersistenceStatus.PossiblyPersisted => throw new KafkaException("Message may have been lost", deliveryResult: deliveryResult),
             // TODO: reconsider the return value. What should we return after successfully sending a message to Kafka?
-            PersistenceStatus.Persisted => deliveryReport.Status.ToString(),
+            PersistenceStatus.Persisted => deliveryResult.Status.ToString(),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -61,7 +62,7 @@ public class KafkaSender : ISender, IDisposable
     {
         throw new NotImplementedException();
     }
-
+    
     void ISender.setTemplate(string key, string body)
     {
         throw new NotImplementedException();
