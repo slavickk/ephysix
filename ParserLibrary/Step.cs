@@ -351,7 +351,7 @@ public partial class Step : ILiquidizable
                 contextItem?.mainActivity?.SetTag("pipelineError", "true");
                 contextItem ? .mainActivity?.Stop();
                 contextItem?.mainActivity?.Dispose();
-                Logger.log($"On send error{e66.ToString()}", Serilog.Events.LogEventLevel.Error);
+                Logger.log($"On send error", e66, Serilog.Events.LogEventLevel.Error);
                 throw;
             }
         }
