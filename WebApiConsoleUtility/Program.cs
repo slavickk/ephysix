@@ -130,7 +130,9 @@ namespace WebApiConsoleUtility
                     levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
 
                 ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
-                Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch, Environment.GetEnvironmentVariable("SYNC_LOG") == null, Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
+                Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch,
+                    Environment.GetEnvironmentVariable("SYNC_LOG") == null,
+                    Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
                 /*           if (LogPath == null)
                                Log.Logger = new LoggerConfiguration()
                                .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
@@ -150,7 +152,7 @@ namespace WebApiConsoleUtility
                        .Enrich.FromLogContext()
                        .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
 
-                           }*/
+                           }
                        } else
                        {
                            Log.Logger = new LoggerConfiguration()
@@ -161,7 +163,7 @@ namespace WebApiConsoleUtility
                    .WriteTo.Console(new RenderedCompactJsonFormatter())
                    .CreateLogger();
 
-                       }
+                       }*/
                 Log.Information($"Service url on {Pipeline.ServiceAddr}");
                 if (!IgnoreAll)
                 {
@@ -270,7 +272,7 @@ namespace WebApiConsoleUtility
                     Log.Information("Starting Integrity Utility web host ");
                     await CreateHostBuilder(args).Build().RunAsync();
                 }
-                
+
             }
         }
 
@@ -278,15 +280,15 @@ namespace WebApiConsoleUtility
         {
             //Console.WriteLine("aa1");
             Log.Information("11 Signal detected");
-           
-//            throw new NotImplementedException();
+
+            //            throw new NotImplementedException();
         }
 
         private static void Default_Unloading(AssemblyLoadContext obj)
         {
             //Console.WriteLine("aa2");
             Log.Information("Signal detected");
-//            throw new NotImplementedException();
+            //            throw new NotImplementedException();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
