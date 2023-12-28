@@ -1,10 +1,148 @@
 {
-  "@t": "2023-10-23T12:34:07.3207681Z",
-  "@m": "\"<SOAP-ENV:Envelope xmlns:SOAP-ENV=\\\"http://schemas.xmlsoap.org/soap/envelope/\\\"><SOAP-ENV:Header/><SOAP-ENV:Body><Tran><Request InitiatorRid=\\\"ACS\\\" Kind=\\\"TdsPrepareAuth\\\" LifePhase=\\\"Single\\\" NetworkRid=\\\"ACS\\\" OrigTime=\\\"2023-10-23T12:33:26\\\" ProcessorInstRid=\\\"ACS\\\"><Parties><Cust Presence=\\\"true\\\"><Token Kind=\\\"Card\\\"><Card ExpDate=\\\"2025-12-01T00:00:00\\\" Pan=\\\"22200*****200\\\"><Tds NetworkType=\\\"MIR\\\"/></Card></Token></Cust><Term AcquirerRid=\\\"2201380101\\\"><Caps DeviceCategory=\\\"02\\\"/><Owner Country=\\\"643\\\" Mcc=\\\"3000\\\" MerchantRid=\\\"2201380101\\\" MerchantTitle=\\\"compass\\\" Rid=\\\"POS_1\\\" Title=\\\"compass_mrc_1\\\" Url=\\\"http://compassplus.ru\\\"/></Term></Parties><Match Key=\\\"9D313DB97181F159505725BF06A1928421E9794CEC10731E48C71F84AF0890E81bbf0a0a-0c9e-45fa-aab6-c799354c132d\\\" Nrn=\\\"1bbf0a0a-0c9e-45fa-aab6-c799354c132d\\\" Rrn=\\\"b1adad94-d525-4c48-aeae-d2befebdcdab\\\"/><Moneys><Cust Amt=\\\"25\\\" Ccy=\\\"840\\\"/></Moneys><Specific><Tds Version=\\\"2.2.0\\\"><Extensions><Extension criticalityIndicator=\\\"false\\\" id=\\\"ID1\\\" name=\\\"extensionField1\\\">{\\\"valueOne\\\":\\\"value\\\"}</Extension><Extension criticalityIndicator=\\\"false\\\" id=\\\"CpDummySystem1DeviceGuid\\\" name=\\\"CpDummySystem1DeviceGuid\\\">{ \\\"guid\\\": \\\"3823479b-fc38-4835-af6c-db99f90db669\\\" }</Extension></Extensions><CardholderInfo/><TranDetails BrowserInfo=\\\"eyJ2ZXJzaW9uIjoiMS4wIiwiYWNjZXB0TGFuZ3VhZ2UiOiJSVSIsImFjY2VwdEhlYWRlcnMiOiJ0ZXh0L2h0bWwsYXBwbGljYXRpb24veGh0bWwreG1sLGFwcGxpY2F0aW9uL3htbDtxPTAuOSxpbWFnZS9hdmlmLGltYWdlL3dlYnAsKi8qO3E9MC44IiwidXNlckFnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NDsgcnY6MTA5LjApIEdlY2tvLzIwMTAwMTAxIEZpcmVmb3gvMTE4LjAiLCJicm93c2VySXAiOiIxMC44LjE0LjEwOSIsInRpbWVab25lIjoiLTMwMCIsImNvbG9yRGVwdGgiOiIyNCIsInNjcmVlbkhlaWdodCI6IjI0Iiwic2NyZWVuV2lkdGgiOiIxOTIwIiwiamF2YXNjcmlwdEVuYWJsZWQiOiJ0cnVlIiwiamF2YUVuYWJsZWQiOiJmYWxzZSJ9\\\" DsReferenceNumber=\\\"1000\\\" MessageCategory=\\\"01\\\" TdsReqAuthIndicator=\\\"01\\\" TdsServerTranId=\\\"e7d7e22d-5f30-408a-b4c2-8a3930e0b11a\\\"/></Tds></Specific></Request></Tran></SOAP-ENV:Body></SOAP-ENV:Envelope>\" \"a8_Step_0Receiver\"",
-  "@i": "526e7c95",
-  "data": "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"><SOAP-ENV:Header/><SOAP-ENV:Body><Tran><Request InitiatorRid=\"ACS\" Kind=\"TdsPrepareAuth\" LifePhase=\"Single\" NetworkRid=\"ACS\" OrigTime=\"2023-10-23T12:33:26\" ProcessorInstRid=\"ACS\"><Parties><Cust Presence=\"true\"><Token Kind=\"Card\"><Card ExpDate=\"2025-12-01T00:00:00\" Pan=\"22200*****200\"><Tds NetworkType=\"MIR\"/></Card></Token></Cust><Term AcquirerRid=\"2201380101\"><Caps DeviceCategory=\"02\"/><Owner Country=\"643\" Mcc=\"3000\" MerchantRid=\"2201380101\" MerchantTitle=\"compass\" Rid=\"POS_1\" Title=\"compass_mrc_1\" Url=\"http://compassplus.ru\"/></Term></Parties><Match Key=\"9D313DB97181F159505725BF06A1928421E9794CEC10731E48C71F84AF0890E81bbf0a0a-0c9e-45fa-aab6-c799354c132d\" Nrn=\"1bbf0a0a-0c9e-45fa-aab6-c799354c132d\" Rrn=\"b1adad94-d525-4c48-aeae-d2befebdcdab\"/><Moneys><Cust Amt=\"25\" Ccy=\"840\"/></Moneys><Specific><Tds Version=\"2.2.0\"><Extensions><Extension criticalityIndicator=\"false\" id=\"ID1\" name=\"extensionField1\">{\"valueOne\":\"value\"}</Extension><Extension criticalityIndicator=\"false\" id=\"CpDummySystem1DeviceGuid\" name=\"CpDummySystem1DeviceGuid\">{ \"guid\": \"3823479b-fc38-4835-af6c-db99f90db669\" }</Extension></Extensions><CardholderInfo/><TranDetails BrowserInfo=\"eyJ2ZXJzaW9uIjoiMS4wIiwiYWNjZXB0TGFuZ3VhZ2UiOiJSVSIsImFjY2VwdEhlYWRlcnMiOiJ0ZXh0L2h0bWwsYXBwbGljYXRpb24veGh0bWwreG1sLGFwcGxpY2F0aW9uL3htbDtxPTAuOSxpbWFnZS9hdmlmLGltYWdlL3dlYnAsKi8qO3E9MC44IiwidXNlckFnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NDsgcnY6MTA5LjApIEdlY2tvLzIwMTAwMTAxIEZpcmVmb3gvMTE4LjAiLCJicm93c2VySXAiOiIxMC44LjE0LjEwOSIsInRpbWVab25lIjoiLTMwMCIsImNvbG9yRGVwdGgiOiIyNCIsInNjcmVlbkhlaWdodCI6IjI0Iiwic2NyZWVuV2lkdGgiOiIxOTIwIiwiamF2YXNjcmlwdEVuYWJsZWQiOiJ0cnVlIiwiamF2YUVuYWJsZWQiOiJmYWxzZSJ9\" DsReferenceNumber=\"1000\" MessageCategory=\"01\" TdsReqAuthIndicator=\"01\" TdsServerTranId=\"e7d7e22d-5f30-408a-b4c2-8a3930e0b11a\"/></Tds></Specific></Request></Tran></SOAP-ENV:Body></SOAP-ENV:Envelope>",
-  "context": "a8_Step_0Receiver",
-  "ctn": "hist",
-  "ConnectionId": "0HMUIMJ1D9G6R",
-  "Machine": "1ea0bfee73c2"
+  "Fields": {
+    "AccountBalanceData": {
+      "AvailableBalance": 0,
+      "BalanceCurrency": false,
+      "LedgerBalance": 0
+    },
+    "AcquiringInstitutionIdentification": "00000000001",
+    "AdditionalPOSData": {
+      "Clerk": "",
+      "CVV2": "",
+      "DraftCapture": 1,
+      "InvoiceNumber": "",
+      "PosBatchAndShiftData": "",
+      "TransactionCategory": 0
+    },
+    "CardIssuerData": {
+      "AuthFIName": "DEMO",
+      "AuthPSName": "CPLS"
+    },
+    "AcquirerFeeAmount": {
+      "IsWithdraw": true,
+      "_isWithdraw": "D",
+      "Amount": 0
+    },
+    "MBR": 0,
+    "MiscellaneousTransactionAttributes": {
+      "Type": 3,
+      "Value": {
+        "CC": {
+          "Value": "0",
+          "Type": 0
+        },
+        "CH": {
+          "Value": "855090FBBD5B2F21",
+          "Type": 0
+        },
+        "IB": {
+          "Value": "11000",
+          "Type": 0
+        },
+        "IC": {
+          "Value": "4",
+          "Type": 0
+        },
+        "PT": {
+          "Value": "0D30C7826AD7298F",
+          "Type": 0
+        },
+        "SPA": {
+          "Value": "0",
+          "Type": 0
+        },
+        "TCE": {
+          "Value": "0",
+          "Type": 0
+        }
+      }
+    },
+    "MiscellaneousTransactionAttributes2": {
+      "Type": 3,
+      "Value": {
+        "EC": {
+          "Type": 3,
+          "Value": {
+            "3DS/3DS2ProtovolVer": {
+              "Value": "2.2.0",
+              "Type": 0
+            },
+            "3DS/PrepareAuthTranId": {
+              "Value": "9099208",
+              "Type": 0
+            },
+            "3DS/RegDevice": {
+              "Value": "N",
+              "Type": 0
+            },
+            "3DS/SwitchAuthMethodRequired": {
+              "Value": "0",
+              "Type": 0
+            },
+            "Ext/Network": {
+              "Value": "44",
+              "Type": 0
+            },
+            "Merchant/WhitelistingConfirm": {
+              "Value": "N",
+              "Type": 0
+            }
+          }
+        },
+        "GT": {
+          "Value": "20231227122306",
+          "Type": 0
+        }
+      }
+    },
+    "NumericMessage": 0,
+    "PAN": "22200*****037",
+    "POSConditionCode": 0,
+    "POSEntryMode": {
+      "EntryMethod": 0,
+      "PinMethod": 1
+    },
+    "ProcessingCode": {
+      "FromAccountType": 1,
+      "ToAccountType": 0,
+      "TransactionCode": 624
+    },
+    "SecureData3D": "0000000089d6dc11df90421e8916ffedba7fcd37",
+    "SytemTraceAuditNumber": 881428,
+    "Track2": "22200*****037=2512",
+    "TransactionAmount": 2536,
+    "TransactionCurrencyCode": 840,
+    "TransactionRetrievalReferenceNumber": "000009099217",
+    "TransmissionGreenwichTime": "1227072306",
+    "CardAcceptorTerminal": {
+      "ID": "EC2",
+      "Info": {
+        "Address": "",
+        "Branch": "",
+        "City": "",
+        "Class": 4,
+        "CountryCode": 643,
+        "CountyCode": 0,
+        "Date": "00000000",
+        "FiName": "",
+        "Owner": "POS_1",
+        "PSName": "CPLS",
+        "Region": "",
+        "RetailerName": "compass_mrc_1",
+        "StateCode": 0,
+        "TimeOffset": 0,
+        "ZipCode": 0
+      }
+    },
+    "LocalTransactionTime": "12:23:06",
+    "LocalTransactionDate": "2023-12-27T00:00:00"
+  },
+  "Header": {
+    "ProtocolVersion": 19,
+    "RejectStatus": 0
+  },
+  "MessageType": {
+    "IsReject": false,
+    "TypeIdentifier": 103
+  }
 }
