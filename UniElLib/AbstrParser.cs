@@ -482,10 +482,21 @@ namespace UniElLib
             public UniEl copy(UniEl newAncestor)
             {
                 var newEl= new UniEl(newAncestor) { Name = this.Name, Value = Value };
-                foreach (var nod in childs)
-                    nod.copy(newEl);
+                /*if(ancestor.Name.Contains("BrowserInfo"))
+                {
+                    int yy = 0;
+                }
+                if(childs.Count >0 && value1 != null)
+                {
+                    int yy = 0;
+                }*/
+                if (!isExpandedNode)
+                {
+                    foreach (var nod in childs)
+                        nod.copy(newEl);
+                }
 //                    newEl.childs.Add(nod.copy(newEl));
-                if (childs.Count == 0)
+                if (childs.Count == 0 || isExpandedNode)
                     newEl.value1 = Value;
 
                 return newEl;
@@ -506,6 +517,7 @@ namespace UniElLib
                                 foreach (var pars in AbstrParser.availParser)
                                     if (pars.canRazbor(this.value1.ToString(), this, context.list, true))
                                     {
+                                        isExpandedNode = true;
                                         break;
                                     }
                             }
@@ -559,6 +571,7 @@ namespace UniElLib
                     return ancestor1;
                 }
             }
+            public bool isExpandedNode = false;
             public List<UniEl> childs = new List<UniEl>();
             public List<int> aaa = new List<int>();
             public Drawer treeNode= null;

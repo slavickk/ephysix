@@ -77,6 +77,8 @@ namespace UniElLib
         {
             public static string MaskSensitiveInfo(string input, int n, int k, int m)
             {
+                if (string.IsNullOrEmpty(input))
+                    return input;
                 // Create a regular expression pattern to match the sensitive information
                 string pattern = @"\b\d{16,24}\b";
                 Regex regex = new Regex(pattern);

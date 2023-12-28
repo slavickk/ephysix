@@ -130,9 +130,7 @@ namespace WebApiConsoleUtility
                     levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
 
                 ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
-                Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch,
-                    Environment.GetEnvironmentVariable("SYNC_LOG") == null,
-                    Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
+                Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch, Environment.GetEnvironmentVariable("SYNC_LOG") == null, Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
                 /*           if (LogPath == null)
                                Log.Logger = new LoggerConfiguration()
                                .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
@@ -152,7 +150,7 @@ namespace WebApiConsoleUtility
                        .Enrich.FromLogContext()
                        .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
 
-                           }
+                           }*/
                        } else
                        {
                            Log.Logger = new LoggerConfiguration()
@@ -163,7 +161,7 @@ namespace WebApiConsoleUtility
                    .WriteTo.Console(new RenderedCompactJsonFormatter())
                    .CreateLogger();
 
-                       }*/
+                       }
                 Log.Information($"Service url on {Pipeline.ServiceAddr}");
                 if (!IgnoreAll)
                 {

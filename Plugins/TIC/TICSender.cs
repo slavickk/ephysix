@@ -28,7 +28,7 @@ namespace ParserLibrary
             using var activity = _activitySource.StartActivity();
             if (twfaclient is null || !twfaclient.Connected)
             {
-                activity.AddEvent(new ActivityEvent("Connect to twfa"));
+                activity?.AddEvent(new ActivityEvent("Connect to twfa"));
                 Frame = TICFrame.GetFrame(ticFrame);
                 twfaclient = new TcpClient();
                 await twfaclient.ConnectAsync(twfaHost, twfaPort);

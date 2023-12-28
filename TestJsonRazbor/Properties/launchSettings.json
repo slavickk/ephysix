@@ -4,8 +4,8 @@
       "commandName": "Project",
       "environmentVariables": {
         "SECRET_WORD": "QWE123",
-        "BUFF_DIR":"/CACHE1",
-        "REX_URL": "http://nginx.service.consul",
+        "BUFF_DIR": "/CACHE1",
+        "REX_URL": "http://nginx-np.service.dev-ep.consul:30011",
         "YAML_PATH": "Data\\ACS_TW.yml",
         "AUTH_HOST_URL": "http://10.74.28.30:30212",
         "FID": "Bank1",
