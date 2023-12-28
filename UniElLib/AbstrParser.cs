@@ -517,6 +517,7 @@ namespace UniElLib
                                 foreach (var pars in AbstrParser.availParser)
                                     if (pars.canRazbor(this.value1.ToString(), this, context.list, true))
                                     {
+
                                         isExpandedNode = true;
                                         break;
                                     }
