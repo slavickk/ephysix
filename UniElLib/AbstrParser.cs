@@ -334,7 +334,7 @@ namespace UniElLib
                     Namespace = GetNamespace(namespaces, Namespace);
 
 
-                if (this.Name.Substring(0, 1) == "-")
+                if ( this.Name.Substring(0, 1) == "-")
                 {
                         XmlAttribute attr = xmlDoc.CreateAttribute(Name.Substring(1));
                         attr.Value = getXMLText();
@@ -354,7 +354,7 @@ namespace UniElLib
 
             private string GetNamespace(List<NamespaceItem> namespaces, string Namespace)
             {
-                if (Name.Substring(0, 1) != "-")
+                if (!string.IsNullOrEmpty(Name) && Name.Substring(0, 1) != "-")
                 {
                     var item = namespaces.FirstOrDefault(ii => !String.IsNullOrEmpty(ii.Name) && Name.Contains(ii.Name)  );
                     if (item != null)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ETL_DB_Interface;
@@ -19,6 +20,7 @@ namespace TestJsonRazbor
         [STAThread]
         static void Main(string[] args)
         {
+            Pipeline.pluginAssemblies.Add(Assembly.GetAssembly(typeof(ParserLibrary.TICReceiver)));
          //   MXHelper.getExample();
             if(args.Length >0)
                 ExecutedPath = args[0];

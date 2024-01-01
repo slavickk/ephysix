@@ -90,7 +90,7 @@ steps:
     connectionTimeoutInMilliseconds: 5000
     saver: 
     cantTryParse: false
-    mocFile: C:\D\OUT_TIC\UniElLib.ContextItemStep_0Receiver_0py5atj0.xjb
+    mocFile: C:\D\OUT_TIC\UniElLib.ContextItemStep_0Receiver_0fbyizt5.nag
     mocBody: ''
   ireceiver: 
   converters:
@@ -123,8 +123,8 @@ steps:
       getNodeNameOnly: false
       returnOnlyFirstRow: true
       value: {#FID#}
-    - !ExtractFromInputValue
-      copyChildsOnly: false
+    - !ConstantValue
+      typeConvert: String
       viewAsJsonString: false
       outputPath: originalTime
       isUniqOutputPath: false
@@ -132,10 +132,8 @@ steps:
       onEmptyValueAction: Skip
       converter: 
       getNodeNameOnly: false
-      returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/Request/OriginalTime/#text
-      conditionCalcer: 
-      valuePath: ''
+      returnOnlyFirstRow: true
+      value: $curr_time$
     - !ExtractFromInputValue
       copyChildsOnly: false
       viewAsJsonString: false
