@@ -173,19 +173,25 @@ public class Pipeline:ILiquidizable
         return (retValue,description);
     }
     
+
+    public static List<Assembly> pluginAssemblies = new List<Assembly>();
+
     /// <summary>
     /// Returns the list of all plugin types that must be available during pipeline deserialization.
     /// </summary>
     /// <returns></returns>
+    /// 
+
+
     public static List<Type> getAllPluginTypes()
     {
         // Predicate to determine whether a type should be available during pipeline deserialization 
         bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t) || typeof(Receiver).IsAssignableFrom(t) || typeof(Sender).IsAssignableFrom(t);
 
         // TODO: make the list of plugin assemblies configurable
-        var pluginAssemblyNames = new string [] { /*"Plugins.dll"*/ };
+/*        var pluginAssemblyNames = new string [] {  };
         var pluginAssemblies = pluginAssemblyNames.Select(Assembly.LoadFrom).ToList();
-
+  */      
         // Find all types that must be accessible during pipeline deserialization
         var pluginClasses = pluginAssemblies.SelectMany(a => a.GetTypes()).Where(TypeShouldbBeRegistered).ToList();
         
