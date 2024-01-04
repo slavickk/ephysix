@@ -73,6 +73,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataProject", "DataProject\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MXGraphHelperLibrary", "MXGraphHelperLibrary\MXGraphHelperLibrary.csproj", "{78E9A743-1585-42D9-83A9-064C68660BB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaTests", "KafkaTests\KafkaTests.csproj", "{32AD0F62-0BF8-4B71-8AD4-82AA8EA441DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaTestsConsumer", "KafkaTestsConsumer\KafkaTestsConsumer.csproj", "{97075CA5-383A-4256-882B-33641AB463C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -219,6 +223,14 @@ Global
 		{78E9A743-1585-42D9-83A9-064C68660BB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78E9A743-1585-42D9-83A9-064C68660BB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78E9A743-1585-42D9-83A9-064C68660BB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32AD0F62-0BF8-4B71-8AD4-82AA8EA441DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32AD0F62-0BF8-4B71-8AD4-82AA8EA441DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32AD0F62-0BF8-4B71-8AD4-82AA8EA441DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32AD0F62-0BF8-4B71-8AD4-82AA8EA441DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97075CA5-383A-4256-882B-33641AB463C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97075CA5-383A-4256-882B-33641AB463C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97075CA5-383A-4256-882B-33641AB463C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97075CA5-383A-4256-882B-33641AB463C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
