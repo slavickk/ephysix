@@ -222,7 +222,18 @@ public class Pipeline:ILiquidizable
 
         //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
     }
-    DateTime timeStart=DateTime.Now;
+    static bool predicateParser(Type t)
+    {
+        return t.IsAssignableTo(typeof(AbstrParser));
+    }
+    static List<Type> getAllRegTypesParser(Assembly addAssembly)
+    {
+        return 
+            addAssembly.GetTypes().Where(t => predicateParser(t)).ToList();
+
+        //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
+    }
+    DateTime timeStart =DateTime.Now;
     //public Assembly addAssembly;
     public Pipeline()
     {
@@ -468,6 +479,7 @@ public class Pipeline:ILiquidizable
     {
         occurencyItems.Clear();
         var ser = new DeserializerBuilder();
+        AddCustomParsers(assembly);
         foreach (var type in getAllRegTypes(assembly))
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
         // Now register the plugins, but use their FullName for tags
@@ -487,12 +499,12 @@ public class Pipeline:ILiquidizable
             }
             //    MessageBox.Show($"{var}:{val}");
             int index = -1;
-            while( (index=Body.IndexOf("{#" + var + "#}",index+1)) != -1)
+            while ((index = Body.IndexOf("{#" + var + "#}", index + 1)) != -1)
             {
                 int indexBeg = Body.LastIndexOf("\n", index);
-                occurencyItems.Add(new occurencyItem() { pattern =((indexBeg>=0)? (Body.Substring(indexBeg+1,index-indexBeg-1)):""), variable = var , value=val});
+                occurencyItems.Add(new occurencyItem() { pattern = ((indexBeg >= 0) ? (Body.Substring(indexBeg + 1, index - indexBeg - 1)) : ""), variable = var, value = val });
             }
-           // Body.
+            // Body.
         }
         foreach (var var in getEnvVariables(Body))
         {
@@ -513,6 +525,14 @@ public class Pipeline:ILiquidizable
         }
         InitJaeger(pip.pipelineDescription);
         return pip;
+    }
+
+    public static void AddCustomParsers(Assembly assembly)
+    {
+        foreach (var type in getAllRegTypesParser(assembly))
+        {
+            AbstrParser.availParser.Add(Activator.CreateInstance(type) as AbstrParser);
+        }
     }
 
     /*  public static Pipeline loadFromString(string content)

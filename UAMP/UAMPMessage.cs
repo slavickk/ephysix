@@ -24,6 +24,29 @@ namespace UAMP
         }
 
 
+        public static bool isUAMPMessage(string uampmessage)
+        {
+            string[] parameters = Regex.Split(uampmessage, ParameterSeparator);
+            if(parameters.Length ==0)   
+                return false;
+            foreach (var parameter in parameters)
+            {
+                var keyval = parameter.Split((char)Symbols.Eq, 2);
+                if (keyval.Length < 2)
+                {
+                    if (keyval[0].Length == 1 && keyval[0][0] == (char)Symbols.NI)
+                    {
+                        continue;
+                    }
+
+                    return false;
+                }
+
+//                Value[keyval[0]] = ParseValue(keyval[1]);
+            }
+            return true;
+        }
+
         /// <summary>
         ///     Parse UAMP Message from string
         /// </summary>

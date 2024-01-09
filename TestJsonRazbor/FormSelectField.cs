@@ -457,7 +457,7 @@ namespace TestJsonRazbor
                 if (line != "")
                 {
                     foreach (var pars in AbstrParser.availParser)
-                        if (pars.canRazbor(line, rootEl, list))
+                        if (pars.canRazbor("", line, rootEl, list))
                             break;
                 }
 

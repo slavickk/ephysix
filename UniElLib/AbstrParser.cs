@@ -15,6 +15,7 @@ using System.Net.Sockets;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using DotLiquid;
+using System.Collections.Concurrent;
 
 namespace UniElLib
 {
@@ -114,7 +115,7 @@ namespace UniElLib
             {
                 //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
                 foreach (var pars in AbstrParser.availParser)
-                    if (pars.canRazbor(templ, rootElement, list))
+                    if (pars.canRazbor("", templ, rootElement, list))
                     {
 
                     }
@@ -193,9 +194,33 @@ namespace UniElLib
 
 
        // public static Drawer treeView1;
+        public static ConcurrentDictionary<string,AbstrParser> preferrableParsers= new ConcurrentDictionary<string, AbstrParser>();
         public static List<AbstrParser> availParser = new List<AbstrParser>() { new JsonParser(), new XmlParser(), new Base64Parser(), new IPAddrParser() };
         public static DrawerFactory drawerFactory;
-        
+
+
+        public static bool getApropriateParser(string context, string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
+        {
+            if (!string.IsNullOrEmpty(context)) 
+            {
+                if(preferrableParsers.TryGetValue(context, out var parser))
+                {
+                    return parser.canRazbor(context,line, ancestor, list, cantTryParse);
+                }
+            }
+            foreach (var pars in AbstrParser.availParser)
+                if (pars.canRazbor(context, line, ancestor, list, cantTryParse))
+                {
+                    if (!string.IsNullOrEmpty(context))
+                        preferrableParsers.TryAdd(context, pars);
+                    return true;
+                }
+                return false;
+
+        }
+
+
+
         /// <summary>
         /// Determines whether the given line can be parsed by this parser and creates corresponding UniEl nodes in the ancestor node.
         /// </summary>
@@ -204,7 +229,10 @@ namespace UniElLib
         /// <param name="list">The list of UniEl nodes to add new nodes to.</param>
         /// <param name="cantTryParse">A boolean value indicating whether to try parsing complex fields.</param>
         /// <returns>A boolean value indicating whether the line was successfully parsed and corresponding nodes were created.</returns>
-        public abstract bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false);
+        /// 
+
+
+        public abstract bool canRazbor(string context,string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false);
         public virtual bool canRazbor(byte[] bytes, UniEl ancestor, List<UniEl> list)
         {
             return false;
@@ -514,12 +542,13 @@ namespace UniElLib
                         {
                             if (this.childs.Count == 0 && index < path.Length - 1 && this.value1!= null && context != null)
                             {
-                                foreach (var pars in AbstrParser.availParser)
-                                    if (pars.canRazbor(this.value1.ToString(), this, context.list, true))
+                                if(AbstrParser.getApropriateParser("Nod_"+this.Name, this.value1.ToString(), this, context.list, true))
+/*                                foreach (var pars in AbstrParser.availParser)
+                                    if (pars.canRazbor(this.value1.ToString(), this, context.list, true))*/
                                     {
 
                                         isExpandedNode = true;
-                                        break;
+                                        //break;
                                     }
                             }
 
@@ -656,16 +685,18 @@ namespace UniElLib
             return false;
         }
 
-        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse=false)
+        public override bool canRazbor(string context,string line, UniEl ancestor, List<UniEl> list, bool cantTryParse=false)
         {
             //            line = @"eyJCcmFuZCI6InhpYW9taSIsIkhhc05mY0hjZSI6ZmFsc2UsIkhhc0ZwU2Nhbm5lciI6dHJ1ZSwiSWQiOiIwNjZhY2MwMDE4ZDA1NWRiIiwiTWFudWZhY3RvcmVyIjoiWGlhb21pIiwiTW9kZWwiOiJSZWRtaSBOb3RlIDciLCJPc1ZlcnNpb24iOjI4LCJQcm9kdWN0IjoiQW5kcm9pZCIsIlJhbU1iIjoyNTYsIlNjcmVlbkRwaSI6IlhYSERQSSIsIlNjcmVlbkhlaWdodFB4IjoyMTMxLCJTY3JlZW5XaWR0aFB4IjoxMDgwLCJTY3JlZW5TaXplSW5jaGVzIjoyLjYzNzgwMDd9";
             byte[] bytes;
             if (IsBase64(line, out bytes))
             {
                 string value = System.Text.Encoding.UTF8.GetString(bytes);
-                foreach (var pars in availParser)
-                    if (pars.canRazbor(value, ancestor, list,cantTryParse))
-                        return true;
+                if(AbstrParser.getApropriateParser("BASE64_" + context, value, ancestor, list, cantTryParse))
+                    return true;
+/*                foreach (var pars in availParser)
+                    if (pars.canRazbor("BASE64_"+context, value, ancestor, list,cantTryParse))
+                        return true;*/
 
                 int yy = 0;
             }
@@ -765,7 +796,7 @@ namespace UniElLib
         От 192.168.0.0 до 192.168.255.255 с маской 255.255.0.0 или /16
         От 100.64.0.0 до 100.127.255.255 с маской подсети 255.192.0.0
           */
-        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
+        public override bool canRazbor(string context,string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
         {
        //     return false;
             Match match = Regex.Match(line, @"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
@@ -831,7 +862,7 @@ namespace UniElLib
     }
     public class XmlParser : AbstrParser
     {
-        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
+        public override bool canRazbor(string context, string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
         {
             if (line.Contains("<SOAP-ENV"))
             {
@@ -900,8 +931,9 @@ namespace UniElLib
                     {
                         if (!cantTryParse)
                         {
-                            foreach (var pars in availParser)
-                                if (pars.canRazbor(property.InnerText, newEl, list))
+                            if(AbstrParser.getApropriateParser("Prop_"+property.Name, property.InnerText, newEl, list))
+/*                            foreach (var pars in availParser)
+                                if (pars.canRazbor(property.InnerText, newEl, list))*/
                                 {
                                     if (includeBodyOnComplexField)
                                         newEl.Value = property.InnerText;
@@ -921,7 +953,7 @@ namespace UniElLib
     public class JsonParser : AbstrParser
     {
         static string rootEls = "";
-        public override bool canRazbor(string line, UniEl ancestor, List<UniEl> list,bool cantTryParse=false)
+        public override bool canRazbor(string context, string line, UniEl ancestor, List<UniEl> list,bool cantTryParse=false)
         {
             var line1 = line.Trim();
 
@@ -1001,6 +1033,10 @@ namespace UniElLib
                 {
                     var type = property.GetType();
                     var name = property.Name;
+                    if(name== "BrowserInfo")
+                    {
+
+                    }
                     if (ancestor == null)
                     {
                         rootEls += (name + ";");
@@ -1048,8 +1084,9 @@ namespace UniElLib
                             }
                             if (!cantTryParse)
                             {
-                                foreach (var pars in availParser)
-                                    if (pars.canRazbor(value.ToString(), newEl, list))
+                                if(AbstrParser.getApropriateParser("Prop_"+property.Name, value.ToString(), newEl, list))
+                                /*foreach (var pars in availParser)
+                                    if (pars.canRazbor(value.ToString(), newEl, list))*/
                                     {
                                         if (includeBodyOnComplexField)
                                             newEl.Value = GetObject(value);

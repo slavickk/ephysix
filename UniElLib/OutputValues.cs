@@ -252,7 +252,7 @@ public class TemplateOutputValue : OutputValue
             {
                 //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
                 foreach (var pars in AbstrParser.availParser)
-                    if (pars.canRazbor(templ, rootElement, list))
+                    if (pars.canRazbor("", templ, rootElement, list))
                     {
                     }
             }

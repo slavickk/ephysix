@@ -260,9 +260,10 @@ namespace TestJsonRazbor
                 var line =sr.ReadToEnd();
                 if (line != "")
                 {
-                    foreach (var pars in AbstrParser.availParser)
+                    AbstrParser.getApropriateParser("", line, rootEl, list);
+/*                    foreach (var pars in AbstrParser.availParser)
                         if (pars.canRazbor(line, rootEl, list))
-                            break;
+                            break;*/
                 }
 /*                while (!sr.EndOfStream && ind < 50)
                 {
@@ -856,7 +857,7 @@ namespace TestJsonRazbor
                         if (line != "")
                         {
                             foreach (var pars in AbstrParser.availParser)
-                                if (pars.canRazbor(line, rootEl, list))
+                                if (pars.canRazbor("",line, rootEl, list))
                                     break;
                         }
 
