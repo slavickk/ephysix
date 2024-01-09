@@ -77,6 +77,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaTests", "KafkaTests\Ka
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaTestsConsumer", "KafkaTestsConsumer\KafkaTestsConsumer.csproj", "{97075CA5-383A-4256-882B-33641AB463C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummySystem1Protocols.Console", "DummySystem1Protocols.Console\DummySystem1Protocols.Console.csproj", "{72392A8D-BD88-43BE-A068-EB13CC3092C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -231,6 +233,10 @@ Global
 		{97075CA5-383A-4256-882B-33641AB463C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97075CA5-383A-4256-882B-33641AB463C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97075CA5-383A-4256-882B-33641AB463C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72392A8D-BD88-43BE-A068-EB13CC3092C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72392A8D-BD88-43BE-A068-EB13CC3092C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72392A8D-BD88-43BE-A068-EB13CC3092C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72392A8D-BD88-43BE-A068-EB13CC3092C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
