@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace UAMP
@@ -11,14 +12,6 @@ namespace UAMP
     public record UAMPMessage : UAMPValue
     {
         private static readonly string ParameterSeparator = $"(?<!{(char)Symbols.SP}){(char)Symbols.PS}";
-        public override UAMPType Type => UAMPType.UAMPMessage;
-        public Dictionary<string, UAMPValue?> Value { get; set; }
-
-        public UAMPValue? this[string key]
-        {
-            get => Value[key];
-            set => Value[key] = value;
-        }
 
         public UAMPMessage()
         {
@@ -56,6 +49,15 @@ namespace UAMP
             }
         }
 
+        public override UAMPType Type => UAMPType.UAMPMessage;
+        public Dictionary<string, UAMPValue?> Value { get; set; }
+
+        public UAMPValue? this[string key]
+        {
+            get => Value[key];
+            set => Value[key] = value;
+        }
+
 
         /// <summary>
         ///     Serialize message as UAMP.
@@ -71,6 +73,14 @@ namespace UAMP
         public void Add(string key, UAMPValue? value)
         {
             Value[key] = value;
+        }
+
+        protected override bool PrintMembers(StringBuilder builder)
+        {
+            builder.AppendLine();
+            builder.AppendJoin("\n", Value.Select(pair => $"\t{pair.Key} = {pair.Value}"));
+            // builder.AppendLine();
+            return true;
         }
     }
 }

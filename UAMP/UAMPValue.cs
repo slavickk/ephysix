@@ -18,6 +18,13 @@ namespace UAMP
         /// <seealso cref="UAMPType" />
         public abstract UAMPType Type { get; }
 
+        public virtual bool Equals(UAMPValue? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Type == other.Type;
+        }
+
 
         /// <summary>
         ///     Parse value of uamp parameter
@@ -26,20 +33,20 @@ namespace UAMP
         /// <returns></returns>
         public static UAMPValue? ParseValue(string uampvalue)
         {
-            if (Regex.IsMatch(uampvalue, $"(?<!{(char) Symbols.SP}){(char) Symbols.IS}"))
+            if (Regex.IsMatch(uampvalue, $"(?<!{(char)Symbols.SP}){(char)Symbols.IS}"))
                 return new UAMPArray(uampvalue);
 
-            if (Regex.IsMatch(uampvalue, $"(?<!{(char) Symbols.SP}){(char) Symbols.FS}"))
+            if (Regex.IsMatch(uampvalue, $"(?<!{(char)Symbols.SP}){(char)Symbols.FS}"))
                 return new UAMPStruct(uampvalue);
 
-            if (uampvalue.Contains($"{(char) Symbols.SP}0a"))
+            if (uampvalue.Contains($"{(char)Symbols.SP}0a"))
                 return new UAMPPackage(SecondTypeEscaping.Escape(uampvalue));
 
-            if (Regex.IsMatch(uampvalue, "=")) //{(char) Symbols.SP}({(char) Symbols.PS}|10)
+            if (Regex.IsMatch(uampvalue, @"=\b")) //{(char) Symbols.SP}({(char) Symbols.PS}|10)
             {
                 string _uampvalue;
                 if (Regex.IsMatch(uampvalue,
-                    $"[{(char) Symbols.IS}{(char) Symbols.FS}{(char) Symbols.PS}{(char) Symbols.MS}{(char) Symbols.NI}]"))
+                        $"[{(char)Symbols.IS}{(char)Symbols.FS}{(char)Symbols.PS}{(char)Symbols.MS}{(char)Symbols.NI}]"))
                     _uampvalue = FirstTypeEscaping.Unescape(uampvalue);
                 else
                     _uampvalue = SecondTypeEscaping.Unescape(uampvalue);
@@ -47,7 +54,7 @@ namespace UAMP
             }
 
 
-            if (uampvalue.Length == 1 && uampvalue[0] == (char) Symbols.NI) return null;
+            if (uampvalue.Length == 1 && uampvalue[0] == (char)Symbols.NI) return null;
 
             return new UAMPScalar(uampvalue);
         }
@@ -66,7 +73,7 @@ namespace UAMP
 
         protected string SerializeValue(UAMPValue? value)
         {
-            if (value is null) return "" + (char) Symbols.NI;
+            if (value is null) return "" + (char)Symbols.NI;
 
             string s = value.Serialize();
             switch (value.Type)
@@ -81,13 +88,6 @@ namespace UAMP
                 default:
                     return s;
             }
-        }
-
-        public virtual bool Equals(UAMPValue? other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Type == other.Type;
         }
     }
 
@@ -111,7 +111,7 @@ namespace UAMP
         {
             if (document.ValueKind == JsonValueKind.Null) return null;
 
-            var t = (UAMPType) document.GetProperty("Type").GetInt16();
+            var t = (UAMPType)document.GetProperty("Type").GetInt16();
             switch (t)
             {
                 case UAMPType.Scalar:

@@ -28,5 +28,7 @@ namespace UAMP
         {
             return val.Value;
         }
+
+        public override string ToString() => Value;
     }
 }

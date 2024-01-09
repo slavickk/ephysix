@@ -13,9 +13,10 @@ namespace UAMP.Tests
 
             var encoding = Encoding.GetEncoding(866);
             foreach (var filename in new[]
-            {
-                "UAMP1.bin", "UAMP2.bin", "SUBUAMP.bin", "TIC124.bin", "recHis.bin"
-            }) // "UAMP3.bin", - not correct uamp
+                     {
+                         "UAMP1.bin", "UAMP2.bin", "SUBUAMP.bin", "TIC124.bin", "TIC_124.bin", "TIC_124_duplicate.bin",
+                         "recHis.bin"
+                     }) // "UAMP3.bin", - not correct uamp
 
             {
                 byte[] bytearray;

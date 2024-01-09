@@ -39,6 +39,9 @@
         <None Update="TestData\testecho.tic">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Update="TestData\testTIC_124.tic">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

@@ -1,7 +1,6 @@
 using System;
 using NUnit.Framework;
 
-
 namespace UAMP.Tests
 {
     [TestFixture]
@@ -11,15 +10,15 @@ namespace UAMP.Tests
         public void ParseFromFiles(string uampmessage)
         {
             var messages = new UAMPMessage(uampmessage);
+            Console.WriteLine(messages);
             var serialize = messages.Serialize();
             Assert.AreEqual(uampmessage, serialize);
         }
+
         [Test]
         public void ParseExample()
         {
-            
             var messages = new UAMPMessage("RCC=643\u0010TPH=3400000\u0010CCC=1\u0010CAT=0");
-
         }
 
 

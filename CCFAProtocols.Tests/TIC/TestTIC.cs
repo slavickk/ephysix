@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.IO;
 using System.Text;
@@ -24,14 +25,15 @@ namespace CCFAProtocols.Tests.TIC
         }
 
         [Test]
-        [TestCaseSource(nameof(FileTestCases))]
-        [TestCaseSource(nameof(DBTestCases))]
+        [TestCaseSource(nameof(FileTestCases), Category = "File")]
+        [TestCaseSource(nameof(DBTestCases), Category = "DB")]
         [Parallelizable]
         public void MessageSerializationTest(Stream original)
         {
             using var reader = new BinaryReader(original, Encoding.GetEncoding(866));
 
             var ticMessage = TICMessage.Deserialize(reader);
+            Console.WriteLine(ticMessage);
 
 
             MemoryStream current = new();
@@ -46,8 +48,8 @@ namespace CCFAProtocols.Tests.TIC
         }
 
         [Test]
-        [TestCaseSource(nameof(FileTestCases))]
-        [TestCaseSource(nameof(DBTestCases))]
+        [TestCaseSource(nameof(FileTestCases), Category = "File")]
+        [TestCaseSource(nameof(DBTestCases), Category = "DB")]
         [Parallelizable]
         public void MessageJsonSerializationTest(Stream original)
         {
@@ -62,8 +64,8 @@ namespace CCFAProtocols.Tests.TIC
         }
 
         [Test]
-        [TestCaseSource(nameof(FileTestCases))]
-        [TestCaseSource(nameof(DBTestCases))]
+        [TestCaseSource(nameof(FileTestCases), Category = "File")]
+        [TestCaseSource(nameof(DBTestCases), Category = "DB")]
         [Parallelizable]
         public void CheckBitMaps(Stream original)
         {
@@ -85,7 +87,7 @@ namespace CCFAProtocols.Tests.TIC
             var cmd = new SqliteCommand("Select id,MESS from TIC", connection);
             var reader = cmd.ExecuteReader();
             foreach (var res in reader)
-                yield return new TestCaseData(reader.GetStream(1)).SetProperty("source", "file")
+                yield return new TestCaseData(reader.GetStream(1)).SetProperty("source", "db")
                     .SetName($@"ID:{reader["ID"]}");
 
             connection.Close();
@@ -93,7 +95,7 @@ namespace CCFAProtocols.Tests.TIC
 
         public static IEnumerable FileTestCases()
         {
-            foreach (var s in new[] { "100", "200", "400", "echo" })
+            foreach (var s in new[] { "100", "200", "400", "echo", "TIC_124" })
                 using (var file = File.Open($"TestData/test{s}.tic", FileMode.Open))
                 {
                     file.ReadByte();

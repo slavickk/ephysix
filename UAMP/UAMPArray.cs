@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace UAMP
@@ -9,20 +10,7 @@ namespace UAMP
     /// </summary>
     public record UAMPArray : UAMPValue
     {
-        private static readonly string ArraySeparator = $"(?<!{(char) Symbols.SP}){(char) Symbols.IS}";
-
-        /// <summary>
-        ///     Values of UAMPArray. May contain <see cref="UAMPStruct" /> or <see cref="UAMPScalar" />
-        /// </summary>
-        public UAMPValue?[] Value { get; set; }
-
-        public override UAMPType Type => UAMPType.Array;
-
-        public UAMPValue? this[int index]
-        {
-            get => Value[index];
-            set => Value[index] = value;
-        }
+        private static readonly string ArraySeparator = $"(?<!{(char)Symbols.SP}){(char)Symbols.IS}";
 
         /// <summary>
         ///     Instance of UAMPArray
@@ -48,11 +36,17 @@ namespace UAMP
             Value = Regex.Split(uampvalue, ArraySeparator).Select(s => ParseValue(s)).ToArray();
         }
 
+        /// <summary>
+        ///     Values of UAMPArray. May contain <see cref="UAMPStruct" /> or <see cref="UAMPScalar" />
+        /// </summary>
+        public UAMPValue?[] Value { get; set; }
 
-        public override string Serialize()
+        public override UAMPType Type => UAMPType.Array;
+
+        public UAMPValue? this[int index]
         {
-            return string.Join((char) Symbols.IS,
-                Value.Select(uampValue => uampValue is null ? $"{(char) Symbols.NI}" : SerializeValue(uampValue)));
+            get => Value[index];
+            set => Value[index] = value;
         }
 
         public virtual bool Equals(UAMPArray? other)
@@ -60,6 +54,24 @@ namespace UAMP
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return base.Equals(other) && Value.SequenceEqual(other.Value);
+        }
+
+
+        public override string Serialize()
+        {
+            return string.Join((char)Symbols.IS,
+                Value.Select(uampValue => uampValue is null ? $"{(char)Symbols.NI}" : SerializeValue(uampValue)));
+        }
+
+        protected override bool PrintMembers(StringBuilder builder)
+        {
+            builder.AppendLine();
+            for (var i = 0; i < Value.Length; i++)
+            {
+                builder.AppendLine($"\t\t[{i}]: {Value[i]}");
+            }
+
+            return true;
         }
     }
 }
