@@ -34,11 +34,12 @@ public partial class Step : ILiquidizable
             try
             {
                 //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
-                foreach (var pars in AbstrParser.availParser)
+                AbstrParser.getApropriateParser("", input, rootElement, list);
+/*                foreach (var pars in AbstrParser.availParser)
                     if (pars.canRazbor(input, rootElement, list))
                     {
 
-                    }
+                    }*/
             }
             catch
             {
@@ -408,8 +409,9 @@ public partial class Step : ILiquidizable
         try
         {
             //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
-            foreach (var pars in AbstrParser.availParser)
-                if (pars.canRazbor(input, rootElement, list))
+            if(AbstrParser.getApropriateParser("", input, rootElement, list))
+/*            foreach (var pars in AbstrParser.availParser)
+                if (pars.canRazbor(input, rootElement, list))*/
                 {
                     DateTime time1 = DateTime.Now;
 
@@ -436,7 +438,7 @@ public partial class Step : ILiquidizable
                         FindAndCopy(rootElInput, time1);
                     }*/
                     //                    repo.Add(list);
-                    break;
+                    //break;
                 }
             return "";
         }
@@ -446,6 +448,9 @@ public partial class Step : ILiquidizable
         }
     }
 
+
+
+
     /// <summary>
     /// Tries available parsers one by one to parse input string
     /// </summary>
@@ -453,19 +458,20 @@ public partial class Step : ILiquidizable
     /// <param name="context"></param>
     /// <param name="rootElement"></param>
     /// <returns></returns>
-    private bool tryParse(string input, ContextItem context, AbstrParser.UniEl rootElement)
+    private bool tryParse(string nameContext,string input, ContextItem context, AbstrParser.UniEl rootElement)
     {
         bool cantTryParse = false;
         if (ireceiver != null)
             cantTryParse = ireceiver.cantTryParse;
         if (receiver != null)
             cantTryParse = receiver.cantTryParse;
-        foreach (var pars in AbstrParser.availParser)
+        return AbstrParser.getApropriateParser(nameContext, input, rootElement, context.list, cantTryParse);
+/*        foreach (var pars in AbstrParser.availParser)
             if (pars.canRazbor(input, rootElement, context.list, cantTryParse))
             {
                 return true;
             }
-        return false;
+        return false;*/
     }
     public async Task FilterInfo(string input, DateTime time2, ContextItem context, AbstrParser.UniEl rootElement)
     {
@@ -475,7 +481,7 @@ public partial class Step : ILiquidizable
         {
             //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
 
-            if (tryParse(input, context, rootElement))
+            if (tryParse(this.IDStep+"Rec",input, context, rootElement))
                 await FilterStep(context, rootElement);
             /*                foreach (var pars in AbstrParser.availParser)
                                 if (pars.canRazbor(input, rootElement, context.list))
@@ -681,8 +687,9 @@ public partial class Step : ILiquidizable
                 AbstrParser.UniEl rootEl = AbstrParser.CreateNode(null, list, "Item");
                 if (line != "")
                 {
-                    foreach (var pars in AbstrParser.availParser)
-                        if (pars.canRazbor(line, rootEl, list))
+                    if(AbstrParser.getApropriateParser("", line, rootEl, list))
+                    /*foreach (var pars in AbstrParser.availParser)
+                        if (pars.canRazbor(line, rootEl, list))*/
                             break;
                 }
 
@@ -854,7 +861,7 @@ public partial class Step : ILiquidizable
 
 
 
-        nextStep.tryParse(ans, context, newRoot);
+        nextStep.tryParse(nextStep.IDStep+ans,ans, context, newRoot);
     }
 
     private static AbstrParser.UniEl CheckAndFillNode(AbstrParser.UniEl rootElInput,string Name,bool getAncestor =false)
