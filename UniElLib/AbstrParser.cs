@@ -199,6 +199,7 @@ namespace UniElLib
         public static DrawerFactory drawerFactory;
 
 
+
         public static bool getApropriateParser(string context, string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
         {
             if (!string.IsNullOrEmpty(context)) 
