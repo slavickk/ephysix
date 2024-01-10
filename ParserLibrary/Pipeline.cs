@@ -176,33 +176,6 @@ public class Pipeline:ILiquidizable
 
     public static List<Assembly> pluginAssemblies = new List<Assembly>();
 
-    /// <summary>
-    /// Returns the list of all plugin types that must be available during pipeline deserialization.
-    /// </summary>
-    /// <returns></returns>
-    /// 
-
-
-    public static List<Type> getAllPluginTypes()
-    {
-        // Predicate to determine whether a type should be available during pipeline deserialization 
-        bool TypeShouldbBeRegistered(Type t) => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t) || typeof(Receiver).IsAssignableFrom(t) || typeof(Sender).IsAssignableFrom(t);
-
-        // TODO: make the list of plugin assemblies configurable
-/*        var pluginAssemblyNames = new string [] {  };
-        var pluginAssemblies = pluginAssemblyNames.Select(Assembly.LoadFrom).ToList();
-  */      
-        // Find all types that must be accessible during pipeline deserialization
-        var pluginClasses = pluginAssemblies.SelectMany(a => a.GetTypes()).Where(TypeShouldbBeRegistered).ToList();
-        
-        // There are some plugin classes defined as part of the ParserLibrary itself.
-        // List them too.
-        var internalPluginClasses = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => typeof(IReceiver).IsAssignableFrom(t) || typeof(ISender).IsAssignableFrom(t)|| typeof(Receiver).IsAssignableFrom(t) || typeof(Sender).IsAssignableFrom(t))
-            .ToList();
-        
-        return pluginClasses.Concat(internalPluginClasses).ToList();
-    }
     static bool predicate(Type t)
     {
         return t.IsAssignableTo(typeof(ComparerV)) || t.IsAssignableTo(typeof(ConverterOutput)) ||
@@ -212,15 +185,18 @@ public class Pipeline:ILiquidizable
             ||
             t.IsAssignableTo(typeof(Receiver))
              ||
-            t.IsAssignableTo(typeof(Sender));
+            t.IsAssignableTo(typeof(Sender))
+            ||
+            typeof(IReceiver).IsAssignableFrom(t)
+            ||
+            typeof(ISender).IsAssignableFrom(t);
     }
-    static List<Type> getAllRegTypes(Assembly addAssembly)
+    public static List<Type> getAllRegTypes(params Assembly[] addAssemblies)
     {
-        return Assembly.GetAssembly(typeof(OutputValue)).GetTypes().Where(t => predicate(t)).Union(
-            Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(t=>predicate(t)).Union(
-            addAssembly.GetTypes().Where(t => predicate(t)))).ToList();
-
-        //            return new List<Type> { typeof(ScriptCompaper),typeof(PacketBeatReceiver), typeof(ConditionFilter), typeof(JsonSender), typeof(ExtractFromInputValue), typeof(ConstantValue),typeof(ComparerForValue) };
+        return addAssemblies.SelectMany(a => a.GetTypes().Where(predicate))
+            .Concat(Assembly.GetAssembly(typeof(OutputValue)).GetTypes().Where(predicate))
+            .Concat(Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(predicate))
+            .ToList();
     }
     static bool predicateParser(Type t)
     {
@@ -360,7 +336,7 @@ public class Pipeline:ILiquidizable
         {
             Body = sr.ReadToEnd();
         }
-        var pip= loadFromString(Body,assembly);
+        var pip= loadFromString(Body, assembly);
         pip.fileName= fileName;
         return pip;
     }
@@ -481,9 +457,6 @@ public class Pipeline:ILiquidizable
         var ser = new DeserializerBuilder();
         AddCustomParsers(assembly);
         foreach (var type in getAllRegTypes(assembly))
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
-        // Now register the plugins, but use their FullName for tags
-        foreach (var type in getAllPluginTypes())
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
