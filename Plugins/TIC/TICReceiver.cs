@@ -93,7 +93,7 @@ namespace ParserLibrary
         {
             using (LogContext.PushProperty("client", client.Client.RemoteEndPoint))
             {
-                Log.Information("Accepting client");
+                Log.Information("Accepting client. Frame: ", Frame.FrameNum);
                 using var activity = _activitySource.StartActivity(ActivityKind.Server);
                 activity?.AddBaggage("client", client.Client.RemoteEndPoint?.ToString());
                 using var clientStream = client.GetStream();

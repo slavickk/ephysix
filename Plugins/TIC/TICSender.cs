@@ -32,6 +32,7 @@ namespace ParserLibrary
                 Frame = TICFrame.GetFrame(ticFrame);
                 twfaclient = new TcpClient();
                 await twfaclient.ConnectAsync(twfaHost, twfaPort);
+                Log.Information("Connect to twfa. Frame: {FrameNum}", Frame.FrameNum);
             }
 
             Log.Debug("Request: {request}", JsonBody);
