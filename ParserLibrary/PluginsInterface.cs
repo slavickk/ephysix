@@ -19,7 +19,9 @@ namespace ParserLibrary
             List<Type> types = new List<Type>();
             types.AddRange(Assembly.GetAssembly(typeof(Pipeline)).GetTypes());
             types.AddRange(Assembly.GetEntryAssembly().GetTypes());
-            types.AddRange(Pipeline.getAllPluginTypes());
+            
+            // Referencing Plugins here would introduce a circular dependency.
+            // types.AddRange(Pipeline.getAllRegTypes(Assembly.GetAssembly(typeof(DummyProtocol1Receiver))));
             /* foreach(var ass in Plugins)
              {
                  types.AddRange(ass.GetTypes());
