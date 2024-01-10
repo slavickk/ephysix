@@ -14,7 +14,13 @@ namespace ParserLibrary.TIC.TICFrames
             using var activity = _activitySource.StartActivity();
             var bytes = new byte[2];
             await reader.ReadAsync(bytes);
-            Log.Debug("Length bytes [{0} {1}]", bytes[0], bytes[1]);
+            Log.Debug("Frame {FrameNum}: Length bytes (not transform) [{0} {1}]", FrameNum, bytes[0], bytes[1]);
+            if (!BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+                Log.Debug("IsBigEndian: {IsBigEndian}. Reverse bytes length", !BitConverter.IsLittleEndian);
+            }
+
             return BitConverter.ToUInt16(bytes);
         }
 
@@ -23,7 +29,13 @@ namespace ParserLibrary.TIC.TICFrames
             using var activity = _activitySource.StartActivity();
             var _length = (ushort)length;
             var bytes = BitConverter.GetBytes(_length);
-            Log.Debug("Length bytes [{0} {1}]", bytes[0], bytes[1]);
+            Log.Debug("Frame {FrameNum}: Length bytes (not transform) [{0} {1}]", FrameNum, bytes[0], bytes[1]);
+            if (!BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bytes);
+                Log.Debug("IsBigEndian: {IsBigEndian}. Reverse bytes length", !BitConverter.IsLittleEndian);
+            }
+
             await writer.WriteAsync(bytes);
         }
     }
