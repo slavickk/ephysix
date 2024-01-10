@@ -110,7 +110,7 @@ public partial class Step
 
 
         /// <summary>
-        /// Send response to client
+        /// Send response back to the initiating client behind the receiver.
         /// </summary>
         /// <param name="response"></param>
         /// <param name="context"></param>

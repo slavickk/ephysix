@@ -136,6 +136,11 @@ public abstract class Receiver/*:IReceiver*/
     }
 
 
+    /// <summary>
+    /// Send response back to the initiating client behind the receiver.
+    /// </summary>
+    /// <param name="response"></param>
+    /// <param name="contextItem"></param>
     public async Task sendResponse(string response,ContextItem  contextItem)
     {
         if (debugMode)
