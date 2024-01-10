@@ -1,6 +1,7 @@
 using Confluent.Kafka;
 using ParserLibrary;
 using PluginBase;
+using Serilog.Events;
 
 namespace Plugins.Kafka;
 
@@ -53,6 +54,8 @@ public class KafkaReceiver : IReceiver, IDisposable
         return tcs.Task;
     }
     
+    private record KafkaReceiverContext(ConsumeResult<Ignore, string> Message);
+    
     private async void receiveLoop(TaskCompletionSource tcs)
     {
         if (_consumer == null)
@@ -67,7 +70,7 @@ public class KafkaReceiver : IReceiver, IDisposable
                 if (message != null)
                 {
                     Console.WriteLine($"Received message: {message.Message.Value}");
-                    await _host.signal(message.Message.Value, "hz-context");
+                    await _host.signal(message.Message.Value, new KafkaReceiverContext(message));
                     _consumer.Commit(message);
                 }
                 else
@@ -101,10 +104,19 @@ public class KafkaReceiver : IReceiver, IDisposable
     
     Task IReceiver.sendResponse(string response, object context)
     {
-        // Does it make sense to send a response back to Kafka?
-        // TODO: figure out how do we mark the message as processed in Kafka? Should this be here?
-        Logger.log($"KafkaReceiver.IReceiver.sendResponse: {response}");
+        if (_consumer == null)
+            throw new InvalidOperationException("_consumer is null");
+
+        if (context is not KafkaReceiverContext krctx)
+            throw new ArgumentException(
+                $"Expected context of type {nameof(KafkaReceiverContext)} but got {context?.GetType().Name ?? "null"}");
+        
+        // Assume that "sending a response back to Kafka" means "committing the message".
+        // Actual response content is ignored.
+        Logger.log($"KafkaReceiver.IReceiver.sendResponse: committing the message with key {krctx.Message.Message.Key}", LogEventLevel.Debug);
+        _consumer.Commit(krctx.Message);
         return Task.CompletedTask;
+
     }
     
     bool IReceiver.cantTryParse => _cantTryParse;
