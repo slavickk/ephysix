@@ -90,7 +90,7 @@ steps:
     connectionTimeoutInMilliseconds: 5000
     saver: 
     cantTryParse: false
-    mocFile: C:\D\OUT_TIC\UniElLib.ContextItemStep_0Receiver_0fbyizt5.nag
+    mocFile: C:\D\OUT_TIC\UniElLib.ContextItemStep_0Receiver_azfhulhh.vui
     mocBody: ''
   ireceiver: 
   converters:
@@ -196,7 +196,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserAcceptHeaders/#text
+      conditionPath: Step_0/Rec/Fields/MiscellaneousTransactionAttributes2/Value/AED/Value/Value/Value/BrowserInfo/Value/acceptHeaders
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -209,7 +209,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserIpAddress/#text
+      conditionPath: Step_0/Rec/Fields/MiscellaneousTransactionAttributes2/Value/AED/Value/Value/Value/BrowserInfo/Value/browserIp/Address
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -222,7 +222,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserLanguage/#text
+      conditionPath: Step_0/Rec/Fields/MiscellaneousTransactionAttributes2/Value/AED/Value/Value/Value/BrowserInfo/Value/acceptLanguage
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -235,7 +235,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserTZ/#text
+      conditionPath: Step_0/Rec/Fields/MiscellaneousTransactionAttributes2/Value/AED/Value/Value/Value/BrowserInfo/Value/timeZone
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -248,7 +248,7 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserUserAgent/#text
+      conditionPath: Step_0/Rec/Fields/MiscellaneousTransactionAttributes2/Value/AED/Value/Value/Value/BrowserInfo/Value/userAgent
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -288,19 +288,6 @@ steps:
       getNodeNameOnly: false
       returnOnlyFirstRow: false
       conditionPath: Step_0/Rec/Fields/TransactionCurrencyCode
-      conditionCalcer: 
-      valuePath: ''
-    - !ExtractFromInputValue
-      copyChildsOnly: false
-      viewAsJsonString: false
-      outputPath: browserIP
-      isUniqOutputPath: false
-      typeCopy: Value
-      onEmptyValueAction: Skip
-      converter: 
-      getNodeNameOnly: false
-      returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserInfo/#text/browserIp/Address
       conditionCalcer: 
       valuePath: ''
   sender: !StreamSender

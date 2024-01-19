@@ -52,7 +52,7 @@ namespace Plugins.Parsers
                     {
                         string pattern = "\\u0010";
                         int pos = el8.Key.IndexOf(pattern);
-                        ExtractUampValue(el8.Key.Substring(pos+pattern.Length), newEl1, list, el8.Value);
+                        ExtractUampValue((pos>=0?el8.Key.Substring(pos+pattern.Length):el8.Key), newEl1, list, el8.Value);
                         if (pos > 0)
                             newEl1.Value = el8.Key.Substring(0, pos);
                     }
@@ -62,6 +62,11 @@ namespace Plugins.Parsers
                     break;
 
             }
+        }
+
+        public override string toOriginal(UniEl node)
+        {
+            throw new NotImplementedException();
         }
     }
 }
