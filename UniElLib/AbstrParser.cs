@@ -16,6 +16,10 @@ using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using DotLiquid;
 using System.Collections.Concurrent;
+using System.Collections;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NUnit.Framework;
+using YamlDotNet.Core;
 
 namespace UniElLib
 {
@@ -107,7 +111,7 @@ namespace UniElLib
         }
 
 
-        public static AbstrParser.UniEl ParseString(string templ)
+        public static AbstrParser.UniEl ParseString(string templ,bool cantTryParse=false)
         {
             List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
             var rootElement = AbstrParser.CreateNode(null, list, "Root");
@@ -115,7 +119,7 @@ namespace UniElLib
             {
                 //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
                 foreach (var pars in AbstrParser.availParser)
-                    if (pars.canRazbor("", templ, rootElement, list))
+                    if (pars.canRazbor("", templ, rootElement, list,cantTryParse))
                     {
 
                     }
@@ -124,6 +128,14 @@ namespace UniElLib
             {
 
             }
+            return rootElement;
+        }
+        public static AbstrParser.UniEl ParseStringTest(string templ, List<AbstrParser.UniEl> list,AbstrParser.UniEl rootElement , bool cantTryParse = false)
+        {
+
+
+
+            AbstrParser.getApropriateParser("Rec",templ,rootElement,list,cantTryParse);
             return rootElement;
         }
         public static string RetVal()
@@ -206,18 +218,31 @@ namespace UniElLib
             {
                 if(preferrableParsers.TryGetValue(context, out var parser))
                 {
-                    return parser.canRazbor(context,line, ancestor, list, cantTryParse);
+                    //
+                    //   myList?.Count ?? 0
+                    AddAvalParser(ancestor, parser);
+                    /*                    int cc = ancestor.implementedParsers?.Count ?? 0;
+                                        if(cc>0)*/
+                    return parser.canRazbor(context, line, ancestor, list, cantTryParse);
                 }
             }
             foreach (var pars in AbstrParser.availParser)
                 if (pars.canRazbor(context, line, ancestor, list, cantTryParse))
                 {
+                    AddAvalParser(ancestor, pars);
                     if (!string.IsNullOrEmpty(context))
                         preferrableParsers.TryAdd(context, pars);
                     return true;
                 }
                 return false;
 
+        }
+
+        private static void AddAvalParser(UniEl ancestor, AbstrParser parser)
+        {
+            if (ancestor.implementedParsers == null)
+                ancestor.implementedParsers = new List<AbstrParser>();
+            ancestor.implementedParsers.Add(parser);
         }
 
 
@@ -232,7 +257,7 @@ namespace UniElLib
         /// <returns>A boolean value indicating whether the line was successfully parsed and corresponding nodes were created.</returns>
         /// 
 
-
+        public abstract string toOriginal(UniEl node);
         public abstract bool canRazbor(string context,string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false);
         public virtual bool canRazbor(byte[] bytes, UniEl ancestor, List<UniEl> list)
         {
@@ -291,6 +316,12 @@ namespace UniElLib
 
             string getXMLText()
             {
+                if(this.implementedParsers!=null)
+                {
+                    this.PackToParsers(this);
+                    return this.value1.ToString();
+
+                }
                 var n = this.childs.FirstOrDefault(ii => ii.Name == "#text");
                 if (n != null)
                 {
@@ -334,7 +365,7 @@ namespace UniElLib
                     int yy = 0;
                 }
                 string Namespace="";
-                if(this.childs.Count>0)
+                if(this.childs.Count>0 && this.implementedParsers == null)
                 {
                     bool found = false;
                     //                    var n = this.childs.FirstOrDefault(ii => ii.Name == "-xmlns" || ii.Name.Contains("-xmlns:"));
@@ -402,10 +433,10 @@ namespace UniElLib
                 return xmlDoc.OuterXml;
 
             }
-            public string toJSON(bool maskSensitive=false)
+            public string toJSON(bool maskSensitive=false,bool noPack=false)
             {
                 string tt = "";
-                return to_json_internal(ref tt,maskSensitive);
+                return to_json_internal(ref tt,maskSensitive,false,noPack);
                 
 //                throw new Exception("not implemented");
             }
@@ -423,7 +454,7 @@ namespace UniElLib
                 return value.Replace("\"", "\\\"");
             }
             public bool packToJsonString = false;
-            public string to_json_internal(ref string val,bool maskSensitive,bool isArr1=false)
+            public string to_json_internal(ref string val,bool maskSensitive,bool isArr1=false,bool noPack=false)
             {
 /*                JsonElement el = new JsonElement() ;
                 el.*/
@@ -433,12 +464,25 @@ namespace UniElLib
                 {
                     int yy = 0;
                 }
-                if (this.childs.Count > 0 && !packToJsonString)
+                if (this.childs.Count > 0 && !packToJsonString && (this.implementedParsers == null || noPack))
                 {
                     val = ChildsToJson(val,maskSensitive);
                 }
                 else
                 {
+                    if (this.implementedParsers != null)
+                    {
+                        this.PackToParsers(this);
+                        if (this.ancestor == null)
+                        {
+                            val = this.Value.ToString();
+                        }
+                        else
+                        {
+                            val += "\"" + (maskSensitive ? this.Value.ToString().MaskSensitive() : mask(this.Value.ToString())) + "\"";
+                        }
+
+                    } else
                     if (packToJsonString)
                     {
                         val+="\""+mask(ChildsToJson("",maskSensitive)) + "\"";
@@ -508,7 +552,7 @@ namespace UniElLib
                 return val;
             }
 
-            public UniEl copy(UniEl newAncestor)
+            public UniEl copy(UniEl newAncestor,bool alwaysCopyChild=false)
             {
                 var newEl= new UniEl(newAncestor) { Name = this.Name, Value = Value };
                 /*if(ancestor.Name.Contains("BrowserInfo"))
@@ -519,17 +563,35 @@ namespace UniElLib
                 {
                     int yy = 0;
                 }*/
-                if (!isExpandedNode)
+                if (this.implementedParsers == null)
                 {
                     foreach (var nod in childs)
                         nod.copy(newEl);
                 }
-//                    newEl.childs.Add(nod.copy(newEl));
-                if (childs.Count == 0 || isExpandedNode)
-                    newEl.value1 = Value;
+                //                    newEl.childs.Add(nod.copy(newEl));
+                if (/*childs.Count == 0 ||*/ this.implementedParsers != null)
+                {
+                    PackToParsers(newEl);
+                    if (alwaysCopyChild)
+                    {
+                        foreach (var nod in childs)
+                            nod.copy(newEl);
+                    }
+
+                }
 
                 return newEl;
             }
+
+            protected UniEl PackToParsers(UniEl newEl)
+            {
+                for (int i = 0; i < this.implementedParsers.Count; i++)
+                    this.value1 = this.implementedParsers[i].toOriginal(this);
+                newEl.value1 = Value;
+                return newEl;
+            }
+
+            public List<AbstrParser> implementedParsers = null;
 
             public IEnumerable<UniEl> getAllDescentants(string[] path,int index, ContextItem context)
             {
@@ -543,12 +605,12 @@ namespace UniElLib
                         {
                             if (this.childs.Count == 0 && index < path.Length - 1 && this.value1!= null && context != null)
                             {
-                                if(AbstrParser.getApropriateParser("Nod_"+this.Name, this.value1.ToString(), this, context.list, true))
+                                if(AbstrParser.getApropriateParser(this.path, this.value1.ToString(), this, context.list, true))
 /*                                foreach (var pars in AbstrParser.availParser)
                                     if (pars.canRazbor(this.value1.ToString(), this, context.list, true))*/
                                     {
 
-                                        isExpandedNode = true;
+                              //          isExpandedNode = true;
                                         //break;
                                     }
                             }
@@ -602,7 +664,7 @@ namespace UniElLib
                     return ancestor1;
                 }
             }
-            public bool isExpandedNode = false;
+       //     public bool isExpandedNode = false;
             public List<UniEl> childs = new List<UniEl>();
             public List<int> aaa = new List<int>();
             public Drawer treeNode= null;
@@ -702,6 +764,13 @@ namespace UniElLib
                 int yy = 0;
             }
             return false;
+        }
+
+        public override string toOriginal(UniEl ancestor)
+        {
+            string value = ancestor.Value.ToString();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(value);
+            return  Convert.ToBase64String(bytes);
         }
     }
 
@@ -860,6 +929,12 @@ namespace UniElLib
             }
             return true;
         }
+
+        public override string toOriginal(UniEl node)
+        {
+            return node.childs[0].Value.ToString();
+//            throw new NotImplementedException();
+        }
     }
     public class XmlParser : AbstrParser
     {
@@ -932,7 +1007,7 @@ namespace UniElLib
                     {
                         if (!cantTryParse)
                         {
-                            if(AbstrParser.getApropriateParser("Prop_"+property.Name, property.InnerText, newEl, list))
+                            if(AbstrParser.getApropriateParser("Prop_"+ancestor.path+"/"+property.Name, property.InnerText, newEl, list))
 /*                            foreach (var pars in availParser)
                                 if (pars.canRazbor(property.InnerText, newEl, list))*/
                                 {
@@ -949,6 +1024,11 @@ namespace UniElLib
 
         }
 
+        public override string toOriginal(UniEl node)
+        {
+            return node.toXML();
+//            throw new NotImplementedException();
+        }
     }
 
     public class JsonParser : AbstrParser
@@ -1085,7 +1165,7 @@ namespace UniElLib
                             }
                             if (!cantTryParse)
                             {
-                                if(AbstrParser.getApropriateParser("Prop_"+property.Name, value.ToString(), newEl, list))
+                                if(AbstrParser.getApropriateParser("Prop_"+ancestor.path+"/"+property.Name, value.ToString(), newEl, list))
                                 /*foreach (var pars in availParser)
                                     if (pars.canRazbor(value.ToString(), newEl, list))*/
                                     {
@@ -1110,6 +1190,11 @@ namespace UniElLib
             }
         }
 
+        public override string toOriginal(UniEl node)
+        {
+            return node.toJSON(false,true);
+//            throw new NotImplementedException();
+        }
     }
 
 
