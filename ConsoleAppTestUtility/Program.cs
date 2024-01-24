@@ -34,7 +34,7 @@ namespace ConsoleAppTestUtility
 
             var newJson=rootElement.toJSON();
             bool comp = newJson == str;
-
+          
             return el3.Value.ToString() == val;
         }
 

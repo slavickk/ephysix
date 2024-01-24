@@ -20,8 +20,8 @@ namespace ParserLibrary.Tests
         public void TestPreo()
         {
             
-            AbstrParser.getApropriateParser("", @"RCC=643\u0010TPH=3400000\u0010CCC=1\u0010CAT=0", new AbstrParser.UniEl(), new List<AbstrParser.UniEl>(), false);
-
+//            AbstrParser.getApropriateParser("", @"RCC=643\u0010TPH=3400000\u0010CCC=1\u0010CAT=0", new AbstrParser.UniEl(), new List<AbstrParser.UniEl>(), false);
+            AbstrParser.getApropriateParser("", @"eyJ2ZXJzaW9uIjoiMS4wIiwiYWNjZXB0TGFuZ3VhZ2UiOiIiLCJhY2NlcHRIZWFkZXJzIjoidGV4dC9odG1sLGFwcGxpY2F0aW9uL3hodG1sK3htbCxhcHBsaWNhdGlvbi94bWw7cT0wLjksaW1hZ2UvYXZpZixpbWFnZS93ZWJwLGltYWdlL2FwbmcsKi8qO3E9MC44LGFwcGxpY2F0aW9uL3NpZ25lZC1leGNoYW5nZTt2PWIzO3E9MC43IiwidXNlckFnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTIwLjAuNjA5OS4yMDAgU2FmYXJpLzUzNy4zNiIsImJyb3dzZXJJcCI6IjEwLjguMTkuMjQxIiwidGltZVpvbmUiOiItMzAwIiwiY29sb3JEZXB0aCI6IjI0Iiwic2NyZWVuSGVpZ2h0IjoiMjQiLCJzY3JlZW5XaWR0aCI6IjgwMCIsImphdmFzY3JpcHRFbmFibGVkIjoidHJ1ZSIsImphdmFFbmFibGVkIjoiZmFsc2UifQ==", new AbstrParser.UniEl(), new List<AbstrParser.UniEl>(), false);
 
             AbstrParser.getApropriateParser("", @"eyJCcmFuZCI6InhpYW9taSIsIkhhc05mY0hjZSI6ZmFsc2UsIkhhc0ZwU2Nhbm5lciI6dHJ1ZSwiSWQiOiIwNjZhY2MwMDE4ZDA1NWRiIiwiTWFudWZhY3RvcmVyIjoiWGlhb21pIiwiTW9kZWwiOiJSZWRtaSBOb3RlIDciLCJPc1ZlcnNpb24iOjI4LCJQcm9kdWN0IjoiQW5kcm9pZCIsIlJhbU1iIjoyNTYsIlNjcmVlbkRwaSI6IlhYSERQSSIsIlNjcmVlbkhlaWdodFB4IjoyMTMxLCJTY3JlZW5XaWR0aFB4IjoxMDgwLCJTY3JlZW5TaXplSW5jaGVzIjoyLjYzNzgwMDd9", new AbstrParser.UniEl(), new List<AbstrParser.UniEl>(), false);
             AbstrParser.getApropriateParser("", @"eyJCcmFuZCI6InhpYW9taSIsIkhhc05mY0hjZSI6ZmFsc2UsIkhhc0ZwU2Nhbm5lciI6dHJ1ZSwiSWQiOiIwNjZhY2MwMDE4ZDA1NWRiIiwiTWFudWZhY3RvcmVyIjoiWGlhb21pIiwiTW9kZWwiOiJSZWRtaSBOb3RlIDciLCJPc1ZlcnNpb24iOjI4LCJQcm9kdWN0IjoiQW5kcm9pZCIsIlJhbU1iIjoyNTYsIlNjcmVlbkRwaSI6IlhYSERQSSIsIlNjcmVlbkhlaWdodFB4IjoyMTMxLCJTY3JlZW5XaWR0aFB4IjoxMDgwLCJTY3JlZW5TaXplSW5jaGVzIjoyLjYzNzgwMDd9", new AbstrParser.UniEl(), new List<AbstrParser.UniEl>(), false);
