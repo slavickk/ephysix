@@ -20,6 +20,8 @@ using System.Collections;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Framework;
 using YamlDotNet.Core;
+using System.Text.Encodings.Web;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 
 namespace UniElLib
 {
@@ -212,8 +214,16 @@ namespace UniElLib
 
 
 
-        public static bool getApropriateParser(string context, string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
+        public static bool getApropriateParser(string context, object val, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
         {
+            int dummy;
+            if (val.GetType() == typeof(JsonElement))
+                return false;
+            if (1==0 && val.GetType() != typeof(string) /*|| int.TryParse(val as string,out dummy)*/)
+            {
+                return false;
+            }
+//            var valString = val.ToString(); 
             if (!string.IsNullOrEmpty(context)) 
             {
                 if(preferrableParsers.TryGetValue(context, out var parser))
@@ -223,11 +233,11 @@ namespace UniElLib
                     AddAvalParser(ancestor, parser);
                     /*                    int cc = ancestor.implementedParsers?.Count ?? 0;
                                         if(cc>0)*/
-                    return parser.canRazbor(context, line, ancestor, list, cantTryParse);
+                    return parser.canRazbor(context, val as string, ancestor, list, cantTryParse);
                 }
             }
             foreach (var pars in AbstrParser.availParser)
-                if (pars.canRazbor(context, line, ancestor, list, cantTryParse))
+                if (pars.canRazbor(context, val as string, ancestor, list, cantTryParse))
                 {
                     AddAvalParser(ancestor, pars);
                     if (!string.IsNullOrEmpty(context))
@@ -330,7 +340,7 @@ namespace UniElLib
                         int y = 0;
                     }
 */
-                        if (n.value1 != null && n.childs.Count==0)
+                        if (n.value1 != null && (n.childs.Count==0 ||n.implementedParsers!= null))
                     {
 
                         return n.value1.ToString();
@@ -359,8 +369,13 @@ namespace UniElLib
             {
                 if (Name == "-xmlns" || Name=="#text")
                     return;
+                if(Name== "-BrowserInfo")
+                {
+                    int yy = 0;
+                }
+               // "root/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserInfo/#text"
 
-                if(Name== "Tran")
+                if (Name== "Tran")
                 {
                     int yy = 0;
                 }
@@ -433,12 +448,35 @@ namespace UniElLib
                 return xmlDoc.OuterXml;
 
             }
-            public string toJSON(bool maskSensitive=false,bool noPack=false)
+            public string toJSON_old(bool maskSensitive=false,bool noPack=false)
             {
                 string tt = "";
                 return to_json_internal(ref tt,maskSensitive,false,noPack);
                 
 //                throw new Exception("not implemented");
+            }
+            public string toJSON(bool maskSensitive = false, bool noPack = false)
+            {
+                Dictionary<string, object> doc;
+                //if (this.ancestor == null)
+                    doc = ChildsToJson(maskSensitive, noPack);
+                /*else
+                {
+                    doc = new Dictionary<string, object>();
+                    var res = to_json_internal_new(maskSensitive, noPack);
+                    doc.Add(res.key, res.val);// ..Add()
+                }*/
+                if (noPack)
+                {
+                    var jsonSerializerOptions = new JsonSerializerOptions
+                    {
+                        //  WriteIndented = true, // not necessary, but more readable
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                    };
+                    return JsonSerializer.Serialize(doc, jsonSerializerOptions);// doc.to_json_internal_new(ref tt, maskSensitive, false, noPack);
+                } else
+                    return JsonSerializer.Serialize(doc);// doc.to_json_internal_new(ref tt, maskSensitive, false, noPack);
+                //                throw new Exception("not implemented");
             }
             bool firstElnArray(List<UniEl> arr ,int i)
             {
@@ -454,6 +492,52 @@ namespace UniElLib
                 return value.Replace("\"", "\\\"");
             }
             public bool packToJsonString = false;
+            public (string key,object val) to_json_internal_new( bool maskSensitive, bool noPack = false)
+            {
+                /*                JsonElement el = new JsonElement() ;
+                                el.*/
+
+                if (this.childs.Count > 0 && !packToJsonString && (this.implementedParsers == null || /*(noPack && this.ancestor == null) ||*/ this.ancestor == null))
+                {
+                    return (this.Name, ChildsToJson(maskSensitive, noPack));
+                }
+                else
+                {
+                    if (this.implementedParsers != null && this.ancestor != null)
+                    {
+                        this.PackToParsers(this);
+                        if (this.ancestor == null)
+                        {
+                            return (this.Name, this.Value);// val = this.Value.ToString();
+                        }
+                        else
+                        {
+                            return (this.Name, (maskSensitive ? this.Value.ToString().MaskSensitive() : mask(this.Value.ToString())));
+//                            val += "\"" + (maskSensitive ? this.Value.ToString().MaskSensitive() : mask(this.Value.ToString())) + "\"";
+                        }
+
+                    }
+                    else
+                    if (packToJsonString)
+                    {
+                        return (this.Name, toJSON(maskSensitive,noPack));
+                    }
+                    else
+                    {
+                        if (this.Value != null)
+                        {
+                            if (this.Value.GetType() == typeof(string))
+                                return (this.Name, (maskSensitive ? this.Value.ToString().MaskSensitive() : (this.Value.ToString())));
+                            else
+                                return (this.Name, this.Value);
+                        }
+                        else
+                            return (this.Name,"");
+                    }
+                }
+//                return val;
+            }
+
             public string to_json_internal(ref string val,bool maskSensitive,bool isArr1=false,bool noPack=false)
             {
 /*                JsonElement el = new JsonElement() ;
@@ -514,6 +598,45 @@ namespace UniElLib
                 return val;
             }
 
+            private Dictionary<string,object> ChildsToJson(bool maskSensitive,bool noPack)
+            {
+                Dictionary<string, object> retValue = new Dictionary<string, object>();
+                string prevName = "";
+                bool isArr = false;
+                List<object> arr = null;
+                for (int i = 0; i < this.childs.Count; i++)
+                {
+                    isArr = false;
+                    if (firstElnArray(this.childs, i))
+                    //                        if(isArr==false && i< this.childs.Count-2 && this.childs[i].Name== this.childs[i+1].Name)
+                    {
+                        isArr = true;
+                        if (arr == null)
+                            arr = new List<object>();
+                        else
+                            arr.Clear();
+                    }
+                    if (prevName == this.childs[i].Name)
+                    {
+                        isArr = true;
+                    }
+
+                    var res = this.childs[i].to_json_internal_new(maskSensitive, noPack);
+                    if (!isArr)
+                        retValue.Add(res.key, res.val);
+                    else
+                        arr.Add(res.val);
+                    if (lastElInArray(this.childs, i))
+                    {
+                        isArr = false;
+                        retValue.Add(res.key, arr);
+                        /*                           if (i != this.childs.Count - 1 && !(isArr && this.childs[i].Name != this.childs[i + 1].Name))
+                                                       val += ",";*/
+                    }
+                    prevName = this.childs[i].Name;
+                }
+                return retValue;
+            }
             private string ChildsToJson(string val,bool maskSensitive)
             {
                 val += "{";
@@ -554,7 +677,12 @@ namespace UniElLib
 
             public UniEl copy(UniEl newAncestor,bool alwaysCopyChild=false)
             {
+                if(path == "Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserInfo/#text")
+                {
+                    int yy = 0;
+                }
                 var newEl= new UniEl(newAncestor) { Name = this.Name, Value = Value };
+                newEl.implementedParsers = this.implementedParsers; 
                 /*if(ancestor.Name.Contains("BrowserInfo"))
                 {
                     int yy = 0;
@@ -563,7 +691,7 @@ namespace UniElLib
                 {
                     int yy = 0;
                 }*/
-                if (this.implementedParsers == null)
+                //if (this.implementedParsers == null)
                 {
                     foreach (var nod in childs)
                         nod.copy(newEl);
@@ -605,7 +733,7 @@ namespace UniElLib
                         {
                             if (this.childs.Count == 0 && index < path.Length - 1 && this.value1!= null && context != null)
                             {
-                                if(AbstrParser.getApropriateParser(this.path, this.value1.ToString(), this, context.list, true))
+                                if(AbstrParser.getApropriateParser(this.path, this.value1, this, context.list, true))
 /*                                foreach (var pars in AbstrParser.availParser)
                                     if (pars.canRazbor(this.value1.ToString(), this, context.list, true))*/
                                     {
@@ -1052,6 +1180,7 @@ namespace UniElLib
             DateTime time1 = DateTime.Now;
             try
             {
+
                 doc = JsonDocument.Parse(line);
             }
             catch(Exception e77)
@@ -1082,6 +1211,7 @@ namespace UniElLib
                     return true; // Выполнится, если s равно 3
                     break;
                 default:
+                    
                     return el.ToString();
             }
         }
@@ -1127,6 +1257,11 @@ namespace UniElLib
                         }
                     }
                     var value = property.Value;
+                    /*if (value.ToString() == "ID1")
+                    {
+                        int y = 0;
+                    }*/
+
                     if (value.ValueKind == JsonValueKind.Object)
                     {
                         UniEl newEl = CreateNode(ancestor, list, name);
@@ -1165,7 +1300,7 @@ namespace UniElLib
                             }
                             if (!cantTryParse)
                             {
-                                if(AbstrParser.getApropriateParser("Prop_"+ancestor.path+"/"+property.Name, value.ToString(), newEl, list))
+                                if(AbstrParser.getApropriateParser("Prop_"+ancestor.path+"/"+property.Name, value, newEl, list))
                                 /*foreach (var pars in availParser)
                                     if (pars.canRazbor(value.ToString(), newEl, list))*/
                                     {

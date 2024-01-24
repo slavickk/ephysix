@@ -186,10 +186,10 @@ public class Pipeline:ILiquidizable
             t.IsAssignableTo(typeof(Receiver))
              ||
             t.IsAssignableTo(typeof(Sender))
-            ||
+     /*       ||
             typeof(IReceiver).IsAssignableFrom(t)
             ||
-            typeof(ISender).IsAssignableFrom(t);
+            typeof(ISender).IsAssignableFrom(t)*/;
     }
     public static List<Type> getAllRegTypes(params Assembly[] addAssemblies)
     {
@@ -457,7 +457,11 @@ public class Pipeline:ILiquidizable
         var ser = new DeserializerBuilder();
         AddCustomParsers(assembly);
         foreach (var type in getAllRegTypes(assembly))
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
+        {
+          // ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
+        
+            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        }
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
