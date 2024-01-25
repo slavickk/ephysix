@@ -618,6 +618,7 @@ namespace UniElLib
                     }
                     if (prevName == this.childs[i].Name)
                     {
+
                         isArr = true;
                     }
 
