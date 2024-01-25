@@ -43,6 +43,9 @@ About WebCamundaExecutors see [CamundaExecutors](WebApiCamundaExecutors/readme.m
 |YAML_PATH|/app/Data/model.yml||true|None|YAML configuration file path|
 |LOG_LEVEL|Debug|Verbose, Debug, Information, Warning, Error, Fatal|true|None|Logging level|
 |LOG_PATH|||false|None|FilePath for logging.If variable absent-logging into default input/output |
+|LOG_HISTORY_MODE|||false|None|if variable presented ,swith on save Request &Answers from extended sources |
+|LOG_EXT_STAT|||false|None|if variable presented ,swith on pipeline execution statistic |
+|DEBUG_MODE|||false|None|if variable presented ,swith on extended pipeline log |
 ## PORTS
 |PORT_NAME|DEFAULT_VALUE|PROTOCOL|HEALTHCHECK|HEALTHCHEK ROUTE|METRICS|METRICS ROUTE|DESCRIPTION|
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
