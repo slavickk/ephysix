@@ -1,74 +1,94 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Runtime.Loader;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using ParserLibrary;
 using Serilog;
 using Serilog.Core;
 using Serilog.Enrichers.Sensitive;
+using Serilog.Enrichers.Span;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Formatting.Compact;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Threading;
-using System.Threading.Tasks;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace WebApiConsoleUtility
 {
     public class Program
     {
-
         public static int MaxConcurrentRequests = -1;
+
         //Request queue length limit
         public static int RequestQueueLimit = -1;
         public static Pipeline pip;
         static bool IgnoreAll = false;
 
-        private static Serilog.ILogger CreateSerilog(string ServiceName, LoggingLevelSwitch levelSwitch, bool isAsync, bool LogHttpRequest, bool maskedSensitive = false)
+        private static Serilog.ILogger CreateSerilog(string ServiceName, LoggingLevelSwitch levelSwitch, bool isAsync,
+            bool LogHttpRequest, bool maskedSensitive = false)
         {
             LoggerConfiguration log = null;
             log = new LoggerConfiguration()
-                          .MinimumLevel.ControlledBy(levelSwitch)
-                   //            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                   .Enrich.WithExceptionDetails()
-                .Enrich.WithProperty("TraceID", ((System.Diagnostics.Activity.Current != null) ? System.Diagnostics.Activity.Current.TraceId.ToString() : "-"))
-                .Enrich.WithProperty("ThreadID", Thread.CurrentThread.ManagedThreadId)
+                .MinimumLevel.ControlledBy(levelSwitch)
+                //            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.WithExceptionDetails()
+                // .Enrich.WithProperty("TraceID", ((System.Diagnostics.Activity.Current != null) ? System.Diagnostics.Activity.Current.TraceId.ToString() : "-"))
+                // .Enrich.WithProperty("ThreadID", Thread.CurrentThread.ManagedThreadId)
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
                 .Enrich.WithProperty("Service", ServiceName)
-                .Filter.ByExcluding(c => !LogHttpRequest && c.Properties.ContainsKey("SourceContext") && c.Exception == null && c.Level != LogEventLevel.Error && c.Level != LogEventLevel.Fatal && c.Level != LogEventLevel.Warning)
+                .Filter.ByExcluding(c =>
+                    !LogHttpRequest && c.Properties.ContainsKey("SourceContext") && c.Exception == null &&
+                    c.Level != LogEventLevel.Error && c.Level != LogEventLevel.Fatal &&
+                    c.Level != LogEventLevel.Warning)
                 /*                 .Filter.ByExcluding(c =>
                                  c.Properties.ContainsKey("Method") && c.Properties["Method"].
                                  c.Properties.ContainsKey("SourceContext")
                                                   !LogHealthAndMonitoring &&
                                                   (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
                                  )*/
+                .Enrich.WithSpan(new SpanOptions()
+                {
+                    LogEventPropertiesNames = new SpanLogEventPropertiesNames
+                        { TraceId = "TraceId", SpanId = "SpanId", ParentId = "ParentId" },
+                })
                 .Enrich.FromLogContext();
             if (isAsync)
+            {
+#if DEBUG
+
+                log = log.WriteTo.Async(writeTo => writeTo.File("errors.log", LogEventLevel.Information,
+                        "[{Timestamp:dd/MM/yy HH:mm:ss.ffff} {Level:u3} TraceId: {TraceId}] [{Properties}] {Message:lj}  {NewLine} {Exception}",
+                        retainedFileCountLimit: 3))
+                    .WriteTo.Async(writeTo =>
+                        writeTo.Console(theme: AnsiConsoleTheme.Code, applyThemeToRedirectedOutput: true,
+                            outputTemplate:
+                            "[{Timestamp:dd/MM/yy HH:mm:ss.ffff} {Level:u3} TraceId: {TraceId}] [{Properties}] {Message:lj}  {NewLine} {Exception}"));
+#else
                 log = log.WriteTo.Async(writeTo => writeTo.Console(new RenderedCompactJsonFormatter()));
+#endif
+            }
+
             else
                 log = log.WriteTo.Console(new RenderedCompactJsonFormatter());
+
             if (maskedSensitive)
                 log = log.Enrich.WithSensitiveDataMasking(
-        options =>
-        {
-            options.MaskingOperators = new List<IMaskingOperator>
-            {
-                new EmailAddressMaskingOperator(),
-                new IbanMaskingOperator(),
-                new CreditCardMaskingOperator()
-                // etc etc
-            };
-        });
+                    options =>
+                    {
+                        options.MaskingOperators = new List<IMaskingOperator>
+                        {
+                            new EmailAddressMaskingOperator(),
+                            new IbanMaskingOperator(),
+                            new CreditCardMaskingOperator()
+                            // etc etc
+                        };
+                    });
             return log.CreateLogger();
             // <<#<<#<<
-
-
-
-
         }
 
 
@@ -123,11 +143,15 @@ namespace WebApiConsoleUtility
             if (!IgnoreAll)
             {
                 if (LogLevel == null)
-                    levelInfo = "LOG_LEVEL variable not set.Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
+                    levelInfo = "LOG_LEVEL variable not set.Set default value " +
+                                Enum.GetName<LogEventLevel>(defLevel) +
+                                ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
                 else if (Enum.TryParse(typeof(LogEventLevel), LogLevel, true, out outVal))
                     defLevel = (LogEventLevel)outVal;
                 else
-                    levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " + Enum.GetName<LogEventLevel>(defLevel) + ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
+                    levelInfo = "LOG_LEVEL variable is not correct (" + LogLevel + ").Set default value " +
+                                Enum.GetName<LogEventLevel>(defLevel) +
+                                ". Available values : Verbose, Debug, Information, Warning, Error, Fatal.";
 
                 ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
                 Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch,
@@ -175,8 +199,10 @@ namespace WebApiConsoleUtility
                         if (YamlPath == null)
                         {
                             YamlPath = "/app/Data/ACS_TW.yml";
-                            Log.Fatal($"YAML_PATH environment variable not set.Set default config file placed at {YamlPath} (saved in container)");
+                            Log.Fatal(
+                                $"YAML_PATH environment variable not set.Set default config file placed at {YamlPath} (saved in container)");
                         }
+
                         if (!File.Exists(YamlPath))
                         {
                             var cc = Directory.GetFiles("/app/Data", "*.*");
@@ -184,8 +210,8 @@ namespace WebApiConsoleUtility
                             var dir = Directory.GetCurrentDirectory();
                             var dirs1 = Directory.GetDirectories(dir);
                             return;
-
                         }
+
                         if (Pipeline.AgentPort > 0)
                             Log.Information($"set jaeger host {Pipeline.AgentHost} on port {Pipeline.AgentPort}");
                         else
@@ -202,11 +228,13 @@ namespace WebApiConsoleUtility
                             Log.Fatal($"Error parsing {e66}");
                             return;
                         }
+
                         if (DEBUG_MODE != null)
                         {
                             pip.debugMode = true;
                             Log.Information("Set debugMode ");
                         }
+
                         if (LOG_HISTORY_MODE != null)
                         {
                             Pipeline.isSaveHistory = true;
@@ -224,7 +252,8 @@ namespace WebApiConsoleUtility
                                 Log.Information("Self test OK. Run pipeline.");
                                 pip.run().ContinueWith((runner) =>
                                 {
-                                    Log.Information($"Pipeline execution stopped: IsFaulted={runner.IsFaulted}, exception: {runner.Exception?.ToString() ?? "None"}. Terminating application...");
+                                    Log.Information(
+                                        $"Pipeline execution stopped: IsFaulted={runner.IsFaulted}, exception: {runner.Exception?.ToString() ?? "None"}. Terminating application...");
                                     Console.WriteLine(runner.Exception?.ToString());
                                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                                     return;
@@ -232,9 +261,9 @@ namespace WebApiConsoleUtility
                             }
                             else
                             {
-                                Log.Error("Self test failed. Pipeline won't be started. Running just the Integration Utility web host.");
+                                Log.Error(
+                                    "Self test failed. Pipeline won't be started. Running just the Integration Utility web host.");
                                 //                        return;
-
                             }
                         }
                         else
@@ -243,7 +272,9 @@ namespace WebApiConsoleUtility
                             Log.Information("Running the pipeline without self-test because SkipSelfTest is true.");
                             pip.run().ContinueWith((runner) =>
                             {
-                                Log.Information("Pipeline execution stopped with result {a} exception {exc}.Terminating application...", runner.IsFaulted, runner.Exception?.ToString());
+                                Log.Information(
+                                    "Pipeline execution stopped with result {a} exception {exc}.Terminating application...",
+                                    runner.IsFaulted, runner.Exception?.ToString());
                                 Console.WriteLine(runner.Exception?.ToString());
                                 System.Diagnostics.Process.GetCurrentProcess().Kill();
                             });
@@ -251,11 +282,11 @@ namespace WebApiConsoleUtility
 
                         Log.Information("Starting Integrity Utility web host ");
                         if (LogPath == null)
-                            Log.Information("Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
+                            Log.Information(
+                                "Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
                         else
                             Log.Information("Logging to " + LogPath + ".");
                         await CreateHostBuilder(args).Build().RunAsync();
-
                     }
                     catch (Exception ex)
                     {
@@ -272,7 +303,6 @@ namespace WebApiConsoleUtility
                     Log.Information("Starting Integrity Utility web host ");
                     await CreateHostBuilder(args).Build().RunAsync();
                 }
-
             }
         }
 
@@ -293,10 +323,7 @@ namespace WebApiConsoleUtility
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
-        .UseSerilog();
+                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); })
+                .UseSerilog();
     }
 }

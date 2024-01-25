@@ -13,7 +13,6 @@ namespace CCFAProtocols.TIC.ISO8583.Fields
         {
             char[] bitMapChars = reader.ReadChars(16);
             var bitmap = bitMapChars.SelectMany(c => HexUtils.HexToBoolMap[c]).ToArray();
-            Log.Debug("{PrimaryBitMap}", bitmap);
             isomessage.PrimaryBitMap = bitmap;
         }
 

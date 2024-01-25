@@ -13,11 +13,10 @@ namespace ParserLibrary.TIC.TICFrames
             using var activity = _activitySource.StartActivity();
             var bytes = new byte[2];
             await reader.ReadAsync(bytes, cancellationToken);
-            Log.Debug("Frame {FrameNum}: Length bytes (not transform) [{0} {1}]", FrameNum, bytes[0], bytes[1]);
+            Log.Debug("Deserialize! Frame {FrameNum}: Length bytes (not transform) [{0} {1}]. IsLittleEndian: {IsLittleEndian}.", FrameNum, bytes[0], bytes[1],BitConverter.IsLittleEndian);
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
-                Log.Debug("IsLittleEndian: {IsLittleEndian}. Reverse bytes length", BitConverter.IsLittleEndian);
             }
 
             return BitConverter.ToUInt16(bytes);
@@ -29,14 +28,11 @@ namespace ParserLibrary.TIC.TICFrames
             using var activity = _activitySource.StartActivity();
             var _length = (ushort)length;
             var bytes = BitConverter.GetBytes(_length);
-            Log.Debug("Frame {FrameNum}: Length bytes (not transform) [{0} {1}]", FrameNum, bytes[0], bytes[1]);
+            Log.Debug("Serialize! Frame {FrameNum}: Length bytes (not transform) [{0} {1}]. IsLittleEndian: {IsLittleEndian}.", FrameNum, bytes[0], bytes[1],BitConverter.IsLittleEndian);
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(bytes);
-                Log.Debug("IsLittleEndian: {IsLittleEndian}. Reverse bytes length", BitConverter.IsLittleEndian);
             }
-
-            // Array.Reverse(bytes);
             await writer.WriteAsync(bytes, cancellationToken);
         }
     }

@@ -28,6 +28,26 @@
       "dotnetRunMessages": "true",
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },
+    "TIC": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "YAML_PATH": "C:/D/TIC.yml",
+        //        "YAML_PATH": "../DataProject/Data/dummy_pipeline_KafkaSender.yml",
+        "SECRET_WORD": "qwe1234",
+        "REX_URL": "http://nginx.service.consul",
+        "DB_URL_FPDB": "master.pgsqlanomaly01.service.dc1.consul",
+        "DB_USER_FPDB": "fp",
+        "DB_PASSWORD_FPDB": "rav1234",
+        "LOG_HISTORY_MODE": "yes",
+        "AUTH_HOST_URL": "http://10.74.28.30:30212",
+        "LOG_LEVEL": "Debug"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:5001;http://localhost:5000"
+    },
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
