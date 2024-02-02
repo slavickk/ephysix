@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -151,8 +152,9 @@ public abstract class Receiver/*:IReceiver*/
         if (Pipeline.isExtendingStat)
         {
             contextItem.stats[0].ticks = (DateTime.Now - contextItem.startTime).Ticks;
-            var st = $"{{{string.Join(",", contextItem.stats.Select(ii => "\"" + ii.Name + "\":" + ii.ticks))}}}";
-            Logger.log("{context} {stats}", Serilog.Events.LogEventLevel.Information, "hist"
+            var st = contextItem.stats.Select(ii => new KeyValuePair<string,long>(ii.Name,ii.ticks))
+                .ToDictionary(x => x.Key, x => x.Value);
+            Logger.log("{context} {@stats}", Serilog.Events.LogEventLevel.Information, "hist"
                 , contextItem.GetPrefix(owner.IDStep + "RecAns"),st);
         }
         if (Pipeline.isSaveHistory)
