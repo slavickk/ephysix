@@ -84,6 +84,7 @@ public class Pipeline:ILiquidizable
     public string traceSaveDirectory = "C:\\D\\Store";
 
     public static bool isSaveHistory = false;
+    public static bool isExtendingStat = false;
     public string hashWord { get; set; } = "QWE123";
     public string pipelineDescription = "Pipeline example";
     [YamlIgnore]

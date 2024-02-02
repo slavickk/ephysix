@@ -100,6 +100,8 @@ public abstract class Sender/*:ISender*/
                     ans = await sendInternal(root,context);
                 else
                     ans = await send(root.toJSON(),context);
+                if(context.stats != null)
+                    context.stats.Add(new ContextItem.StatItem() { Name=GetType().Name, ticks=(DateTime.Now - time1).Ticks});
             }
             else
             {
