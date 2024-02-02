@@ -18,7 +18,7 @@ namespace CCFAProtocols.TIC
         private static JsonSerializerOptions JsonSerializerOptions =
             new() { IncludeFields = true, IgnoreNullValues = true };
 
-        public static TICMessage EchoRequest = new()
+        [JsonIgnore] public static TICMessage EchoRequest = new()
         {
             Header = new TICHeader()
             {
@@ -38,7 +38,7 @@ namespace CCFAProtocols.TIC
             }
         };
 
-        public static TICMessage EchoResponse = new()
+        [JsonIgnore] public static TICMessage EchoResponse = new()
         {
             Header = new TICHeader()
             {
@@ -62,7 +62,7 @@ namespace CCFAProtocols.TIC
         public TICHeader Header;
         public MessageTypeIdentifier MessageType;
 
-        public uint TraceAuditNumber => Fields.SytemTraceAuditNumber ?? GenerateTraceAudit();
+        [JsonIgnore] public uint TraceAuditNumber => Fields.SytemTraceAuditNumber ?? GenerateTraceAudit();
 
         private uint GenerateTraceAudit()
         {
