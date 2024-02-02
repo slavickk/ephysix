@@ -6,7 +6,9 @@
  * DB_USER_FPDB :If fpdb not available , set empty (not skipped) 
  * DB_PASSWORD_FPDB :If fpdb not available , set empty (not skipped) 
  * DB_URL_FPDB :If fpdb not available , set empty (not skipped) 
+ * CCFA_SEND_TIMEOUT :CCFA send timeout in milliseconds 
  * REX_URL :CCFA EP entry point url e.g. http://192.168.75.214
+ * TWO_SEND_TIMEOUT :TWO send timeout in milliseconds 
  * AUTH_HOST_URL :auth host(TX or TW) entry point url e.g. http://192.168.75.173:30212
 ## PORTS(input)
 |PORT|PROTOCOL|

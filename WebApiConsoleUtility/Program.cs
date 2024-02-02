@@ -9,6 +9,8 @@ using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Formatting.Compact;
+using Serilog.Enrichers.Span;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +19,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog.Enrichers.OpenTracing;
 
 namespace WebApiConsoleUtility
 {
@@ -36,16 +39,26 @@ namespace WebApiConsoleUtility
                           .MinimumLevel.ControlledBy(levelSwitch)
                    //            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                    .Enrich.WithExceptionDetails()
+/*                .Enrich.WithProperty("Service", ServiceName)
                 .Enrich.WithProperty("TraceID", ((System.Diagnostics.Activity.Current != null) ? System.Diagnostics.Activity.Current.TraceId.ToString() : "-"))
-                .Enrich.WithProperty("ThreadID", Thread.CurrentThread.ManagedThreadId)
+                .Enrich.WithProperty("ThreadID", Thread.CurrentThread.ManagedThreadId)*/
                 .Enrich.WithProperty("Service", ServiceName)
                 .Filter.ByExcluding(c => !LogHttpRequest && c.Properties.ContainsKey("SourceContext") && c.Exception == null && c.Level != LogEventLevel.Error && c.Level != LogEventLevel.Fatal && c.Level != LogEventLevel.Warning)
-                /*                 .Filter.ByExcluding(c =>
-                                 c.Properties.ContainsKey("Method") && c.Properties["Method"].
-                                 c.Properties.ContainsKey("SourceContext")
-                                                  !LogHealthAndMonitoring &&
-                                                  (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
-                                 )*/
+                                /*                 .Filter.ByExcluding(c =>
+                                                 c.Properties.ContainsKey("Method") && c.Properties["Method"].
+                                                 c.Properties.ContainsKey("SourceContext")
+                                                                  !LogHealthAndMonitoring &&
+                                                                  (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
+                                                 )*/
+                                //.Enrich.WithOpenTracingContext()
+                                .Enrich.WithProperty("Service", ServiceName)
+                                .Enrich.WithThreadId()
+                                //.Enrich.WithThreadName()
+                                .Enrich.WithSpan(new SpanOptions()
+                                {
+                                    LogEventPropertiesNames = new SpanLogEventPropertiesNames
+                                    { TraceId = "TraceId", SpanId = "SpanId", ParentId = "ParentId" },
+                                })
                 .Enrich.FromLogContext();
             if (isAsync)
                 log = log.WriteTo.Async(writeTo => writeTo.Console(new RenderedCompactJsonFormatter()));
@@ -99,6 +112,7 @@ namespace WebApiConsoleUtility
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
             string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
             string LOG_HISTORY_MODE = Environment.GetEnvironmentVariable("LOG_HISTORY_MODE");
+            string LOG_EXT_STAT = Environment.GetEnvironmentVariable("LOG_EXT_STAT");
             Pipeline.AgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
             string sport = Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
             string SAVE_CONTEXT = Environment.GetEnvironmentVariable("JAEGER_SAVE_CONTEXT");
@@ -211,6 +225,11 @@ namespace WebApiConsoleUtility
                         {
                             Pipeline.isSaveHistory = true;
                             Log.Information("Set logHistoryMode ");
+                        }
+                        if (LOG_EXT_STAT != null)
+                        {
+                            Pipeline.isExtendingStat = true;
+                            Log.Information("Set extendedStat ");
                         }
 
                         Log.Information("Parsing done");

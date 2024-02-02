@@ -93,7 +93,7 @@ namespace TestJsonRazbor
 
 
             var formatter = new CustomDateFormatter("dd-MMM-yyyy", new CultureInfo("en-AU"));
-            
+            Pipeline.isSaveHistory = true;
 
             Log.Logger= new LoggerConfiguration()
                 .MinimumLevel.Debug()

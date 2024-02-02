@@ -105,6 +105,7 @@ namespace ParserLibrary
                         string TICMessageJson;
                         try
                         {
+                           
                             TICMessageJson = await Frame.DeserializeToJson(clientStream, cancellationToken);
                             if (TICMessageJson is null) continue;
                         }
