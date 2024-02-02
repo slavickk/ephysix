@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DotLiquid;
@@ -150,8 +151,9 @@ public abstract class Receiver/*:IReceiver*/
         if (Pipeline.isExtendingStat)
         {
             contextItem.stats[0].ticks = (DateTime.Now - contextItem.startTime).Ticks;
-            Logger.log("{context} {@stats}", Serilog.Events.LogEventLevel.Information, "hist"
-                , contextItem.GetPrefix(owner.IDStep + "RecAns"), contextItem.stats);
+            var st = $"{{{string.Join(",", contextItem.stats.Select(ii => "\"" + ii.Name + "\":" + ii.ticks))}}}";
+            Logger.log("{context} {stats}", Serilog.Events.LogEventLevel.Information, "hist"
+                , contextItem.GetPrefix(owner.IDStep + "RecAns"),st);
         }
         if (Pipeline.isSaveHistory)
             Logger.log("{data} {context} ", Serilog.Events.LogEventLevel.Information, "hist", response.MaskSensitive(), contextItem.GetPrefix(owner.IDStep + "RecAns"));
