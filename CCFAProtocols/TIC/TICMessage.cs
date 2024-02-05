@@ -1,9 +1,11 @@
+#nullable enable
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using CCFAProtocols.TIC.ISO8583;
 using Serilog;
 
-#nullable enable
 namespace CCFAProtocols.TIC
 {
     /// <summary>
@@ -12,14 +14,63 @@ namespace CCFAProtocols.TIC
     /// <remarks><see cref="TICHeader"/>|<see cref="MessageTypeIdentifier"/>|...|...</remarks>
     public class TICMessage
     {
-        private static readonly char[] prefix = {'A', '4', 'M'};
+        private static readonly char[] prefix = { 'A', '4', 'M' };
 
         private static JsonSerializerOptions JsonSerializerOptions =
-            new() {IncludeFields = true, IgnoreNullValues = true};
+            new() { IncludeFields = true, IgnoreNullValues = true };
+
+        [JsonIgnore] public static TICMessage EchoRequest = new()
+        {
+            Header = new TICHeader()
+            {
+                ProtocolVersion = 19,
+                RejectStatus = 0
+            },
+            MessageType = new MessageTypeIdentifier()
+            {
+                IsReject = false,
+                TypeIdentifier = EnumMessageTypeIdentifier.NetworkManagementRequest
+            },
+            Fields = new ISO8583.ISO8583()
+            {
+                NetworkManagementInformationCode = NetworkManagementInformationCodes.EchoTest,
+                SytemTraceAuditNumber = 123456,
+                TransmissionGreenwichTime = "0126150335"
+            }
+        };
+
+        [JsonIgnore] public static TICMessage EchoResponse = new()
+        {
+            Header = new TICHeader()
+            {
+                ProtocolVersion = 19,
+                RejectStatus = 0
+            },
+            MessageType = new MessageTypeIdentifier()
+            {
+                IsReject = false,
+                TypeIdentifier = EnumMessageTypeIdentifier.NetworkManagementRequestResponse
+            },
+            Fields = new ISO8583.ISO8583()
+            {
+                NetworkManagementInformationCode = NetworkManagementInformationCodes.EchoTest,
+                SytemTraceAuditNumber = 123456,
+                TransmissionGreenwichTime = "0126150335"
+            }
+        };
 
         public ISO8583.ISO8583 Fields;
         public TICHeader Header;
         public MessageTypeIdentifier MessageType;
+
+        [JsonIgnore] public uint TraceAuditNumber => Fields.SytemTraceAuditNumber ?? GenerateTraceAudit();
+
+        private uint GenerateTraceAudit()
+        {
+            var hashCode = GetHashCode().ToString();
+
+            return uint.Parse(hashCode[..6]);
+        }
 
         public static TICMessage Deserialize(BinaryReader reader)
         {
@@ -32,7 +83,7 @@ namespace CCFAProtocols.TIC
             message.Header = TICHeader.Deserialize(reader);
             message.MessageType = MessageTypeIdentifier.Deserialize(reader);
             message.Fields = ISO8583.ISO8583.Deserialize(reader);
-            Log.Debug("Deserialized:{Message}", message);
+            Log.Verbose("Deserialized:{Message}", message);
             return message;
         }
 
@@ -61,7 +112,8 @@ namespace CCFAProtocols.TIC
 
         public void Serialize(BinaryWriter writer)
         {
-            Log.Debug("Serializing {Message}", this);
+            Log.Verbose("Serializing {Message}", this);
+            Fields.SytemTraceAuditNumber ??= GenerateTraceAudit();
             writer.Write(prefix);
             Header.Serialize(writer);
             MessageType.Serialize(writer);

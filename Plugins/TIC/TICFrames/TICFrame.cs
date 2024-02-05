@@ -9,16 +9,61 @@ namespace ParserLibrary.TIC.TICFrames
 {
     public abstract class TICFrame
     {
+        public static Metrics.MetricCount msg_size =
+            (Metrics.MetricCount)Metrics.metric.getMetricCount("tic.frame.msg_size", "Message size in MB");
+
         public abstract int FrameNum { get; }
+
         protected abstract ActivitySource _activitySource { get; init; }
 
         public abstract Task<long> DeserializeLength(Stream reader, CancellationToken cancellationToken);
         public abstract Task SerializeLength(Stream writer, long length, CancellationToken cancellationToken);
 
+        private async Task _SerializeLength(Stream writer, long? length, CancellationToken cancellationToken)
+        {
+            if (length is null)
+            {
+                Log.Debug("Return null length");
+                await writer.WriteAsync(new byte[] { 0, 0 }, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                await SerializeLength(writer, length.Value, cancellationToken);
+            }
+        }
+
         public async Task<string?> DeserializeToJson(NetworkStream reader,
             CancellationToken cancellationToken = default)
         {
+            var bytes = await _DeserializeLength(reader, cancellationToken);
+            if (bytes is null)
+            {
+                return null;
+            }
+
+            return TICMessage.DeserializeToJSON(bytes);
+        }
+
+        public async Task<TICMessage?> Deserialize(NetworkStream reader,
+            CancellationToken cancellationToken = default)
+        {
+            var bytes = await _DeserializeLength(reader, cancellationToken);
+            if (bytes is null)
+            {
+                return null;
+            }
+
+            return TICMessage.Deserialize(bytes);
+        }
+
+        private async Task<byte[]?> _DeserializeLength(NetworkStream reader, CancellationToken cancellationToken)
+        {
             var length = await DeserializeLength(reader, cancellationToken);
+            if (length == 0)
+            {
+                return null;
+            }
+
             Log.Debug("Recieve {length}", length);
             var bytes = new byte[length];
             var readBytes = 0;
@@ -29,13 +74,10 @@ namespace ParserLibrary.TIC.TICFrames
 
             Log.Debug("Bytes Read {bytes}", readBytes);
 
-            if (readBytes == 0)
-            {
-                return null;
-            }
+            msg_size.Add(readBytes);
 
             Log.Debug("Recieve bytes {bytes}", PrintByteArray(bytes));
-            return TICMessage.DeserializeToJSON(bytes);
+            return bytes;
         }
 
         public static string PrintByteArray(byte[] bytes)
@@ -50,12 +92,32 @@ namespace ParserLibrary.TIC.TICFrames
             return sb.ToString();
         }
 
-        public async Task SerializeFromJson(NetworkStream writer, string ticMessage,
+
+        public async Task SerializeFromJson(NetworkStream writer, string? ticMessage,
             CancellationToken cancellationToken = default)
         {
-            var bytes = TICMessage.SerializeFromJson(ticMessage);
-            Log.Debug("Serialized: {bytes}", PrintByteArray(bytes));
-            await SerializeLength(writer, bytes.LongLength, cancellationToken);
+            byte[]? bytes = null;
+            if (ticMessage is not null)
+            {
+                bytes = TICMessage.SerializeFromJson(ticMessage);
+                Log.Debug("Serialized: {bytes}", PrintByteArray(bytes));
+            }
+
+            await _SerializeLength(writer, bytes?.LongLength, cancellationToken);
+            await writer.WriteAsync(bytes);
+        }
+
+        public async Task Serialize(NetworkStream writer, TICMessage? ticMessage,
+            CancellationToken cancellationToken = default)
+        {
+            byte[]? bytes = null;
+            if (ticMessage is not null)
+            {
+                bytes = ticMessage.Serialize();
+                Log.Debug("Serialized: {bytes}", PrintByteArray(bytes));
+            }
+
+            await _SerializeLength(writer, bytes?.LongLength, cancellationToken);
             await writer.WriteAsync(bytes);
         }
 

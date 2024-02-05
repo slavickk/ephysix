@@ -5,14 +5,16 @@ using System.Text;
 using ParserLibrary.TIC.TICFrames;
 using Serilog;
 using Serilog.Context;
+using Serilog.Core.Enrichers;
+using Exception = System.Exception;
 
 namespace ParserLibrary
 {
-    public class TICReceiver : Receiver, IDisposable
+    public class TICReceiver : Receiver
     {
-        private readonly ActivitySource _activitySource = new(nameof(TICReceiver));
+        static Metrics.MetricCount? current_clients = null;
+        private readonly ActivitySource _activitySource = new("TIC.TICReciever");
 
-        private readonly IDisposable pushProperty;
         private IPEndPoint endpoint;
         private TICFrame Frame;
 
@@ -24,31 +26,25 @@ namespace ParserLibrary
                 port = 15001;
             cantTryParse = true;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            pushProperty = LogContext.PushProperty("reciever", "TIC");
+            current_clients =
+                (Metrics.MetricCount)Metrics.metric.getMetricCount("tic.reciever.current_clients", "Connected Clients");
         }
 
         public override ProtocolType protocolType => ProtocolType.tcp;
-/*                {
-                    get => Frame.FrameNum;
-                    set { Frame = TICFrame.GetFrame(value); }
-                }*/
 
-        //        [YamlMember(Alias = "Port")]
-//        public int port = 15001; //{ get; set; }
-/*              {
-                  set => endpoint = new IPEndPoint(IPAddress.Any, value);
-                  get => endpoint.Port;
-              }*/
-
-        public void Dispose()
-        {
-            pushProperty.Dispose();
-        }
 
         protected override async Task sendResponseInternal(string response, object context)
         {
-            NetworkStream networkStream = context as NetworkStream;
-            await Frame.SerializeFromJson(networkStream, response);
+            TICContext ticContext = context as TICContext;
+
+            if (ticContext.Client.Client?.Connected ?? false)
+            {
+                await Frame.SerializeFromJson(ticContext.Client.GetStream(), response);
+            }
+            else
+            {
+                Log.Error("Client:{client} disconnected!", ticContext.Client.Client?.RemoteEndPoint);
+            }
         }
 
         protected override async Task startInternal()
@@ -71,7 +67,7 @@ namespace ParserLibrary
                 {
                     var tcpClient = await tcpListener.AcceptTcpClientAsync();
                     taskFactory.StartNew(() => ClientHandler(tcpClient, cancellationToken), cancellationToken);
-                    // Interlocked.Increment(ref CurrentTasks);
+                    current_clients?.Increment();
                 }
             }
             catch (SocketException e) when (e.ErrorCode == 125)
@@ -85,56 +81,61 @@ namespace ParserLibrary
             }
         }
 
-        /*  public override bool cantTryParse()
-          {
-              return true;
-          }*/
         public async Task ClientHandler(TcpClient client, CancellationToken cancellationToken)
         {
-            using (LogContext.PushProperty("client", client.Client.RemoteEndPoint))
+            Thread.CurrentThread.Name = "Processor: " + client.Client.RemoteEndPoint;
+            using (LogContext.Push(new PropertyEnricher("client", client.Client.RemoteEndPoint), new PropertyEnricher(
+                       "frame",
+                       Frame.FrameNum)))
             {
-                Log.Information("Accepting client. Frame: ", Frame.FrameNum);
-                using var activity = _activitySource.StartActivity(ActivityKind.Server);
-                activity?.AddBaggage("client", client.Client.RemoteEndPoint?.ToString());
+                Log.Information("Accepting client: {client}. Frame: {frame}", client.Client.RemoteEndPoint,
+                    Frame.FrameNum);
+                var clientCancelToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 using var clientStream = client.GetStream();
                 try
                 {
-                    while (!cancellationToken.IsCancellationRequested)
+                    while (!clientCancelToken.IsCancellationRequested)
                     {
-                        using var inner_activity = _activitySource.StartActivity();
-                        string TICMessageJson;
-                        try
+                        using (_activitySource.StartActivity(ActivityKind.Client))
                         {
-                           
-                            TICMessageJson = await Frame.DeserializeToJson(clientStream, cancellationToken);
-                            if (TICMessageJson is null) continue;
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error(e, "Exception in TIC");
-                            continue;
-                        }
+                            var context = new TICContext()
+                            {
+                                Client = client,
+                                CancellationToken = clientCancelToken.Token
+                            };
 
-                        await signal(TICMessageJson, clientStream);
+
+                            var TICMessage = await Frame.Deserialize(clientStream, clientCancelToken.Token);
+                            if (TICMessage is null) break;
+                            using var _ =
+                                LogContext.PushProperty("SystemTraceAuditNumber", TICMessage.TraceAuditNumber);
+                            signal(TICMessage.ToJSON(), context).ContinueWith(task =>
+                            {
+                                if (task.IsCanceled || task.IsFaulted) clientCancelToken.Cancel();
+                            });
+                        }
                     }
                 }
-                catch (IOException e) when (e.InnerException.GetType().Equals(typeof(SocketException)))
+                catch (InvalidDataException e)
                 {
-                    throw;
+                    Log.Error(e, e.Message);
+                }
+                catch (IOException e) when (e.InnerException is SocketException)
+                {
+                    Log.Information("Remote client close connection: {client}", client.Client.RemoteEndPoint);
                 }
                 catch (OperationCanceledException e)
                 {
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, "Exception in TICReciever");
-                    throw;
+                    Log.Error(e, "Unknown exception in TICReciever");
                 }
                 finally
                 {
-                    Log.Information("Disconnect client");
+                    Log.Information("Disconnect client: {client}", client.Client.RemoteEndPoint);
+                    current_clients?.Decrement();
                     client.Close();
-                    // Interlocked.Decrement(ref CurrentTasks);
                 }
             }
         }
