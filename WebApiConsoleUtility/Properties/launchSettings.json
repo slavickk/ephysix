@@ -23,6 +23,7 @@
         "DB_USER_FPDB": "fp",
         "DB_PASSWORD_FPDB": "rav1234",
         "LOG_HISTORY_MODE": "yes",
+        "LOG_EXT_STAT": "yes",
         "AUTH_HOST_URL": "http://10.74.28.30:30212"
       },
       "dotnetRunMessages": "true",
@@ -53,8 +54,10 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "YAML_PATH": "/app/Data/TIC.yml",
+        "YAML_PATH": "/app/Data/ACS_TW.yml",
         "SECRET_WORD": "qwe1234",
+        "CCFA_SEND_TIMEOUT": "5000",
+        "TWO_SEND_TIMEOUT": "5000",
         "REX_URL": "http://nginx.service.consul",
         "DB_URL_FPDB": "master.pgsqlanomaly01.service.dc1.consul",
         "DB_USER_FPDB": "fp",

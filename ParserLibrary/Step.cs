@@ -246,7 +246,12 @@ public partial class Step : ILiquidizable
     {
 //        owner.mainActivity = owner.GetActivity("receive package", null);
         DateTime time2 = DateTime.Now;
-        ContextItem contextItem = new ContextItem() { context = context ,mainActivity= owner.GetActivity("receive package", null), increment=Interlocked.Increment(ref incrValue) };
+        ContextItem contextItem = new ContextItem() {startTime=time2, context = context ,mainActivity= owner.GetActivity("receive package", null), increment=Interlocked.Increment(ref incrValue) };
+        if (Pipeline.isExtendingStat)
+        {
+            contextItem.stats = new System.Collections.Generic.List<ContextItem.StatItem>();
+            contextItem.stats.Add(new ContextItem.StatItem() { Name = "Receiver" });
+        }
         if (contextItem?.mainActivity != null)
         {
             contextItem?.mainActivity?.SetTag("context.url", owner.SaveContext(input));

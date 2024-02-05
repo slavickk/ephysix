@@ -14,6 +14,17 @@ using Serilog.Enrichers.Span;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Formatting.Compact;
+using Serilog.Enrichers.Span;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Loader;
+using System.Threading;
+using System.Threading.Tasks;
+using Serilog.Enrichers.OpenTracing;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace WebApiConsoleUtility
@@ -119,6 +130,7 @@ namespace WebApiConsoleUtility
             string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
             string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
             string LOG_HISTORY_MODE = Environment.GetEnvironmentVariable("LOG_HISTORY_MODE");
+            string LOG_EXT_STAT = Environment.GetEnvironmentVariable("LOG_EXT_STAT");
             Pipeline.AgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
             string sport = Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
             string SAVE_CONTEXT = Environment.GetEnvironmentVariable("JAEGER_SAVE_CONTEXT");
@@ -239,6 +251,11 @@ namespace WebApiConsoleUtility
                         {
                             Pipeline.isSaveHistory = true;
                             Log.Information("Set logHistoryMode ");
+                        }
+                        if (LOG_EXT_STAT != null)
+                        {
+                            Pipeline.isExtendingStat = true;
+                            Log.Information("Set extendedStat ");
                         }
 
                         Log.Information("Parsing done");

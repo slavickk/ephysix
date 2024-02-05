@@ -618,18 +618,23 @@ namespace UniElLib
                     }
                     if (prevName == this.childs[i].Name)
                     {
+
                         isArr = true;
                     }
 
                     var res = this.childs[i].to_json_internal_new(maskSensitive, noPack);
                     if (!isArr)
-                        retValue.Add(res.key, res.val);
+                    {
+                        retValue.TryAdd(res.key, res.val);
+        //                retValue.Add(res.key, res.val);
+                    }
                     else
                         arr.Add(res.val);
                     if (lastElInArray(this.childs, i))
                     {
                         isArr = false;
-                        retValue.Add(res.key, arr);
+                        retValue.TryAdd(res.key, arr);
+        //                retValue.Add(res.key, arr);
                         /*                           if (i != this.childs.Count - 1 && !(isArr && this.childs[i].Name != this.childs[i + 1].Name))
                                                        val += ",";*/
                     }
