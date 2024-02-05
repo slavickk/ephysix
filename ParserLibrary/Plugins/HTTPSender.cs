@@ -22,7 +22,7 @@ public  class HTTPSender: ISender, ISelfTested
     public string certPassword = "";
 //        public string certThumbprint= "E77587679318FED87BB040F00D76AB461B962D95";
     public List<string> certThumbprints = new List<string> { "A77587679318FED87BB040F00D76AB461B962D95" };
-    public double timeoutSendInSeconds = 5;
+    public double timeoutSendInMilliseconds = 5000;
     public List<HTTPReceiver.KestrelServer.Header> headers;
     public HTTPSender()
     {
@@ -44,7 +44,7 @@ public  class HTTPSender: ISender, ISelfTested
             handler.ClientCertificates.Add(certificate);
         }
         client = new HttpClient(handler);
-        client.Timeout = TimeSpan.FromSeconds(timeoutSendInSeconds);
+        client.Timeout = TimeSpan.FromMilliseconds(timeoutSendInMilliseconds);
     }
     private bool ServerCertificateCustomValidation(HttpRequestMessage requestMessage, X509Certificate2 certificate, X509Chain chain, SslPolicyErrors sslErrors)
     {

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DotLiquid;
@@ -147,8 +149,17 @@ public abstract class Receiver/*:IReceiver*/
             Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any",owner, response);
         if (owner?.owner.saver?.enable??false)
             owner.owner.saver.save(response,contextItem+owner.IDStep+"RecAns_"+contextItem.fileNameT);
+        if (Pipeline.isExtendingStat)
+        {
+            contextItem.stats[0].ticks = (DateTime.Now - contextItem.startTime).Ticks;
+            var st = contextItem.stats.Select(ii => new KeyValuePair<string,long>(ii.Name,ii.ticks))
+                .ToDictionary(x => x.Key, x => x.Value);
+            Logger.log("{context} {@stats}", Serilog.Events.LogEventLevel.Information, "hist"
+                , contextItem.GetPrefix(owner.IDStep + "RecAns"),st);
+        }
         if (Pipeline.isSaveHistory)
-            Logger.log("{data} {context}", Serilog.Events.LogEventLevel.Information, "hist", response.MaskSensitive(), contextItem.GetPrefix(owner.IDStep + "RecAns"));
+            Logger.log("{data} {context} ", Serilog.Events.LogEventLevel.Information, "hist", response.MaskSensitive(), contextItem.GetPrefix(owner.IDStep + "RecAns"));
+
 
         if (!MocMode)
             await sendResponseInternal(response, contextItem.context);
