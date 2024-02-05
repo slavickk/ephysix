@@ -128,11 +128,11 @@ public abstract class Receiver/*:IReceiver*/
             if (stringReceived != null)
                 await stringReceived(input, context);
 
-            metricUpTime.Add(time1);
+            metricUpTime?.Add(time1);
         }
         catch (Exception e)
         {
-            metricUpTimeError.Add(time1);
+            metricUpTimeError?.Add(time1);
             throw;
         }
     }
