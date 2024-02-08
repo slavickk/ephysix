@@ -39,7 +39,7 @@ public abstract class Receiver/*:IReceiver*/
         metricUpTimeError = new Metrics.MetricHistogram("iu_inbound_errors_total", "handle performance receiver", new double[] { 30, 100, 500, 1000, 5000, 10000 });
         metricUpTime.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
     }
-    protected virtual async Task sendResponseInternal(string response, object context)
+    protected virtual async Task sendResponseInternal(string response, ContextItem context)
     {
         if (debugMode)
             Logger.log("Responcer do nothing, mocMode^{MocMode}!!!", Serilog.Events.LogEventLevel.Debug, MocMode);
@@ -162,7 +162,7 @@ public abstract class Receiver/*:IReceiver*/
 
 
         if (!MocMode)
-            await sendResponseInternal(response, contextItem.context);
+            await sendResponseInternal(response, contextItem);
     }
 
 
