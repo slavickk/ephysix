@@ -310,6 +310,16 @@ public class ExtractFromInputValueWithSwitch:ExtractFromInputValue
         return retValue.Value;
     }
 }
+
+public class ScriptFromInputValue : ExtractFromInputValue
+{
+    public override object getValue(AbstrParser.UniEl rootEl)
+    {
+        return (getNode(rootEl).Value.ToString());
+        //return base.getValue(rootEl);
+    }
+}
+
 public class ExtractFromInputValue : OutputValue
 {
     public string preoPath(string path)

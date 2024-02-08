@@ -310,7 +310,7 @@ public  class HTTPSender:Sender,ISelfTested
                 Reason = "Timeout";
             if (sendToHTTPErr != null)
                 sendToHTTPErr.AddCount($"{owner.IDStep}/{Reason}");
-            Logger.log($"Error to send {this.GetType().Name} url {this.url}", e77, Serilog.Events.LogEventLevel.Error);
+            Logger.log($"Error to send {this.GetType().Name} url {this.url} ctn {context.fileNameT} send {str}", e77, Serilog.Events.LogEventLevel.Error);
             if (Reason == "ConnBusy")
                 throw new ConnectionBusyException();
             throw;
