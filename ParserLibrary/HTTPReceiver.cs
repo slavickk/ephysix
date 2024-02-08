@@ -18,6 +18,8 @@ using System.IO;
 using Microsoft.VisualStudio.Threading;
 using System.Text.Json;
 using static ParserLibrary.HTTPSender;
+using UniElLib;
+using Serilog;
 //using Microsoft.
 
 namespace ParserLibrary
@@ -43,17 +45,18 @@ namespace ParserLibrary
            // return base.startInternal();
         }
         //namespace Kestrel;
-        protected override async Task sendResponseInternal(string response, object context)
+        protected override async Task sendResponseInternal(string response, ContextItem context)
         {
             if (debugMode)
             {
                 Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
             }
 
-            var item = context as SyncroItem;
+            var item = context.context as SyncroItem;
             if (item != null)
             {
                 item.answer = response;
+                item.ctnx = context.GetPrefix("SendResp");
                 Interlocked.Increment(ref item.srabot);
            //     item.semaphore.Set();//.Release();
                 /*if (item.semaphore.CurrentCount == 0)
@@ -87,6 +90,7 @@ namespace ParserLibrary
             public int srabot = 0;
             public int unwait = 0;
             public string answer="";
+            public string ctnx = "";
             public List<KestrelServer.Header> headers = new List<KestrelServer.Header>(); 
           // public AsyncAutoResetEvent semaphore = new AsyncAutoResetEvent();
         }
@@ -275,6 +279,7 @@ namespace ParserLibrary
                 // await httpContext.Request.Body.
                 SetResponseType(httpContext, owner.ResponseType);
                 await SetResponseContent(httpContext, item.answer);
+                Logger.log("Send ans {ans} {ctn}", Serilog.Events.LogEventLevel.Information, item.answer, item.ctnx);
                 metricCountOpened.Decrement();
                 Interlocked.Decrement(ref CountOpened);
                 metricTimeExecuted.Add(time1);

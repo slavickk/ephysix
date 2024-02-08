@@ -6,6 +6,7 @@ using ParserLibrary.TIC.TICFrames;
 using Serilog;
 using Serilog.Context;
 using Serilog.Core.Enrichers;
+using UniElLib;
 using Exception = System.Exception;
 
 namespace ParserLibrary
@@ -33,9 +34,9 @@ namespace ParserLibrary
         public override ProtocolType protocolType => ProtocolType.tcp;
 
 
-        protected override async Task sendResponseInternal(string response, object context)
+        protected override async Task sendResponseInternal(string response, ContextItem context)
         {
-            TICContext ticContext = context as TICContext;
+            TICContext ticContext = context.context as TICContext;
 
             if (ticContext.Client.Client?.Connected ?? false)
             {
