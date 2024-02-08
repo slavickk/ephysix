@@ -396,6 +396,10 @@ public class ExtractFromInputValue : OutputValue
 
     public override IEnumerable<AbstrParser.UniEl> getNodes(AbstrParser.UniEl rootEl, ContextItem context)
     {
+        if(conditionPath =="Step_0/Rec/Fields/MiscellaneousTransactionAttributes2/Value/AED/Value/Value/Value/BrowserInfo/Value/browserIp/Address")
+        {
+            int yy = 0;
+        }
         if (conditionPathToken == null)
             conditionPathToken = conditionPath.Split("/");
 
