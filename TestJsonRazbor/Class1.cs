@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -41,21 +42,43 @@ public class Samples
 
     public static void LoadFile()
     {
+        var tt=GetExpireFromTrack2("22200*****232=2512");
         var script = Path.GetTempFileName();
         try
         {
-            File.WriteAllText(script, @"using System;
+/*            File.WriteAllText(script, @"using System;
                                         public class Script : ICalc
                                         {
                                             public int Sum(int a, int b)
                                             {
                                                 return a+b;
                                             }
+                                            public int Div(int a, int b)
+                                            {
+                                                return a-b;
+                                            }
+                                        }");*/
+            File.WriteAllText(script, @"using System;
+                                        public class Script 
+                                        {
+                                            public string ConvWithDec(string input)
+                                            {
+                                                return input.Substring(0,input.Length-2)+"".""+input.Substring(input.Length-2) ;
+                                            }
+    public string GetExpireFromTrack2(string Track2)
+    {
+        int pos = Track2.IndexOf(""="");
+        string sExpDate = Track2.Substring(pos + 1);
+        return new DateTime(2000+Convert.ToInt32(sExpDate.Substring(0,2)), Convert.ToInt32(sExpDate.Substring(2,2)),1).ToString(""o"");
+    }
                                         }");
 
-            dynamic calc = CSScript.Evaluator.LoadFile(script);
 
+
+            dynamic calc = CSScript.Evaluator.LoadFile(script);
+            var ans=calc.GetExpireFromTrack2("22200*****232=2512");
             int result = calc.Sum(1, 2);
+            result= calc.Div(3, 1);
         }
         finally
         {
@@ -63,6 +86,12 @@ public class Samples
         }
     }
 
+    public static string GetExpireFromTrack2(string Track2)
+    {
+        int pos = Track2.IndexOf("=");
+        string sExpDate = Track2.Substring(pos + 1);
+        return new DateTime(2000 + Convert.ToInt32(sExpDate.Substring(0, 2)), Convert.ToInt32(sExpDate.Substring(2, 2)), 1).ToString("o");
+    }
     public static void LoadAndUnload()
     {
         // Based on https://github.com/dotnet/samples/blob/master/core/tutorials/Unloading/Host/Program.cs

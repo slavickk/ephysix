@@ -467,6 +467,25 @@ where nt.nodeid=@nodeid and nc.isdeleted=false", conn))
 
             return list;
         }
+
+        public static async Task<List<ETL_Package.ItemTable>> GetTablesForTablePattern(NpgsqlConnection conn, string findString, int[] excludeSrc = null)
+        {
+            List<ETL_Package.ItemTable> list = new List<ETL_Package.ItemTable>();
+            await using (var cmd = new NpgsqlCommand(@"select nt.name tablename,nt.nodeid tableid,s.name from 
+md_Node nt 
+inner join md_src s on (nt.srcid=s.srcid)
+where  nt.typeid = 1 and nt.isdeleted=false and nt.name like '%" + findString + "%' " + ((excludeSrc != null) ? string.Join("", excludeSrc.Select(ii => $" AND nt.srcid!={ii}")) : ""), conn))
+            await using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    list.Add(new ETL_Package.ItemTable() { table_name = reader.GetString(0), table_id = reader.GetInt64(1), src_name = reader.GetString(2) } );
+                }
+            }
+
+            return list;
+        }
+
         public static async Task<List<ETL_Package.ItemColumn>> GetColumnsForTablePattern(NpgsqlConnection conn, string findString,int[] excludeSrc=null)
         {
             List<ETL_Package.ItemColumn> list = new List<ETL_Package.ItemColumn>();

@@ -21,6 +21,7 @@ namespace TestJsonRazbor
         static void Main(string[] args)
         {
             Pipeline.pluginAssemblies.Add(Assembly.GetAssembly(typeof(ParserLibrary.TICReceiver)));
+            Samples.LoadFile();
          //   MXHelper.getExample();
             if(args.Length >0)
                 ExecutedPath = args[0];

@@ -32,6 +32,7 @@ namespace MXGraphHelperLibrary
         {
             [JsonIgnore]
             public int xCurrent = 0;  // for arrow position control
+            public string type { get; set; }
             public class Body
             {
                 public class Row
@@ -64,7 +65,7 @@ namespace MXGraphHelperLibrary
                                         public Points(int x,int y)
                                         {
                                             this.x = x;
-                                            this.y = y;
+                                        //    this.y = y;
                                         }
                                     }
                                     public int typelink { get; set; } = 1;
@@ -82,6 +83,8 @@ namespace MXGraphHelperLibrary
                             public string caption { get; set; }
                             public string box_id { get; set; }
                             public int? colspan { get; set; }
+
+                            public List<int> valid_link_type { get; set; }
                             public string? style { get; set; }
                             public List<BoxLink> box_links { get; set; }
                             public Points points { get; set; }
@@ -116,6 +119,9 @@ namespace MXGraphHelperLibrary
                 public Position position { get; set; }
                 public Size size { get; set; }
                 public string caption { get; set; }
+                public string description { get; set; }
+                public string zone_name { get; set; }
+                public string zone_type { get; set; }
                 public string value { get; set; }
             }
 

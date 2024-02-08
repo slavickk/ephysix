@@ -71,13 +71,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphShablons", "GraphShabl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataProject", "DataProject\DataProject.csproj", "{A02362DD-88A5-4950-93BE-FADDCDD30077}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MXGraphHelperLibrary", "MXGraphHelperLibrary\MXGraphHelperLibrary.csproj", "{78E9A743-1585-42D9-83A9-064C68660BB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MXGraphHelperLibrary", "MXGraphHelperLibrary\MXGraphHelperLibrary.csproj", "{78E9A743-1585-42D9-83A9-064C68660BB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaTests", "KafkaTests\KafkaTests.csproj", "{32AD0F62-0BF8-4B71-8AD4-82AA8EA441DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaTests", "KafkaTests\KafkaTests.csproj", "{32AD0F62-0BF8-4B71-8AD4-82AA8EA441DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaTestsConsumer", "KafkaTestsConsumer\KafkaTestsConsumer.csproj", "{97075CA5-383A-4256-882B-33641AB463C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaTestsConsumer", "KafkaTestsConsumer\KafkaTestsConsumer.csproj", "{97075CA5-383A-4256-882B-33641AB463C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCFAProtocols.Console", "CCFAProtocols.Console\CCFAProtocols.Console.csproj", "{72392A8D-BD88-43BE-A068-EB13CC3092C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CCFAProtocols.Console", "CCFAProtocols.Console\CCFAProtocols.Console.csproj", "{72392A8D-BD88-43BE-A068-EB13CC3092C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrontInterfaceSupport", "FrontInterfaceSupport\FrontInterfaceSupport.csproj", "{8C496450-7127-40A7-9BBD-55B1C424FA38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFrontInterface", "TestFrontInterface\TestFrontInterface.csproj", "{E5E7B7F3-5A69-4DCA-8796-6A93A16F7A76}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCFAProtocols.Bench", "CCFAProtocols.Bench\CCFAProtocols.Bench.csproj", "{62472B58-4BAC-4CC1-B7B2-238100E4477E}"
 EndProject

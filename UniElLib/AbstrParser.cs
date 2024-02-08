@@ -728,6 +728,10 @@ namespace UniElLib
 
             public IEnumerable<UniEl> getAllDescentants(string[] path,int index, ContextItem context)
             {
+                if(index>=10)
+                {
+                    int yy = 0;
+                }
                 if (index < path.Length)
                 {
                     if (isEqual(this.Name, path[index]))

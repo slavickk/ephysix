@@ -254,7 +254,7 @@ namespace TestJsonRazbor
                 var oldOutList = itemFilter.outputFields;
                 int index=currentStep.converters.IndexOf(itemFilter);
 
-
+                ContextItem cont = new ContextItem() { list = list };
                 
                 for (int i = 0; i <= index; i++)
                 {
@@ -262,9 +262,9 @@ namespace TestJsonRazbor
 //                    foreach (var filt in currentStep.filters)
                     {
                         AbstrParser.UniEl rEl1 = null;
-                        foreach (var item1 in filt.filter.filter(list,ref rEl1,null))
+                        foreach (var item1 in filt.filter.filter(list,ref rEl1,cont))
 
-                            filt.exec(item1, ref outRoot,null);
+                            filt.exec(item1, ref outRoot,cont);
                     }
                 }
 

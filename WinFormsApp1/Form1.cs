@@ -26,6 +26,7 @@ namespace WinFormsApp1
 
 
         Task runner;
+        bool sendCamunda = false;
         private async void Form1_Load(object sender, EventArgs e)
 
         {
@@ -34,12 +35,15 @@ namespace WinFormsApp1
             {
                 body = sr.ReadToEnd();
             }
-//            Path path = new Path(@"HTML\testInteractive.html");
+            //            Path path = new Path(@"HTML\testInteractive.html");
 
-           // this.webView21.Source = new Uri(Path.GetFullPath(@"HTML/testInteractive.html"));
-//            this.pictureBox1.Image = GraphvizTest.toGraphviz(body);
-            runner =CamundaExecutor.runCycle();
-            await GenerateStatement.SendTest();
+            // this.webView21.Source = new Uri(Path.GetFullPath(@"HTML/testInteractive.html"));
+            //            this.pictureBox1.Image = GraphvizTest.toGraphviz(body);
+            if (sendCamunda)
+            {
+                runner = CamundaExecutor.runCycle();
+                await GenerateStatement.SendTest();
+            }
             conn = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);
             conn.Open();
            /* connAdm = new NpgsqlConnection(GenerateStatement.ConnectionStringAdm);

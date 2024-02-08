@@ -28,7 +28,8 @@ namespace ETL_DB_Interface
     public class GenerateStatement
     {
        static HttpClient client;
-        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;";
+        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=master.pgfp01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;";
+//        public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;";
         //public static string ConnectionStringAdm = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;";
         //        public static string ConnectionStringAdm = "User ID=md;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=md;";
         //        public static string ConnectionString = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.dc1.consul;Port=5432;Database=fpdb;SearchPath=fp;";

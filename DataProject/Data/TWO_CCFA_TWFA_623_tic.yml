@@ -534,7 +534,7 @@ steps:
     certPassword: ''
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
-    timeoutSendInSeconds: 5
+    timeoutSendInMilliseconds: 5000
     headers: 
     responseType: application/json
     urls:
@@ -1407,7 +1407,7 @@ steps:
     certPassword: ''
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
-    timeoutSendInSeconds: 5
+    timeoutSendInMilliseconds: 5000
     headers: 
     responseType: text/xml
     urls:
@@ -1620,7 +1620,7 @@ steps:
     certPassword: ''
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
-    timeoutSendInSeconds: 5
+    timeoutSendInMilliseconds: 5000
     headers: 
     responseType: application/json
     urls:

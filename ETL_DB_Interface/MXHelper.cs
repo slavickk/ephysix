@@ -140,7 +140,19 @@ namespace ETL_DB_Interface
             return doc;
         }
 
-        public  static async Task DrawMXGraph(this GenerateStatement.ETL_Package pack,NpgsqlConnection conn)
+        public static MXGraphDoc.Box deserializeBox(string sss)
+        {
+            return JsonSerializer.Deserialize<MXGraphDoc>(sss).boxes[0];
+        }
+        public static string serializeBox(MXGraphDoc.Box box)
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions() { IgnoreNullValues = true };
+            return JsonSerializer.Serialize<MXGraphDoc.Box>(box,options);
+        }
+
+
+
+        public static async Task DrawMXGraph(this GenerateStatement.ETL_Package pack,NpgsqlConnection conn)
         {
             try
             {
