@@ -149,7 +149,7 @@ public abstract class Receiver/*:IReceiver*/
             Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
         if (owner?.owner.saver?.enable ?? false)
             owner.owner.saver.save(response, contextItem + owner.IDStep + "RecAns_" + contextItem.fileNameT);
-        LogExtendedStat(contextItem); 
+       // LogExtendedStat(contextItem); 
         if (Pipeline.isSaveHistory)
             Logger.log("{data} {context} ", Serilog.Events.LogEventLevel.Information, "hist", response.MaskSensitive(), contextItem.GetPrefix(owner.IDStep + "RecAns"));
 
