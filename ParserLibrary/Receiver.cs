@@ -158,14 +158,14 @@ public abstract class Receiver/*:IReceiver*/
             await sendResponseInternal(response, contextItem);
     }
 
-    protected void LogExtendedStat(ContextItem contextItem)
+    protected void LogExtendedStat(string result,ContextItem contextItem)
     {
         if (Pipeline.isExtendingStat && contextItem != null)
         {
             contextItem.stats[0].ticks = (DateTime.Now - contextItem.startTime).Ticks;
             var st = contextItem.stats.Select(ii => new KeyValuePair<string, long>(ii.Name, ii.ticks))
                 .ToDictionary(x => x.Key, x => x.Value);
-            Logger.log("{context} {@stats}", Serilog.Events.LogEventLevel.Information, "hist"
+            Logger.log("{result} {context} {@stats}", Serilog.Events.LogEventLevel.Information, "hist",result
                 , contextItem.GetPrefix(owner.IDStep + "RecAns"), st);
         }
     }
