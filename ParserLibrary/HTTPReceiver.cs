@@ -216,7 +216,7 @@ namespace ParserLibrary
                         metricTimeouts.Increment();
                         httpContext.Response.StatusCode = 429;
                         Logger.log("Final:ConnectionBusy error :{o} {input} {context}", e77, Serilog.Events.LogEventLevel.Error, "any", owner.owner, str, item.ctnx.GetPrefix("FinishError"));
-                        owner.LogExtendedStat("Fail",item.ctnx);
+                        owner.LogExtendedStat("Fail",str,item.ctnx);
                         return;
 
                     }
@@ -228,7 +228,7 @@ namespace ParserLibrary
                         metricTimeouts.Increment();
                         httpContext.Response.StatusCode = 408;
                         Logger.log("Final:Timeout reached :{o} {input} {context}", e77, Serilog.Events.LogEventLevel.Error, "any", owner.owner, str, item.ctnx.GetPrefix("FinishError"));
-                        owner.LogExtendedStat("Fail", item.ctnx);
+                        owner.LogExtendedStat("Fail",str, item.ctnx);
                         return;
 
                     }
@@ -240,7 +240,7 @@ namespace ParserLibrary
                         metricTimeouts.Increment();
                         httpContext.Response.StatusCode = 429;
                         Logger.log("Final:ConnectionBusy error :{o} {input} {context}", e77, Serilog.Events.LogEventLevel.Error, "any", owner.owner, str,  item.ctnx.GetPrefix("FinishError"));
-                        owner.LogExtendedStat("Fail", item.ctnx);
+                        owner.LogExtendedStat("Fail",str, item.ctnx);
                         return;
 
                     }
@@ -250,7 +250,7 @@ namespace ParserLibrary
                         metricCountOpened.Decrement();
                         metricErrors.Increment();
                         Logger.log("Final:Error on input request  {input} {context}", e77, Serilog.Events.LogEventLevel.Error, str, item.ctnx.GetPrefix("FinishError"));
-                        owner.LogExtendedStat("Fail", item.ctnx);
+                        owner.LogExtendedStat("Fail",str, item.ctnx);
                         httpContext.Response.StatusCode = 503;
                         return;
                     }
@@ -284,7 +284,7 @@ namespace ParserLibrary
                 // await httpContext.Request.Body.
                 SetResponseType(httpContext, owner.ResponseType);
                 await SetResponseContent(httpContext, item.answer);
-                owner.LogExtendedStat("Success",item.ctnx);
+                owner.LogExtendedStat("Success",item.answer,item.ctnx);
 //                Logger.log("Send ans {ans} {ctn}", Serilog.Events.LogEventLevel.Information, item.answer, item.ctnx);
                 metricCountOpened.Decrement();
                 Interlocked.Decrement(ref CountOpened);
