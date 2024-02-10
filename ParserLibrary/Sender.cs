@@ -17,6 +17,8 @@ public abstract class Sender/*:ISender*/
     [YamlIgnore]
 
     private Metrics.MetricHistogram metricUpTimeError;
+
+    public string description = "";
     public virtual void Init(Pipeline owner)
     {
         
@@ -101,7 +103,7 @@ public abstract class Sender/*:ISender*/
                 else
                     ans = await send(root.toJSON(),context);
                 if(context.stats != null)
-                    context.stats.Add(new ContextItem.StatItem() { Name=GetType().Name, ticks=(DateTime.Now - time1).Ticks});
+                    context.stats.Add(new ContextItem.StatItem() { Name=description??GetType().Name, ticks=(DateTime.Now - time1).Ticks});
             }
             else
             {

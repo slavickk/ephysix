@@ -146,17 +146,10 @@ public abstract class Receiver/*:IReceiver*/
     public async Task sendResponse(string response,ContextItem  contextItem)
     {
         if (debugMode)
-            Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any",owner, response);
-        if (owner?.owner.saver?.enable??false)
-            owner.owner.saver.save(response,contextItem+owner.IDStep+"RecAns_"+contextItem.fileNameT);
-        if (Pipeline.isExtendingStat)
-        {
-            contextItem.stats[0].ticks = (DateTime.Now - contextItem.startTime).Ticks;
-            var st = contextItem.stats.Select(ii => new KeyValuePair<string,long>(ii.Name,ii.ticks))
-                .ToDictionary(x => x.Key, x => x.Value);
-            Logger.log("{context} {@stats}", Serilog.Events.LogEventLevel.Information, "hist"
-                , contextItem.GetPrefix(owner.IDStep + "RecAns"),st);
-        }
+            Logger.log("Send answer to {step} : {content} ", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
+        if (owner?.owner.saver?.enable ?? false)
+            owner.owner.saver.save(response, contextItem + owner.IDStep + "RecAns_" + contextItem.fileNameT);
+        LogExtendedStat(contextItem); 
         if (Pipeline.isSaveHistory)
             Logger.log("{data} {context} ", Serilog.Events.LogEventLevel.Information, "hist", response.MaskSensitive(), contextItem.GetPrefix(owner.IDStep + "RecAns"));
 
@@ -165,6 +158,17 @@ public abstract class Receiver/*:IReceiver*/
             await sendResponseInternal(response, contextItem);
     }
 
+    protected void LogExtendedStat(ContextItem contextItem)
+    {
+        if (Pipeline.isExtendingStat && contextItem != null)
+        {
+            contextItem.stats[0].ticks = (DateTime.Now - contextItem.startTime).Ticks;
+            var st = contextItem.stats.Select(ii => new KeyValuePair<string, long>(ii.Name, ii.ticks))
+                .ToDictionary(x => x.Key, x => x.Value);
+            Logger.log("{context} {@stats}", Serilog.Events.LogEventLevel.Information, "hist"
+                , contextItem.GetPrefix(owner.IDStep + "RecAns"), st);
+        }
+    }
 
     public async Task start()
     {

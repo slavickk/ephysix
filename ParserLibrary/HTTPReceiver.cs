@@ -56,7 +56,7 @@ namespace ParserLibrary
             if (item != null)
             {
                 item.answer = response;
-                item.ctnx = context.GetPrefix("SendResp");
+//                item.ctnx = context.GetPrefix("SendResp");
                 Interlocked.Increment(ref item.srabot);
            //     item.semaphore.Set();//.Release();
                 /*if (item.semaphore.CurrentCount == 0)
@@ -90,7 +90,7 @@ namespace ParserLibrary
             public int srabot = 0;
             public int unwait = 0;
             public string answer="";
-            public string ctnx = "";
+            public ContextItem ctnx ;
             public List<KestrelServer.Header> headers = new List<KestrelServer.Header>(); 
           // public AsyncAutoResetEvent semaphore = new AsyncAutoResetEvent();
         }
@@ -128,20 +128,21 @@ namespace ParserLibrary
                 if (httpContext.Request.Path.Value.ToLower().Contains("/selftest"))
                 {
                     SetResponseType(httpContext, "text/plain");
-                    var res=await owner.owner.owner.SelfTest();
+                    var res =await owner.owner.owner.SelfTest();
                     if (res.Result)
                         await SetResponseStatusCode(httpContext, 200);
                     else
                         await SetResponseStatusCode(httpContext, 502);
                     await SetResponseContent(httpContext, res.Description);
 
-
+                   
                     return;
                 }
                 if (httpContext.Request.Path.Value.Contains("/healthcheck"))
                 {
                     SetResponseType(httpContext, "text/plain");
                     await SetResponseContent(httpContext, "OK");
+                    Thread.Sleep(10000);
                     return;
                 }
                 if (httpContext.Request.Path.Value.Contains("/metrics"))
@@ -215,6 +216,7 @@ namespace ParserLibrary
                         metricTimeouts.Increment();
                         httpContext.Response.StatusCode = 429;
                         Logger.log("ConnectionBusy error :{o} {input}", Serilog.Events.LogEventLevel.Error, "any", owner.owner, item.answer);
+                        owner.LogExtendedStat(item.ctnx);
                         return;
 
                     }
@@ -226,6 +228,7 @@ namespace ParserLibrary
                         metricTimeouts.Increment();
                         httpContext.Response.StatusCode = 408;
                         Logger.log("Timeout reached :{o} {input}", Serilog.Events.LogEventLevel.Error, "any", owner.owner, item.answer);
+                        owner.LogExtendedStat(item.ctnx);
                         return;
 
                     }
@@ -237,6 +240,7 @@ namespace ParserLibrary
                         metricTimeouts.Increment();
                         httpContext.Response.StatusCode = 429;
                         Logger.log("ConnectionBusy error :{o} {input}", Serilog.Events.LogEventLevel.Error, "any", owner.owner, item.answer);
+                        owner.LogExtendedStat(item.ctnx);
                         return;
 
                     }
@@ -246,6 +250,7 @@ namespace ParserLibrary
                         metricCountOpened.Decrement();
                         metricErrors.Increment();
                         Logger.log("Error on input request ", e77, Serilog.Events.LogEventLevel.Error);
+                        owner.LogExtendedStat(item.ctnx);
                         httpContext.Response.StatusCode = 503;
                         return;
                     }
@@ -279,7 +284,8 @@ namespace ParserLibrary
                 // await httpContext.Request.Body.
                 SetResponseType(httpContext, owner.ResponseType);
                 await SetResponseContent(httpContext, item.answer);
-                Logger.log("Send ans {ans} {ctn}", Serilog.Events.LogEventLevel.Information, item.answer, item.ctnx);
+                owner.LogExtendedStat(item.ctnx);
+//                Logger.log("Send ans {ans} {ctn}", Serilog.Events.LogEventLevel.Information, item.answer, item.ctnx);
                 metricCountOpened.Decrement();
                 Interlocked.Decrement(ref CountOpened);
                 metricTimeExecuted.Add(time1);
