@@ -147,7 +147,7 @@ steps:
       conditionPath: Step_0/Rec/Fields/PAN
       conditionCalcer: 
       valuePath: ''
-    - !ExtractFromInputValue
+    - !ExtractFromInputValueWithScript
       copyChildsOnly: false
       viewAsJsonString: false
       outputPath: cardExpiryDate
@@ -157,7 +157,17 @@ steps:
       converter: 
       getNodeNameOnly: false
       returnOnlyFirstRow: false
-      conditionPath: Step_0/Rec/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Parties/Cust/Token/Card/-ExpDate/#text
+      scriptBody: >
+        using System;
+
+        string GetExpireFromTrack2(string Track2)
+
+        {
+           int pos = Track2.IndexOf("=");
+           string sExpDate = Track2.Substring(pos + 1);
+           return new DateTime(2000+Convert.ToInt32(sExpDate.Substring(0,2)), Convert.ToInt32(sExpDate.Substring(2,2)),1).ToString("o");
+        }
+      conditionPath: Step_0/Rec/Fields/Track2
       conditionCalcer: 
       valuePath: ''
     - !ExtractFromInputValue
@@ -264,7 +274,7 @@ steps:
       conditionPath: Step_0/Rec/Fields/MiscellaneousTransactionAttributes2/Value/EC/Value/3DS/DSTransId/Value
       conditionCalcer: 
       valuePath: ''
-    - !ExtractFromInputValue
+    - !ExtractFromInputValueWithScript
       copyChildsOnly: false
       viewAsJsonString: false
       outputPath: purchaseAmount
@@ -273,7 +283,17 @@ steps:
       onEmptyValueAction: Skip
       converter: 
       getNodeNameOnly: false
-      returnOnlyFirstRow: false
+      returnOnlyFirstRow: true
+      scriptBody: >+
+        using System;
+
+
+        string ConvWithDec(string input)
+
+        {
+               return input.Substring(0,input.Length-2)+"."+input.Substring(input.Length-2) ;
+        }
+
       conditionPath: Step_0/Rec/Fields/TransactionAmount
       conditionCalcer: 
       valuePath: ''

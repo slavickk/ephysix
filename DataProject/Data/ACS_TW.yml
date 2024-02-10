@@ -317,6 +317,7 @@ steps:
       conditionCalcer: 
       valuePath: ''
   sender: !StreamSender
+    description: CCFA
     streamName: AReq
     dbConnectionString: User ID={#DB_USER_FPDB#};Password={#DB_PASSWORD_FPDB#};Host={#DB_URL_FPDB#};Port=5432;Database=fpdb;SearchPath=md;
     streamSender:
@@ -723,6 +724,7 @@ steps:
       conditionCalcer: 
       valuePath: ''
   sender: !DMNExecutorSender
+    description: DMN
     countPrewarmingIntances: 4
     xML: >
       <?xml version="1.0" encoding="UTF-8"?>
@@ -1429,11 +1431,12 @@ steps:
       returnOnlyFirstRow: true
       value: CCFA host not reacheable
   sender: !HTTPSender
+    description: TWO
     certName: ''
     certPassword: ''
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
-    timeoutSendInMilliseconds: {#CCFA_SEND_TIMEOUT#}
+    timeoutSendInMilliseconds: {#TWO_SEND_TIMEOUT#}
     headers: 
     responseType: text/xml
     urls:
@@ -1445,9 +1448,9 @@ steps:
     mocBody: ''
   isender: 
 - isBridge: false
-  isHandleSenderError: false
+  isHandleSenderError: true
   maxSavedLimitInMB: 0
-  saveErrorSendDirectory: ''
+  saveErrorSendDirectory: {#BUFF_DIR#}
   saveScenariousDirectory: C:\d\Scenarious\
   iDStep: Step_FromTWO
   iDPreviousStep: Step_ToTWO
@@ -1579,6 +1582,7 @@ steps:
       returnOnlyFirstRow: true
       value: {#FID#}
   sender: !StreamSender
+    description: CCFA
     streamName: RReq
     dbConnectionString: User ID={#DB_USER_FPDB#};Password={#DB_PASSWORD_FPDB#};Host={#DB_URL_FPDB#};Port=5432;Database=fpdb;SearchPath=md;
     streamSender:

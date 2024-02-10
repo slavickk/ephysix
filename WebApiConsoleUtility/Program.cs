@@ -169,38 +169,12 @@ namespace WebApiConsoleUtility
                 Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch,
                     Environment.GetEnvironmentVariable("SYNC_LOG") == null,
                     Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
-                /*           if (LogPath == null)
-                               Log.Logger = new LoggerConfiguration()
-                               .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
-                       .Enrich.FromLogContext()
-                       .Enrich.WithProperty("Machine", System.Environment.MachineName)
-                                .Filter.ByExcluding(c => !LogHealthAndMonitoring &&
-                    (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
-                    )
+                    Log.Information($"Service url on {Pipeline.ServiceAddr}");
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUFF_DIR")))
+                    Log.Information("save error messages is off");
+                else
+                    Log.Information("save error messages is on");
 
-                       //        .Enrich.With<>
-                       .WriteTo.Console(new RenderedCompactJsonFormatter())
-                       .CreateLogger();
-                           else
-                           {
-                               Log.Logger = new LoggerConfiguration()
-                               .MinimumLevel.ControlledBy(ParserLibrary.Logger.levelSwitch)
-                       .Enrich.FromLogContext()
-                       .WriteTo.File(new CompactJsonFormatter(), LogPath).CreateLogger();
-
-                           }
-                       } else
-                       {
-                           Log.Logger = new LoggerConfiguration()
-                           .MinimumLevel.ControlledBy(new LoggingLevelSwitch())
-                   .Enrich.FromLogContext()
-                   .Enrich.WithProperty("Machine", System.Environment.MachineName)
-                   //        .Enrich.With<>
-                   .WriteTo.Console(new RenderedCompactJsonFormatter())
-                   .CreateLogger();
-
-                       }*/
-                Log.Information($"Service url on {Pipeline.ServiceAddr}");
                 if (!IgnoreAll)
                 {
                     if (levelInfo != "")

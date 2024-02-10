@@ -16,7 +16,7 @@ namespace UniElLib
         {
  
             public string Name { get; set; }
-            public long ticks { get; set; }
+            public long ticks { get; set; }=-1;
         }
         public List<UniElLib.AbstrParser.UniEl> list = new List<UniElLib.AbstrParser.UniEl>();
         public List<StatItem> stats = null;// new List<StatItem>();

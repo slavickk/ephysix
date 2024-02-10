@@ -13,7 +13,7 @@ public class ExtractFromInputValueWithScript: ExtractFromInputValue
     string body = @"using System;
 using System.Linq;
 using ParserLibrary;
-AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
+string  ConvObject(AbstrParser.UniEl el)
 {                                                           
             var sb = new StringBuilder();
             el.ancestor.childs.ForEach(s => sb.Append(s.Value));
@@ -42,11 +42,17 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
         }
     }
 
-    public override AbstrParser.UniEl getFinalNode(AbstrParser.UniEl el)
+    public override object getValue(AbstrParser.UniEl rootEl)
     {
-        return checker(el) as AbstrParser.UniEl;
-//            return base.getNode(rootEl);
+        return (getNode(rootEl).Value.ToString());
+        //return base.getValue(rootEl);
     }
+
+/*    public override AbstrParser.UniEl getFinalNode(AbstrParser.UniEl el)
+    {
+        return checker(el.Value.ToString()) as AbstrParser.UniEl;
+//            return base.getNode(rootEl);
+    }*/
 }
 
 public abstract class OutputValue:ILiquidizable

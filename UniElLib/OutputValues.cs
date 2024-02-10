@@ -41,10 +41,14 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
         }
     }
-
+   /* public override object getValue(AbstrParser.UniEl rootEl)
+    {
+        return (getNode(rootEl).Value.ToString());
+        //return base.getValue(rootEl);
+    }*/
     public override AbstrParser.UniEl getFinalNode(AbstrParser.UniEl el)
     {
-        return checker(el) as AbstrParser.UniEl;
+        return  new AbstrParser.UniEl() { Value = checker(el.Value.ToString()) } as AbstrParser.UniEl;
 //            return base.getNode(rootEl);
     }
 }
@@ -310,7 +314,7 @@ public class ExtractFromInputValueWithSwitch:ExtractFromInputValue
         return retValue.Value;
     }
 }
-
+/*
 public class ScriptFromInputValue : ExtractFromInputValue
 {
     public override object getValue(AbstrParser.UniEl rootEl)
@@ -319,7 +323,7 @@ public class ScriptFromInputValue : ExtractFromInputValue
         //return base.getValue(rootEl);
     }
 }
-
+*/
 public class ExtractFromInputValue : OutputValue
 {
     public string preoPath(string path)

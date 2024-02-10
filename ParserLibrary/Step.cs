@@ -174,15 +174,15 @@ public partial class Step : ILiquidizable
             this.sender.Init(owner);
         }
 
-            if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
+        if (!string.IsNullOrEmpty(this.SaveErrorSendDirectory))
         {
             // Ensure the save error directory exists
             Directory.CreateDirectory(this.SaveErrorSendDirectory);
-                
+
             var moveDir = Path.Combine(this.SaveErrorSendDirectory, "Move");
             if (Directory.Exists(moveDir))
             {
-                foreach(var file in Directory.GetFiles(moveDir))
+                foreach (var file in Directory.GetFiles(moveDir))
                 {
                     try
                     {
@@ -201,9 +201,9 @@ public partial class Step : ILiquidizable
             countDelayMessages = files.Count();
             if (countDelayMessages > 0)
             {
-                SizeDirectory=files.Select(ii => new FileInfo(ii).Length).Sum();
+                SizeDirectory = files.Select(ii => new FileInfo(ii).Length).Sum();
 
-               // Directory.GetF
+                // Directory.GetF
                 isErrorSending = true;
                 tRestore = restoreSenderState(SaveErrorSendDirectory);
             }
@@ -250,13 +250,16 @@ public partial class Step : ILiquidizable
         if (Pipeline.isExtendingStat)
         {
             contextItem.stats = new System.Collections.Generic.List<ContextItem.StatItem>();
-            contextItem.stats.Add(new ContextItem.StatItem() { Name = "Receiver" });
+            contextItem.stats.Add(new ContextItem.StatItem() { Name = "All" });
         }
         if (contextItem?.mainActivity != null)
         {
             contextItem?.mainActivity?.SetTag("context.url", owner.SaveContext(input));
         }
-        //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+        var item = context as HTTPReceiver.SyncroItem;
+        if (item != null)
+            item.ctnx = contextItem;
+            //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
         if(owner.saver?.enable ?? false)
