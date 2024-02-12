@@ -62,7 +62,7 @@ namespace MXGraphHelperLibrary
                                     {
                                         public int x { get; set; }
                                         public int y { get; set; }
-                                        public Points(int x,int y)
+                                        public Points()
                                         {
                                             this.x = x;
                                         //    this.y = y;
