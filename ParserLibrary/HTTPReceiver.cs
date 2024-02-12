@@ -142,7 +142,7 @@ namespace ParserLibrary
                 {
                     SetResponseType(httpContext, "text/plain");
                     await SetResponseContent(httpContext, "OK");
-                    Thread.Sleep(10000);
+//                    Thread.Sleep(10000);
                     return;
                 }
                 if (httpContext.Request.Path.Value.Contains("/metrics"))
