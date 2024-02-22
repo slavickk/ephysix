@@ -186,10 +186,10 @@ public class Pipeline:ILiquidizable
             t.IsAssignableTo(typeof(Receiver))
              ||
             t.IsAssignableTo(typeof(Sender))
-     /*       ||
+            ||
             typeof(IReceiver).IsAssignableFrom(t)
             ||
-            typeof(ISender).IsAssignableFrom(t)*/;
+            typeof(ISender).IsAssignableFrom(t);
     }
     public static List<Type> getAllRegTypes(params Assembly[] addAssemblies)
     {
@@ -224,8 +224,7 @@ public class Pipeline:ILiquidizable
     public static string ToStringValue(Pipeline pipes,Assembly assembly)
     {
         var ser = new SerializerBuilder();
-        foreach (var type in getAllRegTypes(assembly))
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        ser = ConfigureTypeTagsInSerializer(ser, getAllRegTypes(assembly));
         var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         using (StringWriter sw = new StringWriter())
         {
@@ -266,7 +265,7 @@ public class Pipeline:ILiquidizable
         }*/
             IV= Encoding.UTF8.GetBytes(initialisationVector);
             //aes.IV = iv;
-
+            
         foreach (var step in steps)
             step.Init(this);
         foreach(var mb in this.metricsBuilder)
@@ -328,7 +327,14 @@ public class Pipeline:ILiquidizable
     [YamlIgnore]
     public string fileName;
     public static string basepath;
-    public static Pipeline load(string fileName,Assembly assembly)
+    
+    /// <summary>
+    /// Load a pipeline from a file
+    /// </summary>
+    /// <param name="fileName">The file to load the pipeline from</param>
+    /// <param name="assembly">The assembly to load plugins and other types from</param>
+    /// <returns>The loaded pipeline</returns>
+    public static Pipeline load(string fileName, Assembly assembly)
     {
         string Body;
         basepath= Path.GetDirectoryName(fileName);
@@ -451,17 +457,19 @@ public class Pipeline:ILiquidizable
         public string comment = "";
     }
     static List<occurencyItem> occurencyItems= new List<occurencyItem>()   ;
-    public static Pipeline loadFromString(string Body,Assembly assembly)
+    
+    /// <summary>
+    /// Load a pipeline from a string
+    /// </summary>
+    /// <param name="Body">The string to load the pipeline from</param>
+    /// <param name="assembly">The assembly to load plugins and other types from</param>
+    /// <returns>The loaded pipeline</returns>
+    public static Pipeline loadFromString(string Body, Assembly assembly)
     {
         occurencyItems.Clear();
         var ser = new DeserializerBuilder();
         AddCustomParsers(assembly);
-        foreach (var type in getAllRegTypes(assembly))
-        {
-          // ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
-        
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
-        }
+        ser = ConfigureTypeTagsInSerializer(ser, getAllRegTypes(assembly));
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -609,10 +617,49 @@ public class Pipeline:ILiquidizable
     private static ISerializer getSerializer(Assembly assembly)
     {
         var ser = new SerializerBuilder();
-        foreach (var type in getAllRegTypes(assembly))
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        ser = ConfigureTypeTagsInSerializer(ser, getAllRegTypes(assembly));
         var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         return serializer;
+    }
+
+    /// <summary>
+    /// Configures type tags in the serializer.
+    /// Built-in plugins are registered as type.Name, and IReceiver and ISender based ones as type.FullName
+    /// </summary>
+    /// <param name="ser"></param>
+    /// <param name="allRegTypes"></param>
+    /// <returns></returns>
+    private static SerializerBuilder ConfigureTypeTagsInSerializer(SerializerBuilder ser, List<Type> allRegTypes)
+    {
+        foreach (var type in allRegTypes)
+        {
+            if (type.IsAssignableTo(typeof(IReceiver)) || type.IsAssignableTo(typeof(ISender)))
+                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
+            else
+                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        }
+
+        return ser;
+    }
+    
+    /// <summary>
+    /// Configures type tags in the deserializer.
+    /// Built-in plugins are registered as type.Name, and IReceiver and ISender based ones as type.FullName
+    /// </summary>
+    /// <param name="deser"></param>
+    /// <param name="allRegTypes"></param>
+    /// <returns></returns>
+    private static DeserializerBuilder ConfigureTypeTagsInSerializer(DeserializerBuilder deser, List<Type> allRegTypes)
+    {
+        foreach (var type in allRegTypes)
+        {
+            if (type.IsAssignableTo(typeof(IReceiver)) || type.IsAssignableTo(typeof(ISender)))
+                deser = deser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
+            else
+                deser = deser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        }
+
+        return deser;
     }
 
     public void Save(TextWriter stream,Assembly assembly)
