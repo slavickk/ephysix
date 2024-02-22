@@ -15,7 +15,7 @@ public class FileReceiver : IReceiver
     public IReceiverHost host { get; set; }
     public Task sendResponse(string response, object context)
     {
-        Logger.log($"FileReceiver.sendResponse called with response {response} and context {context}");
+        Logger.log($"FileReceiver.sendResponse called with response '{response}' and context: {context}");
         return Task.CompletedTask;
     }
 
