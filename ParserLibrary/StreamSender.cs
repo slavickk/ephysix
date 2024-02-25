@@ -18,6 +18,7 @@ using PluginBase;
 using UniElLib;
 using System.IO;
 using NUnit.Framework;
+using Serilog;
 
 namespace ParserLibrary;
 
@@ -289,6 +290,8 @@ where n.typeid=md_get_type('Stream') and n.name =@name and n.isdeleted=false
             {
                 return System.Text.Json.JsonSerializer.Deserialize<List<Stream>>(sr.ReadToEnd());
             }
+
+        Log.Information("Local storage file not found: {path}", GetStoragePath());
         return new List<Stream>();
     }
 
