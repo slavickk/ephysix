@@ -2,9 +2,11 @@ using Confluent.Kafka;
 using ParserLibrary;
 using PluginBase;
 using Serilog.Events;
+using UniElLib;
 
 namespace Plugins.Kafka;
 
+// TODO: move Kafka plugins to the main project, ParserLibrary
 public class KafkaReceiver : IReceiver, IDisposable
 {
     public KafkaReceiver()
@@ -106,10 +108,14 @@ public class KafkaReceiver : IReceiver, IDisposable
     {
         if (_consumer == null)
             throw new InvalidOperationException("_consumer is null");
-
-        if (context is not KafkaReceiverContext krctx)
+        
+        if (context is not ContextItem ctx)
             throw new ArgumentException(
-                $"Expected context of type {nameof(KafkaReceiverContext)} but got {context?.GetType().Name ?? "null"}");
+                $"Expected context of type {nameof(ContextItem)} but got {context?.GetType().Name ?? "null"}");
+
+        if (ctx.context is not KafkaReceiverContext krctx)
+            throw new ArgumentException(
+                $"Expected ContextItem.context of type {nameof(KafkaReceiverContext)} but got {ctx.context?.GetType().Name ?? "null"}");
         
         // Assume that "sending a response back to Kafka" means "committing the message".
         // Actual response content is ignored.
