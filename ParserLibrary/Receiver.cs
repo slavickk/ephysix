@@ -83,6 +83,14 @@ public abstract class Receiver/*:IReceiver*/
             mocker.MocFile = value;
         }
     }
+
+    /// <summary>
+    /// Number of times to receive the mock message (default is 1).
+    /// This allows to simulate processing multiple messages after a single pipeline initialization - for benchmarking.
+    /// </summary>
+    [YamlIgnore]
+    public int MockReceiveCount = 1;
+    
     public string MocBody
     {
         get { return mocker.MocBody; }
@@ -174,13 +182,16 @@ public abstract class Receiver/*:IReceiver*/
     {
         if (MocMode)
         {
-            string input;
-            using (StreamReader sr = new StreamReader(MocFile))
+            if (string.IsNullOrEmpty(this.MocBody))
             {
-                input = sr.ReadToEnd();
+                using StreamReader sr = new StreamReader(MocFile);
+                this.MocBody = sr.ReadToEnd();
             }
             string hz = "hz";
-            await signal(input,hz);
+            
+            for (var i = 0; i < this.MockReceiveCount; i++)
+                await signal(this.MocBody,hz);
+
         }
         else
             await startInternal();
