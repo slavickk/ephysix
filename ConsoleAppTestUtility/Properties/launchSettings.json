@@ -4,9 +4,18 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SECRET_WORD": "abc",
+        "BUFF_DIR": "BuffDir",
+        "FID": "MY_BANK",
+        "DB_USER_FPDB": "dummy_user",
+        "DB_PASSWORD_FPDB": "dummy_password",
+        "DB_URL_FPDB": "dummy_url",
+        "REX_URL": "dummy_url",
+        "AUTH_HOST_URL": "dummy_url"
       },
-      "applicationUrl": "https://localhost:63342;http://localhost:63343"
+      "applicationUrl": "https://localhost:63342;http://localhost:63343",
+      "commandLineArgs": "ReceiverTest simple"
     }
   }
 }
