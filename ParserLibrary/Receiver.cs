@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -188,10 +189,20 @@ public abstract class Receiver/*:IReceiver*/
                 this.MocBody = sr.ReadToEnd();
             }
             string hz = "hz";
+
+            var sw = new Stopwatch();
+            sw.Start();
             
             for (var i = 0; i < this.MockReceiveCount; i++)
                 await signal(this.MocBody,hz);
 
+            sw.Stop();
+            
+            Logger.log("Receiver signalled {count} times in {total_time} ms, average signal processing time is {avg_time} us",
+                Serilog.Events.LogEventLevel.Information, "any",
+                this.MockReceiveCount,
+                sw.ElapsedMilliseconds,
+                (double)sw.ElapsedTicks / Stopwatch.Frequency * 1000000 / this.MockReceiveCount);
         }
         else
             await startInternal();
