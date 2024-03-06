@@ -12,4 +12,4 @@ steps:
     fileName: Data/items_file.txt
   isender: !Plugins.Kafka.KafkaSender
     topic: topic1
-    bootstrapServers: 'localhost:9092'
+    bootstrapServers: 'localhost:9094'
