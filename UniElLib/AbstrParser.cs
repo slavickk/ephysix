@@ -92,6 +92,7 @@ namespace UniElLib
     {
         Drawer Create(AbstrParser.UniEl newEl, AbstrParser.UniEl ancestor);
     }
+    
     public abstract class AbstrParser
     {
 //        protected bool cantTryParse=false;
@@ -255,7 +256,12 @@ namespace UniElLib
             ancestor.implementedParsers.Add(parser);
         }
 
-
+        /// <summary>
+        /// Converts the given node to its original form.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public abstract string toOriginal(UniEl node);
 
         /// <summary>
         /// Determines whether the given line can be parsed by this parser and creates corresponding UniEl nodes in the ancestor node.
@@ -267,7 +273,6 @@ namespace UniElLib
         /// <returns>A boolean value indicating whether the line was successfully parsed and corresponding nodes were created.</returns>
         /// 
 
-        public abstract string toOriginal(UniEl node);
         public abstract bool canRazbor(string context,string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false);
         public virtual bool canRazbor(byte[] bytes, UniEl ancestor, List<UniEl> list)
         {
@@ -322,8 +327,9 @@ namespace UniElLib
                     retValue.AddRange(item.toList());
                 return retValue;
             }
-
-
+            
+            #region Conversion to XML
+            
             string getXMLText()
             {
                 if(this.implementedParsers!=null)
@@ -426,7 +432,7 @@ namespace UniElLib
                         item.to_xml_internal(xmlDoc,new_node,namespaces);
                 }
             }
-
+            
             private string GetNamespace(List<NamespaceItem> namespaces, string Namespace)
             {
                 if (!string.IsNullOrEmpty(Name) && Name.Substring(0, 1) != "-")
@@ -448,6 +454,11 @@ namespace UniElLib
                 return xmlDoc.OuterXml;
 
             }
+       
+            #endregion
+
+            #region Conversion to JSON
+
             public string toJSON_old(bool maskSensitive=false,bool noPack=false)
             {
                 string tt = "";
@@ -478,6 +489,9 @@ namespace UniElLib
                     return JsonSerializer.Serialize(doc);// doc.to_json_internal_new(ref tt, maskSensitive, false, noPack);
                 //                throw new Exception("not implemented");
             }
+
+            #endregion
+            
             bool firstElnArray(List<UniEl> arr ,int i)
             {
                 return (i < this.childs.Count - 1 && arr[i].Name == arr[i + 1].Name) && (i == 0 || arr[i].Name != arr[i - 1].Name);
@@ -819,6 +833,7 @@ namespace UniElLib
             object value1;
             
             // TODO: consider struct for Value to avoid boxing/unboxing, but profile the program first
+            // TODO: consider pre-calculating multiple representations (string, numbers, dates/times) when setting
             public object Value
             {
                 set
