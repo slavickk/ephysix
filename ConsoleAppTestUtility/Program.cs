@@ -16,6 +16,7 @@ using Serilog.Enrichers.Span;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Formatting.Compact;
+using Serilog.Sinks.SystemConsole.Themes;
 using Logger = ParserLibrary.Logger;
 using UniElLib;
 
@@ -69,6 +70,8 @@ namespace ConsoleAppTestUtility
             ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
             Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch, true, false);
             Log.Information($"Service url on {Pipeline.ServiceAddr}");
+            
+            Pipeline.AgentPort = -1; // Disable Jaeger (it's off during normal operation anyway)
             
             _pipeline = Pipeline.load("Data/ACS_TW_mocked.yml", Assembly.GetAssembly(typeof(Plugins.TIC.TICReceiver)));
             
