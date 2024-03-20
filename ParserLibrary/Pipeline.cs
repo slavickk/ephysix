@@ -402,9 +402,12 @@ public class Pipeline:ILiquidizable
    static TracerProvider tracerBuilder = null;
 
     public static string AgentHost = "localhost";
-    public static int AgentPort =  6831;
+    public static int AgentPort = 6831;
     static void InitJaeger(string Name)
     {
+        // Jaeger is needed only for tracing.
+        // It should be off during normal pipeline operation.
+        
         if (tracerBuilder == null && AgentPort>0)
         {
             tracerBuilder= Sdk.CreateTracerProviderBuilder()

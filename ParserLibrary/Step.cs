@@ -112,7 +112,24 @@ public partial class Step : ILiquidizable
             return $"filter:{Name}";
         }
         public Filter filter { get; set; } = new ConditionFilter();
-        public List<OutputValue> outputFields { get; set; } = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };
+        public List<OutputValue> outputFields { get; set; } = new List<OutputValue>
+        {
+            new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, 
+            new ExtractFromInputValue()
+            {
+                outputPath = "IP", conditionPath = "aa/bb/cc",
+                conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" },
+                valuePath = "cc/dd"
+            }
+        };
+        
+        /// <summary>
+        /// Executes the filter operation on the input element and updates the output element.
+        /// </summary>
+        /// <param name="rootElInput">The root input element on which the filter operation is to be performed.</param>
+        /// <param name="local_rootOutput">The root output element that will be updated based on the filter operation.</param>
+        /// <param name="context">The context in which the filter operation is being executed.</param>
+        /// <returns>The count of output fields that were successfully added to the output element.</returns>
         public int exec(AbstrParser.UniEl rootElInput, ref AbstrParser.UniEl local_rootOutput, ContextItem context)
         {
             int count = 0;
@@ -281,8 +298,10 @@ public partial class Step : ILiquidizable
         owner.lastExecutedEl = rootElement;
         if (!isBridge)
         {
+            // TODO: FilterInfo() is roughly 30% of the execution time 
             await FilterInfo(input, time2, contextItem, rootElement);
 
+            // TODO: checkChilds() is roughly 36% of the execution time 
             await checkChilds(contextItem, rootElement);
         }
         else
@@ -414,6 +433,7 @@ public partial class Step : ILiquidizable
 
     public async Task<string> FilterInfo1(string input, DateTime time2, List<AbstrParser.UniEl> list, AbstrParser.UniEl rootElement,ContextItem context)
     {
+        // NOTE: this method is only called from the WinForms-based test app
         try
         {
             //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
