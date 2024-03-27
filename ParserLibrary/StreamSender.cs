@@ -160,6 +160,13 @@ public class StreamSender:HTTPSender,ISelfTested
     bool first = true;
     public Stream getStream(string key)
     {
+        // TODO: figure out the best approach to mocking here
+        if (MocMode)
+        {
+            Logger.log("getStream() is called in mock mode; exiting early to prevent database access (TODO: figure out a better approach)", Serilog.Events.LogEventLevel.Warning);
+            return null;
+        }
+        
         if(streams== null)
             streams=FromLocalStorage().ToDictionary(str => str.Name, str => str);
         Stream stream;

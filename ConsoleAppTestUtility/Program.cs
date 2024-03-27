@@ -6,6 +6,18 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Reflection;
+using System.Threading.Tasks;
+using ParserLibrary;
+using Serilog;
+using Serilog.Core;
+using Serilog.Enrichers.Sensitive;
+using Serilog.Enrichers.Span;
+using Serilog.Events;
+using Serilog.Exceptions;
+using Serilog.Formatting.Compact;
+using Serilog.Sinks.SystemConsole.Themes;
+using Logger = ParserLibrary.Logger;
 using UniElLib;
 
 namespace ConsoleAppTestUtility
@@ -39,9 +51,127 @@ namespace ConsoleAppTestUtility
         }
 
     }
+    
+    [MemoryDiagnoser]
+    public class ReceiverTest
+    {
+        private Pipeline _pipeline;
+        
+        public ReceiverTest(int mockReceiveCount = 1)
+        {
+            // Load the pipeline from YAML
+            Console.WriteLine("Loading pipeline...");
+            Console.WriteLine($"Working directory is {Directory.GetCurrentDirectory()}");
+            
+            // print files in current dir
+            // var files = Directory.GetFiles(Directory.GetCurrentDirectory()).OrderBy(path => path);
+            // foreach (var file in files) Console.WriteLine(file);
+            
+            ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
+            Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch, true, false);
+            Log.Information($"Service url on {Pipeline.ServiceAddr}");
+            
+            Pipeline.AgentPort = -1; // Disable Jaeger (it's off during normal operation anyway)
+            
+            _pipeline = Pipeline.load("Data/ACS_TW_mocked.yml", Assembly.GetAssembly(typeof(Plugins.TIC.TICReceiver)));
+            
+            if (_pipeline is null)
+                throw new InvalidOperationException("Pipeline is null");
+            
+            if (_pipeline.steps.Length == 0)
+                throw new InvalidOperationException("Pipeline has no steps");
+            
+            // Switch all receivers and senders to mock mode
+            foreach (var step in _pipeline.steps)
+            {
+                if (step.receiver is not null)
+                {
+                    step.receiver.MocMode = true;
+                    step.receiver.MockReceiveCount = mockReceiveCount;
+                }
+                if (step.sender is not null)
+                    step.sender.MocMode = true;
+            }
+            
+            _pipeline.steps[0].Init(_pipeline);
+        }
+        
+        [Benchmark]
+        public async Task ReceiverBenchmark()
+        {
+            await _pipeline.run();
+        }
+        
+        // Copied from WebApiConsoleUtility/Program.cs
+        private static Serilog.ILogger CreateSerilog(string ServiceName, LoggingLevelSwitch levelSwitch, bool isAsync,
+            bool LogHttpRequest, bool maskedSensitive = false)
+        {
+            LoggerConfiguration log = null;
+            log = new LoggerConfiguration()
+                .MinimumLevel.ControlledBy(levelSwitch)
+                //            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.WithExceptionDetails()
+                // .Enrich.WithProperty("TraceID", ((System.Diagnostics.Activity.Current != null) ? System.Diagnostics.Activity.Current.TraceId.ToString() : "-"))
+                // .Enrich.WithProperty("ThreadID", Thread.CurrentThread.ManagedThreadId)
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
+                .Enrich.WithProperty("Service", ServiceName)
+                .Filter.ByExcluding(c =>
+                    !LogHttpRequest && c.Properties.ContainsKey("SourceContext") && c.Exception == null &&
+                    c.Level != LogEventLevel.Error && c.Level != LogEventLevel.Fatal &&
+                    c.Level != LogEventLevel.Warning)
+                /*                 .Filter.ByExcluding(c =>
+                                 c.Properties.ContainsKey("Method") && c.Properties["Method"].
+                                 c.Properties.ContainsKey("SourceContext")
+                                                  !LogHealthAndMonitoring &&
+                                                  (c.Properties.Any(p => p.Value.ToString().Contains("ConsulHealthCheck")) || c.Properties.Any(p => p.Value.ToString().Contains("getMetrics")))
+                                 )*/
+                .Enrich.WithSpan(new SpanOptions()
+                {
+                    LogEventPropertiesNames = new SpanLogEventPropertiesNames
+                        { TraceId = "TraceId", SpanId = "SpanId", ParentId = "ParentId" },
+                })
+                .Enrich.FromLogContext();
+            if (isAsync)
+            {
+#if DEBUG
+
+                log = log.WriteTo.Async(writeTo => writeTo.File("errors.log", LogEventLevel.Information,
+                        "[{Timestamp:dd/MM/yy HH:mm:ss.ffff} {Level:u3} TraceId: {TraceId}] [{Properties}] {Message:lj}  {NewLine} {Exception}",
+                        retainedFileCountLimit: 3))
+                    .WriteTo.Async(writeTo =>
+                        writeTo.Console(theme: AnsiConsoleTheme.Code, applyThemeToRedirectedOutput: true,
+                            outputTemplate:
+                            "[{Timestamp:dd/MM/yy HH:mm:ss.ffff} {Level:u3} TraceId: {TraceId}] [{Properties}] {Message:lj}  {NewLine} {Exception}"));
+#else
+                log = log.WriteTo.Async(writeTo => writeTo.Console(new RenderedCompactJsonFormatter()));
+#endif
+            }
+
+            else
+                log = log.WriteTo.Console(new RenderedCompactJsonFormatter());
+
+            if (maskedSensitive)
+                log = log.Enrich.WithSensitiveDataMasking(
+                    options =>
+                    {
+                        options.MaskingOperators = new List<IMaskingOperator>
+                        {
+                            new EmailAddressMaskingOperator(),
+                            new IbanMaskingOperator(),
+                            new CreditCardMaskingOperator()
+                            // etc etc
+                        };
+                    });
+            return log.CreateLogger();
+            // <<#<<#<<
+        }
+
+    }
+    
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             /*  int cycle = 1;
               for (int i = 0; i < cycle; i++)
@@ -50,11 +180,47 @@ namespace ConsoleAppTestUtility
                   PutObjectS("POST", @"http://localhost:5000/WeatherForecast", "{\"Count\":" + i + "}", out Body);
               }
             */
-            new ParserTest().SimpleTest();
-            BenchmarkRunner.Run<ParserTest>();
-
-
-
+            
+            // Get the benchmark class from the first CLI argument
+            var benchmarkClass = args[0];
+            var simpleRun = args.Length > 1 && args[1].ToUpper() == "SIMPLE";
+            switch (benchmarkClass)
+            {
+                case "ParserTest":
+                    if (simpleRun)
+                    {
+                        Logger.log("Performing a simple run of ParserTest(), not using BenchmarkRunner");
+                        new ParserTest().SimpleTest();
+                    }
+                    else
+                    {
+                        Logger.log("Performing full ParserTest() using BenchmarkRunner");
+                        BenchmarkRunner.Run<ParserTest>();
+                    }
+                    break;
+                case "ReceiverTest":
+                    if (simpleRun)
+                    {
+                        const int mockReceiveCount = 20000;
+                        
+                        Logger.log("Performing a simple run of ReceiverTest() with mockReceiveCount={mockReceiveCount}", Serilog.Events.LogEventLevel.Information, "any", mockReceiveCount);
+                        
+                        var t0 = DateTime.Now;
+                        await new ReceiverTest(mockReceiveCount: mockReceiveCount).ReceiverBenchmark();
+                        var t1 = DateTime.Now;
+                        Logger.log("ReceiverBenchmark() completed in {ms} ms", Serilog.Events.LogEventLevel.Information, "any", (t1 - t0).TotalMilliseconds);
+                    }
+                    else
+                    {
+                        Logger.log("Performing full ReceiverBenchmark() using BenchmarkRunner");
+                        BenchmarkRunner.Run<ReceiverTest>();
+                    }
+                    Logger.log("ReceiverBenchmark() completed");
+                    break;
+                default:
+                    Logger.log("Unknown benchmark class", LogEventLevel.Error);
+                    break;
+            }
         }
         public static byte[] PutObjectS(string Method, string postUrl, string payLoad, out string Body)
         {

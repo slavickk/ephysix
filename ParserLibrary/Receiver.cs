@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -83,6 +84,14 @@ public abstract class Receiver/*:IReceiver*/
             mocker.MocFile = value;
         }
     }
+
+    /// <summary>
+    /// Number of times to receive the mock message (default is 1).
+    /// This allows to simulate processing multiple messages after a single pipeline initialization - for benchmarking.
+    /// </summary>
+    [YamlIgnore]
+    public int MockReceiveCount = 1;
+    
     public string MocBody
     {
         get { return mocker.MocBody; }
@@ -177,13 +186,26 @@ public abstract class Receiver/*:IReceiver*/
         AbstrParser.UniEl.ignoreNamespace = ignoreNamespace;
         if (MocMode)
         {
-            string input;
-            using (StreamReader sr = new StreamReader(MocFile))
+            if (string.IsNullOrEmpty(this.MocBody))
             {
-                input = sr.ReadToEnd();
+                using StreamReader sr = new StreamReader(MocFile);
+                this.MocBody = sr.ReadToEnd();
             }
             string hz = "hz";
-            await signal(input,hz);
+
+            var sw = new Stopwatch();
+            sw.Start();
+            
+            for (var i = 0; i < this.MockReceiveCount; i++)
+                await signal(this.MocBody,hz);
+
+            sw.Stop();
+            
+            Logger.log("Receiver signalled {count} times in {total_time} ms, average signal processing time is {avg_time} us",
+                Serilog.Events.LogEventLevel.Information, "any",
+                this.MockReceiveCount,
+                sw.ElapsedMilliseconds,
+                (double)sw.ElapsedTicks / Stopwatch.Frequency * 1000000 / this.MockReceiveCount);
         }
         else
             await startInternal();
