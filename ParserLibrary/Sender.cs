@@ -88,6 +88,16 @@ public abstract class Sender/*:ISender*/
     string MocContent = "";
     object syncro= new object();
     protected Activity sendActivity;
+
+    public string getAnswer(AbstrParser.UniEl root)
+    {
+        return formBody(root);
+        
+    }
+    protected virtual string formBody(AbstrParser.UniEl root)
+    {
+        return "";
+    }
     public async Task<string> send(AbstrParser.UniEl root, ContextItem context)
     {
         DateTime time1 = DateTime.Now;
