@@ -2,6 +2,7 @@
 using Npgsql;
 using Npgsql.Internal.TypeHandlers.DateTimeHandlers;
 using System.Text.Json;
+using static FrontInterfaceSupport.DBTable;
 
 namespace FrontInterfaceSupport
 {
@@ -110,11 +111,11 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
         }
         public class DBTableConfig
         {
-            public int tableId { get; set; }
-            public int tableExistedId { get; set; }
-            public List<string> conditions { get; set; }
-            public List<List<string>> relation { get; set; }
-            public int depth { get; set; }
+            public long tableId { get; set; }
+            public long? tableExistedId { get; set; }
+            public List<string> conditions { get; set; } = new List<string>();
+            public List<List<string>> relation { get; set; }= new List<List<string>>();
+            public int depth { get; set; } = 4;
         }
 
         public class ItemColumn
@@ -132,8 +133,10 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
         }
 
 
-        public static async Task<string> CreateOrModifyTables(string jsonMXGrapth = "", string tableDefJson = "{\r\n  \"tableId\":550119,\r\n  \"tableExistedId\":550079,\r\n  \"conditions\":[\"2 = 2\"],\r\n  \"relation\":[\r\n    [\"Table\",\"550119\",\"account\",\"\"],\r\n    [\"Column\",\"2163749\",\"accountid\",\"account\"],\r\n    [\"ForeignKey\",\"2163938\",\"accountid\",\"2163749\",\"accountid\",\"2163859\"],\r\n    [\"Column\",\"2163859\",\"accountid\",\"card\"],\r\n    [\"Table\",\"550079\",\"card\",\"\"]],\r\n  \"depth\":6\r\n}", string ConnectionString= "User ID=fp;Password=rav1234;Host=master.pgfp01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;",  string mxGraphID="New_Tab",bool isNew=true)
+        public static async Task<string> CreateOrModifyTables(string jsonMXGrapth = "", string tableDefJson = "{\r\n  \"tableId\":550119,\r\n  \"tableExistedId\":550079,\r\n  \"conditions\":[\"OriginalTime>@timeBegin\",\"OriginalTime<@timeEnd\",\"OriginalTime is not null\"],\r\n  \"relation\":[[\"Table\",\"550119\",\"account\",\"\"],[\"Column\",\"550130\",\"branchid\",\"account\"],[\"ForeignKey\",\"2163920\",\"branchid\",\"2163595\",\"branchid\",\"550130\"],[\"Column\",\"2163595\",\"branchid\",\"branch\"],[\"ForeignKey\",\"2163944\",\"branchid\",\"2163595\",\"branchid\",\"550095\"],[\"Column\",\"550095\",\"branchid\",\"card\"],[\"Table\",\"550079\",\"card\",\"\"]]\r\n\r\n\r\n\r\n,\r\n  \"depth\":6\r\n}", string ConnectionString= "User ID=fp;Password=rav1234;Host=master.pgfp01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;",bool isNew=true)
         {
+            if (!isNew)
+                return jsonMXGrapth;
             MXGraphHelperLibrary.MXGraphDoc retDoc = new MXGraphHelperLibrary.MXGraphDoc();
 
             if (!string.IsNullOrEmpty(jsonMXGrapth))
@@ -141,16 +144,42 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
             else
                 retDoc.boxes = new List<MXGraphHelperLibrary.MXGraphDoc.Box>();
             DBTableConfig dbTableConfig = JsonSerializer.Deserialize<DBTableConfig>(tableDefJson);
+            if (dbTableConfig.relation?.Count > 0 && (dbTableConfig.relation.Count < 5 || dbTableConfig.relation.Count % 2 == 0))
+                throw new Exception($"invalid relation length:{dbTableConfig.relation.Count}");
             NpgsqlConnection conn = new NpgsqlConnection(ConnectionString);
             await conn.OpenAsync();
-            var box1 = await AddTable(tableDefJson, mxGraphID, retDoc, dbTableConfig, conn);
+            var box1 = await AddTable(  retDoc, dbTableConfig, conn);
+            var lastBox = box1;
+            var box2 = box1;
+            var lastIndex = 1;
             if (dbTableConfig.relation?.Count > 0)
             {
+                if(dbTableConfig.relation?.Count>5)
+                {
+                    for(int i=3; i<dbTableConfig.relation?.Count-2;i+=2)
+                    {
+                        var temp = await getTableConfig(dbTableConfig.relation, i, conn);
+
+                        if (dbTableConfig.relation[i][3] != dbTableConfig.relation[i - 2][3])
+                        {
+                            box2 = await AddTable( retDoc, temp, conn);
+                            AddLink(retDoc, lastBox, box2, dbTableConfig.relation[i], dbTableConfig.relation[i - 2]);
+                        }
+                        lastIndex = i;
+                        lastBox = box2;
+                    }
+                }
                 var destTables = findTable(retDoc, Convert.ToInt64(dbTableConfig.relation.Last()[1])).ToArray();
                 if (destTables.Length > 0)
                 {
-                    AddLink(retDoc,box1, destTables.First(), dbTableConfig.relation[2], dbTableConfig.relation[dbTableConfig.relation.Count - 2]);
+                    AddLink(retDoc,lastBox, destTables.First(), dbTableConfig.relation[1], dbTableConfig.relation[dbTableConfig.relation.Count - 2]);
                 }
+
+
+               /* if (dbTableConfig.relation?.Count > 0)
+                {
+                    var temp = await getTableConfig(dbTableConfig.relation, 1, conn);
+                }*/
             }
 
             conn.Close();
@@ -170,12 +199,37 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
             }
         }
         const int heigthHeaderBox = 64;
-        const int heigthRow = 30;
+        const int heigthRow = 34;
 
-        private static async Task<MXGraphHelperLibrary.MXGraphDoc.Box> AddTable(string tableDefJson, string mxGraphID, MXGraphDoc retDoc, DBTableConfig dbTableConfig, NpgsqlConnection conn)
+        private static async Task<DBTableConfig> getTableConfig(List<List<string>> relation, int indexCol, NpgsqlConnection conn)
+        {
+            long colId = Convert.ToInt64(relation[indexCol][1]);
+            await using (var cmd = new NpgsqlCommand(@"select nt.name tablename,nt.nodeid,s.name,s.pci_dss_zone tableid from MD_node nc 
+inner join MD_type tc on nc.typeid = tc.typeid and tc.key = 'Column'
+inner join MD_arc ac on (ac.fromid = nc.nodeid  and ac.isdeleted=false)
+inner join md_Node nt on ac.toid = nt.nodeid  and nt.typeid = 1 and nt.isdeleted=false
+inner join md_src s on (nt.srcid=s.srcid)
+where nc.nodeid=@nodeid and nc.isdeleted=false", conn))
+            {
+                cmd.Parameters.AddWithValue("@nodeid", colId);
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var id = reader.GetInt64(1);
+                        return new DBTableConfig() { tableId =id  };
+                        //                        list.Add(new ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1)/*, table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), src_name = reader.GetString(4) }*/ });
+                    }
+                }
+            }
+            return null;
+
+        }
+
+        private static async Task<MXGraphHelperLibrary.MXGraphDoc.Box> AddTable(  MXGraphDoc retDoc, DBTableConfig dbTableConfig, NpgsqlConnection conn)
         {
             MXGraphHelperLibrary.MXGraphDoc.Box retBox = new MXGraphHelperLibrary.MXGraphDoc.Box();
-            retBox.AppData = JsonDocument.Parse(tableDefJson).RootElement;
+            retBox.AppData =   JsonDocument.Parse(JsonSerializer.Serialize<DBTableConfig>( dbTableConfig)).RootElement;
             retBox.header = new MXGraphHelperLibrary.MXGraphDoc.Box.Header();
             if (retDoc.boxes.Count == 0)
             {
@@ -195,11 +249,17 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
             retBox.body = new MXGraphHelperLibrary.MXGraphDoc.Box.Body();
             retBox.body.header = new List<MXGraphHelperLibrary.MXGraphDoc.Box.Header>() { new MXGraphHelperLibrary.MXGraphDoc.Box.Header() { value = "Name" }, new MXGraphHelperLibrary.MXGraphDoc.Box.Header() { value = "Type" } };
             retBox.body.rows = new List<MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row>();
-            await using (var cmd = new NpgsqlCommand(@"select nc.name colname,nc.nodeid colid,nt.name tablename,nt.nodeid tableid,s.name from MD_node nc 
-inner join MD_type tc on nc.typeid = tc.typeid and tc.key = 'Column'
-inner join MD_arc ac on (ac.fromid = nc.nodeid  and ac.isdeleted=false)
-inner join md_Node nt on ac.toid = nt.nodeid  and nt.typeid = 1 and nt.isdeleted=false
-inner join md_src s on (nt.srcid=s.srcid)
+            await using (var cmd = new NpgsqlCommand(@"select nc.name colname,nc.nodeid colid,nt.name tablename,nt.nodeid tableid,s.name,s.pci_dss_zone 
+     , (select a.key from md_node_attr_val nav join md_attr a using (attrid) join md_attr ap on (a.attrpid=ap.attrid) where nodeid=nc.nodeid and ap.key='DataType' and not nav.isdeleted) as coltype
+     , (select a.key from md_node_attr_val nav join md_attr a using (attrid) join md_attr ap on (a.attrpid=ap.attrid) where nodeid=nc.nodeid and ap.key='Constraint' and a.key='isNull' and not nav.isdeleted) as isNULL
+     , (select t.key from md_arc a join md_type t using (typeid) where toid=nc.nodeid and t.key='PrimaryKey' and not a.isdeleted) as PK
+     , (select t.key from md_arc a join md_type t using (typeid) where fromid=nc.nodeid and t.key='ForeignKey' and not a.isdeleted) as FK
+    from MD_node nc
+        inner join MD_type tc on nc.typeid = tc.typeid and tc.key = 'Column'
+        inner join MD_arc ac on (ac.fromid = nc.nodeid  and ac.isdeleted=false)
+        inner join md_Node nt on ac.toid = nt.nodeid  and nt.isdeleted=false
+        inner join md_type tt on nt.typeid=tt.typeid and tt.key='Table'
+        inner join md_src s on (nt.srcid=s.srcid)
 where nt.nodeid=@nodeid and nc.isdeleted=false", conn))
             {
                 cmd.Parameters.AddWithValue("@nodeid", dbTableConfig.tableId);
@@ -210,6 +270,7 @@ where nt.nodeid=@nodeid and nc.isdeleted=false", conn))
                         
                         retBox.header.size.height += heigthRow;
                         retBox.header.zone_name = reader.GetString(4);
+                        bool isPciDss = reader.GetBoolean(5);
                         retBox.header.zone_type = "unknown";
                         retBox.header.caption = reader.GetString(2);
                         retBox.id = reader.GetString(2);
@@ -223,7 +284,7 @@ where nt.nodeid=@nodeid and nc.isdeleted=false", conn))
                             },
                             columns = new List<MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column>() {
                                 new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column()  { item= new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column.Item() {caption=reader.GetString(0) } },
-                                new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column()  { item= new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column.Item() {caption="string?", box_id=retBox.id+":d_"+reader.GetInt64(1) } }
+                                new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column()  { item= new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column.Item() {caption=reader.GetString(6), box_id=retBox.id+"_"+reader.GetInt64(1) } }
                             }
 
                         }
@@ -231,6 +292,56 @@ where nt.nodeid=@nodeid and nc.isdeleted=false", conn))
                         //                        list.Add(new ItemColumn() { col_name = reader.GetString(0), col_id = reader.GetInt64(1)/*, table = new ETL_Package.ItemTable() { table_name = reader.GetString(2), table_id = reader.GetInt64(3), src_name = reader.GetString(4) }*/ });
                     }
                 }
+            }
+            if(dbTableConfig.conditions?.Count>0)
+            {
+                retBox.body.rows.Add(new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row()
+                {
+                    columns = new List<MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column>() {
+                                new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column()  
+                                { 
+                                    item= new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column.Item() {   
+                                        caption="Conditions", 
+                                        colspan=2,
+                                        style="padding: 5px 30px;border-top: 1px solid var(--grey-10); border-bottom: none; background: var(--global-white);vertical-align: top;border-bottom-right-radius: 0;border-bottom-left-radius: 0; font: var(--font-h3-semibold-14);"
+                                    } 
+                                }
+                            }
+
+            });
+                retBox.header.size.height += heigthRow;
+                for (int i=0; i <dbTableConfig.conditions.Count;i++)
+                {
+                    char s = 'b';
+/*                    if (i == 0)
+                        s = 'b';*/
+                    if (i == dbTableConfig.conditions.Count - 1)
+                        s = 'e';
+                retBox.header.size.height += heigthRow;
+
+                retBox.body.rows.Add(new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row()
+                    {
+                        columns = new List<MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column>() {
+                                new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column()
+                                {
+                                    item= new MXGraphHelperLibrary.MXGraphDoc.Box.Body.Row.Column.Item() {
+                                        caption=dbTableConfig.conditions[i],
+                                        colspan=2,
+                                        box_id="cond_"+i,
+                                        style=s switch {
+        'b' => "padding: 5px 30px;background: var(--global-white);vertical-align: top;border-radius:0; border-top: none; border-bottom: none;",
+        'e' => "padding: 5px 30px;background: var(--global-white);vertical-align: top;border-bottom: 1px solid var(--grey-10); border-top:none; border-top-right-radius: 0;border-top-left-radius: 0;",
+        _ =>   "padding: 5px 30px;background: var(--global-white);vertical-align: top;border-bottom: 1px solid var(--grey-10); border-top:none; border-top-right-radius: 0;border-top-left-radius: 0;"
+    }
+                }
+                                }
+                            }
+
+                    }); ;
+
+                }
+
+
             }
             retDoc.boxes.Add(retBox);
             return retBox;
@@ -290,8 +401,8 @@ where nt.nodeid=@nodeid and nc.isdeleted=false", conn))
         private static string  setBoxId(MXGraphDoc.Box.Body.Row.Column.Item colItem1,MXGraphDoc.Box box1, string col_name)
         {
             if (string.IsNullOrEmpty(colItem1.box_id))
-                colItem1.box_id = box1.id + ":" + col_name;
-            return colItem1.box_id;
+                colItem1.box_id = $"{box1.id}_{col_name}";
+            return box1.id+":"+colItem1.box_id;
         }
 
 

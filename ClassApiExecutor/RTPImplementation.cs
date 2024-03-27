@@ -11,18 +11,11 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Microsoft.OpenApi.Services;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using NUnit.Framework.Internal.Commands;
-using System.Xml.Linq;
-using Confluent.Kafka;
-using Fluid.Filters;
 using System.Runtime.ConstrainedExecution;
 
 namespace CamundaInterface
 {
-        public class RTPXmlTransport:APIExecutor._ApiExecutor
+        public class RTPXmlTransport:_ApiExecutor
         {
             string addr;
             string password = "qwerty";
@@ -65,7 +58,7 @@ namespace CamundaInterface
                         var res = nod.InnerText;
                         if(res != "Approved")
                     {
-                        lastError = new APIExecutor._ApiExecutor.ErrorItem() { content = request1, error = ret.xmlDoc.SelectSingleNode("//@DeclineReason").InnerText };
+                        lastError = new _ApiExecutor.ErrorItem() { content = request1, error = ret.xmlDoc.SelectSingleNode("//@DeclineReason").InnerText };
                         return null;    
                     }
                 }
@@ -84,7 +77,7 @@ namespace CamundaInterface
                 {
                     //var errorContent = await ans.Content.ReadAsStringAsync();
                     XmlSerializer ser = new XmlSerializer(typeof(Envelope));
-                    lastError = new APIExecutor._ApiExecutor.ErrorItem() { content = request1, error = ((Envelope)ser.Deserialize(ans.Content.ReadAsStream())).Body.Fault.Reason.Text };
+                    lastError = new _ApiExecutor.ErrorItem() { content = request1, error = ((Envelope)ser.Deserialize(ans.Content.ReadAsStream())).Body.Fault.Reason.Text };
 
                     return null;
                 }
@@ -105,7 +98,7 @@ namespace CamundaInterface
             var ans11 = await send(fimiLogon, "Logon");*/
         }
 
-        public async Task<APIExecutor._ApiFilter> ExecAsync(APIExecutor.ExecContextItem[] commands)
+        public async Task<_ApiFilter> ExecAsync(ExecContextItem[] commands)
         {
 /*            string content;
             using (StreamReader sr = new StreamReader(@"c:\d\Answer.xml"))
@@ -172,13 +165,13 @@ namespace CamundaInterface
             return lastError;
         }*/
 
-        void analiseXmlEl(XmlNode el, List<APIExecutor._ApiExecutor.ItemCommand.Parameter> parametres)
+        void analiseXmlEl(XmlNode el, List<_ApiExecutor.ItemCommand.Parameter> parametres)
         {
             if(!el.HasChildNodes && el.InnerText=="?")
             {
                 var name = "";
                 name = FormName(el, name);
-                parametres.Add(new APIExecutor._ApiExecutor.ItemCommand.Parameter() {name=el.ParentNode.Name, fullPath = name });
+                parametres.Add(new _ApiExecutor.ItemCommand.Parameter() {name=el.ParentNode.Name, fullPath = name });
             }
             foreach (XmlNode node in el.ChildNodes)
                 analiseXmlEl(node, parametres);
@@ -190,7 +183,7 @@ namespace CamundaInterface
                 {
                     var name ="/@"+attr.Name;
                     name=FormName(el, name);
-                    parametres.Add(new APIExecutor._ApiExecutor.ItemCommand.Parameter() {name=attr.Name, fullPath = name });
+                    parametres.Add(new _ApiExecutor.ItemCommand.Parameter() {name=attr.Name, fullPath = name });
                 }
             }
 
@@ -212,17 +205,17 @@ namespace CamundaInterface
             return name;
         }
 
-        public  List<APIExecutor._ApiExecutor.ItemCommand> getDefine()
+        public  List<_ApiExecutor.ItemCommand> getDefine()
         {
             Dictionary<string, string> namespaces;
             XmlDocument xmlDoc;
             XmlNamespaceManager nsManager;
 
-            List<CamundaInterface.APIExecutor._ApiExecutor.ItemCommand> retValue = new List<CamundaInterface.APIExecutor._ApiExecutor.ItemCommand>();
+            List<_ApiExecutor.ItemCommand> retValue = new List<_ApiExecutor.ItemCommand>();
 //            string pattern = "Data/RPT/*.xml";
             foreach (var filePath in Directory.GetFiles("Data/RTP", "*.xml"))
             {
-                var lastCommand = new APIExecutor._ApiExecutor.ItemCommand() { Name =Path.GetFileNameWithoutExtension(filePath) };
+                var lastCommand = new _ApiExecutor.ItemCommand() { Name =Path.GetFileNameWithoutExtension(filePath) };
                 retValue.Add(lastCommand);
                 xmlDoc = new XmlDocument();
                 string xmlContent;
@@ -246,16 +239,16 @@ namespace CamundaInterface
         }
 
  
-    APIExecutor._ApiExecutor.ErrorItem APIExecutor._ApiExecutor.getError()
+    _ApiExecutor.ErrorItem _ApiExecutor.getError()
         {
             return lastError;
 //            throw new NotImplementedException();
         }
 
-        public APIExecutor._ApiExecutor.ErrorItem lastError;
+        public _ApiExecutor.ErrorItem lastError;
         }
 
-        public class RTPFimi : APIExecutor._ApiFilter
+        public class RTPFimi : _ApiFilter
     {
             public XmlDocument xmlDoc;
             public XmlNamespaceManager nsManager;

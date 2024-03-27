@@ -12,6 +12,7 @@ using PluginBase;
 using YamlDotNet.Serialization;
 using static ParserLibrary.Step;
 using UniElLib;
+using Serilog;
 
 namespace ParserLibrary;
 
@@ -178,11 +179,18 @@ public  class HTTPSender:Sender,ISelfTested
         //stringContent.Headers.Add()
         try
         {
-            result = await client.PostAsync(urls[index], stringContent);
-            if(!result.IsSuccessStatusCode)
+            if (!urls[index].Contains("_dummy_") )
             {
-                Logger.log("Error send http request {res}", Serilog.Events.LogEventLevel.Error,result.StatusCode.ToString());
-                result.EnsureSuccessStatusCode();//Add throw
+                result = await client.PostAsync(urls[index], stringContent);
+                if (!result.IsSuccessStatusCode)
+                {
+                    Logger.log("Error send http request {res}", Serilog.Events.LogEventLevel.Error, result.StatusCode.ToString());
+                    result.EnsureSuccessStatusCode();//Add throw
+                }
+            } else
+            {
+                Log.Information("Send request to dummy address");
+                return "";
             }
 
         }
@@ -317,7 +325,7 @@ public  class HTTPSender:Sender,ISelfTested
         }
     }
 
-    protected virtual string formBody(AbstrParser.UniEl root)
+    protected override string formBody(AbstrParser.UniEl root)
     {
         if (ResponseType == "application/xml" || ResponseType == "text/xml")
             return root.childs[0].toXML();

@@ -100,8 +100,10 @@ public abstract class Receiver/*:IReceiver*/
 
     [YamlIgnore]
     public bool debugMode = false;
+    public bool ignoreNamespace = false;
 
     [YamlIgnore]
+
 
     public Step owner
     {
@@ -181,6 +183,7 @@ public abstract class Receiver/*:IReceiver*/
 
     public async Task start()
     {
+        AbstrParser.UniEl.ignoreNamespace = ignoreNamespace;
         if (MocMode)
         {
             if (string.IsNullOrEmpty(this.MocBody))

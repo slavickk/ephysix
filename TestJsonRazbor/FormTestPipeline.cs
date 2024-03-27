@@ -197,14 +197,15 @@ namespace TestJsonRazbor
                     var ex=pip.lastExecutedEl;
                     while (ex.ancestor != null)
                         ex = ex.ancestor;
-
+                    AbstrParser.UniEl.ignoreInternalPacket= true;
                     if (checkBoxSetMoc.Checked)
                         pip.tempMocData = ex.toJSON();
                     else
                         pip.tempMocData = "";
-/*                    foreach (var step in pip.steps)
-                        if (step.receiver != null)
-                            step.receiver.MocBody = ex.toJSON();*/
+                    AbstrParser.UniEl.ignoreInternalPacket = false;
+                    /*                    foreach (var step in pip.steps)
+                                            if (step.receiver != null)
+                                                step.receiver.MocBody = ex.toJSON();*/
                 }
                 Logger.log("Execution ended!");
                 taskA = null;

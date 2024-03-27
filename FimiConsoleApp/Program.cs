@@ -120,7 +120,7 @@ namespace FimiConsoleApp
             var tables = JsonSerializer.Deserialize<TableDefine[]>(content);
             APIExecutor ex = new APIExecutor();
 
-            //??? Justify this!!! await ex.ExecuteApiRequest(new FimiXmlTransport(), new APIExecutor.ExecContextItem[] { new APIExecutor.ExecContextItem("GetCardInfo") { Params = new List<APIExecutor.ExecContextItem.ItemParam> { new APIExecutor.ExecContextItem.ItemParam() { Key = "PAN", Variable = "PAN" }, new APIExecutor.ExecContextItem.ItemParam("RequiredData", "2047") } } }, tables);
+            //??? Justify this!!! await ex.ExecuteApiRequest(new FimiXmlTransport(), new ExecContextItem[] { new ExecContextItem("GetCardInfo") { Params = new List<ExecContextItem.ItemParam> { new ExecContextItem.ItemParam() { Key = "PAN", Variable = "PAN" }, new ExecContextItem.ItemParam("RequiredData", "2047") } } }, tables);
             foreach (TableDefine table in tables)
             {
                 foreach (var col in table.Columns)

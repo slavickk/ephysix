@@ -148,8 +148,9 @@ public class StreamSender:HTTPSender,ISelfTested
 
 
 //    public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;";
-    public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgep01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;";
-    
+    public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgfp01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;";
+
+
     public override string getTemplate(string key)
     {
         return formJson(getStream(streamName));

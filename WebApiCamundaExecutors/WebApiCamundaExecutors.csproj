@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CamundaInterface\CamundaInterface.csproj" />
+    <ProjectReference Include="..\ClassApiExecutor\ClassApiExecutor.csproj" />
   </ItemGroup>
 
 </Project>

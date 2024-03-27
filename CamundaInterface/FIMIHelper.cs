@@ -75,7 +75,7 @@ namespace CamundaInterface
                                 int yy = 0;
                             }
                             var NameMember = node1.Attributes["name"].Value;
-                            APIExecutor._ApiExecutor.ItemCommand.Parameter lastInpParameter = null;
+                            _ApiExecutor.ItemCommand.Parameter lastInpParameter = null;
                             APIExecutor._ApiExecutor.ItemCommand.OutputItems lastOutParameter = null;
                             if (isRequest)
                             {
@@ -129,6 +129,7 @@ namespace CamundaInterface
                                 if (!isRequest)
                                 {
                                     APIExecutor._ApiExecutor.ItemCommand.OutputItems lastChildItem = new APIExecutor._ApiExecutor.ItemCommand.OutputItems() { parent = lastOutParameter, path = lastOutParameter.path + "/Row/" + NameMember1 };
+                                    lastOutParameter?.children.Add(lastChildItem);
                                     lastCommand.outputItems.Add(lastChildItem);
                                 }
                                 else

@@ -7,6 +7,7 @@
         "CCFA_SEND_TIMEOUT": "5000",
         "TWO_SEND_TIMEOUT": "5000",
         "BUFF_DIR": "/CACHE1",
+        "REX_URL2": "_dummy_",
         "REX_URL": "http://nginx-np.service.dev-ep.consul:30011",
         "REX_URL1": "http://nginx-np.service.ccfa-stage-pc.consul:30011",
         "YAML_PATH": "Data\\ACS_TW.yml",
