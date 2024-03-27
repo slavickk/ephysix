@@ -323,10 +323,10 @@ namespace UniElLib
                 return retValue;
             }
 
-
+            public static bool ignoreNamespace = false;
             string getXMLText()
             {
-                if(this.implementedParsers!=null)
+                if(this.implementedParsers!=null && !alreadyInPack)
                 {
                     this.PackToParsers(this);
                     return this.value1.ToString();
@@ -492,18 +492,20 @@ namespace UniElLib
                 return value.Replace("\"", "\\\"");
             }
             public bool packToJsonString = false;
+
+            public static bool ignoreInternalPacket = false;
             public (string key,object val) to_json_internal_new( bool maskSensitive, bool noPack = false)
             {
                 /*                JsonElement el = new JsonElement() ;
                                 el.*/
 
-                if (this.childs.Count > 0 && !packToJsonString && (this.implementedParsers == null || /*(noPack && this.ancestor == null) ||*/ this.ancestor == null))
+                if (this.childs.Count > 0 && !packToJsonString && (this.implementedParsers == null || ignoreInternalPacket || /*(noPack && this.ancestor == null) ||*/ this.ancestor == null))
                 {
                     return (this.Name, ChildsToJson(maskSensitive, noPack));
                 }
                 else
                 {
-                    if (this.implementedParsers != null && this.ancestor != null)
+                    if (this.implementedParsers != null && this.ancestor != null && !ignoreInternalPacket)
                     {
                         this.PackToParsers(this);
                         if (this.ancestor == null)
@@ -604,6 +606,10 @@ namespace UniElLib
                 string prevName = "";
                 bool isArr = false;
                 List<object> arr = null;
+                /*if(path== "Step_0/Rec/Request/tran:Link/-Kind/#text")
+                {
+                    int yy = 0;
+                }*/
                 for (int i = 0; i < this.childs.Count; i++)
                 {
                     isArr = false;
@@ -616,7 +622,7 @@ namespace UniElLib
                         else
                             arr.Clear();
                     }
-                    if (prevName == this.childs[i].Name)
+                    if (prevName == this.childs[i].Name && i>0  )
                     {
 
                         isArr = true;
@@ -715,12 +721,14 @@ namespace UniElLib
 
                 return newEl;
             }
-
+            bool alreadyInPack = false;
             protected UniEl PackToParsers(UniEl newEl)
             {
+                alreadyInPack = true;
                 for (int i = 0; i < this.implementedParsers.Count; i++)
                     this.value1 = this.implementedParsers[i].toOriginal(this);
                 newEl.value1 = Value;
+                alreadyInPack = false;
                 return newEl;
             }
 
@@ -910,13 +918,17 @@ namespace UniElLib
             return  Convert.ToBase64String(bytes);
         }
     }
-
     public class IPAddrParser : AbstrParser
     {
+        public static bool IgnoreDB = true;
         const string dbPath = @"GeoData/GeoLite2-Country.mmdb";
 //        DatabaseReader reader = null;
-        DatabaseReader reader = new DatabaseReader(dbPath, FileAccessMode.Memory);
-
+        DatabaseReader reader = null;
+        public IPAddrParser()
+        {
+            if(!IgnoreDB)
+                reader = new DatabaseReader(dbPath, FileAccessMode.Memory);
+        }
 
         public class IPAddressRange
         {
@@ -1031,30 +1043,33 @@ namespace UniElLib
                     newEl1.Value = "local";
                     return true;
                 }
-                var cc = reader.Country(ip);
-                var name = "Address";
-                UniEl newEl = CreateNode(ancestor, list, name);
-                newEl.Value = line;
-
-                name = "TypeAddress";
-                newEl = CreateNode(ancestor, list, name);
+                var name = "TypeAddress";
+                var newEl = CreateNode(ancestor, list, name);
                 newEl.Value = "global";
+                if (reader != null)
+                {
+                    var cc = reader.Country(ip);
+                    name = "Address";
+                    newEl = CreateNode(ancestor, list, name);
+                    newEl.Value = line;
 
-                name = "IsoCountryCode";
-                newEl = CreateNode(ancestor, list, name);
-                newEl.Value = cc.Country.IsoCode;
 
-                name = "IsoCountryName";
-                newEl = CreateNode(ancestor, list, name);
-                newEl.Value = cc.Country.Name;
+                    name = "IsoCountryCode";
+                    newEl = CreateNode(ancestor, list, name);
+                    newEl.Value = cc.Country.IsoCode;
 
-                name = "ContinentCode";
-                newEl = CreateNode(ancestor, list, name);
-                newEl.Value = cc.Continent.Code;
+                    name = "IsoCountryName";
+                    newEl = CreateNode(ancestor, list, name);
+                    newEl.Value = cc.Country.Name;
 
-                name = "ContinentName";
-                newEl = CreateNode(ancestor, list, name);
-                newEl.Value = cc.Continent.Name;
+                    name = "ContinentCode";
+                    newEl = CreateNode(ancestor, list, name);
+                    newEl.Value = cc.Continent.Code;
+
+                    name = "ContinentName";
+                    newEl = CreateNode(ancestor, list, name);
+                    newEl.Value = cc.Continent.Name;
+                }
 
                 //                    reader.City(ip);
             }
@@ -1113,9 +1128,19 @@ namespace UniElLib
         {
             var type = property.GetType();
             var name = property.Name;
+            if (AbstrParser.UniEl.ignoreNamespace)
+                name = property.LocalName;
             if(isAttr)
             {
                 name = "-" + name;
+            }
+            if (string.IsNullOrEmpty(name))
+            {
+                int yy = 0;
+            }
+            if (name == "tran:Link")
+            {
+                int yy = 0;
             }
             if(name=="t:Extension")
             {

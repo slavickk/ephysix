@@ -148,7 +148,7 @@ public class Pipeline:ILiquidizable
                         retValue = false;
                 }
             }
-            if (step.sender != null)
+            if (step.sender != null && string.IsNullOrEmpty(step.IDResponsedReceiverStep))
             {
                 var testableSender = step.sender as ISelfTested;
                 if (testableSender != null)

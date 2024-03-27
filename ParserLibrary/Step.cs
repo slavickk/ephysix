@@ -15,6 +15,8 @@ using DotLiquid;
 using System.Xml.Linq;
 using static ParserLibrary.Pipeline;
 using System.Reflection.Emit;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace ParserLibrary;
 /// <summary>
@@ -789,11 +791,18 @@ public partial class Step : ILiquidizable
                 responseFromSender = local_rootOutput.toJSON();
             else
             {
-                if(isender != null)
-                    responseFromSender = await isender.send(local_rootOutput, context);
+                if (sender is HTTPSender && string.IsNullOrEmpty((sender as HTTPSender).url))
+                {
+                    responseFromSender = sender.getAnswer(local_rootOutput);
+                }
                 else
-                    responseFromSender = await sender.send(local_rootOutput, context);
+                {
 
+                    if (isender != null)
+                        responseFromSender = await isender.send(local_rootOutput, context);
+                    else
+                        responseFromSender = await sender.send(local_rootOutput, context);
+                }
             }
             if (step.ireceiver != null) 
                 await step.ireceiver.sendResponse(responseFromSender, context);
