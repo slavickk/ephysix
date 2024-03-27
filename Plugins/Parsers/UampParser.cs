@@ -15,6 +15,12 @@ namespace Plugins.Parsers
             if(!UAMPMessage.isUAMPMessage(line))
                 return false;
             var uamp=new UAMPMessage(line);
+            if(uamp.Value.Count ==1 && uamp.Value.First().Key=="")
+            {
+                return false;
+
+                int yy = 0;
+            }
             foreach(var el in uamp.Value)
             {
                 ExtractUampValue(el.Key,ancestor, list, el.Value);

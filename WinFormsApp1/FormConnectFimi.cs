@@ -29,9 +29,9 @@ namespace WinFormsETLPackagedCreator
     public partial class FormConnectFimi : Form
     {
         long id_package;
-        APIExecutor._ApiExecutor trans;
+        _ApiExecutor trans;
         
-        public FormConnectFimi(long id_package, APIExecutor._ApiExecutor trans1)
+        public FormConnectFimi(long id_package, _ApiExecutor trans1)
         {
             trans = trans1;
             this.id_package = id_package;
@@ -43,7 +43,7 @@ namespace WinFormsETLPackagedCreator
             if(!ignoreComboSelect)
             {
 
-            var comm = comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand;
+            var comm = comboBoxFimiCommand.SelectedItem as _ApiExecutor.ItemCommand;
             FillFimiControls(comm);
             }
         }
@@ -190,16 +190,16 @@ namespace WinFormsETLPackagedCreator
 
         private async void buttonTest_Click(object sender, EventArgs e)
         {
-            APIExecutor.ExecContextItem[] commands = new APIExecutor.ExecContextItem[1];
-            commands[0] = new APIExecutor.ExecContextItem();
-            commands[0].CommandItem = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand);
-            commands[0].Params = new List<APIExecutor.ExecContextItem.ItemParam>();
+            ExecContextItem[] commands = new ExecContextItem[1];
+            commands[0] = new ExecContextItem();
+            commands[0].CommandItem = (comboBoxFimiCommand.SelectedItem as _ApiExecutor.ItemCommand);
+            commands[0].Params = new List<ExecContextItem.ItemParam>();
             for (int i = 0; i < listViewFIMIInputParams.Items.Count; i++)
             {
                 var subitems = listViewFIMIInputParams.Items[i].SubItems;
                 if (subitems[1].Text.Length > 0 || subitems[2].Text.Length > 0)
                 {
-                    commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text,FullAddr=commands[0].CommandItem.parameters.First(ii=>ii.name== subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
+                    commands[0].Params.Add(new ExecContextItem.ItemParam() { Key = subitems[0].Text,FullAddr=commands[0].CommandItem.parameters.First(ii=>ii.name== subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
                 }
             }
             Dictionary<string, object> dict = getVariables();
@@ -250,7 +250,7 @@ namespace WinFormsETLPackagedCreator
     .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        public async Task<CamundaProcess.ExternalTask> toExternalTask(GenerateStatement.ETL_Package package, NpgsqlConnection conn, string sqlQuery, APIExecutor.ExecContextItem[] commands, TableDefine[] tables)
+        public async Task<CamundaProcess.ExternalTask> toExternalTask(GenerateStatement.ETL_Package package, NpgsqlConnection conn, string sqlQuery, ExecContextItem[] commands, TableDefine[] tables)
         {
             var columnList=package.allTables.SelectMany(ii=>ii.columns).ToList();
             var variables = package.variables;
@@ -296,7 +296,7 @@ namespace WinFormsETLPackagedCreator
                 //                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLParams", ""));
                 retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLText", sqlQuery));
                 retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Oper", "None"));
-                retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("FIMICommands", JsonSerializer.Serialize<APIExecutor.ExecContextItem[]>(commands)));
+                retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("FIMICommands", JsonSerializer.Serialize<ExecContextItem[]>(commands)));
                 retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("Tables", JsonSerializer.Serialize<TableDefine[]>(tables)));
                 //                    retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLColumns", columnsDescription(columnList)));
                 //                   retValue.parameters.Add(new CamundaProcess.ExternalTask.Parameter("SQLParams", String.Join(", ",variables.Select(ii=>ii.Name))));
@@ -364,7 +364,7 @@ namespace WinFormsETLPackagedCreator
                     }
                     ignoreComboSelect = true;
                     int index = 0;
-                    foreach (APIExecutor._ApiExecutor.ItemCommand item in comboBoxFimiCommand.Items)
+                    foreach (_ApiExecutor.ItemCommand item in comboBoxFimiCommand.Items)
                     {
 
                         if (item.Name == (com1.CommandItem?.Name??com1.Command))
@@ -516,7 +516,7 @@ namespace WinFormsETLPackagedCreator
 
         }
 
-        async Task saveToCamunda(TableDefine[] tables, APIExecutor.ExecContextItem[] commands,string SQLQuery,string connectionString)
+        async Task saveToCamunda(TableDefine[] tables, ExecContextItem[] commands,string SQLQuery,string connectionString)
         {
    /*         CamundaProcess process = new CamundaProcess();
             string CamundaID = $"ETL_Process{id}";
@@ -649,10 +649,10 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
             return ("", -1, -1);
         }
 
-        async Task<(bool retValue, TableDefine[] tables, APIExecutor.ExecContextItem[] commands, ETL_DB_Interface.MXHelper.SavedItem itemSaved)> PrepareData()
+        async Task<(bool retValue, TableDefine[] tables, ExecContextItem[] commands, ETL_DB_Interface.MXHelper.SavedItem itemSaved)> PrepareData()
         {
             TableDefine[] tables=null;
-            APIExecutor.ExecContextItem[] commands=null;
+            ExecContextItem[] commands=null;
             MXHelper.SavedItem itemSaved=null;
 
 
@@ -688,16 +688,16 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                 //var t=this.relations.Where(ii => ii.fktable == table.Table).Select(i1 => new TableDefine.ExtID() { Column = i1.pkcolumns, Table = i1.pktable }).ToArray();
                 table.ExtIDs = this.relations.Where(ii => ii.fktable == table.Table).Select(i1 => new TableDefine.ExtID() { Column = i1.pkcolumns, Table = i1.pktable }).ToList();
             }
-            commands = new APIExecutor.ExecContextItem[1];
-            commands[0] = new APIExecutor.ExecContextItem();
-            commands[0].CommandItem = (comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand);
-            commands[0].Params = new List<APIExecutor.ExecContextItem.ItemParam>();
+            commands = new ExecContextItem[1];
+            commands[0] = new ExecContextItem();
+            commands[0].CommandItem = (comboBoxFimiCommand.SelectedItem as _ApiExecutor.ItemCommand);
+            commands[0].Params = new List<ExecContextItem.ItemParam>();
             for (int i = 0; i < listViewFIMIInputParams.Items.Count; i++)
             {
                 var subitems = listViewFIMIInputParams.Items[i].SubItems;
                 if (subitems[1].Text.Length > 0 || subitems[2].Text.Length > 0)
                 {
-                    commands[0].Params.Add(new APIExecutor.ExecContextItem.ItemParam() { Key = subitems[0].Text, FullAddr = commands[0].CommandItem.parameters.First(ii => ii.name == subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
+                    commands[0].Params.Add(new ExecContextItem.ItemParam() { Key = subitems[0].Text, FullAddr = commands[0].CommandItem.parameters.First(ii => ii.name == subitems[0].Text).fullPath, Value = subitems[2].Text, Variable = subitems[1].Text });
                 }
             }
             itemSaved = new MXHelper.SavedItem() { commands = commands, def = tables, sql_query = textBoxSQL.Text };
@@ -713,7 +713,7 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
                 if (!itRet.retValue)
                     return;
                 TableDefine[] tables=itRet.tables;
-                APIExecutor.ExecContextItem[] commands=itRet.commands;
+                ExecContextItem[] commands=itRet.commands;
                 MXHelper.SavedItem itemSaved=itRet.itemSaved;
 
 
@@ -752,7 +752,7 @@ left join md_node_attr_val sens on(n2.NodeID=sens.NodeID and sens.AttrID=md_get_
         private void listViewFIMIInputParams_SelectedIndexChanged(object sender, EventArgs e)
         {
            
-            var comm=comboBoxFimiCommand.SelectedItem as APIExecutor._ApiExecutor.ItemCommand;
+            var comm=comboBoxFimiCommand.SelectedItem as _ApiExecutor.ItemCommand;
             if (comm != null && listViewFIMIInputParams.SelectedIndices.Count > 0)
             {
                 int index = listViewFIMIInputParams.SelectedIndices[0];

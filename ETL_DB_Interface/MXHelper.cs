@@ -21,7 +21,7 @@ namespace ETL_DB_Interface
         {
             public string sql_query { get; set; }
             public TableDefine[] def { get; set; }
-            public APIExecutor.ExecContextItem[] commands { get; set; }
+            public ExecContextItem[] commands { get; set; }
         }
 
 
@@ -164,7 +164,7 @@ namespace ETL_DB_Interface
                 var trans = new FimiXmlTransport();//????
                 var def = trans.getDefine();// FIMIHelper.getDefine();
 
-                APIExecutor.ExecContextItem[] commands = itemSaved?.commands;
+                ExecContextItem[] commands = itemSaved?.commands;
                 if(commands != null && commands.Length > 0)
                 {
                     commands[0].CommandItem = def.FirstOrDefault(ii => ii.Name == commands[0].Command);

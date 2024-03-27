@@ -11,13 +11,12 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Microsoft.OpenApi.Services;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace CamundaInterface
 {
-        public class FimiXmlTransport:APIExecutor._ApiExecutor
+        public class FimiXmlTransport:_ApiExecutor
         {
             string addr;
             string password = "qwerty";
@@ -75,7 +74,7 @@ namespace CamundaInterface
                 {
                     //var errorContent = await ans.Content.ReadAsStringAsync();
                     XmlSerializer ser = new XmlSerializer(typeof(Envelope));
-                    lastError = new APIExecutor._ApiExecutor.ErrorItem() { content = request1, error = ((Envelope)ser.Deserialize(ans.Content.ReadAsStream())).Body.Fault.Reason.Text };
+                    lastError = new _ApiExecutor.ErrorItem() { content = request1, error = ((Envelope)ser.Deserialize(ans.Content.ReadAsStream())).Body.Fault.Reason.Text };
 
                     return null;
                 }
@@ -98,7 +97,7 @@ namespace CamundaInterface
             var ans11 = await send(fimiLogon, "Logon");
         }
 
-        public async Task<APIExecutor._ApiFilter> ExecAsync(APIExecutor.ExecContextItem[] commands)
+        public async Task<_ApiFilter> ExecAsync(ExecContextItem[] commands)
         {
 /*            string content;
             using (StreamReader sr = new StreamReader(@"c:\d\Answer.xml"))
@@ -159,21 +158,21 @@ namespace CamundaInterface
             return lastError;
         }*/
 
-        public List<APIExecutor._ApiExecutor.ItemCommand> getDefine()
+        public List<_ApiExecutor.ItemCommand> getDefine()
         {
             return FIMIHelper.getDefine();
         }
 
-        APIExecutor._ApiExecutor.ErrorItem APIExecutor._ApiExecutor.getError()
+        _ApiExecutor.ErrorItem _ApiExecutor.getError()
         {
             return lastError;
 //            throw new NotImplementedException();
         }
 
-        public APIExecutor._ApiExecutor.ErrorItem lastError;
+        public _ApiExecutor.ErrorItem lastError;
         }
 
-        public class XmlFimi : APIExecutor._ApiFilter
+        public class XmlFimi : _ApiFilter
     {
             public XmlDocument xmlDoc;
             public XmlNamespaceManager nsManager;

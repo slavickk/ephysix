@@ -44,15 +44,15 @@ namespace ParserLibrary
         //string[] allVariables = new string[] { };
         public class SignalledRule
         {
-            public string RuleID;
-            public int Severity;
-            public string Result;
-            public bool retValue = true;
+            public string RuleID { get; set; }
+            public int Severity { get; set; }
+            public string Result { get; set; }
+            public bool retValue { get; set; } = true;
         }
         public class RecordField
         {
-            public string Key;
-            public string Value;
+            public string Key { get; set; }
+            public string Value { get; set; }
         }
         public class ItemVar
         {
@@ -62,8 +62,8 @@ namespace ParserLibrary
 
         public class ItemInputVar
         {
-            public string Name;
-            public object Value;
+            public string Name { get; set; }
+            public object Value { get; set; }
         }
 
 
