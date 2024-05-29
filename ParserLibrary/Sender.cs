@@ -9,7 +9,7 @@ using UniElLib;
 
 namespace ParserLibrary;
 
-public abstract class Sender/*:ISender*/
+public abstract class Sender: DiagramExecutorItem/*:ISender*/
 {
     [YamlIgnore]
 

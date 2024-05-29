@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ParserLibrary;
-using UniElLib;
 using Serilog;
 using Serilog.Enrichers.Span;
 using Serilog.Exceptions;
@@ -47,7 +45,7 @@ namespace TCPServer
         {
             Log.Logger = CreateSerilog("TCPServer");
 
-            var sender = new ParserLibrary.DummyProtocol1Sender() { dummyProtocol1Frame = frame, dummySystem3Host = dummySystem3Host, dummySystem3Port = dummySystem3Port };
+/*            var sender = new ParserLibrary.DummyProtocol1Sender() { dummyProtocol1Frame = frame, dummySystem3Host = dummySystem3Host, dummySystem3Port = dummySystem3Port };
             var reciever = new DummyProtocol1Receiver()
             {
                 port = 15001,
@@ -75,6 +73,7 @@ namespace TCPServer
             {
                 Log.Information("Close Programm");
             }
+*/
         }
     }
 }

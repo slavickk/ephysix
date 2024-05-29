@@ -8,6 +8,15 @@ namespace CamundaInterface
         {
             public class ItemCommand
             {
+
+            public ExecContextItem toExecItem()
+            {
+                ExecContextItem retValue= new ExecContextItem();
+                retValue.Command = this.Name;
+                retValue.Params=this.parameters.Select(ii=>new ExecContextItem.ItemParam() {  Key=ii.name}).ToList();
+                return retValue;
+            }
+
                 public string environment;
                 public override string ToString()
                 {
@@ -25,7 +34,7 @@ namespace CamundaInterface
                 public string outputPath;
 
                 public List<Parameter> parameters = new List<Parameter>();
-                public class OutputItems
+                public class OutputItem
                 {
                     public string path;
                     public string Name
@@ -38,15 +47,15 @@ namespace CamundaInterface
                             return path.Substring( index+1);
                         }
                     }
-                    public OutputItems parent = null;
-                    public List<OutputItems> children = new List<OutputItems>();
+                    public OutputItem parent = null;
+                    public List<OutputItem> children = new List<OutputItem>();
                     public override string ToString()
                     {
                         return path;
                     }
 
                 }
-                public List<OutputItems> outputItems = new List<OutputItems>();
+                public List<OutputItem> outputItems = new List<OutputItem>();
             }
 
             Task beginSessionAsync();

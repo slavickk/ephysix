@@ -16,16 +16,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Data\dummy2.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\dummy_systemm2_types.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\RTP\GetCardInfo.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

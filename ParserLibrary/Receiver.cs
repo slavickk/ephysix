@@ -13,7 +13,7 @@ using YamlDotNet.Serialization;
 namespace ParserLibrary;
 
 
-public abstract class Receiver/*:IReceiver*/
+public abstract class Receiver: DiagramExecutorItem/*:IReceiver*/
 {
     public int port = -1;
 

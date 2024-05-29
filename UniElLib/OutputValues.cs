@@ -4,6 +4,7 @@ using System.Linq;
 using CSScriptLib;
 using YamlDotNet.Serialization;
 using DotLiquid;
+using System.Text.RegularExpressions;
 
 namespace UniElLib;
 
@@ -326,6 +327,7 @@ public class ScriptFromInputValue : ExtractFromInputValue
 */
 public class ExtractFromInputValue : OutputValue
 {
+    public override bool canReturnObject => string.IsNullOrEmpty(transformRegularExpression);
     public string preoPath(string path)
     {
         var path1 = path.Replace("/#text", "").Replace("@","");
@@ -384,8 +386,32 @@ public class ExtractFromInputValue : OutputValue
     public string valuePath { get; set; } = "";
     [YamlIgnore] public string[] valuePathToken = null;
 
+    public string transformRegularExpression { get; set; } = "";
+    Regex regex = null;
+    string calcRegEx(string input)
+    {
+        if (regex == null)
+        {
+            regex = new Regex(transformRegularExpression);
+        }
+        Match match = regex.Match(input);
+
+        if (match.Success)
+        {
+            return match.Value;
+            //       Console.WriteLine($"First {n} characters: {result}");
+        }
+        else
+        {
+            return null;
+            // Console.WriteLine("No match found.");
+        }
+    }
+
     public override object getValue(AbstrParser.UniEl rootEl)
     {
+        if (!string.IsNullOrEmpty(transformRegularExpression))
+            return calcRegEx(getNode(rootEl).Value.ToString());
         return getNode(rootEl).Value;
     }
 
@@ -531,9 +557,9 @@ public class ConstantValue : OutputValue
 
     public override object getValue(AbstrParser.UniEl rootEl)
     {
-        if (Value.ToString() == "$curr_time$")
+        if (Value?.ToString() == "$curr_time$")
             return DateTime.Now.ToString("o");
-        if (Value.GetType() == typeof(string) && typeConvert != TypeObject.String)
+        if (Value?.GetType() == typeof(string) && typeConvert != TypeObject.String)
             return ConvertFromType(Value.ToString(), typeConvert);
         return Value;
     }

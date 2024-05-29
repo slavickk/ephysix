@@ -1,4 +1,5 @@
-﻿using MXGraphHelperLibrary;
+﻿using Microsoft.Extensions.Configuration;
+using MXGraphHelperLibrary;
 using Npgsql;
 using Npgsql.Internal.TypeHandlers.DateTimeHandlers;
 using System.Text.Json;
@@ -41,8 +42,10 @@ where  nt.typeid = 1 and nt.isdeleted=false and nt.name like '%" + findString + 
             return list;
         }
 
-        public static async Task<List<ItemTable>> FindTable(string ConnectionString,string pattern, int[] excludeSrc=null)
+        public static async Task<List<ItemTable>> FindTable(IConfiguration conf,string pattern, int[] excludeSrc=null)
         {
+            var ConnectionString = StreamHelper.buildConnString(conf);
+
             NpgsqlConnection conn = new NpgsqlConnection(ConnectionString);
             await conn.OpenAsync();
             var ret =await  GetTablesForTablePattern(conn, pattern, excludeSrc);
@@ -50,8 +53,10 @@ where  nt.typeid = 1 and nt.isdeleted=false and nt.name like '%" + findString + 
             return ret;
         }
 
-        public static async Task<List<List<string[]>>> FindLinkBetween2Tables(string ConnectionString,long fromId,long toId,int findDepth)
+        public static async Task<List<List<string[]>>> FindLinkBetween2Tables(IConfiguration conf,long fromId,long toId,int findDepth)
         {
+            var ConnectionString = StreamHelper.buildConnString(conf);
+
             NpgsqlConnection conn = new NpgsqlConnection(ConnectionString);
             await conn.OpenAsync();
             List<List<string[]>> allPaths= new List<List<string[]>>();
@@ -111,6 +116,10 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
         }
         public class DBTableConfig
         {
+            // "tableAlias": "acc1",
+            public string?    tableExistedAlias{ get; set; }
+            public string? tableAlias { get; set; }
+
             public long tableId { get; set; }
             public long? tableExistedId { get; set; }
             public List<string> conditions { get; set; } = new List<string>();
@@ -131,10 +140,17 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
 
             }
         }
-
-
-        public static async Task<string> CreateOrModifyTables(string jsonMXGrapth = "", string tableDefJson = "{\r\n  \"tableId\":550119,\r\n  \"tableExistedId\":550079,\r\n  \"conditions\":[\"OriginalTime>@timeBegin\",\"OriginalTime<@timeEnd\",\"OriginalTime is not null\"],\r\n  \"relation\":[[\"Table\",\"550119\",\"account\",\"\"],[\"Column\",\"550130\",\"branchid\",\"account\"],[\"ForeignKey\",\"2163920\",\"branchid\",\"2163595\",\"branchid\",\"550130\"],[\"Column\",\"2163595\",\"branchid\",\"branch\"],[\"ForeignKey\",\"2163944\",\"branchid\",\"2163595\",\"branchid\",\"550095\"],[\"Column\",\"550095\",\"branchid\",\"card\"],[\"Table\",\"550079\",\"card\",\"\"]]\r\n\r\n\r\n\r\n,\r\n  \"depth\":6\r\n}", string ConnectionString= "User ID=fp;Password=rav1234;Host=master.pgfp01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;",bool isNew=true)
+        public static async Task<MXGraphHelperLibrary.MXGraphDoc.Box> createDBTableBox(IConfiguration conf, MXGraphDoc retDoc, string tableDefJson, MXGraphDoc.Box oldbox)
         {
+           return await createTable(tableDefJson, conf, retDoc);
+
+        }
+
+
+
+        public static async Task<string> CreateOrModifyTables(string jsonMXGrapth = "", string tableDefJson = "{\r\n  \"tableId\":550119,\r\n  \"tableExistedId\":550079,\r\n  \"conditions\":[\"OriginalTime>@timeBegin\",\"OriginalTime<@timeEnd\",\"OriginalTime is not null\"],\r\n  \"relation\":[[\"Table\",\"550119\",\"account\",\"\"],[\"Column\",\"550130\",\"branchid\",\"account\"],[\"ForeignKey\",\"2163920\",\"branchid\",\"2163595\",\"branchid\",\"550130\"],[\"Column\",\"2163595\",\"branchid\",\"branch\"],[\"ForeignKey\",\"2163944\",\"branchid\",\"2163595\",\"branchid\",\"550095\"],[\"Column\",\"550095\",\"branchid\",\"card\"],[\"Table\",\"550079\",\"card\",\"\"]]\r\n\r\n\r\n\r\n,\r\n  \"depth\":6\r\n}", IConfiguration conf=null,bool isNew=true)
+        {
+
             if (!isNew)
                 return jsonMXGrapth;
             MXGraphHelperLibrary.MXGraphDoc retDoc = new MXGraphHelperLibrary.MXGraphDoc();
@@ -143,26 +159,37 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
                 retDoc = JsonSerializer.Deserialize<MXGraphHelperLibrary.MXGraphDoc>(jsonMXGrapth);
             else
                 retDoc.boxes = new List<MXGraphHelperLibrary.MXGraphDoc.Box>();
+
+            await createTable(tableDefJson, conf, retDoc);
+            JsonSerializerOptions options = new JsonSerializerOptions() { IgnoreNullValues = true };
+
+            return JsonSerializer.Serialize<MXGraphHelperLibrary.MXGraphDoc>(retDoc, options);
+
+        }
+
+        private static async Task<MXGraphDoc.Box> createTable(string tableDefJson, IConfiguration conf, MXGraphDoc retDoc)
+        {
+            var ConnectionString = StreamHelper.buildConnString(conf);
             DBTableConfig dbTableConfig = JsonSerializer.Deserialize<DBTableConfig>(tableDefJson);
             if (dbTableConfig.relation?.Count > 0 && (dbTableConfig.relation.Count < 5 || dbTableConfig.relation.Count % 2 == 0))
                 throw new Exception($"invalid relation length:{dbTableConfig.relation.Count}");
             NpgsqlConnection conn = new NpgsqlConnection(ConnectionString);
             await conn.OpenAsync();
-            var box1 = await AddTable(  retDoc, dbTableConfig, conn);
+            var box1 = await AddTable(retDoc, dbTableConfig, conn);
             var lastBox = box1;
             var box2 = box1;
             var lastIndex = 1;
             if (dbTableConfig.relation?.Count > 0)
             {
-                if(dbTableConfig.relation?.Count>5)
+                if (dbTableConfig.relation?.Count > 5)
                 {
-                    for(int i=3; i<dbTableConfig.relation?.Count-2;i+=2)
+                    for (int i = 3; i < dbTableConfig.relation?.Count - 2; i += 2)
                     {
                         var temp = await getTableConfig(dbTableConfig.relation, i, conn);
 
                         if (dbTableConfig.relation[i][3] != dbTableConfig.relation[i - 2][3])
                         {
-                            box2 = await AddTable( retDoc, temp, conn);
+                            box2 = await AddTable(retDoc, temp, conn);
                             AddLink(retDoc, lastBox, box2, dbTableConfig.relation[i], dbTableConfig.relation[i - 2]);
                         }
                         lastIndex = i;
@@ -172,21 +199,18 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
                 var destTables = findTable(retDoc, Convert.ToInt64(dbTableConfig.relation.Last()[1])).ToArray();
                 if (destTables.Length > 0)
                 {
-                    AddLink(retDoc,lastBox, destTables.First(), dbTableConfig.relation[1], dbTableConfig.relation[dbTableConfig.relation.Count - 2]);
+                    AddLink(retDoc, lastBox, destTables.First(), dbTableConfig.relation[1], dbTableConfig.relation[dbTableConfig.relation.Count - 2]);
                 }
 
 
-               /* if (dbTableConfig.relation?.Count > 0)
-                {
-                    var temp = await getTableConfig(dbTableConfig.relation, 1, conn);
-                }*/
+                /* if (dbTableConfig.relation?.Count > 0)
+                 {
+                     var temp = await getTableConfig(dbTableConfig.relation, 1, conn);
+                 }*/
             }
 
             conn.Close();
-            JsonSerializerOptions options = new JsonSerializerOptions() { IgnoreNullValues = true };
-
-            return JsonSerializer.Serialize<MXGraphHelperLibrary.MXGraphDoc>(retDoc,options);
-
+            return box1;
         }
 
         static IEnumerable<MXGraphHelperLibrary.MXGraphDoc.Box> findTable(MXGraphDoc retDoc,long tableId)
@@ -198,8 +222,8 @@ from MD_allpaths_5(@FROMID,@TOID,@DEPTH,@EXCLUDE, @EXCLUDE_TYPES) p order by 1,2
                     yield return tabl_box;
             }
         }
-        const int heigthHeaderBox = 64;
-        const int heigthRow = 34;
+        public const int heigthHeaderBox = 64;
+        public const int heigthRow = 34;
 
         private static async Task<DBTableConfig> getTableConfig(List<List<string>> relation, int indexCol, NpgsqlConnection conn)
         {
@@ -229,6 +253,8 @@ where nc.nodeid=@nodeid and nc.isdeleted=false", conn))
         private static async Task<MXGraphHelperLibrary.MXGraphDoc.Box> AddTable(  MXGraphDoc retDoc, DBTableConfig dbTableConfig, NpgsqlConnection conn)
         {
             MXGraphHelperLibrary.MXGraphDoc.Box retBox = new MXGraphHelperLibrary.MXGraphDoc.Box();
+            retBox.category = "receiving";
+
             retBox.AppData =   JsonDocument.Parse(JsonSerializer.Serialize<DBTableConfig>( dbTableConfig)).RootElement;
             retBox.header = new MXGraphHelperLibrary.MXGraphDoc.Box.Header();
             if (retDoc.boxes.Count == 0)
@@ -370,8 +396,8 @@ where nt.nodeid=@nodeid and nc.isdeleted=false", conn))
                     foreach( var it2 in it1.columns)
                     {
                         
-                        int minX2=(it2.item?.box_links?.Min(ii => ii.link?.points.x))??Int32.MaxValue;
-                        if(minX2< minX1 ) minX1=minX2;
+                        double minX2=(it2.item?.box_links?.Min(ii => ii.link?.points.x))??Int32.MaxValue;
+                        if(minX2< minX1 ) minX1=(int)minX2;
 
                     }
                 }
