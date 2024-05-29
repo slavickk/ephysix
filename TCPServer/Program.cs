@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ParserLibrary;
-using UniElLib;
 using Serilog;
 using Serilog.Enrichers.Span;
 using Serilog.Exceptions;
@@ -47,7 +45,7 @@ namespace TCPServer
         {
             Log.Logger = CreateSerilog("TCPServer");
 
-            var sender = new ParserLibrary.TICSender() { ticFrame = frame, twfaHost = twfaHost, twfaPort = twfaPort };
+/*            var sender = new ParserLibrary.TICSender() { ticFrame = frame, twfaHost = twfaHost, twfaPort = twfaPort };
             var reciever = new TICReceiver()
             {
                 port = 15001,
@@ -75,6 +73,7 @@ namespace TCPServer
             {
                 Log.Information("Close Programm");
             }
+*/
         }
     }
 }

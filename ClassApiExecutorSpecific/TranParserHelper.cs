@@ -138,7 +138,7 @@ namespace ClassApiExecutor
                             }
                             var NameMember = node1.Attributes["name"].Value;
                             _ApiExecutor.ItemCommand.Parameter lastInpParameter = null;
-                            _ApiExecutor.ItemCommand.OutputItems lastOutParameter = null;
+                            _ApiExecutor.ItemCommand.OutputItem lastOutParameter = null;
                             if (isRequest)
                             {
                                 lastInpParameter = new _ApiExecutor.ItemCommand.Parameter()
@@ -149,7 +149,7 @@ namespace ClassApiExecutor
                             }
                             else
                             {
-                                lastOutParameter = new _ApiExecutor.ItemCommand.OutputItems() { path = NameMember };
+                                lastOutParameter = new _ApiExecutor.ItemCommand.OutputItem() { path = NameMember };
                                 lastCommand.outputItems.Add(lastOutParameter);
                             }
                             if (node1.Attributes.GetNamedItem("minOccurs") != null)
@@ -190,7 +190,7 @@ namespace ClassApiExecutor
                                 var NameMember1 = node2.Attributes["name"].Value;
                                 if (!isRequest)
                                 {
-                                    _ApiExecutor.ItemCommand.OutputItems lastChildItem = new _ApiExecutor.ItemCommand.OutputItems() { parent = lastOutParameter, path = lastOutParameter.path + "/Row/" + NameMember1 };
+                                    _ApiExecutor.ItemCommand.OutputItem lastChildItem = new _ApiExecutor.ItemCommand.OutputItem() { parent = lastOutParameter, path = lastOutParameter.path + "/Row/" + NameMember1 };
                                     lastOutParameter?.children.Add(lastChildItem);
                                     lastCommand.outputItems.Add(lastChildItem);
                                 }

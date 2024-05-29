@@ -207,7 +207,7 @@ namespace WebApiConsoleUtility
                         Log.Information("... Parsing " + yamlFullPath);
                         try
                         {
-                            pip = Pipeline.load(yamlFullPath, Assembly.GetAssembly(typeof(TICReceiver)));
+                            pip = Pipeline.load(yamlFullPath, Assembly.GetAssembly(typeof(HTTPReceiver)));
                         }
                         catch (Exception e66)
                         {

@@ -7,7 +7,7 @@ using Serilog.Events;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using System.Reflection;
-using Plugins.TIC;
+//using Plugins.TIC;
 
 namespace ConsoleIntegrityUtility
 {
@@ -41,8 +41,9 @@ namespace ConsoleIntegrityUtility
             Pipeline pip;
             try
             {
-                pip = Pipeline.load(args[0],Assembly.GetAssembly(typeof(ParserLibrary.TICReceiver)));
-                var suc=pip.SelfTest().GetAwaiter().GetResult().Result;
+//                pip = Pipeline.load(args[0],Assembly.GetAssembly(typeof(ParserLibrary.TICReceiver)));
+                pip = Pipeline.load(args[0], Assembly.GetAssembly(typeof(ParserLibrary.HTTPReceiver)));
+                var suc =pip.SelfTest().GetAwaiter().GetResult().Result;
 
 //                pip = pips[0];
             }  

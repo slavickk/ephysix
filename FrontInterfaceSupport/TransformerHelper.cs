@@ -12,6 +12,7 @@ using Npgsql;
 using static FrontInterfaceSupport.DBTable;
 using System.Data;
 using System.Data.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace FrontInterfaceSupport
 {
@@ -49,15 +50,28 @@ namespace FrontInterfaceSupport
 
 
         }
+        public static async Task<MXGraphHelperLibrary.MXGraphDoc.Box> createTransformerBox(IConfiguration conf, MXGraphDoc retDoc, string transformerDefJson, MXGraphDoc.Box oldbox)
+        {
+           return addBox(retDoc, JsonSerializer.Deserialize<AppData>(transformerDefJson));
+
+        }
+
         const int heigthHeaderBox = 64;
         const int heigthRow = 34;
 
-        public static MXGraphDoc addBox(MXGraphHelperLibrary.MXGraphDoc retDoc,AppData dbTableConfig)
+        public static async  Task<string[]> getAvailTypes()
+        {
+            return new string[] { "CSScript", "SQLScript", "RegularExpression" };
+        }
+
+        public static MXGraphDoc.Box addBox(MXGraphHelperLibrary.MXGraphDoc retDoc,AppData dbTableConfig)
         {
             var num=retDoc.boxes.Count + 1;
             MXGraphHelperLibrary.MXGraphDoc.Box retBox = new MXGraphHelperLibrary.MXGraphDoc.Box();
             retBox.id = "transformer"+num;
             retBox.AppData = JsonDocument.Parse(JsonSerializer.Serialize<AppData>(dbTableConfig)).RootElement;
+            retBox.category = "data transformer";
+            retBox.type = "transformer";
             string[] errs;
             var pars=CSScriptTransformerHelper.AnalyzeSourceCode(dbTableConfig.Value, out errs);
             if (pars == null) 
@@ -99,12 +113,14 @@ namespace FrontInterfaceSupport
                 int i1 = 0;
                 foreach (var inp in inputParams)
                 {
+     
+
                     col.rows.Add(new MXGraphDoc.Box.Body.Row()
                     {
                         columns = new List<MXGraphDoc.Box.Body.Row.Column>() { new MXGraphDoc.Box.Body.Row.Column() {
                         item= new MXGraphDoc.Box.Body.Row.Column.Item() {
-                             style="position: relative;\n    box-sizing: border-box;\n    width: calc(100% - 20px);\n    height: 30px;\n    padding: 5px 30px;\n    margin: 0px auto;\n    border-radius: 8px;\n    border: 1px dashed var(--grey-10);\n    background: var(--grey-1);"
-                             , box_id=retBox.id+"_"+"input"+(++i1)
+                            /* style="position: relative;\n    box-sizing: border-box;\n    width: calc(100% - 20px);\n    height: 30px;\n    padding: 5px 30px;\n    margin: 0px auto;\n    border-radius: 8px;\n    border: 1px dashed var(--grey-10);\n    background: var(--grey-1);"
+                             ,*/ box_id=retBox.id+"_"+"input"+(++i1)
                              , caption=inp.Name
                              , colspan=2
                              ,  valid_link_type= new List<int>() { 3}
@@ -128,8 +144,8 @@ namespace FrontInterfaceSupport
                     {
                         columns = new List<MXGraphDoc.Box.Body.Row.Column>() { new MXGraphDoc.Box.Body.Row.Column() {
                         item= new MXGraphDoc.Box.Body.Row.Column.Item() {
-                             style="position: relative;\n    box-sizing: border-box;\n    width: calc(100% - 20px);\n    height: 30px;\n    padding: 5px 30px;\n    margin: 0px auto;\n    border-radius: 8px;\n    border: 1px dashed var(--grey-10);\n    background: var(--grey-1);"
-                             , box_id=retBox.id+"_"+"output"+(++i1)
+                            /* style="position: relative;\n    box-sizing: border-box;\n    width: calc(100% - 20px);\n    height: 30px;\n    padding: 5px 30px;\n    margin: 0px auto;\n    border-radius: 8px;\n    border: 1px dashed var(--grey-10);\n    background: var(--grey-1);"
+                             ,*/ box_id=retBox.id+"_"+"output"+(++i1)
                              , caption=out1.Name
                              , colspan=2
                              ,  valid_link_type= new List<int>() { 3}
@@ -141,10 +157,10 @@ namespace FrontInterfaceSupport
 
                 retBox.body.rows.Last().columns.Add(col);
             }
-
+            retBox.header.size.height += heigthRow*Math.Max(outputParams.Length,inputParams.Length);
 
             retDoc.boxes.Add(retBox);
-            return retDoc;
+            return retBox;
 
         }
 

@@ -15,14 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BlazorAppCreateETL\Shared\BlazorAppCreateETL.Shared.csproj" />
     <ProjectReference Include="..\CamundaInterfaces\CamundaDefinitionInterfaces.csproj" />
     <ProjectReference Include="..\CamundaInterface\CamundaInterface.csproj" />
+    <ProjectReference Include="..\ClassApiExecutorSpecific\ClassApiExecutorSpecific.csproj" />
     <ProjectReference Include="..\ClassApiExecutor\ClassApiExecutor.csproj" />
     <ProjectReference Include="..\ETL_DB_Interface\ETL_DB_Interface.csproj" />
     <ProjectReference Include="..\GraphShablons\GraphShablons.csproj" />
     <ProjectReference Include="..\GraphVizWrapper\GraphVizWrapper.csproj" />
-    <ProjectReference Include="..\MXGraphHelperLibrary\MXGraphHelperLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

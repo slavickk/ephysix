@@ -13,7 +13,7 @@ using Common.Logging;
 using Newtonsoft.Json;
 using Npgsql;
 using ParserLibrary;
-using Plugins.TIC;
+//using Plugins.TIC;
 using Serilog;
 using static CamundaInterface.APIExecutor;
 
@@ -333,7 +333,7 @@ namespace CamundaInterface
                                     }
                                     conn.Close();
                                 }
-                                Pipeline pip = Pipeline.loadFromString(task_yaml,Assembly.GetAssembly(typeof(ParserLibrary.TICReceiver)));
+                                Pipeline pip = Pipeline.loadFromString(task_yaml,Assembly.GetAssembly(typeof(ParserLibrary.HTTPReceiver)));
                                 await pip.run();
                                 int sendCount = pip.steps.Sum(ii => ii.recordSendCount);
 

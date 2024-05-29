@@ -22,9 +22,10 @@ namespace CamundaInterface
             string password = "qwerty";
             string session;
         public string NextChallenge;
-
         public FimiXmlTransport()
         {
+            this.addr = @"http://10.74.28.30:30401";
+            this.password = "qwerty";
 
         }
         public FimiXmlTransport(string addr = @"http://10.74.28.30:30401", string password = "qwerty")
@@ -115,32 +116,35 @@ namespace CamundaInterface
                     fimiRate.setPath($"FIMI/{currentKey}Rq/Rq/@Session", ans.getPath("FIMI/InitSessionRp/Rp/Id"));*/
                 foreach (var par in com.Params)
                 {
-                    if(par.Value.GetType() == typeof(JsonDocument))
+                    if (par.Value != null)
                     {
-                        JsonDocument jsonDocument = (JsonDocument)par.Value;
-                        if(jsonDocument.RootElement.ValueKind == JsonValueKind.Array)
+                        if (par.Value.GetType() == typeof(JsonDocument))
                         {
-                            var users = jsonDocument.RootElement.EnumerateArray();
-
-                            while (users.MoveNext())
+                            JsonDocument jsonDocument = (JsonDocument)par.Value;
+                            if (jsonDocument.RootElement.ValueKind == JsonValueKind.Array)
                             {
-                                var user = users.Current;
-                                var props = user.EnumerateObject();
-                                fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}/Row", null);
-                                while (props.MoveNext())
+                                var users = jsonDocument.RootElement.EnumerateArray();
+
+                                while (users.MoveNext())
                                 {
-                                    var prop = props.Current;
-                                    if(prop.Value.ValueKind != JsonValueKind.Null)
-                                    fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}/Row/{prop.Name}",prop.Value.ToString());
+                                    var user = users.Current;
+                                    var props = user.EnumerateObject();
+                                    fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}/Row", null);
+                                    while (props.MoveNext())
+                                    {
+                                        var prop = props.Current;
+                                        if (prop.Value.ValueKind != JsonValueKind.Null)
+                                            fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}/Row/{prop.Name}", prop.Value.ToString());
+                                    }
                                 }
                             }
-                        } 
-//                        if(jsonDocument.RootElement. != null)
-//                        fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value.ToString());
+                            //                        if(jsonDocument.RootElement. != null)
+                            //                        fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value.ToString());
 
+                        }
+                        else
+                            fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value.ToString());
                     }
-                    else
-                        fimiCommand.setPath($"FIMI/{currentKey}Rq/Rq/{par.Key}", par.Value.ToString());
                 }
                 retValue = await send(fimiCommand, currentKey);
             }

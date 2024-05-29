@@ -5,6 +5,7 @@ using CSScriptLib;
 using YamlDotNet.Serialization;
 using DotLiquid;
 using UniElLib;
+using System.Text.RegularExpressions;
 namespace ParserLibrary;
 
 public class ExtractFromInputValueWithScript: ExtractFromInputValue
@@ -410,8 +411,32 @@ public class ExtractFromInputValue : OutputValue,ILiquidizable
     public string valuePath { get; set; } = "";
     [YamlIgnore] public string[] valuePathToken = null;
 
+    public string transformRegularExpression { get; set; } = "";
+    Regex regex = null;
+    string calcRegEx(string input)
+    {
+        if (regex== null)
+        {
+            regex = new Regex(transformRegularExpression);
+        }
+        Match match = regex.Match(input);
+
+        if (match.Success)
+        {
+          return match.Value;
+     //       Console.WriteLine($"First {n} characters: {result}");
+        }
+        else
+        {
+            return null;
+           // Console.WriteLine("No match found.");
+        }
+    }
+
     public override object getValue(AbstrParser.UniEl rootEl)
     {
+        if (!string.IsNullOrEmpty(transformRegularExpression))
+            return calcRegEx(getNode(rootEl).Value);
         return getNode(rootEl).Value;
     }
 

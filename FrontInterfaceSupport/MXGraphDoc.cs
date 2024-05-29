@@ -33,19 +33,22 @@ namespace MXGraphHelperLibrary
             [System.Text.Json.Serialization.JsonIgnore]
             public int xCurrent = 0;  // for arrow position control
             public string type { get; set; }
+            public string category { get; set; }
             public class Body
             {
                 public class Row
                 {
                     public class Column
                     {
+                        public string style { get; set; }
                         public List<Header> header { get; set; }
                         public List<Row> rows { get; set; }
 
 
                         public class Item
                         {
-
+                            public bool? is_output { get;set; }
+                            public bool? is_need_redraw { get; set; }
                             public void AddBoxLink(Box boxDest, string id, int typeLink = 2)
                             {
                                 if (box_links == null)
@@ -64,8 +67,8 @@ namespace MXGraphHelperLibrary
                                 {
                                     public class Points
                                     {
-                                        public int x { get; set; }
-                                        public int y { get; set; }
+                                        public double x { get; set; }
+                                        public double y { get; set; }
                                         public Points()
                                         {
                                             this.x = x;
@@ -127,6 +130,7 @@ namespace MXGraphHelperLibrary
                 public string zone_name { get; set; }
                 public string zone_type { get; set; }
                 public string value { get; set; }
+                public string style { get; set; }
             }
 
             public string id { get; set; }
@@ -134,6 +138,81 @@ namespace MXGraphHelperLibrary
 
             public JsonElement? AppData { get; set; } = null;
             public Body body { get; set; }
+
+            public class box_link_item
+            {
+                public string box_id;
+                public MXGraphDoc.Box.Body.Row.Column.Item.BoxLink[] boxLinks;
+            }
+
+            public List<box_link_item> enumLinks()
+            {
+                List<box_link_item> retValue = new List<box_link_item>();
+                var rows = this.body.rows;
+                enumRows(retValue, rows);
+                return retValue;
+            }
+
+            private void enumRows(List<box_link_item> retValue, List<MXGraphDoc.Box.Body.Row> rows)
+            {
+                foreach (var row in rows)
+                {
+                    foreach (var col in row.columns)
+                    {
+                        if (col.json != null)
+                            EnumerateElements((JsonElement)col.json, retValue);
+                        if (col.item != null)
+                        {
+                            if (col.item.box_links != null)
+                            {
+                                retValue.Add(new box_link_item() { box_id = col.item.box_id, boxLinks = col.item.box_links.ToArray() });
+                            }
+                        }
+                        if (col.rows != null)
+                        {
+                            enumRows(retValue, col.rows);
+
+                        }
+                    }
+                }
+            }
+
+            private void EnumerateElements(JsonElement doc, List<box_link_item> list)
+            {
+                string box_id = "";
+                if (doc.ValueKind == JsonValueKind.Object)
+                    foreach (var property in doc.EnumerateObject())
+                    {
+                        var type1 = property.GetType();
+                        var name = property.Name;
+                        if (name == "box_id")
+                        {
+                            box_id = property.Value.ToString();
+                            int yy = 0;
+                        }
+                        if (name == "box_links")
+                        {
+                            list.Add(new box_link_item() { box_id = box_id, boxLinks = System.Text.Json.JsonSerializer.Deserialize<MXGraphDoc.Box.Body.Row.Column.Item.BoxLink[]>(property.Value) });
+                            int yy = 0;
+                        }
+                        var value = property.Value;
+                        if (value.ValueKind == JsonValueKind.Object)
+                        {
+                            EnumerateElements(value, list);
+
+                        }
+
+                    }
+                if (doc.ValueKind == JsonValueKind.Array)
+                    foreach (var el in doc.EnumerateArray())
+                    {
+                        EnumerateElements((JsonElement)el, list);
+                        //                if(value.ValueKind == JsonValueKind.Object)
+
+                    }
+            }
+
+
         }
 
         public List<Box> boxes { get; set; }

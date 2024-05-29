@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClassApiExecutorSpecific\ClassApiExecutorSpecific.csproj" />
     <ProjectReference Include="..\ClassApiExecutor\ClassApiExecutor.csproj" />
   </ItemGroup>
 

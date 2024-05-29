@@ -16,16 +16,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Data\fimi.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\fimi_types.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\RTP\GetCardInfo.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

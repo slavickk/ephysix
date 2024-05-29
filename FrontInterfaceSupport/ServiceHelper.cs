@@ -8,11 +8,14 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static FrontInterfaceSupport.DBTable;
+using ClassApiExecutor;
+using Microsoft.Extensions.Configuration;
 
 namespace FrontInterfaceSupport
 {
     public class ServiceHelper
     {
+        public static FIMIHelper help= new FIMIHelper();
         public class JsonItem
         {
             public Dictionary<string, string>? tooltip_info { get; set; }
@@ -29,7 +32,7 @@ namespace FrontInterfaceSupport
                 .Concat(Assembly.GetExecutingAssembly().GetTypes().Where(predicate))
                 .ToList();
         }
-        static Assembly[] addAsseblies = new Assembly[] { Assembly.GetAssembly(typeof(_ApiExecutor)) };
+        static Assembly[] addAsseblies = new Assembly[] { Assembly.GetAssembly(typeof(_ApiExecutor)) , Assembly.GetAssembly(typeof(FIMIHelper)) };
 
         public static async  Task<List<string>> getMethodsForSource(string source)
         {
@@ -56,6 +59,21 @@ namespace FrontInterfaceSupport
                 retDoc = JsonSerializer.Deserialize<MXGraphHelperLibrary.MXGraphDoc>(jsonMXGrapth);
             else
                 retDoc.boxes = new List<MXGraphHelperLibrary.MXGraphDoc.Box>();
+            createServiceBox(serviceDefJson, retDoc); 
+            var options = new JsonSerializerOptions() { IgnoreNullValues = true };
+
+            var st = JsonSerializer.Serialize<MXGraphDoc>(retDoc, options);
+            return st;
+            //            return (type as _ApiExecutor).getDefine().Select(ii=>ii.Name).ToList();
+            //            return null;
+        }
+        public static async Task<MXGraphHelperLibrary.MXGraphDoc.Box> createServiceBox(IConfiguration conf, MXGraphDoc retDoc, string streamDefJson, MXGraphDoc.Box oldbox)
+        {
+            return createServiceBox(streamDefJson, retDoc);
+        }
+
+        private static MXGraphDoc.Box createServiceBox(string serviceDefJson, MXGraphDoc retDoc)
+        {
             ServiceConfig dbTableConfig = JsonSerializer.Deserialize<ServiceConfig>(serviceDefJson);
             var sourceName = dbTableConfig.Type;
             var methodName = dbTableConfig.Function;
@@ -70,7 +88,10 @@ namespace FrontInterfaceSupport
             MXGraphHelperLibrary.MXGraphDoc.Box retBox = new MXGraphHelperLibrary.MXGraphDoc.Box();
             //   retBox.AppData = JsonDocument.Parse(JsonSerializer.Serialize<DBTableConfig>(dbTableConfig)).RootElement;
             retBox.header = new MXGraphHelperLibrary.MXGraphDoc.Box.Header();
-            retBox.id = sourceName + "_" + methodName;
+
+            int mx = retDoc.boxes.Count(ii => ii.type == "service") + 1;
+            retBox.id = sourceName + "_" + methodName + "_" + mx;
+
             retBox.header.caption = sourceName + " " + methodName;
             retBox.header.description = "API call of method " + methodName;
             retBox.AppData = JsonDocument.Parse(JsonSerializer.Serialize<ServiceConfig>(dbTableConfig)).RootElement;
@@ -82,24 +103,20 @@ namespace FrontInterfaceSupport
             else
             {
                 int delta = 15;
-                int left = retDoc.boxes.Max(ii => ii.header.position.left + ii.header.size.width)+delta;
-                int top = retDoc.boxes.Min(ii => ii.header.position.top) ;
+                int left = retDoc.boxes.Max(ii => ii.header.position.left + ii.header.size.width) + delta;
+                int top = retDoc.boxes.Min(ii => ii.header.position.top);
                 retBox.header.position = new MXGraphHelperLibrary.MXGraphDoc.Box.Header.Position() { left = left, top = top };
             }
 
             retBox.header.size = new MXGraphHelperLibrary.MXGraphDoc.Box.Header.Size() { width = 300, height = 300 };
             //            retBox.id = mxGraphID;
             retBox.type = "service";
+            retBox.category = "data transformer";
 
             retDoc.boxes.Add(retBox);
             MXGraphDoc.Box.Body body = getBody(boxIdPrefix, item);
             retBox.body = body;
-            var options = new JsonSerializerOptions() { IgnoreNullValues = true };
-
-            var st = JsonSerializer.Serialize<MXGraphDoc>(retDoc, options);
-            return st;
-            //            return (type as _ApiExecutor).getDefine().Select(ii=>ii.Name).ToList();
-            //            return null;
+            return retBox;
         }
 
         public static async  Task<string> getMethodsDetail(string sourceName ,string methodName)
@@ -111,8 +128,12 @@ namespace FrontInterfaceSupport
             var item = (obj as _ApiExecutor).getDefine().First(ii => ii.Name == methodName);
             MXGraphHelperLibrary.MXGraphDoc retDoc = new MXGraphHelperLibrary.MXGraphDoc();
             retDoc.boxes = new List<MXGraphHelperLibrary.MXGraphDoc.Box>();
+            
 
             MXGraphHelperLibrary.MXGraphDoc.Box retBox = new MXGraphHelperLibrary.MXGraphDoc.Box();
+            retBox.category = "receiving";
+            retBox.type ="service";
+
             //   retBox.AppData = JsonDocument.Parse(JsonSerializer.Serialize<DBTableConfig>(dbTableConfig)).RootElement;
             retBox.header = new MXGraphHelperLibrary.MXGraphDoc.Box.Header();
             retBox.id = sourceName + "_" + methodName;
@@ -161,7 +182,7 @@ namespace FrontInterfaceSupport
                 dictInput.Add("Input parameters", localInput);
                 foreach (var it in item.parameters)
                 {
-                    localInput.Add(it.name, new JsonItem() { box_id = boxIdPrefix + "_Input_" + it.name });
+                    localInput.Add(it.name, new JsonItem() { box_id = "Input_" + it.name });
                 }
                 cols.Add(new MXGraphDoc.Box.Body.Row.Column()
                 {
@@ -192,7 +213,7 @@ namespace FrontInterfaceSupport
                         obj1 = links[i];
                     }
                     else
-                        obj1 = new JsonItem() { box_id = boxIdPrefix + "_Output_" + it.path };
+                        obj1 = new JsonItem() { box_id = "Output_" + it.path };
                     parentDict.Add(it.Name, obj1);
                 }
                 cols.Add(new MXGraphDoc.Box.Body.Row.Column()

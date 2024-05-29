@@ -6,7 +6,7 @@ using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using ParserLibrary;
-using Plugins.TIC;
+//using Plugins.TIC;
 
 Console.WriteLine("Hello, World!");
 BenchmarkRunner.Run<PipelinePerformanceTest>();
@@ -53,7 +53,7 @@ var st = await response.Content.ReadAsStringAsync();
     {
         try
         {
-            pip = Pipeline.load(path, Assembly.GetAssembly(typeof(ParserLibrary.TICReceiver)));
+//            pip = Pipeline.load(path, Assembly.GetAssembly(typeof(ParserLibrary.TICReceiver)));
             pip.steps.First(ii => ii.IDStep == "Step_ToTWO").sender.MocMode = true;
             pip.steps.First(ii => ii.IDStep == "Step_ToTWO").sender.mocker.MocTimeoutInMilliseconds = 0;
             /* pip.steps.First(ii => ii.IDStep == "Step_0").sender.mocker.MocTimeoutInMilliseconds = 0;

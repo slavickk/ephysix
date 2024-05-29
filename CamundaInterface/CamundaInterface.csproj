@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\RTP\**" />
+    <EmbeddedResource Remove="Data\RTP\**" />
+    <None Remove="Data\RTP\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Data\DictCurrencyRates.cs" />
     <Compile Remove="FIMIHelper.cs" />
     <Compile Remove="FimiImplementation.cs" />
@@ -20,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="30.1.0" />
     <PackageReference Include="DnsClient" Version="1.7.0" />
     <PackageReference Include="NCrontab" Version="3.3.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -27,21 +34,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CCFAProtocols\CCFAProtocols.csproj" />
+    <ProjectReference Include="..\ClassApiExecutorSpecific\ClassApiExecutorSpecific.csproj" />
     <ProjectReference Include="..\ClassApiExecutor\ClassApiExecutor.csproj" />
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
-    <ProjectReference Include="..\Plugins\Plugins.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Data\fimi.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\fimi_types.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\RTP\GetCardInfo.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

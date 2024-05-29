@@ -16,10 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\UAMP\UAMP.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <None Update="TestData\SUBUAMP.bin">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

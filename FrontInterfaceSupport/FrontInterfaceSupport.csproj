@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.1.21</Version>
+    <Version>1.1.48</Version>
     <PackageId>XParserLibrary.FrontInterfaceSupport</PackageId>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Authors of ProjectX</Authors>
@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClassApiExecutorSpecific\ClassApiExecutorSpecific.csproj"  PrivateAssets="All"/>
     <ProjectReference Include="..\ClassApiExecutor\ClassApiExecutor.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
   </ItemGroup>

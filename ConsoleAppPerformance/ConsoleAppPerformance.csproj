@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
-    <ProjectReference Include="..\Plugins\Plugins.csproj" />
   </ItemGroup>
 
 </Project>
