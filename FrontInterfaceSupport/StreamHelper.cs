@@ -207,6 +207,8 @@ namespace FrontInterfaceSupport
 
         }
 
+
+        static Dictionary<string, string> replacedFields = new Dictionary<string, string>() { { "Number", "DOUBLE" },{"DateTime","DATETIME" }, { "Boolean", "BOOLEAN" }, { "String", "STRING" } };
         public static async Task saveStream (IConfiguration conf,StreamDescr stream)
         {
             string CONSUL_ADDR = conf["CONSUL_ADDR"];
@@ -227,7 +229,7 @@ namespace FrontInterfaceSupport
                 var cmd1 = new NpgsqlCommand($"delete from streams_descripton where stream ='{stream.Name}'", connRule);
                 cmd1.ExecuteNonQuery();
             }
-            using (var cmd = new NpgsqlCommand(@"select * from get_stream_descr(@stream);", conn))
+            using (var cmd = new NpgsqlCommand(@"select * from streams_description where stream=@stream;", conn))
             {
                 cmd.Parameters.AddWithValue("@stream", stream.Name);
                 //  cmd.ExecuteNonQuery();
@@ -241,9 +243,9 @@ namespace FrontInterfaceSupport
                         List<string> selectList = new List<string>();
                         for (int i = 0; i < reader.FieldCount; i++)
                         {
+                            insertList.Add(reader.GetName(i));
                             if (reader.GetName(i) != "synonym")
                             {
-                                insertList.Add(reader.GetName(i));
                                 if (reader.GetFieldType(i) == typeof(bool))
                                     selectList.Add(reader.GetBoolean(i).ToString());
                                 else
@@ -252,15 +254,23 @@ namespace FrontInterfaceSupport
                                         selectList.Add("''");
                                     else
                                     {
-                                        if(reader.GetName(i) == "datatype")
-                                            selectList.Add("'" + reader.GetString(i).ToUpper() + "'");
+                                       // selectList.Add("'" + replacedFields[reader.GetString(i)] + "'");
+                                        if (reader.GetName(i) == "datatype")
+                                            selectList.Add("'" + replacedFields[reader.GetString(i)] + "'");
                                         else
+                                            selectList.Add("'" + reader.GetString(i) + "'");
 
-                                        selectList.Add("'" + reader.GetString(i) + "'");
                                     }
                                 }
 
                                 //                                    Console.Write(reader.GetValue(i) + ";");
+                            }
+                            else
+                            {
+                                if (reader.IsDBNull(i))
+                                    selectList.Add("null");
+                                else
+                                    selectList.Add($"{reader.GetInt32(i)}");
                             }
                         }
                         var cmd1 = new NpgsqlCommand($"insert into streams_descripton ({string.Join(",", insertList)}) values ({string.Join(", ", selectList)})", connRule);
