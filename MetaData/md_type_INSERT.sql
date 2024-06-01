@@ -1,3 +1,19 @@
+/******************************************************************
+ * File: md_type_INSERT.sql
+ * Copyright (c) 2024 Vyacheslav Kotrachev
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARDummyProtocol1ULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ ******************************************************************/
+
 INSERT INTO md.md_type (typeid, key, name, tscreated, iscustom) VALUES (-6, 'VForeignKey', 'Виртуальное частное соединение', '2022-07-16 04:53:17.090908 +00:00', true);
 INSERT INTO md.md_type (typeid, key, name, tscreated, iscustom) VALUES (1, 'Table', 'Таблица', '2022-07-13 06:06:44.915538 +00:00', false);
 INSERT INTO md.md_type (typeid, key, name, tscreated, iscustom) VALUES (2, 'Column', 'Колонка Таблицы', '2022-07-13 06:06:44.937522 +00:00', false);

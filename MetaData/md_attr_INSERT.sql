@@ -1,3 +1,19 @@
+/******************************************************************
+ * File: md_attr_INSERT.sql
+ * Copyright (c) 2024 Vyacheslav Kotrachev
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARDummyProtocol1ULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ ******************************************************************/
+
 INSERT INTO md.md_attr (attrid, attrpid, key, name, tscreated, iscustom) VALUES (0, 0, 'Root', 'Root', '2022-07-13 06:06:50.638581 +00:00', false);
 INSERT INTO md.md_attr (attrid, attrpid, key, name, tscreated, iscustom) VALUES (1, 0, 'DataType', 'Тип данных', '2022-07-13 06:06:50.660154 +00:00', false);
 INSERT INTO md.md_attr (attrid, attrpid, key, name, tscreated, iscustom) VALUES (2, 0, 'DataTypeDef', 'Тип данных (определения)', '2022-07-13 06:06:50.680254 +00:00', false);
