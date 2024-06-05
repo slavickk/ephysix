@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClassApiExecutor\ClassApiExecutor.csproj" />
-    <ProjectReference Include="..\ETL_DB_Interface\ETL_DB_Interface.csproj" />
     <ProjectReference Include="..\FrontInterfaceSupport\FrontInterfaceSupport.csproj" />
   </ItemGroup>
 
