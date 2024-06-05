@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClassApiExecutorSpecific\ClassApiExecutorSpecific.csproj"  PrivateAssets="All"/>
     <ProjectReference Include="..\ClassApiExecutor\ClassApiExecutor.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
   </ItemGroup>
