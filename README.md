@@ -36,22 +36,4 @@ About WebCamundaExecutors see [CamundaExecutors](WebApiCamundaExecutors/readme.m
 * Kafka sender and receivier, CDC(Change Data Capture) receiver
 * GUI Web-based tools for build integration pipelines
  
- 
-## ENVIRONMENTS
-|ENV_NAME|DEFAULT_VALUE|POSSIBLE VALUES|IS NECESSARY|DEPENDENT VARIABLES|DESCRIPTION|
-| ------ | ------ | ------ | ------ | ------ | ------ |
-|YAML_PATH|/app/Data/model.yml||true|None|YAML configuration file path|
-|LOG_LEVEL|Debug|Verbose, Debug, Information, Warning, Error, Fatal|true|None|Logging level|
-|LOG_PATH|||false|None|FilePath for logging.If variable absent-logging into default input/output |
-|LOG_HISTORY_MODE|||false|None|if variable presented ,swith on save Request &Answers from extended sources |
-|LOG_EXT_STAT|||false|None|if variable presented ,swith on pipeline execution statistic |
-|DEBUG_MODE|||false|None|if variable presented ,swith on extended pipeline log |
-## PORTS
-|PORT_NAME|DEFAULT_VALUE|PROTOCOL|HEALTHCHECK|HEALTHCHEK ROUTE|METRICS|METRICS ROUTE|DESCRIPTION|
-| ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-|http port|80|http|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|http port|
-|https port|443|https|true|/api/Monitoring/ConsulHealthCheck|true|/api/Monitoring/getMetrics|https port|
-
-
-See ENVIRONMETS and PORTS  specific  to the selected pipeline (YAML configuration file path with .md extension).Default directory ./DataProject/Data/
 
