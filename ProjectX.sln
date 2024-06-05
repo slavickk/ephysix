@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaTestsConsumer", "Kafka
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestFrontInterface", "TestFrontInterface\TestFrontInterface.csproj", "{E5E7B7F3-5A69-4DCA-8796-6A93A16F7A76}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleFormStreamDefinition", "ConsoleFormStreamDefinition\ConsoleFormStreamDefinition.csproj", "{07F73778-860B-41CB-8F2B-D3A4A442A06C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontInterfaceSupport", "FrontInterfaceSupport\FrontInterfaceSupport.csproj", "{496FA4EE-524D-40F0-9802-07D6147F824E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassApiExecutor", "ClassApiExecutor\ClassApiExecutor.csproj", "{05A8B7A6-44BA-48F4-8768-F4471229E053}"
@@ -99,10 +97,6 @@ Global
 		{E5E7B7F3-5A69-4DCA-8796-6A93A16F7A76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5E7B7F3-5A69-4DCA-8796-6A93A16F7A76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5E7B7F3-5A69-4DCA-8796-6A93A16F7A76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{07F73778-860B-41CB-8F2B-D3A4A442A06C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{07F73778-860B-41CB-8F2B-D3A4A442A06C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{07F73778-860B-41CB-8F2B-D3A4A442A06C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{07F73778-860B-41CB-8F2B-D3A4A442A06C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{496FA4EE-524D-40F0-9802-07D6147F824E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{496FA4EE-524D-40F0-9802-07D6147F824E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{496FA4EE-524D-40F0-9802-07D6147F824E}.Release|Any CPU.ActiveCfg = Release|Any CPU
