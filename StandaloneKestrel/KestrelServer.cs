@@ -163,9 +163,10 @@ namespace Kestrel
                         var resp = await client.GetAsync(url);
                         if (resp.StatusCode != System.Net.HttpStatusCode.OK)
                         {
-                            Log.Error("{\"Mess\":\"@StatusCode\"}", resp.StatusCode);
+                            Log.Error("HealthCheckFailed \"Mess\":{StatusCode}", resp.StatusCode);
 
                             await server.StopAsync(CancellationToken.None);
+//                            await Task.Delay(1000);
                             await server.StartAsync(new KestrelApplication(loggerFactory, this), CancellationToken.None);
 
                         }

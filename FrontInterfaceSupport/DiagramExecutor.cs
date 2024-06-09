@@ -198,7 +198,6 @@ namespace FrontInterfaceSupport
                 .Concat(Assembly.GetExecutingAssembly().GetTypes().Where(predicate))
                 .ToList();
         }
-        static Assembly[] addAsseblies = new Assembly[] { Assembly.GetAssembly(typeof(_ApiExecutor)), Assembly.GetAssembly(typeof(DummySystem2Helper)) };
 
  
         _ApiExecutor.ItemCommand commandItem;
@@ -249,7 +248,7 @@ namespace FrontInterfaceSupport
 
         }
 
-        const string prefix = "DummySystem2XmlTransport__";
+        const string prefix = "AnyXmlTransport__";
         _ApiExecutor executor;
 
 
@@ -257,7 +256,7 @@ namespace FrontInterfaceSupport
         public ImplementApiExecutor(MXGraphDoc.Box box):base(box.id)
         {
             ServiceHelper.ServiceConfig conf = JsonSerializer.Deserialize<ServiceHelper.ServiceConfig>((JsonElement)box.AppData);
-            var type = getAllRegTypes(addAsseblies).First(ii => ii.Name == conf.Type);
+            var type = getAllRegTypes(ServiceHelper.addAsseblies).First(ii => ii.Name == conf.Type);
             executor =(_ApiExecutor) Activator.CreateInstance(type);
             
             execContextItems = new ExecContextItem[] { executor.getDefine().First(ii => ii.Name == conf.Function).toExecItem() };

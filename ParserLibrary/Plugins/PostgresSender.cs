@@ -138,7 +138,7 @@ public class PostgresSender : ISender
                 }
                 catch (NpgsqlException e77)
                 {
-                    if (((Npgsql.PostgresException)e77).Code == "42P01")
+                    if (((Npgsql.PostgresException)e77).SqlState == "42P01")
                     {
                         try
                         {

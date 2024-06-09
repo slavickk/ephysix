@@ -5,10 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>XParserLibrary.StandaloneKestrel</PackageId>
     <Authors>Authors of StandaloneKestrel</Authors>
     <OutputType>Library</OutputType>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

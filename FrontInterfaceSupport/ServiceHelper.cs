@@ -24,14 +24,13 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static FrontInterfaceSupport.DBTable;
-using ClassApiExecutor;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Any;
 
 namespace FrontInterfaceSupport
 {
     public class ServiceHelper
     {
-        public static DummySystem2Helper help= new DummySystem2Helper();
         public class JsonItem
         {
             public Dictionary<string, string>? tooltip_info { get; set; }
@@ -48,8 +47,18 @@ namespace FrontInterfaceSupport
                 .Concat(Assembly.GetExecutingAssembly().GetTypes().Where(predicate))
                 .ToList();
         }
-        static Assembly[] addAsseblies = new Assembly[] { Assembly.GetAssembly(typeof(_ApiExecutor)) , Assembly.GetAssembly(typeof(DummySystem2Helper)) };
+        public static string apyType = "AnyHelper";
+        public static Assembly[] addAsseblies = new Assembly[] { Assembly.GetAssembly(typeof(_ApiExecutor)) ,GetAssemblyNameContainingType( apyType) };
+        public static Assembly GetAssemblyNameContainingType(String typeName)
+        {
+            foreach (Assembly currentassembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type t = currentassembly.GetType(typeName, false, true);
+                if (t != null) { return currentassembly; }
+            }
 
+            return null;
+        }
         public static async  Task<List<string>> getMethodsForSource(string source)
         {
             var type = getAllRegTypes(addAsseblies).First(ii=>ii.Name== source);
