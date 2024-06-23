@@ -43,11 +43,19 @@ namespace TestFrontInterface
         [TestMethod]
         public async Task TestNewFeatures()
         {
-            foreach(var stream in new string[] {"Actions","Transfers","Transacts"})
+            try
             {
-                StreamDescr descr111 = await StreamHelper.GetStreamDescription(conf, stream);
-                // descr.fields = descr1.fields.GetRange(0, 29);
-                await StreamHelper.saveStream(conf, descr111);
+                foreach (var stream in new string[] { "ContactActions"/*,"Actions","Transfers","Transacts"*/})
+                {
+                    StreamDescr descr111 = await StreamHelper.GetStreamDescription(conf, stream);
+                    foreach (var fld in descr111.fields)
+                        fld.Calculated = false;
+                    // descr.fields = descr1.fields.GetRange(0, 29);
+                    await StreamHelper.saveStream(conf, descr111);
+                }
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
 
 
