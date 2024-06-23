@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
+using Testcontainers.RabbitMq;
 
 namespace ParserLibrary.Tests
 {
@@ -40,6 +41,26 @@ namespace ParserLibrary.Tests
             private IModel channel;
             private EventingBasicConsumer consumer;
 
+            private RabbitMqContainer _container;
+            
+            [OneTimeSetUp]
+            public async Task GlobalSetup()
+            {
+                _container = new RabbitMqBuilder()
+                    .WithImage("rabbitmq:3.11")
+                    .WithUsername(Username)
+                    .WithPassword(Password)
+                    .WithPortBinding(5672)
+                    .Build();
+                await _container.StartAsync();
+            }
+
+            [OneTimeTearDown]
+            public async Task GlobalTeardown()
+            {
+                await _container.DisposeAsync();
+            }
+            
             [SetUp]
             public void Setup()
             {
