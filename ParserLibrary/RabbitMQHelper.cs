@@ -39,6 +39,16 @@ namespace ParserLibrary
         public string Username { get; set; }
         public string Password { get; set; }
         public string QueueName { get; set; }
+        
+        /// <summary>
+        /// If true, the helper will print a notification when a message is received.
+        /// </summary>
+        public bool PrintReceivedNotification { get; set; }
+        
+        /// <summary>
+        /// If true, the helper will print a notification when a message is sent.
+        /// </summary>
+        public bool PrintSentNotification { get; set; }
 
         public RabbitMQHelper(string hostname, int port, string username, string password, string queueName)
         {
@@ -74,7 +84,19 @@ namespace ParserLibrary
         {
             var body = e.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-            Console.WriteLine("Received message: " + message);
+            if (PrintReceivedNotification)
+                Console.WriteLine("Received message: " + message);
+            OnReceived(e);
+        }
+        
+        /// <summary>
+        /// Event that the helper will raise when a message is received.
+        /// </summary>
+        public event EventHandler<BasicDeliverEventArgs> Received;
+        protected virtual void OnReceived(BasicDeliverEventArgs e)
+        {
+            if (Received != null)
+                Received.Invoke(this, e);
         }
 
         public void StopReceiving()
@@ -87,7 +109,8 @@ namespace ParserLibrary
         {
             var body = Encoding.UTF8.GetBytes(message);
             channel.BasicPublish(exchange: "", routingKey: QueueName, basicProperties: null, body: body);
-            Console.WriteLine("Sent message: " + message);
+            if (PrintSentNotification)
+                Console.WriteLine("Sent message: " + message);
         }
     }
 }
