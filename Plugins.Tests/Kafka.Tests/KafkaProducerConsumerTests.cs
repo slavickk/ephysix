@@ -1,10 +1,5 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
-using DotNet.Testcontainers.Builders;
-using NUnit.Framework;
 using Testcontainers.Kafka;
 
 namespace ParserLibrary.Tests;
@@ -16,7 +11,7 @@ public class KafkaProducerConsumerTests
     private IConsumer<Null, string>? _consumer;
     
     private KafkaContainer _container;
-    
+
     [OneTimeSetUp]
     public async Task InitAsync()
     {

@@ -37,6 +37,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassApiExecutor", "ClassAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserLibrary.Tests", "ParserLibrary.Tests\ParserLibrary.Tests.csproj", "{5C322D82-40F3-4787-90AE-C5BEAFCFA002}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins", "Plugins\Plugins.csproj", "{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins.Tests", "Plugins.Tests\Plugins.Tests.csproj", "{074808D0-F25C-4D6A-8322-CA5108485833}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +115,14 @@ Global
 		{5C322D82-40F3-4787-90AE-C5BEAFCFA002}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C322D82-40F3-4787-90AE-C5BEAFCFA002}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C322D82-40F3-4787-90AE-C5BEAFCFA002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{074808D0-F25C-4D6A-8322-CA5108485833}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{074808D0-F25C-4D6A-8322-CA5108485833}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{074808D0-F25C-4D6A-8322-CA5108485833}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{074808D0-F25C-4D6A-8322-CA5108485833}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
