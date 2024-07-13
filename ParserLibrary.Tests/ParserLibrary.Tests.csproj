@@ -30,6 +30,7 @@
         </PackageReference>
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
         <PackageReference Include="Testcontainers.Kafka" Version="3.9.0" />
+        <PackageReference Include="Testcontainers.PostgreSql" Version="3.9.0" />
         <PackageReference Include="Testcontainers.RabbitMq" Version="3.9.0" />
     </ItemGroup>
 
