@@ -9,8 +9,6 @@
 
     <ItemGroup>
       <None Remove="TestData\AReq.xml" />
-      <Compile Remove="PipelinePerformanceTest.cs" />
-      <None Include="PipelinePerformanceTest.cs" />
     </ItemGroup>
 
     <ItemGroup>
