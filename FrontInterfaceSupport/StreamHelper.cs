@@ -37,7 +37,7 @@ namespace FrontInterfaceSupport
         public class StreamDescr
         {
             public string Name { get; set; }
-            public string Description { get; set; }
+            public string Description { get; set; } = "";
             public class Item
             {
                 public class LinkItem
@@ -46,7 +46,7 @@ namespace FrontInterfaceSupport
                     public string Field { get; set; }
                 }
                 public string Name { get; set; }
-                public string Detail { get; set; }
+                public string Detail { get; set; } = "";
                 public string Type { get; set; }
                 public string SensitiveData { get; set; }
                 public bool Calculated { get; set; }
@@ -59,6 +59,18 @@ namespace FrontInterfaceSupport
             public string StreamName { get; set; }
         }
 
+        public static string buildConnStringRules(IConfiguration conf)
+        {
+            return conf.GetSection("MxGraphConnection")["ConnectionStringRules"];
+            NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder();
+            builder.Host = conf["DB_URL_FPDB"];
+            builder.SearchPath = conf["DB_SCHEMA_FPDB"];
+            builder.Username = conf["DB_USER_FPDB"];
+            builder.Password = conf["DB_PASSWORD_FPDB"];
+            builder.Database = conf["DB_NAME_FPDB"];
+            return builder.ConnectionString;
+
+        }
         public static string buildConnString(IConfiguration conf)
         {
             return conf.GetSection("MxGraphConnection")["ConnectionString"];
@@ -225,7 +237,7 @@ namespace FrontInterfaceSupport
         }
 
 
-        static Dictionary<string, string> replacedFields = new Dictionary<string, string>() { { "Number", "DOUBLE" },{"DateTime","DATETIME" }, { "Boolean", "BOOLEAN" }, { "String", "STRING" } };
+        static Dictionary<string, string> replacedFields = new Dictionary<string, string>() { { "BIGINT", "DOUBLE" }, { "Number", "DOUBLE" },{"DateTime","DATETIME" }, { "Boolean", "BOOLEAN" }, { "String", "STRING" }, { "Array", "STRING" } };
         public static async Task saveStream (IConfiguration conf,StreamDescr stream)
         {
             string CONSUL_ADDR = conf["CONSUL_ADDR"];
@@ -240,15 +252,17 @@ namespace FrontInterfaceSupport
                 cmd.Parameters.AddWithValue("@json", NpgsqlTypes.NpgsqlDbType.Json, body);
                 cmd.ExecuteNonQuery();
             }
-            NpgsqlConnection connRule = new NpgsqlConnection("User ID=rules;Password=rav1234;Host=master.pgep01.service.dev-ep.consul;Port=5432;Database=ruledb;"); //SearchPath=md;
+            NpgsqlConnection connRule = new NpgsqlConnection(buildConnStringRules(conf)/*"User ID=rules;Password=rav1234;Host=master.pgep01.service.dev-ep.consul;Port=5432;Database=ruledb;"*/); //SearchPath=md;
             connRule.Open();
             {
-                var cmd1 = new NpgsqlCommand($"delete from streams_descripton where stream ='{stream.Name}'", connRule);
+//                var cmd1 = new NpgsqlCommand($"delete from streams_description /*where stream ='{stream.Name}'", connRule);
+                var cmd1 = new NpgsqlCommand($"delete from streams_description ", connRule);
                 cmd1.ExecuteNonQuery();
             }
-            using (var cmd = new NpgsqlCommand(@"select * from streams_description where stream=@stream;", conn))
+            using (var cmd = new NpgsqlCommand(@"select * from streams_description ", conn))
+//            using (var cmd = new NpgsqlCommand(@"select * from streams_description where stream=@stream;", conn))
             {
-                cmd.Parameters.AddWithValue("@stream", stream.Name);
+                //cmd.Parameters.AddWithValue("@stream", stream.Name);
                 //  cmd.ExecuteNonQuery();
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -271,11 +285,18 @@ namespace FrontInterfaceSupport
                                         selectList.Add("''");
                                     else
                                     {
-                                       // selectList.Add("'" + replacedFields[reader.GetString(i)] + "'");
+                                        // selectList.Add("'" + replacedFields[reader.GetString(i)] + "'");
                                         if (reader.GetName(i) == "datatype")
-                                            selectList.Add("'" + replacedFields[reader.GetString(i)] + "'");
+                                        {
+                                            string val;
+                                            if(replacedFields.TryGetValue(reader.GetString(i),out val))
+                                                selectList.Add("'" + val + "'");
+                                            else
+                                                selectList.Add("'" + reader.GetString(i) + "'");
+
+                                        }
                                         else
-                                            selectList.Add("'" + reader.GetString(i) + "'");
+                                            selectList.Add("'" + reader.GetString(i).Replace("'","''") + "'");
 
                                     }
                                 }
@@ -289,9 +310,18 @@ namespace FrontInterfaceSupport
                                 else
                                     selectList.Add($"{reader.GetInt32(i)}");
                             }
+                            
                         }
-                        var cmd1 = new NpgsqlCommand($"insert into streams_descripton ({string.Join(",", insertList)}) values ({string.Join(", ", selectList)})", connRule);
-                        cmd1.ExecuteNonQuery();
+               
+                        var cmd1 = new NpgsqlCommand($"insert into streams_description ({string.Join(",", insertList)}) values ({string.Join(", ", selectList)})", connRule);
+                        try
+                        {
+                            cmd1.ExecuteNonQuery();
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
                         //                            var Name = reader.GetString(1);
                     }
 
