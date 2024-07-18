@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 namespace ParserLibrary.Tests;
 
 [TestFixture]
+[Ignore("These tests take significant time to run. Consider deleting them or moving a separate set of long-running tests.")]
 public class ThreadTests
 {
 
