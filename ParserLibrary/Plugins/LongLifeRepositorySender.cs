@@ -24,7 +24,7 @@ using UniElLib;
 
 namespace Plugins;
 
-public class LongLifeRepositorySender : ISender, ISelfTested
+public class ILongLifeRepositorySender : ISender, ISelfTested
 {
     public class Item
     {

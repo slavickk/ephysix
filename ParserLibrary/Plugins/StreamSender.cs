@@ -33,7 +33,7 @@ using YamlDotNet.Serialization;
 
 namespace Plugins;
 
-public class StreamSender:HTTPSender,ISelfTested
+public class IStreamSender:IHTTPSender,ISelfTested
 {
     public static TimeSpan Interval; 
     public string streamName  = "checkRegistration5";

@@ -23,7 +23,7 @@ namespace Plugins;
 /// <summary>
 /// A drop-in replacement for the TestReceiver that uses the new IReceiver interface.
 /// </summary>
-public class TestReceiver : IReceiver
+public class ITestReceiver : IReceiver
 {
     public string path;
     public string pattern = "";

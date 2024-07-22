@@ -30,14 +30,14 @@ using PluginBase;
 namespace Plugins
 {
     // TODO: finish the IReceiver-based PacketBeatReceiver named PacketBeatReceiver
-    public class PacketBeatReceiver : IReceiver
+    public class IPacketBeatReceiver : IReceiver
     {
         public int port = 15001;
         // protected async override Task startInternal()
         // {
         //     Start(port);
         // }
-        public PacketBeatReceiver()
+        public IPacketBeatReceiver()
         {
 //            this.saver = new ReplaySaver() { path = @"C:\D\Out" };
         }

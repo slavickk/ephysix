@@ -30,7 +30,7 @@ using YamlDotNet.Serialization;
 
 namespace Plugins;
 
-public  class HTTPSender: ISender, ISelfTested
+public  class IHTTPSender: ISender, ISelfTested
 {
     [YamlIgnore]
     HttpClient client;
@@ -40,7 +40,7 @@ public  class HTTPSender: ISender, ISelfTested
     public List<string> certThumbprints = new List<string> { "A77587679318FED87BB040F00D76AB461B962D95" };
     public double timeoutSendInMilliseconds = 5000;
     public List<HTTPReceiver.KestrelServer.Header> headers;
-    public HTTPSender()
+    public IHTTPSender()
     {
         createMetrics();
         //     InitClient();

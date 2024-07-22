@@ -203,17 +203,29 @@ public class Pipeline:ILiquidizable
             t.IsAssignableTo(typeof(Receiver))
              ||
             t.IsAssignableTo(typeof(Sender))
-     /*       ||
-            typeof(IReceiver).IsAssignableFrom(t)
-            ||
-            typeof(ISender).IsAssignableFrom(t)*/;
+                       ||
+            t.IsAssignableTo(typeof(IReceiver))
+             ||
+            t.IsAssignableTo(typeof(ISender))
+
+            /*       ||
+                   typeof(IReceiver).IsAssignableFrom(t)
+                   ||
+                   typeof(ISender).IsAssignableFrom(t)*/;
     }
     public static List<Type> getAllRegTypes(params Assembly[] addAssemblies)
     {
+        if(addAssemblies[0] !=null)
+
         return addAssemblies.SelectMany(a => a.GetTypes().Where(predicate))
             .Concat(Assembly.GetAssembly(typeof(OutputValue)).GetTypes().Where(predicate))
             .Concat(Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(predicate))
             .ToList();
+        else
+            return Assembly.GetAssembly(typeof(OutputValue)).GetTypes().Where(predicate)
+                 .Concat(Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(predicate))
+                 .ToList();
+
     }
     static bool predicateParser(Type t)
     {
@@ -475,13 +487,17 @@ public class Pipeline:ILiquidizable
     {
         occurencyItems.Clear();
         var ser = new DeserializerBuilder();
-        AddCustomParsers(assembly);
-        foreach (var type in getAllRegTypes(assembly))
+        if (assembly != null)
         {
-          // ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
-        
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+            AddCustomParsers(assembly);
         }
+            foreach (var type in getAllRegTypes(assembly))
+            {
+                // ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
+
+                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+            }
+       
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
