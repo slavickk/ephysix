@@ -1,0 +1,153 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Test",
+    "description": "Descr",
+    "version": "0.1.1"
+  },
+  "paths": {
+    "/Api1": {
+      "post": {
+        "tags": [
+          "INFO"
+        ],
+        "summary": "Summary",
+        "description": "Meth1",
+        "parameters": [],
+        "requestBody": {
+          "description": "Request body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Api1_Req"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Успешное исполнение",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Api1_Resp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/Method2": {
+      "get": {
+        "tags": [
+          "INFO"
+        ],
+        "summary": "Summary",
+        "description": "Meth2",
+        "parameters": [
+          {
+            "name": "RACC",
+            "in": "query",
+            "description": "Счет получателя (номер счета, телефона)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Счет получателя (номер счета, телефона)"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешное исполнение",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Method2_Resp"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "422": {
+            "description": "Validation exception"
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Api1_Req": {
+        "type": "object",
+        "properties": {
+          "RACC": {
+            "type": "string",
+            "description": "Счет получателя (номер счета, телефона)"
+          }
+        }
+      },
+      "Api1_Resp": {
+        "type": "object",
+        "properties": {
+          "AWAnswer": {
+            "type": "object",
+            "properties": {
+              "Vendor": {
+                "type": "string",
+                "description": "Идентификатор услуги (код реального вендора)"
+              },
+              "REF": {
+                "type": "string",
+                "description": "Референс документа (по которому в дальнейшем можно выполнить отмену или запрос статуса документа)"
+              },
+              "Status": {
+                "type": "string",
+                "description": "Статус исполнения операции. Возможные значения:•\tAccepted – принято \\ исполнено. Данный статус является условно финальным, для отдельных шлюзов может требовать квитовки через отдельные процессы сверки (пример шлюз НКО РР, настройка UseAcceptedStatusOnPay);•\tExecuted – исполнено (финальный статус);•\tRejected – сбой, статус неизвестен, требуется выяснения финального статуса запросом AWRCHECKD);•\tRecall – отказ в исполнении (финальный статус);•\tPostponed – документ поставлен в очередь, требуется выяснения финального статуса запросом AWRCHECKD);\txsd:string"
+              }
+            },
+            "description": "Тело ответа на запрос. Содержимое зависит от типа ответа. Описывается персонально для каждого типа."
+          }
+        }
+      },
+      "Method2_Req": {
+        "type": "object",
+        "properties": {}
+      },
+      "Method2_Resp": {
+        "type": "object",
+        "properties": {
+          "AWAnswer": {
+            "type": "object",
+            "properties": {
+              "Vendor": {
+                "type": "string",
+                "description": "Идентификатор услуги (код реального вендора)"
+              },
+              "REF": {
+                "type": "string",
+                "description": "Референс документа (по которому в дальнейшем можно выполнить отмену или запрос статуса документа)"
+              },
+              "Status": {
+                "type": "string",
+                "description": "Статус исполнения операции. Возможные значения:•\tAccepted – принято \\ исполнено. Данный статус является условно финальным, для отдельных шлюзов может требовать квитовки через отдельные процессы сверки (пример шлюз НКО РР, настройка UseAcceptedStatusOnPay);•\tExecuted – исполнено (финальный статус);•\tRejected – сбой, статус неизвестен, требуется выяснения финального статуса запросом AWRCHECKD);•\tRecall – отказ в исполнении (финальный статус);•\tPostponed – документ поставлен в очередь, требуется выяснения финального статуса запросом AWRCHECKD);\txsd:string"
+              }
+            },
+            "description": "Тело ответа на запрос. Содержимое зависит от типа ответа. Описывается персонально для каждого типа."
+          }
+        }
+      }
+    }
+  }
+}

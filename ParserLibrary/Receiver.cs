@@ -227,9 +227,26 @@ public abstract class Receiver: DiagramExecutorItem/*:IReceiver*/
             await startInternal();
     }
 
-
+    public async Task stop()
+    {
+        await stopInternal();
+    }
+    
+    /// <summary>
+    /// Internal method to start the receiver.
+    /// Deriving classes should override this method to implement the actual start logic.
+    /// </summary>
     protected async virtual Task startInternal()
     { 
+        
+    }
+
+    /// <summary>
+    /// Internal method to stop the receiver.
+    /// Deriving classes should override this method to implement the actual stop logic.
+    /// </summary>
+    protected async virtual Task stopInternal()
+    {
         
     }
 

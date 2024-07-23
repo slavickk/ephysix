@@ -81,6 +81,19 @@ public partial class Step : ILiquidizable
         }
         //New ***
     }
+
+    /// <summary>
+    /// Stops receiver and sender attached to this step.
+    /// </summary>
+    public async Task stop()
+    {
+        if (_receiverHost != null)
+            await _receiverHost.stop();
+        
+        if (receiver != null)
+            await receiver.stop();
+    }
+
     public string IDStep { get; set; } = "Example";
 
 

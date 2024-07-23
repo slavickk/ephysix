@@ -112,10 +112,10 @@ namespace Plugins
             var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, subjectCommonName, false);
             
             // Ensure we have found exactly one certificate
-            if (certificates.Count != 1)
-                throw new Exception($"Found {certificates.Count} certificates with subject 'CN={subjectCommonName}'. Expected exactly one.");
-
-            return certificates[0];
+            if (certificates.Count == 1) return certificates[0];
+            
+            Logger.log($"Found {certificates.Count} certificates with subject 'CN={subjectCommonName}' in the local machine store. Expected exactly one.", LogEventLevel.Error);
+            throw new Exception($"Found {certificates.Count} certificates with subject 'CN={subjectCommonName}' in the local machine store. Expected exactly one.");
         }
         
         public HTTPReceiverSwagger()
@@ -151,12 +151,18 @@ namespace Plugins
                             {
                                 app.UseAuthentication();
                                 app.UseAuthorization();
+                                app.UseEndpoints(ep => ep.MapControllers().RequireAuthorization());
                             }
-                            app.UseEndpoints(ep => ep.MapControllers().RequireAuthorization());
+                            else
+                            {
+                                app.UseEndpoints(ep => ep.MapControllers());
+                            }
                         });
 
                 });
         }
+        
+        private readonly CancellationTokenSource _cts = new();
 
         async Task IReceiver.start()
         {
@@ -270,8 +276,16 @@ namespace Plugins
                 Log.Error( "Bad request received");
             });
             Logger.log("HTTPReceiverSwagger: Starting the host");
-            await host.RunAsync();
+            await host.RunAsync(_cts.Token);
         }
+
+        Task IReceiver.stop()
+        {
+            Logger.log("HTTPReceiverSwagger: Signalling cancellation to the receiver host", LogEventLevel.Debug);
+            _cts.Cancel();
+            return Task.CompletedTask;
+        }
+        
         class BadRequestEventListener : IObserver<KeyValuePair<string, object>>, IDisposable
         {
             private readonly IDisposable _subscription;

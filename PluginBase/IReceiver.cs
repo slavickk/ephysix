@@ -23,6 +23,7 @@ namespace PluginBase;
 public interface IReceiver
 {
     Task start();
+    Task stop();
     IReceiverHost host { get; set; }
     Task sendResponse(string response, object context);
     bool cantTryParse { get; }

@@ -26,6 +26,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using ParserLibrary;
 using PluginBase;
+using Serilog.Events;
 
 namespace Plugins
 {
@@ -71,6 +72,9 @@ namespace Plugins
             retValue.clear();
             return retValue;
         }
+        
+        private CancellationTokenSource _cts = new();
+        
         private async Task StartListener(int port)
         {
             //            NewServer serv = new NewServer();
@@ -84,7 +88,7 @@ namespace Plugins
                     Logger.log("[Server] waiting for clients on port {port} ...", Serilog.Events.LogEventLevel.Debug,"any",port);
 //                using (var tcpClient = await tcpListener.AcceptTcpClientAsync())
                 {
-                    var tcpClient = await tcpListener.AcceptTcpClientAsync();
+                    var tcpClient = await tcpListener.AcceptTcpClientAsync(_cts.Token);
                     Logger.log("accept", Serilog.Events.LogEventLevel.Debug);
                     Action<object> action =async  (client1) => {
                         LumberJackHandlerV2 serv = null;
@@ -148,6 +152,13 @@ namespace Plugins
         public Task start()
         {
             Start(port);
+            return Task.CompletedTask;
+        }
+        
+        public Task stop()
+        {
+            Logger.log("PacketBeatReceiver: Signalling cancellation", LogEventLevel.Debug);
+            _cts.Cancel();
             return Task.CompletedTask;
         }
 

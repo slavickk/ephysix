@@ -301,12 +301,31 @@ public class Pipeline:ILiquidizable
         foreach(var mb in this.metricsBuilder)
             mb.Init();
 //            step.owner = this;
-        var entryStep = steps.First(ii => ii.IDPreviousStep == "" && (ii.ireceiver != null || ii.receiver != null));
+        var entryStep = GetEntryStep();
 
         Logger.log($"Starting the entry step {entryStep.IDStep}", Serilog.Events.LogEventLevel.Debug);
         await entryStep.run();
         
         Logger.log($"Entry step {entryStep.IDStep} finished", Serilog.Events.LogEventLevel.Debug);
+    }
+
+    /// <summary>
+    /// Stops the pipeline by calling stop() on the entry step.
+    /// </summary>
+    public async Task stop()
+    {
+        var entryStep = GetEntryStep();
+
+        Logger.log($"Stopping the pipeline by calling stop() on step {entryStep.IDStep}", Serilog.Events.LogEventLevel.Debug);
+        await entryStep.stop();
+        
+        Logger.log($"Execution of stop() on step {entryStep.IDStep} finished", Serilog.Events.LogEventLevel.Debug);
+    }
+    
+    // helper method to get the entry step
+    private Step GetEntryStep()
+    {
+        return steps.First(ii => ii.IDPreviousStep == "" && (ii.ireceiver != null || ii.receiver != null));
     }
 
     static IEnumerable<string> getEnvVariables(string body)
@@ -430,7 +449,8 @@ public class Pipeline:ILiquidizable
    static TracerProvider tracerBuilder = null;
 
     public static string AgentHost = "localhost";
-    public static int AgentPort = 6831;
+    public static int AgentPort = -1;
+    // public static int AgentPort = 6831;
     static void InitJaeger(string Name)
     {
         // Jaeger is needed only for tracing.

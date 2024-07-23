@@ -15,8 +15,11 @@
  ******************************************************************/
 
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using ParserLibrary;
 using PluginBase;
+using Serilog.Events;
 
 namespace Plugins;
 
@@ -27,17 +30,23 @@ public class ITestReceiver : IReceiver
 {
     public string path;
     public string pattern = "";
-
+    
     public IReceiverHost host { get; set; }
 
     public bool cantTryParse { get; set; }
 
     public bool debugMode { get; set; }
+    
+    // cancellation token
+    private CancellationTokenSource _cts = new();
 
     public async Task start()
     {
         foreach (var file_name in ((pattern == "") ? new string[] { path } : Directory.GetFiles(path, pattern)))
         {
+            if (_cts.Token.IsCancellationRequested)
+                break;
+            
             using (StreamReader sr = new StreamReader(file_name))
             {
                 var body = sr.ReadToEnd();
@@ -45,6 +54,14 @@ public class ITestReceiver : IReceiver
             }
         }
     }
+    
+    public Task stop()
+    {
+        Logger.log("TestReceiver: Cancelling the receiving loop", LogEventLevel.Debug);
+        _cts.Cancel();
+        return Task.CompletedTask;
+    }
+
 
     public Task sendResponse(string response, object context)
     {

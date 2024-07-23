@@ -9,6 +9,16 @@
 
     <ItemGroup>
       <None Remove="TestData\AReq.xml" />
+      <Compile Remove="PipelinePerformanceTest.cs" />
+      <None Include="PipelinePerformanceTest.cs" />
+      <Compile Remove="TransformerTests.cs" />
+      <None Include="TransformerTests.cs" />
+      <None Update="TestData\swagger-dummy.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\dummy_pipeline.yml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -21,6 +31,8 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -40,6 +52,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
     </ItemGroup>
 
 </Project>

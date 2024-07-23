@@ -37,6 +37,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassApiExecutor", "ClassAp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleConvertToXML", "ConsoleConvertToXML\ConsoleConvertToXML.csproj", "{B00D5F0B-5367-4D5B-A71B-9220598ACDFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserLibrary.Tests", "ParserLibrary.Tests\ParserLibrary.Tests.csproj", "{881EC00F-29CB-4A6B-84D8-3435548DB8AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,10 @@ Global
 		{B00D5F0B-5367-4D5B-A71B-9220598ACDFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B00D5F0B-5367-4D5B-A71B-9220598ACDFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B00D5F0B-5367-4D5B-A71B-9220598ACDFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{881EC00F-29CB-4A6B-84D8-3435548DB8AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{881EC00F-29CB-4A6B-84D8-3435548DB8AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{881EC00F-29CB-4A6B-84D8-3435548DB8AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{881EC00F-29CB-4A6B-84D8-3435548DB8AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
