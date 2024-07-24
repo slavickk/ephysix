@@ -261,11 +261,11 @@ namespace Plugins
                     }
                     else
                     {
-                        services.AddAuthentication(options =>
+                       /* services.AddAuthentication(options =>
                         {
                             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                             options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        });
+                        });*/
                         Logger.log("HTTPReceiverSwagger: Not using JWT validation because jwtIssueSigningKey has not been given in pipeline definition.");
                     }
                 });
