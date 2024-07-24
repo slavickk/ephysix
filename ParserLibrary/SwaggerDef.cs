@@ -191,6 +191,8 @@ namespace ParserLibrary
 
     public class OpenApiDef
     {
+
+
         public string OpenApiVersion { get; set; } = "3.0.1";
         public Info info { get; set; } = new Info();
         public ExternalDocs externalDocs { get; set; }
@@ -209,7 +211,7 @@ namespace ParserLibrary
                 public bool required { get; set; }
 
 
-                public string path;
+                public string path {get;set;}
                 public Parameter ancestor;
                 public List<Parameter> childs= new List<Parameter>();
                 public static void MarkChildsAndAncestor(List<Parameter> list)
@@ -246,10 +248,17 @@ namespace ParserLibrary
             public Method method { get; set; }
             public string description { get; set; }
             public string summary { get; set; }
-            public List<string> tags { get; set; }
+            public List<string> tags { get; set; }= new List<string>();
 
             public List<InputParameter> inputs { get; set; }
             public List<Parameter> outputs { get; set; }
+
+
+            //****XML parameters
+            public string externalName { get; set; }
+            public string externalPath { get; set; }
+            //****XML parameters
+
         }
         public List<EntryPoint> paths { get; set; }
 
@@ -355,7 +364,8 @@ namespace ParserLibrary
                 FormScemasItem(respProperties, item1);
             }
 
-            scemas_items.Add(form_schemas_item_name(item, suff), new SwaggerDef.Components.Schemas.Item() { type = "object", properties = respProperties });
+            if(respProperties.Count>0)
+                scemas_items.Add(form_schemas_item_name(item, suff), new SwaggerDef.Components.Schemas.Item() { type = "object", properties = respProperties });
 
           /*  foreach (var itemHead in cond.Where(ii => ii.childs.Count > 0))
             {
