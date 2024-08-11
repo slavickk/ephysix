@@ -37,6 +37,9 @@ public class JWTTests
     public void GenerateToken()
     {
         // The sample self-signed-jwt-cert.p12 is generated below using GenerateSelfSignedCertificate()
+        if (!File.Exists("self-signed-jwt-cert.p12"))
+            throw new FileNotFoundException("self-signed-jwt-cert.p12 does not exist. Please run the GenerateSelfSignedCertificate() test to generate it.");
+        
         var key = new X509SecurityKey(new X509Certificate2("self-signed-jwt-cert.p12", "qwerty"));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256Signature);
         var tokenDescriptor = new SecurityTokenDescriptor
