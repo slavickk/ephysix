@@ -25,7 +25,7 @@ using UniElLib;
 namespace Plugins;
 
 [Annotation("Загрузка данных в произвольную Postgres таблицу ( построчно")]
-public class PostgresSender : ISender
+public class IPostgresSender : ISender
 {
     public ISenderHost host { get; set; }
     

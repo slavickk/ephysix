@@ -9,6 +9,13 @@
 
     <ItemGroup>
       <None Remove="TestData\AReq.xml" />
+      <Compile Remove="PipelinePerformanceTest.cs" />
+      <None Include="PipelinePerformanceTest.cs" />
+      <Compile Remove="TransformerTests.cs" />
+      <None Include="TransformerTests.cs" />
+      <None Update="TestData\swagger-dummy.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -28,6 +35,8 @@
         <PackageReference Include="Testcontainers.Kafka" Version="3.9.0" />
         <PackageReference Include="Testcontainers.PostgreSql" Version="3.9.0" />
         <PackageReference Include="Testcontainers.RabbitMq" Version="3.9.0" />
+        <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>

@@ -40,6 +40,8 @@ public class DummySender : Sender
 
     public override Task<string> send(string JsonBody, ContextItem context)
     {
+        if (this.DummyResponses == null)
+            return Task.FromResult("");
         return Task.FromResult(this.DummyResponses[this.ResponseToReturn]);
     }
 }

@@ -114,7 +114,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
     {
         return "";
     }
-    public async Task<string> send(AbstrParser.UniEl root, ContextItem context)
+    public virtual  async Task<string> send(AbstrParser.UniEl root, ContextItem context)
     {
         DateTime time1 = DateTime.Now;
         string ans;
@@ -189,7 +189,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
 
     }
 
-    public void Init()
+    public virtual  void Init()
     {
         //throw new NotImplementedException();
     }

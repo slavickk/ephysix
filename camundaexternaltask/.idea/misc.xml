@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Black">
+    <option name="sdkUUID" value="dee1d044-7cdf-4cd0-abb8-7e608bab8845" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Base-310" project-jdk-type="Python SDK" />
+  <component name="PythonCompatibilityInspectionAdvertiser">
+    <option name="version" value="3" />
+  </component>
+</project>

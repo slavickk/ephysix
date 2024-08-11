@@ -68,8 +68,12 @@ public partial class HTTPReceiverSwagger
         public async Task<object> ReceiveRequestAsync(MethodInfo controllerAction, Type returnType, IDictionary<string, object> parameters)
         {
             Logger.log(
-                "HandlerImplementation() parameters: " + string.Join(", ", parameters.Select(p => p.Value)),
+                "HandlerImplementation(), method:"+controllerAction.Name+", parameters: "  + string.Join(", ", parameters.Select(p => p.Value)),
                 LogEventLevel.Debug);
+
+
+            //Add method name(without async)
+            parameters.Add("SwaggerMethod", controllerAction.Name.Substring(0, controllerAction.Name.Length - 5));
 
             // Create a JSON object where names are parameter names and values are JSON representations of the parameters.
             // Use dictionary mapping.

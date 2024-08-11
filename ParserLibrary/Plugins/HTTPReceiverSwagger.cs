@@ -47,6 +47,9 @@ using PluginBase;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using UniElLib;
+using Microsoft.AspNetCore.Http.Features;
+using NLog.Fluent;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 
 namespace Plugins
@@ -109,10 +112,10 @@ namespace Plugins
             var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, subjectCommonName, false);
             
             // Ensure we have found exactly one certificate
-            if (certificates.Count != 1)
-                throw new Exception($"Found {certificates.Count} certificates with subject 'CN={subjectCommonName}'. Expected exactly one.");
-
-            return certificates[0];
+            if (certificates.Count == 1) return certificates[0];
+            
+            Logger.log($"Found {certificates.Count} certificates with subject 'CN={subjectCommonName}' in the local machine store. Expected exactly one.", LogEventLevel.Error);
+            throw new Exception($"Found {certificates.Count} certificates with subject 'CN={subjectCommonName}' in the local machine store. Expected exactly one.");
         }
         
         public HTTPReceiverSwagger()
@@ -148,23 +151,29 @@ namespace Plugins
                             {
                                 app.UseAuthentication();
                                 app.UseAuthorization();
+                                app.UseEndpoints(ep => ep.MapControllers().RequireAuthorization());
                             }
-                            app.UseEndpoints(ep => ep.MapControllers().RequireAuthorization());
+                            else
+                            {
+                                app.UseEndpoints(ep => ep.MapControllers());
+                            }
                         });
 
                 });
         }
+        
+        private readonly CancellationTokenSource _cts = new();
 
         async Task IReceiver.start()
         {
-            if (this.mockBody != null)
+            if (!string.IsNullOrEmpty(this.mockBody))
             {
                 Logger.log("HTTPReceiverSwagger: Mock mode is enabled, returning the mock body " + this.mockBody);
                 await _host.signal(this.mockBody, "hz");
                 return;
             }
             
-            if (this.mockFile != null)
+            if (!string.IsNullOrEmpty(this.mockFile))
             {
                 Logger.log("HTTPReceiverSwagger: Mock mode is enabled, reading the mock file " + this.mockFile);
                 var mockResponse = File.ReadAllText(this.mockFile);
@@ -200,7 +209,7 @@ namespace Plugins
                         throw new Exception("Invalid IP address to listen on: " + address);
                 }
                 
-                if (certSubject != null)
+                if (!string.IsNullOrEmpty(certSubject))
                 {
                     Logger.log("HTTPReceiverSwagger: Configuring HTTPS with certificate subject " + certSubject);
                     webBuilder.UseKestrel(opt =>
@@ -210,12 +219,15 @@ namespace Plugins
                 else
                 {
                     webBuilder.UseKestrel(opt => opt.Listen(ipAddress, port));
+                //    webBuilder.
                     Logger.log(
                         "HTTPReceiverSwagger: Not using HTTPS because certSubject has not been given in pipeline definition.");
                 }
+               
 
                 webBuilder.ConfigureServices(services =>
                 {
+                 
                     services.AddControllers()
                         .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
                         .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(serverPart));
@@ -230,9 +242,9 @@ namespace Plugins
                     
                     // Register the RequestHandler in the service container
                     services.AddSingleton(requestHandler);
-                    
+
                     // Configure JWT validation if jwtIssueSigningKey is provided
-                    if (jwtIssueSigningCertSubject != null)
+                    if (!string.IsNullOrEmpty(jwtIssueSigningCertSubject))
                     {
                         Logger.log("HTTPReceiverSwagger: jwtIssueSigningKey is given in pipeline definition, configuring JWT validation.");
                         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -248,14 +260,77 @@ namespace Plugins
                             });
                     }
                     else
+                    {
+                       /* services.AddAuthentication(options =>
+                        {
+                            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                            options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        });*/
                         Logger.log("HTTPReceiverSwagger: Not using JWT validation because jwtIssueSigningKey has not been given in pipeline definition.");
+                    }
                 });
             }).Build();
-
+            var diagnosticSource = host.Services.GetRequiredService<DiagnosticListener>();
+            using var badRequestListener = new BadRequestEventListener(diagnosticSource, (badRequestExceptionFeature) =>
+            {
+                Log.Error( "Bad request received");
+            });
             Logger.log("HTTPReceiverSwagger: Starting the host");
-            await host.RunAsync();
+            await host.RunAsync(_cts.Token);
         }
 
+        Task IReceiver.stop()
+        {
+            Logger.log("HTTPReceiverSwagger: Signalling cancellation to the receiver host", LogEventLevel.Debug);
+            _cts.Cancel();
+            return Task.CompletedTask;
+        }
+        
+        class BadRequestEventListener : IObserver<KeyValuePair<string, object>>, IDisposable
+        {
+            private readonly IDisposable _subscription;
+            private readonly Action<IBadRequestExceptionFeature> _callback;
+
+            public BadRequestEventListener(DiagnosticListener diagnosticListener, Action<IBadRequestExceptionFeature> callback)
+            {
+                _subscription = diagnosticListener.Subscribe(this!, IsEnabled);
+                _callback = callback;
+            }
+            private static readonly Predicate<string> IsEnabled = (provider) => provider switch
+            {
+                "Microsoft.AspNetCore.Server.Kestrel.BadRequest" => true,
+                _ => true
+            };
+            public void OnNext(KeyValuePair<string, object> pair)
+            {
+                Logger.log($"key {pair.Key}");
+                if (pair.Key == "Microsoft.AspNetCore.Hosting.EndRequest")
+                {
+
+                }
+                if (pair.Key == "Microsoft.AspNetCore.Hosting.UnhandledException")
+                {
+
+                }
+
+                if (pair.Value is IFeatureCollection featureCollection)
+                {
+                    var badRequestFeature = featureCollection.Get<IBadRequestExceptionFeature>();
+
+                    if (badRequestFeature is not null)
+                    {
+                        _callback(badRequestFeature);
+                    }
+                }
+            }
+            public void OnError(Exception error) 
+            {
+            }
+            public void OnCompleted() 
+            {
+            }
+            public virtual void Dispose() => _subscription.Dispose();
+        }
         async Task IReceiver.sendResponse(string response, object context)
         {
             if (this._debugMode)

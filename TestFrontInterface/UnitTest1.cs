@@ -18,10 +18,16 @@ using CamundaInterface;
 using Confluent.Kafka;
 using FrontInterfaceSupport;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MXGraphHelperLibrary;
+using ParserLibrary;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using static FrontInterfaceSupport.StreamHelper;
+using static ParserLibrary.SwaggerDef;
 
 namespace TestFrontInterface
 {
@@ -31,12 +37,54 @@ namespace TestFrontInterface
         IConfiguration conf;
         public UnitTest1()
         {
+            if (0 == 1)
+            {
+                ConfigurationManager conf = new ConfigurationManager();
+                conf.AddJsonFile("c:\\d\\appSettings.json");
+                //    var t= conf["CONSUL_ADDR"];
+                this.conf = conf;
+            }
 
-            ConfigurationManager conf = new ConfigurationManager();
-            conf.AddJsonFile("c:\\d\\appSettings.json");
-        //    var t= conf["CONSUL_ADDR"];
-            this.conf = conf;
+        }
+        [TestMethod]
+        public void UnitTest2() 
+        {
+            if (0 == 1)
+            {
 
+                var services = new ServiceCollection();
+                services.AddDistributedMemoryCache();
+                var provider = services.BuildServiceProvider();
+                var cache = provider.GetRequiredService<IDistributedCache>();// (typeof(IDistributedCache)) as IDistributedCache;
+
+                // IDistributedCache cache= new MemoryDistributedCache( new  MemoryDistributedCacheOptions ( )
+                string key = "asdghtre";
+                object outValue;
+                if (string.IsNullOrEmpty(cache.GetString(key)))
+                {
+                    cache.SetString(key, "123456");
+                    var val = cache.GetString(key);
+                }
+            }
+            JsonSerializerOptions options = new JsonSerializerOptions()
+            {
+                WriteIndented = true,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+  ,
+                IgnoreNullValues = true
+            };
+
+            using (StreamReader sr = new StreamReader(@"C:\TempDir\WebApiRulesSupport\swagger.json"))
+            {
+                var line =sr.ReadToEnd();
+                var def1=JsonSerializer.Deserialize<SwaggerDef>(line,options);
+                var line1=JsonSerializer.Serialize<SwaggerDef>(def1,options);
+            }
+           /* SwaggerDef def= new SwaggerDef() {openapi= "3.0.1", components = new SwaggerDef.Components() { schemas = new SwaggerDef.Components.Schemas() { items= new Dictionary<string, SwaggerDef.Components.Schemas.Item>()} },
+                info = new SwaggerDef.Info(), 
+                paths = new Dictionary<string, Dictionary<string, SwaggerDef.GET>> { { "aa/path/gg", new Dictionary<string, SwaggerDef.GET>() { { "GET", new SwaggerDef.GET() { tags = new List<string> { "OpenApi", "Ass" }, summary = "Asssss", description = "OOO", operationId = "asd" } } } } }  };
+           var st = JsonSerializer.Serialize(def);*/
+            // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 
         }
 

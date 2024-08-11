@@ -158,6 +158,11 @@ public partial class Step
             else
                 await _receiver.start();
         }
+        
+        public async Task stop()
+        {
+            await _receiver.stop();
+        }
  
         /// <summary>
         /// Release resources if any

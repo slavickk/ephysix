@@ -26,7 +26,7 @@ using UniElLib;
 
 namespace Plugins;
 
-public class PostgresExecutorSender : ISender
+public class IPostgresExecutorSender : ISender
 {
     public ISenderHost host { get; set; }
 
