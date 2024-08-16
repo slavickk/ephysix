@@ -341,3 +341,6 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /TestJsonRazbor
+/ConsoleConvertToXML/Program.cs
+/ConsoleConvertToXML/ConsoleConvertToXML.csproj
+/ConsoleConvertToXML/MyExtensions.cs

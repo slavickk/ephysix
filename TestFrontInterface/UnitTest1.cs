@@ -63,6 +63,7 @@ namespace TestFrontInterface
                 if (string.IsNullOrEmpty(cache.GetString(key)))
                 {
                     cache.SetString(key, "123456");
+                    
                     var val = cache.GetString(key);
                 }
             }

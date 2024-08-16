@@ -36,12 +36,21 @@ using System.Text.Json;
 using static ParserLibrary.HTTPSender;
 using UniElLib;
 using Serilog;
+using static ParserLibrary.SwaggerDef.GET.Responses.CodeRet;
+using Namotion.Reflection;
 //using Microsoft.
 
 namespace ParserLibrary
 {
     public class HTTPReceiver : Receiver
     {
+        public class PathItem
+        {
+            public string Path { get; set; }
+            public string Step { get; set; }
+        }
+
+        public List<PathItem> paths { get; set; }= new List<PathItem>() { { new PathItem() { Path = "/aa", Step = "Step_0" } } };
         public override ProtocolType protocolType => ProtocolType.http;
         //        public int port = 8080;
 
@@ -103,11 +112,13 @@ namespace ParserLibrary
         }
         public class SyncroItem
         {
+            public Step initialStep= null;
             public int srabot = 0;
             public int unwait = 0;
             public string answer="";
             public ContextItem ctnx ;
-            public List<KestrelServer.Header> headers = new List<KestrelServer.Header>(); 
+            public List<KestrelServer.Header> headers = new List<KestrelServer.Header>();
+            public string UrlPath;
           // public AsyncAutoResetEvent semaphore = new AsyncAutoResetEvent();
         }
         public class KestrelServer: Kestrel.KestrelServerImplement
@@ -198,10 +209,12 @@ namespace ParserLibrary
                 HTTPReceiver.SyncroItem item = new SyncroItem();
                 using (var stream = new StreamReader(httpContext.Request.Body, Encoding.UTF8))
                 {
+                    Logger.log("Receive request from {path}",Serilog.Events.LogEventLevel.Information, httpContext.Request.Path.Value);
                     string str = await stream.ReadToEndAsync();
                     if (owner.debugMode)
                         Logger.log("Stream reading:{o} ", Serilog.Events.LogEventLevel.Debug, "any", Thread.CurrentThread.ManagedThreadId);
                   //  headers.Clear();
+                   item.UrlPath = httpContext.Request.Path.Value;
                     foreach(var head in httpContext.Request.Headers)
                     {
                         item.headers.Add(new Header() { Key = head.Key, Value = head.Value });   
@@ -211,17 +224,23 @@ namespace ParserLibrary
                     
                     try
                     {
-                        await owner.signal1(str, item);
-                    /*    owner.signal1(str, item).ContinueWith(antecedent =>
+                        if (!choosePath(item, httpContext.Request.Path.Value))
                         {
-                            iError = true;
-                            metricCountOpened.Decrement();
-                            metricErrors.Increment();
-                            httpContext.Response.StatusCode = 404;
-                            item.semaphore.Set();
-                           // Console.WriteLine($"Error {antecedent}!");
-                            //Console.WriteLine($"And how are you this fine {antecedent.Result}?");
-                        },TaskContinuationOptions.OnlyOnFaulted);*/
+                            await SetResponseStatusCode(httpContext, 404);
+                            return;
+                        }
+
+                        await owner.signal1(str, item);
+                        /*    owner.signal1(str, item).ContinueWith(antecedent =>
+                            {
+                                iError = true;
+                                metricCountOpened.Decrement();
+                                metricErrors.Increment();
+                                httpContext.Response.StatusCode = 404;
+                                item.semaphore.Set();
+                               // Console.WriteLine($"Error {antecedent}!");
+                                //Console.WriteLine($"And how are you this fine {antecedent.Result}?");
+                            },TaskContinuationOptions.OnlyOnFaulted);*/
                     }
 
                     catch (TaskCanceledException e77)
@@ -306,6 +325,37 @@ namespace ParserLibrary
                 Interlocked.Decrement(ref CountOpened);
                 metricTimeExecuted.Add(time1);
                 //return base.ReceiveRequest(httpContext);
+            }
+
+            protected /*static*/   bool choosePath(SyncroItem item,string path)
+            {
+                if (owner.paths?.Count > 0)
+                {
+                    var nextStepName = owner.paths.FirstOrDefault(ii => path.Contains(ii.Path))?.Step;
+                    if (nextStepName == null)
+                    {
+                        return false;
+                        /* await SetResponseStatusCode(httpContext, 404);
+                         // await SetResponseContent(httpContext, content);
+                         return;
+                        */
+                    }
+                    var nextStep = owner.owner.owner.steps.FirstOrDefault(ii => ii.IDStep == nextStepName);
+                    if (nextStep == null)
+                    {
+                        Logger.log("not found path");
+                        return false;
+                        /*  await SetResponseStatusCode(httpContext, 404);
+                          // await SetResponseContent(httpContext, content);
+                          return;
+                        */
+                    }
+                    Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Information, nextStep.IDStep);
+                    item.initialStep = nextStep;
+                }
+                else
+                    Logger.log("paths is empty");
+                return true;
             }
         }
         static string template = "";

@@ -30,7 +30,9 @@ public class ITestReceiver : IReceiver
 {
     public string path;
     public string pattern = "";
-    
+    bool IReceiver.MocMode { get; set; }=false;
+    string IReceiver.MocBody { get; set; }
+    string IReceiver.MocFile { get; set; }
     public IReceiverHost host { get; set; }
 
     public bool cantTryParse { get; set; }

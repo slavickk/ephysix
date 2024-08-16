@@ -48,7 +48,10 @@ steps:
         
         // Send a GET to Method2
         using var client = new HttpClient();
-        using var response = await client.GetAsync("https://localhost:8080/api/Method2");
+        using var response = await client.GetAsync("https://localhost:8080/TestMethod");
+   //     using var response = await client.GetAsync("https://localhost:8080/swagger");
+
+   //     using var response = await client.GetAsync("https://localhost:8080/api/v1/export");
         
         Assert.IsTrue(response.IsSuccessStatusCode);
         
@@ -119,6 +122,7 @@ steps:
         
         // Send a GET to Method2
         using var client = new HttpClient();
+
         using var response = await client.GetAsync("https://localhost:8080/api/Method2");
         
         Assert.IsTrue(response.IsSuccessStatusCode);

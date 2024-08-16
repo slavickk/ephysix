@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text.Json;
@@ -91,6 +92,12 @@ public partial class HTTPReceiverSwagger
 
             try
             {
+                if (!(_receiver._host as Step.ReceiverHost).choosePath(item, _receiver.paths,parameters.Last().Value.ToString()))
+                {
+                    return Results.StatusCode(StatusCodes.Status404NotFound);
+
+                }
+
                 // TODO: consider reworking the pipeline to use accept UniEl instead of string
                 _receiver.signal1(json, item).ContinueWith(antecedent =>
                 {

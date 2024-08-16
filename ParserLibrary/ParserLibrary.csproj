@@ -9,7 +9,7 @@
 <!--    TODO: sort out this issue -->
 <!--    <PackageReadmeFile>readme.md</PackageReadmeFile>-->
     <Authors>Authors of ProjectX</Authors>
-    <Version>1.1.11</Version>
+    <Version>1.1.25</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +22,7 @@
     <None Remove="nuget.config" />
     <Compile Remove="Components.cs" />
     <Compile Remove="DetectSensitive.cs" />
+    <Compile Remove="StreamSender.cs" />
     <None Include="Components.cs" />
     <Compile Remove="Converters.cs" />
     <None Include="Converters.cs" />
@@ -71,10 +72,20 @@
   <ItemGroup>
     <Folder Include="GeoData\" />
     <Folder Include="JaegerStartup\" />
+    <Folder Include="Plugins\SwaggerUIData\wwwroot\img\" />
   </ItemGroup>
   
   <ItemGroup>
     <None Update="GeoData\GeoLite2-Country.mmdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugins\SwaggerUIData\wwwroot\Files\doc.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugins\SwaggerUIData\wwwroot\Files\ex.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugins\SwaggerUIData\wwwroot\swagger\v1\swagger.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SwaggerTemplate - Copy.txt">

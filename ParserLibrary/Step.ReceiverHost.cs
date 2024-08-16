@@ -15,12 +15,16 @@
  ******************************************************************/
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PluginBase;
+using Plugins;
 using UniElLib;
 using YamlDotNet.Serialization;
+using static ParserLibrary.HTTPReceiver;
 
 namespace ParserLibrary;
 
@@ -88,6 +92,37 @@ public partial class Step
         }
         [YamlIgnore]
         Step owner_internal;
+public /*static*/   bool choosePath(HTTPReceiverSwagger.SyncroItem item, List<PathItem> paths, string path)
+        {
+            if (paths?.Count > 0)
+            {
+                var nextStepName = paths.FirstOrDefault(ii => path.Contains(ii.Path))?.Step;
+                if (nextStepName == null)
+                {
+                    return false;
+                    /* await SetResponseStatusCode(httpContext, 404);
+                     // await SetResponseContent(httpContext, content);
+                     return;
+                    */
+                }
+                var nextStep = owner.owner.steps.FirstOrDefault(ii => ii.IDStep == nextStepName);
+                if (nextStep == null)
+                {
+                    Logger.log("not found path");
+                    return false;
+                    /*  await SetResponseStatusCode(httpContext, 404);
+                      // await SetResponseContent(httpContext, content);
+                      return;
+                    */
+                }
+                Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Information, nextStep.IDStep);
+                item.initialStep = nextStep;
+            }
+            else
+                Logger.log("paths is empty");
+            return true;
+        }
+
 
         /// <summary>
         /// Handle an input message from client
@@ -107,7 +142,10 @@ public partial class Step
 
                 if (saver != null)
                     saver.save(input);
-                await owner.Receiver_stringReceived(input, context);
+                HTTPReceiverSwagger.SyncroItem context1 = context as HTTPReceiverSwagger.SyncroItem;
+
+                await ((context1?.initialStep != null) ? context1.initialStep : owner).Receiver_stringReceived(input, context);
+                //await owner.Receiver_stringReceived(input, context);
                         
                 metricUpTime.Add(time1);
             }
@@ -153,7 +191,7 @@ public partial class Step
                 }
 
                 string hz = "hz";
-                await signal(input, hz);
+                await signal(input, null);
             }
             else
                 await _receiver.start();

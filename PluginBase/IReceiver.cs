@@ -14,6 +14,8 @@
  *
  ******************************************************************/
 
+using YamlDotNet.Serialization;
+
 namespace PluginBase;
 
 /// <summary>
@@ -28,6 +30,10 @@ public interface IReceiver
     Task sendResponse(string response, object context);
     bool cantTryParse { get; }
     bool debugMode { get; set; }
+    [YamlIgnore]
+    public bool MocMode { get; set; } 
+    public string MocBody {  get; set; }
+    public string MocFile { get; set; }
 }
 
 /// <summary>

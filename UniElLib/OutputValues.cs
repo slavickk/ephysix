@@ -75,7 +75,7 @@ public abstract class OutputValue:ILiquidizable
     public bool viewAsJsonString = false;
     public string outputPath;
     public bool isUniqOutputPath = true;
-
+    public List<OutputValue> outputChilds { get; set; } = new List<OutputValue>();
     public enum TypeCopy
     {
         Value,
@@ -111,6 +111,11 @@ public abstract class OutputValue:ILiquidizable
         if (outs == null)
             return outputRoot;
         var rootEl = outputRoot;
+        if (outs[outs.Length - 1] == "Param")
+        {
+            int yy = 0;
+        }
+
         for (int i = 0; i < outs.Length; i++)
         {
             var el = rootEl.childs.LastOrDefault(ii => ii.Name == outs[i]);
@@ -149,7 +154,7 @@ public abstract class OutputValue:ILiquidizable
                 else
                 {
                     if (canReturnObject)
-                        elV = el1.Value.ToString();
+                        elV = el1?.Value?.ToString()??"";
                     else
                         elV = getValue(inputRoot);
                 }
@@ -208,7 +213,7 @@ public abstract class OutputValue:ILiquidizable
                 else
                 {
                     if (canReturnObject)
-                        elV = el1.Value.ToString();
+                        elV = el1?.Value?.ToString()??"";
                     else
                         elV = getValue(inputRoot);
                 }
@@ -233,6 +238,10 @@ public abstract class OutputValue:ILiquidizable
 
                        el.childs.Add(inputRoot.copy(outputRoot));
                    }*/
+            var el_root = el1;
+            foreach(var el_child in outputChilds)
+                el_child.addToOutput(inputRoot,ref outputRoot/*el_root*//*???*/, context);
+
             if (returnOnlyFirstRow)
                 return true;
         }

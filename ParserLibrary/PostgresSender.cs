@@ -43,6 +43,8 @@ namespace ParserLibrary
         }
 
         public string connectionString= "User ID=postgres;Password=test;Host=localhost;Port=5432;";
+        public string User;
+        public string Password;
 
 
         public static void Test()
@@ -82,7 +84,16 @@ namespace ParserLibrary
             timeFinish = DateTime.Now.AddMinutes(1);
             if (conn == null)
             {
-                conn= new NpgsqlConnection(connectionString);
+                NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(connectionString);
+                if (!string.IsNullOrEmpty(User))
+                {
+                    builder.Username = User;
+                }
+                if (!string.IsNullOrEmpty(Password))
+                {
+                    builder.Password = Password;
+                }
+                conn = new NpgsqlConnection(builder.ConnectionString);
                 await conn.OpenAsync();
                 Task.Run(async () =>
                 {

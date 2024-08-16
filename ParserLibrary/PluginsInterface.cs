@@ -34,6 +34,9 @@ namespace ParserLibrary
         {
             List<Type> types = new List<Type>();
             types.AddRange(Assembly.GetAssembly(typeof(Pipeline)).GetTypes());
+            foreach(var ass in Pipeline.pluginAssemblies)
+                types.AddRange(ass.GetTypes());
+
             types.AddRange(Assembly.GetEntryAssembly().GetTypes());
             
             // Referencing Plugins here would introduce a circular dependency.

@@ -22,11 +22,16 @@ using PluginBase;
 using YamlDotNet.Serialization;
 using static ParserLibrary.Step;
 using UniElLib;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ParserLibrary;
 
 public abstract class Sender: DiagramExecutorItem/*:ISender*/
 {
+    [YamlIgnore]
+    public static IDistributedCache cacheProvider;
+
     [YamlIgnore]
 
     protected Metrics.MetricHistogram metricUpTime;
@@ -35,9 +40,20 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
     private Metrics.MetricHistogram metricUpTimeError;
 
     public string description = "";
+    [YamlIgnore]
+    DistributedCacheEntryOptions cache_options ;
+    public double cacheTimeInMilliseconds { get; set; } = 0;
+
     public virtual void Init(Pipeline owner)
     {
-        
+        if(cacheTimeInMilliseconds!= 0)
+        {
+            cache_options = new()
+            {
+                AbsoluteExpirationRelativeToNow =
+        TimeSpan.FromMilliseconds(cacheTimeInMilliseconds)
+            };
+        }
         metricUpTimeError = new Metrics.MetricHistogram("iu_outbound_errors_total", "handle performance receiver", new double[] { 30, 100, 500, 1000, 5000, 10000 });
         metricUpTimeError.AddLabels(new Metrics.Label[] { new Metrics.Label("Name", this.GetType().Name) });
 
@@ -117,48 +133,50 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
     public virtual  async Task<string> send(AbstrParser.UniEl root, ContextItem context)
     {
         DateTime time1 = DateTime.Now;
-        string ans;
+        string ans="";
         sendActivity = owner.owner.GetActivity($"Send{this.GetType().Name}", context?.mainActivity);
         sendActivity?.AddTag("typeSender", this.GetType().Name);
+        string cacheKey = "";
         try
         {
-            if (!MocMode)
+            if (cacheTimeInMilliseconds != 0)
             {
-                if (typeContent == TypeContent.internal_list)
-                    ans = await sendInternal(root,context);
-                else
-                    ans = await send(root.toJSON(),context);
-                if(context.stats != null)
-                    context.stats.Add(new ContextItem.StatItem() { Name=description??GetType().Name, ticks=(DateTime.Now - time1).Ticks});
+                foreach(var item in root.childs)
+                {
+                    if(item.Name == "cacheKey")
+                    {
+                        cacheKey=item.Value.ToString();
+                        root.childs.Remove(item);
+                        break;
+                    }
+
+                }
+                ans = await cacheProvider.GetStringAsync(cacheKey);
+
             }
-            else
+            if (string.IsNullOrEmpty(ans))
             {
+                if (!MocMode)
+                {
+                    if (typeContent == TypeContent.internal_list)
+                        ans = await sendInternal(root, context);
+                    else
+                        ans = await send(root.toJSON(), context);
+                    if (context.stats != null)
+                        context.stats.Add(new ContextItem.StatItem() { Name = description ?? GetType().Name, ticks = (DateTime.Now - time1).Ticks });
+                }
 
-                ans=await mocker.getMock();
-
-                // await Task.Delay(10);
-/*                if ((MocBody ?? "") != "")
-                    ans = MocBody;
                 else
                 {
-                    if (MocContent == "")
-                    {
-                        lock (syncro)
-                        {
-                            if (MocContent == "")
-                            {
 
-                                // string ans;
-                                using (StreamReader sr = new StreamReader(MocFile))
-                                {
-                                    MocContent = sr.ReadToEnd();
-                                    //       return ans;
-                                }
-                            }
-                        }
-                    }
-                    ans = MocContent;
-                }*/
+                    ans = await mocker.getMock();
+
+                }
+                if (cacheTimeInMilliseconds != 0)
+                {
+                    await cacheProvider.SetStringAsync(cacheKey, ans, cache_options);
+                }
+
             }
             if (owner.debugMode)
                 Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(true), ans);
@@ -189,8 +207,5 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
 
     }
 
-    public virtual  void Init()
-    {
-        //throw new NotImplementedException();
-    }
+    
 }
