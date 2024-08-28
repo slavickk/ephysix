@@ -46,4 +46,9 @@ public class FileReceiver : IReceiver
 
         }
     }
+    
+    public Task stop()
+    {
+        return Task.CompletedTask;
+    }
 }

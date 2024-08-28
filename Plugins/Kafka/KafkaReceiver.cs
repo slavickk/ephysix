@@ -55,12 +55,13 @@ public class KafkaReceiver : IReceiver, IDisposable
         
         return tcs.Task;
     }
-
-    public void Stop()
+    
+    public Task stop()
     {
         cts.Cancel();
+        return Task.CompletedTask;
     }
-    
+
     private record KafkaReceiverContext(ConsumeResult<Ignore, string> Message);
     
     private async void receiveLoop(TaskCompletionSource tcs)

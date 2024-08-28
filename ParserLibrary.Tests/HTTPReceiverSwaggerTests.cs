@@ -25,7 +25,7 @@ steps:
 - isBridge: true
   iDStep: Step_0
   description: Dummy step
-  ireceiver: !HTTPReceiverSwagger
+  ireceiver: !Plugins.HTTPReceiverSwagger
     address: localhost
     port: 8080
     swaggerSpecPath: TestData/swagger-dummy.json  # standard Swagger file format
@@ -42,7 +42,7 @@ steps:
                 'Status': 'Accepted'
             }
         }""
-", null);
+", typeof(Plugins.HTTPReceiverSwagger).Assembly);
         
         var task = pip.run();
         
