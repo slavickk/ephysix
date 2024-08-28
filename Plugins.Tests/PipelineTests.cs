@@ -34,7 +34,7 @@ steps:
     public void TestPipelineDeserialization()
     {
         // Arrange
-        var pipeline = Pipeline.loadFromString(_pipelineDefinition, typeof(Plugins.FileReceiver).Assembly);
+        var pipeline = Pipeline.loadFromString(_pipelineDefinition, typeof(global::Plugins.FileReceiver).Assembly);
 
         // Act
         // NONE, just checking that the pipeline is deserialized correctly
@@ -45,7 +45,7 @@ steps:
         Assert.AreEqual("Step_0", pipeline.steps[0].IDStep);
         
         // check the receiver and sender
-        Assert.IsInstanceOf<Plugins.FileReceiver>(pipeline.steps[0].ireceiver);
+        Assert.IsInstanceOf<global::Plugins.FileReceiver>(pipeline.steps[0].ireceiver);
         Assert.IsInstanceOf<FileSender>(pipeline.steps[0].sender);
     }
     
@@ -65,7 +65,7 @@ steps:
     public async Task TestPipelineExecution()
     {
         // Arrange
-        var pipeline = Pipeline.loadFromString(_pipelineDefinition, typeof(Plugins.FileReceiver).Assembly);
+        var pipeline = Pipeline.loadFromString(_pipelineDefinition, typeof(global::Plugins.FileReceiver).Assembly);
 
         // Act
         await pipeline.run();

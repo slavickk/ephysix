@@ -145,4 +145,33 @@ public class KafkaReceiver : IReceiver, IDisposable
         _consumer = null;
     }
  
+    /// <summary>
+    /// Body of the mock response to return.
+    /// If set, the receiver will return this body instead of waiting for requests.
+    /// </summary>
+    string IReceiver.MocBody { 
+        get
+        {
+            return mockBody; 
+        }
+        set
+        {
+            mockBody = value;
+        }
+    }
+    public string mockBody;
+
+    /// <summary>
+    /// File containing the mock response to return.
+    /// If set, the receiver will return the contents of this file instead of waiting for requests.
+    /// </summary>
+    public string mockFile;
+
+    string IReceiver.MocFile
+    {
+        get => mockFile;
+        set => mockFile = value;
+    }
+
+    bool IReceiver.MocMode { get; set; }=false;
 }

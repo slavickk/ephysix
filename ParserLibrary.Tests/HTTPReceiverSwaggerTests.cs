@@ -42,7 +42,7 @@ steps:
                 'Status': 'Accepted'
             }
         }""
-", typeof(Plugins.HTTPReceiverSwagger).Assembly);
+", typeof(global::Plugins.HTTPReceiverSwagger).Assembly);
         
         var task = pip.run();
         

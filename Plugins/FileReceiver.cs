@@ -27,10 +27,11 @@ public class FileReceiver : IReceiver
 
     public async Task start()
     {
+        // TODO: use MocBody and MocFile
         int ind = 0;
         using (StreamReader sr = new StreamReader(file_name))
         {
-            while (!sr.EndOfStream && ind < 50)
+            while (!sr.EndOfStream && ind < 50) 
             {
                 ind++;
 
@@ -51,4 +52,34 @@ public class FileReceiver : IReceiver
     {
         return Task.CompletedTask;
     }
+    
+    /// <summary>
+    /// Body of the mock response to return.
+    /// If set, the receiver will return this body instead of waiting for requests.
+    /// </summary>
+    string IReceiver.MocBody { 
+        get
+        {
+            return mockBody; 
+        }
+        set
+        {
+            mockBody = value;
+        }
+    }
+    public string mockBody;
+
+    /// <summary>
+    /// File containing the mock response to return.
+    /// If set, the receiver will return the contents of this file instead of waiting for requests.
+    /// </summary>
+    public string mockFile;
+
+    string IReceiver.MocFile
+    {
+        get => mockFile;
+        set => mockFile = value;
+    }
+
+    bool IReceiver.MocMode { get; set; }=false;
 }
