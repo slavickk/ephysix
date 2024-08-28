@@ -46,7 +46,10 @@ public class ConditionFilter : Filter
         if (isNew)
         {
             if (tokens == null)
-                tokens = conditionPath.Split("/");
+                if(conditionPath!= null)
+                    tokens = conditionPath.Split("/");
+                else
+                    tokens = new string[0];
             int index = 0;
             if (rootElement == null)
             {

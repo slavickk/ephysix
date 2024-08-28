@@ -16,8 +16,12 @@
 
 using NUnit.Framework;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using FrontInterfaceSupport;
+using System.Xml.Linq;
+using System.Xml;
 
 namespace ParserLibrary.Tests;
 
@@ -25,7 +29,37 @@ namespace ParserLibrary.Tests;
 [Ignore("These tests take significant time to run. Consider deleting them or moving a separate set of long-running tests.")]
 public class ThreadTests
 {
+    [Test]
 
+    public static void Compare2Files()
+    {
+       // XDocument doc1=new XDocument();
+      /*  var doc=XDocument.Load("C:\\¡√—\\AEXPORT.xml");
+        foreach (XObject obj in doc.DescendantNodes())
+        {
+            Console.WriteLine(obj.GetXPath());
+            XElement el = obj as XElement;
+            if (el != null)
+                foreach (XAttribute at in el.Attributes())
+                    Console.WriteLine(at.GetXPath());
+        }
+        using (StreamReader sr = new StreamReader(@"C:\Users\jurag\Downloads\Telegram Desktop\RespProviders.xml"))
+        {
+            var paths = FrontInterfaceSupport.ReceiverHelper.parseContent(sr.ReadToEnd()).getOutputPaths();
+        }
+      */
+    }
+
+    [Test]
+
+    public static void TestReceiverHelper()
+    {
+        using (StreamReader sr = new StreamReader(@"C:\Users\jurag\Downloads\Telegram Desktop\RespProviders.xml"))
+        {
+            var paths=FrontInterfaceSupport.ReceiverHelper.parseContent(sr.ReadToEnd()).getOutputPaths();
+        }
+
+    }
     [Test]
     public static async System.Threading.Tasks.Task TestWaiting()
    

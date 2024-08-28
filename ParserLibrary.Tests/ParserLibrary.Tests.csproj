@@ -13,6 +13,9 @@
       <None Include="PipelinePerformanceTest.cs" />
       <Compile Remove="TransformerTests.cs" />
       <None Include="TransformerTests.cs" />
+      <None Update="TestData\swagger-dummy - Копировать.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="TestData\swagger-dummy.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
@@ -59,6 +62,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FrontInterfaceSupport\FrontInterfaceSupport.csproj" />
       <ProjectReference Include="..\ParserLibrary\ParserLibrary.csproj" />
     </ItemGroup>
 

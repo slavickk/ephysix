@@ -100,6 +100,7 @@ public abstract class Receiver: DiagramExecutorItem/*:IReceiver*/
             mocker.MocFile = value;
         }
     }
+    public string mocPath { get; set; }
 
     /// <summary>
     /// Number of times to receive the mock message (default is 1).
@@ -152,8 +153,15 @@ public abstract class Receiver: DiagramExecutorItem/*:IReceiver*/
             {
                 Logger.log("Receive step:{o} {input} {thr}", Serilog.Events.LogEventLevel.Debug, "any", owner, input.MaskSensitive(), Thread.CurrentThread.ManagedThreadId);
             }
-            if (stringReceived != null)
-                await stringReceived(input, context);
+            HTTPReceiver.SyncroItem context1=context as HTTPReceiver.SyncroItem;
+            if(MocMode)
+            {
+                context1.UrlPath = this.mocPath;
+               // input = "";
+            }
+            await ((context1?.initialStep!= null) ? context1.initialStep: owner ).Receiver_stringReceived(input, context,this.owner.IDStep);
+          /*  if (stringReceived != null)
+                await stringReceived(input, context);*/
 
             metricUpTime?.Add(time1);
         }
@@ -207,7 +215,8 @@ public abstract class Receiver: DiagramExecutorItem/*:IReceiver*/
                 using StreamReader sr = new StreamReader(MocFile);
                 this.MocBody = sr.ReadToEnd();
             }
-            string hz = "hz";
+            Step initialStep = this.owner.owner.steps.FirstOrDefault(ii => ii.IDStep ==(this as HTTPReceiver).paths.FirstOrDefault(ii1=>ii1.Path==mocPath).Step);
+            HTTPReceiver.SyncroItem hz = new HTTPReceiver.SyncroItem() { initialStep=initialStep, UrlPath=mocPath };
 
             var sw = new Stopwatch();
             sw.Start();

@@ -1,0 +1,29 @@
+﻿@startuml
+title = Запрос справочника получателей платежей (вендоры):(EXPORT)
+participant "Фронт"              as Front  order 20
+participant "COP"            as COP   order 30
+participant "Сервис платежей"                 as SPlat     order 40
+participant "REDIS"                 as Redis     order 50
+participant "AnyWay"              as Any  order 80  
+  activate Front
+  activate COP
+  activate SPlat
+  Front -> COP : Запрос справочника получателей
+ 
+  COP -> SPlat : Запрос справочника получателей
+  activate Redis
+  SPlat -> Redis : Запрос в кэш
+  Redis -> Redis
+  Redis --> SPlat : Данные из кэша
+  deactivate Redis
+  activate Any
+  SPlat -> Any : Кэш пустой, запрос в AnyWay
+  Any -> Any 
+  Any  --> SPlat : Список получателей платежей
+  deactivate Any
+  SPlat --> COP : Список получателей платежей
+  COP --> Front : Список получателей платежей
+  deactivate SPlat
+  deactivate COP
+  deactivate Front
+@enduml

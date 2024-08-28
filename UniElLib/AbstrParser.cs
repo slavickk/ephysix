@@ -233,6 +233,9 @@ namespace UniElLib
 
         public static bool getApropriateParser(string context, object val, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
         {
+            // if body.length ==0
+/*            if (string.IsNullOrEmpty(context))
+                return true;*/
             int dummy;
             if (val.GetType() == typeof(JsonElement))
                 return false;

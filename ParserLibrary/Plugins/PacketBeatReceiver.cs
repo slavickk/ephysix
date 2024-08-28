@@ -38,6 +38,10 @@ namespace Plugins
         // {
         //     Start(port);
         // }
+        bool IReceiver.MocMode { get; set; } = false;
+        string IReceiver.MocBody { get; set; }
+        string IReceiver.MocFile { get; set; }
+
         public IPacketBeatReceiver()
         {
 //            this.saver = new ReplaySaver() { path = @"C:\D\Out" };

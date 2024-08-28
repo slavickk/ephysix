@@ -44,7 +44,8 @@ namespace ParserLibrary
 
         public string connectionString = "User ID=fp;Password=rav1234;Host=192.168.75.220;Port=5432;Database=fpdb;SearchPath=md;";
         public string statement = "select * from md_node where nodeid=@id";
-
+        public string User;
+        public string Password;
 
         private IEnumerable<string> getSQLVariables(string statement)
         {
@@ -67,6 +68,7 @@ namespace ParserLibrary
 
         public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
         {
+            Logger.log("ProgressExecutorSender started", Serilog.Events.LogEventLevel.Information);
             //            var def = root.childs.First(ii => ii.Name == "Define");
 //            if (sqlVariables == null)
                 sqlVariables = getSQLVariables(statement).Select(ii=>new ItemVar() { name = ii }).ToList();
@@ -81,7 +83,17 @@ namespace ParserLibrary
                 timeFinish = DateTime.Now.AddMinutes(1);
                 if (conn == null)
                 {
-                    conn = new NpgsqlConnection(connectionString);
+                    NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(connectionString);
+                    if (!string.IsNullOrEmpty(User))
+                    {
+                        builder.Username = User;
+                    }
+                    if (!string.IsNullOrEmpty(Password))
+                    {
+                        builder.Password = Password;
+                    }
+                    conn = new NpgsqlConnection(builder.ConnectionString);
+                //    conn = new NpgsqlConnection(connectionString);
                     await conn.OpenAsync();
                     Task.Run(async () =>
                     {
@@ -134,6 +146,7 @@ namespace ParserLibrary
             catch(Exception e77)
             {
                 Logger.log("PostgresError:{err}", Serilog.Events.LogEventLevel.Error, e77);
+                throw;
                 return "";
             }
         }

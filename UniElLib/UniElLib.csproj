@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>XParserLibrary.UniElLib</PackageId>
         <IsPackable>true</IsPackable>
-        <Version>1.0.7</Version>
+        <Version>1.0.8</Version>
     </PropertyGroup>
 
     <ItemGroup>

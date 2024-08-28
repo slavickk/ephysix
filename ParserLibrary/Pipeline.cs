@@ -209,10 +209,12 @@ public class Pipeline:ILiquidizable
              ||
             t.IsAssignableTo(typeof(ISender))
 
-            /*       ||
-                   typeof(IReceiver).IsAssignableFrom(t)
-                   ||
-                   typeof(ISender).IsAssignableFrom(t)*/;
+             ||
+            t.IsAssignableTo(typeof(HTTPReceiver.PathItem))
+                   /*       ||
+                           typeof(IReceiver).IsAssignableFrom(t)
+                           ||
+                           typeof(ISender).IsAssignableFrom(t)*/;
     }
     public static List<Type> getAllRegTypes(params Assembly[] addAssemblies)
     {
@@ -452,7 +454,7 @@ public class Pipeline:ILiquidizable
    static TracerProvider tracerBuilder = null;
 
     public static string AgentHost = "localhost";
-    public static int AgentPort = 6831;
+    public static int AgentPort = -1;// 6831;
     static void InitJaeger(string Name)
     {
         // Jaeger is needed only for tracing.
@@ -505,8 +507,13 @@ public class Pipeline:ILiquidizable
         public string comment = "";
     }
     static List<occurencyItem> occurencyItems= new List<occurencyItem>()   ;
+
+
+    static List<(string oldValue, string newValue)> replacement = new List<(string oldValue, string newValue)> { { ("converters:", "filterCollection:") }, { ("filter:", "condition:") } };
     public static Pipeline loadFromString(string Body,Assembly assembly)
     {
+        foreach(var it in replacement)
+            Body=Body.Replace(it.oldValue,it.newValue);
         occurencyItems.Clear();
         var ser = new DeserializerBuilder();
         if (assembly != null)

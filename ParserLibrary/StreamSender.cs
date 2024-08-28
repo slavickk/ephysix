@@ -35,6 +35,7 @@ using UniElLib;
 using System.IO;
 using NUnit.Framework;
 using Serilog;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 namespace ParserLibrary;
 
@@ -70,6 +71,8 @@ public class StreamSender:HTTPSender,ISelfTested
     }
     string getVal1(AbstrParser.UniEl el,Stream stream)
     {
+        if (stream == null)
+            return getVal(el);
         var conv = stream.fieldsDict[el.Name].SensitiveConverter;
         if (conv != null)
             return getVal(conv.ConvertToNew(el));
@@ -84,8 +87,9 @@ public class StreamSender:HTTPSender,ISelfTested
         var it = root.childs.FirstOrDefault(ii => ii.Name == "stream");
         if (it != null)
             currentStream = it.Value.ToString();
-
-        var stream = getStream(currentStream);
+        //!!!!!!temporary 
+       // var stream = getStream(currentStream);
+        Stream stream = null;
         string str = "{";
         str = "{" + String.Join(",", root.childs.Select(ii => $"\"{ii.Name}\":{getVal1(ii,stream)}")) + "}";
         return str;
@@ -166,9 +170,94 @@ public class StreamSender:HTTPSender,ISelfTested
 //    public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgsqlanomaly01.service.consul;Port=5432;Database=fpdb;SearchPath=md;";
     public string db_connection_string = "User ID=fp;Password=rav1234;Host=master.pgfp01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;";
 
+    public static List<Stream> GetAllStreams()
+    {
+        List<Stream> streams= new List<Stream>();
+        try
+        {
+            var stream = new Stream();
+            stream.Name = "";
+            Npgsql.NpgsqlConnectionStringBuilder csb = new NpgsqlConnectionStringBuilder();
+            csb.Host = Environment.GetEnvironmentVariable("DB_URL_FPDB");
+            csb.Port = Int32.Parse(Environment.GetEnvironmentVariable("DB_PORT_FPDB"));
+            csb.Database = Environment.GetEnvironmentVariable("DB_NAME_FPDB");
+            csb.SearchPath = Environment.GetEnvironmentVariable("DB_SCHEMA_FPDB");
+            csb.Username = Environment.GetEnvironmentVariable("DB_USER_FPDB");
+            csb.Password = Environment.GetEnvironmentVariable("DB_PASSWORD_FPDB");
+            
+            
+
+            //var conn = new NpgsqlConnection("User ID=fp;Password=rav1234;Host=master.pgfp01.service.dev-fp.consul;Port=5432;Database=fpdb;SearchPath=md;"/*db_connection_string*/);
+            Npgsql.NpgsqlConnection conn = new NpgsqlConnection(csb.ToString());
+            conn.Open();
+            string oldName = "";
+            using (var cmd = new NpgsqlCommand(@"select n.nodeid,n.name,a.val,np.name,'String',ap.val,asd.val,rl.toid,ascalc.val from md_node n
+inner join md_node_attr_val a  
+on ( a.nodeid=n.nodeid and attrid=22)
+inner join md_arc l on (l.toid=n.nodeid and l.isdeleted=false)
+inner join md_node np on (l.fromid=np.nodeid and np.isdeleted=false)
+inner join md_node_attr_val ap on ( ap.nodeid=np.nodeid and ap.attrid=22)
+left join md_node_attr_val asd on ( asd.nodeid=np.nodeid and asd.attrid=51)
+left join md_node_attr_val ascalc on ( ascalc.nodeid=np.nodeid and ascalc.attrid=100)
+left join md_arc rl on ( rl.fromid=np.nodeid and rl.typeid=16)
+where n.typeid=md_get_type('Stream') /*and n.name =@name*/ and n.isdeleted=false
+order by n.name
+", conn))
+            {
+               // cmd.Parameters.AddWithValue("@name", key);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                       // if (stream.Name == "")
+                        //{
+                            var Name = reader.GetString(1);
+                            stream.Description = reader.GetString(2);
+                        //}
+                        if(oldName != Name)
+                        {
+                              
+                            stream = new Stream();
+                            stream.Name = Name;
+                            streams.Add(stream);
+                            oldName = Name;
+                        }
+                        if (reader.GetString(3) == "mbr")
+                        {
+
+                        }
+                        stream.fieldsDict.Add(reader.GetString(3), new Stream.Field() { Name = reader.GetString(3), Type = reader.GetString(4), Detail = reader.IsDBNull(5) ? "" : reader.GetString(5), SensitiveData = reader.IsDBNull(6) ? null : reader.GetString(6), linkedColumn = reader.IsDBNull(7) ? null : reader.GetInt64(7), Calculated = reader.IsDBNull(8) ? false : true });
+                    }
+                }
+            }
+
+            conn.Close();
+        }
+        catch (Exception ex)
+        {
+            
+            Logger.log($"DB open failed", ex);
+    /*        stream = this.streamSender;
+            streams.TryAdd(key, stream);
+            return (stream);*/
+        }
+       /* if (stream.Name == "")
+        {
+            stream.Name = key;
+            stream.fieldsDict.Add("stream", new Stream.Field() { Name = "stream", Detail = "Name of stream", Type = "String" });
+            stream.fieldsDict.Add("originalTime", new Stream.Field() { Name = "originalTime", Detail = "Time of stream", Type = "DateTime" });
+        }*
+        stream.fieldsDict.Where(ii => !string.IsNullOrEmpty(ii.Value.SensitiveData)).Select(ii1 => ii1.Value.SensitiveConverter);
+        streamSender = stream;
+        streams.TryAdd(key, stream);
+       */
+       return streams;
+    }
 
     public override string getTemplate(string key)
     {
+  /*      if (string.IsNullOrEmpty(key))
+            return "{}";*/
         return formJson(getStream(streamName));
     }
 

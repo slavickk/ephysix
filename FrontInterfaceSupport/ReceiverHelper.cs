@@ -32,8 +32,31 @@ using static FrontInterfaceSupport.ServiceHelper;
 
 namespace FrontInterfaceSupport
 {
-    public class ReceiverHelper
+    public static class ReceiverHelper
     {
+
+        public static List<(string Path,string Value)> getOutputPaths(this List<AbstrParser.UniEl> list )
+        {
+            List<(string,string)> retValue = new List<(string,string)>();
+            foreach(AbstrParser.UniEl ele in list)
+            {
+                var path=ele.path.Replace("Root/", "");
+                if (ele.childs?.Count ==0 && retValue.Count(ii=>ii.Item1==path)==0 )
+                   retValue.Add((path,ele.Value.ToString()));
+            }
+            return retValue;
+        }
+        public static List<AbstrParser.UniEl> parseContent(string line)
+        {
+            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+            AbstrParser.UniEl root = new AbstrParser.UniEl();
+            list.Add(root);
+            root.Name = "Root";
+            if (AbstrParser.getApropriateParser("aa", line, root, list, false))
+                return list;
+            return null;
+
+        }
         public static async Task<string[]> getExamples(string arch_dir, string[] savedIID=null,string filterName="", string filterValue ="")
         {
             if(savedIID == null )

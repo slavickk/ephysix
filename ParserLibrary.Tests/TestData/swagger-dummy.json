@@ -6,62 +6,22 @@
     "version": "0.1.1"
   },
   "paths": {
-    "/Api1": {
-      "post": {
-        "tags": [
-          "INFO"
-        ],
-        "summary": "Summary",
-        "description": "Meth1",
-        "parameters": [],
-        "requestBody": {
-          "description": "Request body",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Api1_Req"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Успешное исполнение",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Api1_Resp"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input"
-          },
-          "422": {
-            "description": "Validation exception"
-          }
-        },
-        "deprecated": false
-      }
-    },
-    "/api/Method2": {
+    "/api/v1/export": {
       "get": {
-        "tags": [
-          "INFO"
-        ],
-        "summary": "Summary",
-        "description": "Meth2",
+        "tags": [],
+        "summary": "Выгрузка справочника вендоров (AWREXPORT)",
+        "description": "В запросе AWREXPORT, в качестве параметров, передается код провайдера услуг (SYSCODE). При этом CustomerID в секции AWHead запроса всегда равен 0 (значение может не анализироваться).",
         "parameters": [
           {
-            "name": "RACC",
+            "name": "SYSCODE",
             "in": "query",
-            "description": "Счет получателя (номер счета, телефона)",
+            "description": "Код провайдера",
             "required": false,
             "schema": {
               "type": "string",
-              "description": "Счет получателя (номер счета, телефона)"
+              "description": "Код провайдера",
+              "example": "",
+              "format": ""
             }
           }
         ],
@@ -71,7 +31,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Method2_Resp"
+                  "$ref": "#/components/schemas/export_Resp"
                 }
               }
             }
@@ -89,62 +49,419 @@
   },
   "components": {
     "schemas": {
-      "Api1_Req": {
+      "export_Resp": {
         "type": "object",
         "properties": {
-          "RACC": {
+          "AWAnswer": {
+            "type": "object",
+            "properties": {
+              "Operator": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "Groups": {
+                      "type": "object",
+                      "properties": {
+                        "Group": {
+                          "type": "string",
+                          "description": "Код группы вендора",
+                          "example": "",
+                          "format": ""
+                        }
+                      },
+                      "description": "Cписк групп принадлежности вендора, в случае если вендор привязана к нескольким группам (мультигруппы)"
+                    },
+                    "ClientConfirmAttrList": {
+                      "type": "string",
+                      "description": "Список кодов реквизита платежа, по которым клиент должен сделать подтверждение.Поле не используется.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Logo": {
+                      "type": "string",
+                      "description": "Логотип вендора для устройств самообслуживания. Бинарный поток в BASE64.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "LogoName": {
+                      "type": "string",
+                      "description": "Имя файла логотипа вендора для устройств самообслуживания",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Logo2": {
+                      "type": "string",
+                      "description": "Логотип вендора для интернет банка. Бинарный поток в BASE64.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "LogoName2": {
+                      "type": "string",
+                      "description": "Имя файла логотипа вендора для итернет-банка",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Logo3": {
+                      "type": "string",
+                      "description": "Логотип вендора для мобильного банка. Бинарный поток в BASE64.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "LogoName3": {
+                      "type": "string",
+                      "description": "Имя файла логотипа вендора для мобильного банка.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "OperatorCode": {
+                      "type": "string",
+                      "description": "Код оператора (вендора)",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Name_RU": {
+                      "type": "string",
+                      "description": "Название оператора на русском язык",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Name_EN": {
+                      "type": "string",
+                      "description": "Название оператора на английском язык",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Summa": {
+                      "type": "string",
+                      "description": "Минимальная сумма платежа. Значения сумм для наличного платежа, безналичного своего клиента и безналичного чужого клиента, через разделитель в виде запятой.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "MaxSumma": {
+                      "type": "string",
+                      "description": "Максимальная сумма платежа. Значения сумм для наличного платежа, безналичного своего клиента и безналичного чужого клиента, через разделитель в виде запятой.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "ExtraCommission": {
+                      "type": "string",
+                      "description": "Дополнительная комиссия, которую может брать оператор:•\t-1 – без ограничения;•\t0 – запрещено;•\t>0 – максимальный размер.Разделитель целой и дробной части – точка.\txsd:string",
+                      "example": "",
+                      "format": ""
+                    },
+                    "AccountType": {
+                      "type": "string",
+                      "description": "••\t1 – номер лицевого счета абонента.\txsd:string",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Country": {
+                      "type": "string",
+                      "description": "Страна",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Region": {
+                      "type": "string",
+                      "description": "Регион (штат)",
+                      "example": "",
+                      "format": ""
+                    },
+                    "City": {
+                      "type": "string",
+                      "description": "Город",
+                      "example": "",
+                      "format": ""
+                    },
+                    "AccountLength": {
+                      "type": "string",
+                      "description": "Максимальная длина номера счета плательщика",
+                      "example": "",
+                      "format": ""
+                    },
+                    "RegularExpression": {
+                      "type": "string",
+                      "description": "Регулярное выражение для проверки правильности введенного номера счета плательщика",
+                      "example": "",
+                      "format": ""
+                    },
+                    "ProviderCurrency": {
+                      "type": "string",
+                      "description": "Код национальной валюты оператора через “;”",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Check": {
+                      "type": "string",
+                      "description": "Признак «Запрос Check по вендору»",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Mrlist": {
+                      "type": "string",
+                      "description": "Флаг поддержки запроса задолженности (*расширенная версия AWGateWay)",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Schema": {
+                      "type": "string",
+                      "description": "Схема сценария – номер схемы сценария УС (от 2 до 4 цифр)",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Rang": {
+                      "type": "string",
+                      "description": "Очередность в группе – вес вендора в группе вендоров.Формат – \"Группа1\"=\"Вес1\",\"Группа2\"=\"Вес2\",\"Группа3\"=\"Вес3\".",
+                      "example": "",
+                      "format": ""
+                    },
+                    "MMC": {
+                      "type": "string",
+                      "description": "МСС-код",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Group": {
+                      "type": "string",
+                      "description": "Признак вендора-группы",
+                      "example": "",
+                      "format": ""
+                    },
+                    "ChequeName": {
+                      "type": "string",
+                      "description": "Заголовок для чека",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Senior": {
+                      "type": "string",
+                      "description": "Группа вендоров (код вышестоящего группирующего вендора)",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Address": {
+                      "type": "string",
+                      "description": "Адрес получателя платежа (в системах перевода – адрес точки выдачи перевода)",
+                      "example": "",
+                      "format": ""
+                    },
+                    "MultiCheck": {
+                      "type": "string",
+                      "description": "Признак того, что для оплаты услуг используется многошаговый сценарий",
+                      "example": "",
+                      "format": ""
+                    },
+                    "NoSavePT": {
+                      "type": "string",
+                      "description": "Признак того, что по данному получателю платежей запрещено создание платежных шаблонов",
+                      "example": "",
+                      "format": ""
+                    },
+                    "IsBilling": {
+                      "type": "string",
+                      "description": "Признак выставление счетов",
+                      "example": "",
+                      "format": ""
+                    },
+                    "IsAutoPayBilling": {
+                      "type": "string",
+                      "description": "Признак, что автооплата счета не поддерживается",
+                      "example": "",
+                      "format": ""
+                    },
+                    "BillPeriod": {
+                      "type": "string",
+                      "description": "Период действия счета для вендора.Возможные варианты:•\t1 – до даты, указанной в счете;•\t2 – до конца месяца выставления счета;•\t3 – до выставления нового счета;•\t4 – вечно.\txsd:Integer",
+                      "example": "",
+                      "format": ""
+                    },
+                    "IsSupportRequestRSTEP": {
+                      "type": "string",
+                      "description": "Признак поддержки вендором запроса AWRSTEP",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Deleted": {
+                      "type": "string",
+                      "description": "Признак удаления. При получении для ранее существовавшей записи (вендора) признака true, необходимо удалить запись из БД.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Synonym": {
+                      "type": "string",
+                      "description": "Список синонимов вендора (разделитель – запятая)",
+                      "example": "",
+                      "format": ""
+                    },
+                    "RegExpSearch": {
+                      "type": "string",
+                      "description": "Значение регулярного выражения для поиска по штрих-коду",
+                      "example": "",
+                      "format": ""
+                    },
+                    "StopExportChannels": {
+                      "type": "string",
+                      "description": "Список кодов (через запятую) каналов поступления платежей, для которых данный вендор запрещен к использованию. Используется при многоканальной архитектуре проекта.",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Order": {
+                      "type": "string",
+                      "description": "Признак сортировки – вес вендора в группе вендоров",
+                      "example": "",
+                      "format": ""
+                    },
+                    "Through": {
+                      "type": "string",
+                      "description": "Код (ID) реального вендора",
+                      "example": "",
+                      "format": ""
+                    },
+                    "ServicePaymentsQuantity": {
+                      "type": "string",
+                      "description": "Количество платежей, прошедших по услуге за предыдущие сутки",
+                      "example": "",
+                      "format": ""
+                    }
+                  }
+                },
+                "description": "Контейнер, содержащий информацию по операторам провайдера (вендор)"
+              },
+              "Version": {
+                "type": "string",
+                "description": "Возвращенная версия справочника",
+                "example": "",
+                "format": ""
+              }
+            },
+            "description": "Тело ответа"
+          },
+          "Localization": {
+            "type": "object",
+            "properties": {
+              "Lang": {
+                "type": "string",
+                "description": "Код языка по стандарту ISO-639-3, за исключением:•\tru Русский,•\the Иврит.\txsd:string",
+                "example": "",
+                "format": ""
+              },
+              "Property": {
+                "type": "string",
+                "description": "Имя свойства вендора",
+                "example": "",
+                "format": ""
+              },
+              "Value": {
+                "type": "string",
+                "description": "Значение свойства вендора на языке локализации",
+                "example": "",
+                "format": ""
+              }
+            },
+            "description": "Локализованные значения свойств вендора. Данный тег повторяется столько раз, сколько зарегистрировано локализованных свойств вендора."
+          },
+          "Name": {
             "type": "string",
-            "description": "Счет получателя (номер счета, телефона)"
-          }
-        }
-      },
-      "Api1_Resp": {
-        "type": "object",
-        "properties": {
-          "AWAnswer": {
-            "type": "object",
-            "properties": {
-              "Vendor": {
-                "type": "string",
-                "description": "Идентификатор услуги (код реального вендора)"
-              },
-              "REF": {
-                "type": "string",
-                "description": "Референс документа (по которому в дальнейшем можно выполнить отмену или запрос статуса документа)"
-              },
-              "Status": {
-                "type": "string",
-                "description": "Статус исполнения операции. Возможные значения:•\tAccepted – принято \\ исполнено. Данный статус является условно финальным, для отдельных шлюзов может требовать квитовки через отдельные процессы сверки (пример шлюз НКО РР, настройка UseAcceptedStatusOnPay);•\tExecuted – исполнено (финальный статус);•\tRejected – сбой, статус неизвестен, требуется выяснения финального статуса запросом AWRCHECKD);•\tRecall – отказ в исполнении (финальный статус);•\tPostponed – документ поставлен в очередь, требуется выяснения финального статуса запросом AWRCHECKD);\txsd:string"
-              }
-            },
-            "description": "Тело ответа на запрос. Содержимое зависит от типа ответа. Описывается персонально для каждого типа."
-          }
-        }
-      },
-      "Method2_Req": {
-        "type": "object",
-        "properties": {}
-      },
-      "Method2_Resp": {
-        "type": "object",
-        "properties": {
-          "AWAnswer": {
-            "type": "object",
-            "properties": {
-              "Vendor": {
-                "type": "string",
-                "description": "Идентификатор услуги (код реального вендора)"
-              },
-              "REF": {
-                "type": "string",
-                "description": "Референс документа (по которому в дальнейшем можно выполнить отмену или запрос статуса документа)"
-              },
-              "Status": {
-                "type": "string",
-                "description": "Статус исполнения операции. Возможные значения:•\tAccepted – принято \\ исполнено. Данный статус является условно финальным, для отдельных шлюзов может требовать квитовки через отдельные процессы сверки (пример шлюз НКО РР, настройка UseAcceptedStatusOnPay);•\tExecuted – исполнено (финальный статус);•\tRejected – сбой, статус неизвестен, требуется выяснения финального статуса запросом AWRCHECKD);•\tRecall – отказ в исполнении (финальный статус);•\tPostponed – документ поставлен в очередь, требуется выяснения финального статуса запросом AWRCHECKD);\txsd:string"
-              }
-            },
-            "description": "Тело ответа на запрос. Содержимое зависит от типа ответа. Описывается персонально для каждого типа."
+            "description": "Название параметра",
+            "example": "",
+            "format": ""
+          },
+          "ParamNum": {
+            "type": "string",
+            "description": "Порядковый номер реквизита",
+            "example": "",
+            "format": ""
+          },
+          "ParamGroup": {
+            "type": "string",
+            "description": "Группа реквизитов",
+            "example": "",
+            "format": ""
+          },
+          "StepScript": {
+            "type": "string",
+            "description": "Шаг сценария",
+            "example": "",
+            "format": ""
+          },
+          "Title": {
+            "type": "string",
+            "description": "Пользовательское наименование параметра",
+            "example": "",
+            "format": ""
+          },
+          "MaxLength": {
+            "type": "string",
+            "description": "Максимальная длина вводимых данных",
+            "example": "",
+            "format": ""
+          },
+          "MinLength": {
+            "type": "string",
+            "description": "Минимальная длина вводимых данных",
+            "example": "",
+            "format": ""
+          },
+          "RegularExpression": {
+            "type": "string",
+            "description": "Регулярное выражение для проверки правильности ввода",
+            "example": "",
+            "format": ""
+          },
+          "Required": {
+            "type": "boolean",
+            "description": "••\t0, пусто или отсутствие атрибута – необязательный параметр\txsd:string",
+            "example": "",
+            "format": ""
+          },
+          "Direction": {
+            "type": "integer",
+            "description": "••\t1 – константа•\t2 – output (возвращается сервером AWGW)\txsd:string",
+            "example": "",
+            "format": ""
+          },
+          "Type": {
+            "type": "string",
+            "description": "Тип данных, используемый для ввода параметра:•\tInt – число;•\tString – строка;•\tDate – дата;•\tPeriod – дата в формате ГГГГMM и пр.;•\tMaskList – список значений.\txsd:string",
+            "example": "",
+            "format": ""
+          },
+          "InterfaceType": {
+            "type": "string",
+            "description": "Тип поля ввода, используемый для ввода параметра в интерфейсе фронт-приложения. Принимает значения справочника «Тип интерфейса (доп. рекв.)».Значения данного справочника и значения параметра обсуждаются с разработчиком фронт-приложения.",
+            "example": "",
+            "format": ""
+          },
+          "Mask": {
+            "type": "string",
+            "description": "Маска поля",
+            "example": "",
+            "format": ""
+          },
+          "NoPTValue": {
+            "type": "boolean",
+            "description": "Признак того, что значение атрибута не включается в платежный шаблон",
+            "example": "",
+            "format": ""
+          },
+          "NPP": {
+            "type": "integer",
+            "description": "Порядок ввода. Для упорядочивания полей на экране.",
+            "example": "",
+            "format": ""
+          },
+          "Comment": {
+            "type": "string",
+            "description": "Пояснение. Для организации всплывающей подсказки.",
+            "example": "",
+            "format": ""
+          },
+          "IsSubscriptionBill": {
+            "type": "boolean",
+            "description": "Признак того, что значение атрибута – «Подписан на получение счета»",
+            "example": "",
+            "format": ""
           }
         }
       }

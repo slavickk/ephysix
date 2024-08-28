@@ -76,7 +76,7 @@ public partial class Step : ILiquidizable
         if (receiver != null)
         {
             receiver.owner = this;
-            receiver.stringReceived = Receiver_stringReceived;
+            //receiver.stringReceived = Receiver_stringReceived;
             await receiver.start();
         }
         //New ***
@@ -96,8 +96,10 @@ public partial class Step : ILiquidizable
 
     public string IDStep { get; set; } = "Example";
 
+    public string IDFamilyStep { get; set; } 
 
     public string IDPreviousStep { get; set; } = "";
+    public string IDFamilyPreviousStep { get; set; } = "Example";
 
     public string IDResponsedReceiverStep { get; set; } = "";
 
@@ -142,7 +144,34 @@ public partial class Step : ILiquidizable
         {
             return $"filter:{Name}";
         }
-        public Filter filter { get; set; } = new ConditionFilter();
+        public Filter condition { get; set; } = new ConditionFilter();
+
+
+        bool getLastOutput(OutputValue parent,OutputValue child)
+        {
+            if (parent.outputChilds.Count > 0)
+                if (getLastOutput(parent.outputChilds.Last(), child))
+                    return true;
+            if(parent.outputPath.Length >0 && parent.outputPath.Length< child.outputPath.Length && parent.outputPath == child.outputPath.Substring(0, parent.outputPath.Length))
+            { 
+                parent.outputChilds.Add(child);
+                return true;
+
+            }
+            return false;
+        }
+        public void transformOutputField()
+        {
+            for (int i = 1; i < outputFields.Count; i++)
+            {
+
+                if (getLastOutput(outputFields[i-1],outputFields[i]))
+                {
+                    outputFields.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
         public List<OutputValue> outputFields { get; set; } = new List<OutputValue>
         {
             new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, 
@@ -153,6 +182,8 @@ public partial class Step : ILiquidizable
                 valuePath = "cc/dd"
             }
         };
+
+
         
         /// <summary>
         /// Executes the filter operation on the input element and updates the output element.
@@ -180,7 +211,7 @@ public partial class Step : ILiquidizable
         }
 
     }
-    public List<ItemFilter> converters { get; set; } = new List<ItemFilter>() { };
+    public List<ItemFilter> filterCollection { get; set; } = new List<ItemFilter>() { };
     /*        public List<Filter> filters = new List<Filter> { new ConditionFilter() };
                 public List<OutputValue> outputFields = new List<OutputValue> { new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, new ExtractFromInputValue() { outputPath = "IP", conditionPath = "aa/bb/cc", conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" }, valuePath = "cc/dd" } };*/
     //        public RecordExtractor transformer;
@@ -290,7 +321,7 @@ public partial class Step : ILiquidizable
     Task saveScenarious = null;
 
     public static int incrValue = 0;
-    private async Task Receiver_stringReceived(string input, object context)
+    public async Task Receiver_stringReceived(string input, object context,string IDCalledStep=null)
     {
 //        owner.mainActivity = owner.GetActivity("receive package", null);
         DateTime time2 = DateTime.Now;
@@ -308,7 +339,13 @@ public partial class Step : ILiquidizable
         if (item != null)
             item.ctnx = contextItem;
             //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
-        var rootElement = AbstrParser.CreateNode(null, contextItem.list, this.IDStep);
+        var rootElement = AbstrParser.CreateNode(null, contextItem.list, IDCalledStep??this.IDStep);
+        if (!string.IsNullOrEmpty(item.UrlPath))
+        {
+            var tmpNode = AbstrParser.CreateNode(rootElement, contextItem.list, "RequestParam");
+            var pathNode = AbstrParser.CreateNode(tmpNode, contextItem.list, "UrlPath"); 
+            pathNode.Value = item.UrlPath;
+        }
         rootElement = AbstrParser.CreateNode(rootElement, contextItem.list, "Rec");
         if(owner.saver?.enable ?? false)
         {
@@ -330,7 +367,7 @@ public partial class Step : ILiquidizable
         if (!isBridge)
         {
             // TODO: FilterInfo() is roughly 30% of the execution time 
-            await FilterInfo(input, time2, contextItem, rootElement);
+            await FilterInfo(input, time2, contextItem, rootElement,IDCalledStep);
 
             // TODO: checkChilds() is roughly 36% of the execution time 
             await checkChilds(contextItem, rootElement);
@@ -475,13 +512,13 @@ public partial class Step : ILiquidizable
                     DateTime time1 = DateTime.Now;
 
                     //                    var fltr = filters.First().filter(list);
-                    if (converters != null && converters.Count > 0)
+                    if (filterCollection != null && filterCollection.Count > 0)
                     {
                         bool found = false;
-                        foreach (var item in converters/*.First().filter(list)*/)
+                        foreach (var item in filterCollection/*.First().filter(list)*/)
                         {
                             AbstrParser.UniEl rEl = null;
-                            foreach (var item1 in item.filter.filter(list, ref rEl, context))
+                            foreach (var item1 in item.condition.filter(list, ref rEl, context))
                             {
                                 var st = await FindAndCopy1(rootElement, time1, item, item1, list,context);
                                 if (st != "")
@@ -524,6 +561,11 @@ public partial class Step : ILiquidizable
             cantTryParse = ireceiver.cantTryParse;
         if (receiver != null)
             cantTryParse = receiver.cantTryParse;
+        if (string.IsNullOrEmpty(input))
+        {
+            Logger.log("Body is empty ");
+            return true;
+        }
         return AbstrParser.getApropriateParser(nameContext, input, rootElement, context.list, cantTryParse);
 /*        foreach (var pars in AbstrParser.availParser)
             if (pars.canRazbor(input, rootElement, context.list, cantTryParse))
@@ -532,15 +574,17 @@ public partial class Step : ILiquidizable
             }
         return false;*/
     }
-    public async Task FilterInfo(string input, DateTime time2, ContextItem context, AbstrParser.UniEl rootElement)
+    public async Task FilterInfo(string input, DateTime time2, ContextItem context, AbstrParser.UniEl rootElement,string IDCalledStep= null)
     {
+        if (IDCalledStep == null)
+            IDCalledStep = this.IDStep;
         // When called from string_received, the rootElement is the container for the parsed record.
-        
+
         try
         {
             //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
 
-            if (tryParse(this.IDStep+"Rec",input, context, rootElement))
+            if (tryParse(IDCalledStep + "Rec",input, context, rootElement))
                 await FilterStep(context, rootElement);
             /*                foreach (var pars in AbstrParser.availParser)
                                 if (pars.canRazbor(input, rootElement, context.list))
@@ -581,23 +625,24 @@ public partial class Step : ILiquidizable
         DateTime time1 = DateTime.Now;
 
         //                    var fltr = filters.First().filter(list);
-        if (converters != null && converters.Count > 0)
+        if (filterCollection != null && filterCollection.Count > 0)
         {
             AbstrParser.UniEl local_rootOutput = new AbstrParser.UniEl() { Name = "root" };
             bool found = false;
-            foreach (var item in converters/*.First().filter(list)*/)
+            foreach (var item in filterCollection/*.First().filter(list)*/)
             {
                 AbstrParser.UniEl rEl = null;
                 if (this.IDStep == "Step_0")
                 {
                     int y = 0;
                 }
-                foreach (var item1 in item.filter.filter(context.list, ref rEl,context))
+                foreach (var item1 in item.condition.filter(context.list, ref rEl,context))
                     found = await FindAndCopy(rootElement, time1, item, item1, context, local_rootOutput);
                 //                    found = true;
             }
             if (found)
             {
+                Logger.log("Step {step} found result ,call sender", Serilog.Events.LogEventLevel.Information, "any", this.IDStep);
                 if (rootElement?.ancestor?.Name != this.IDStep)
                 {
                     var root = CheckAndFillNode(rootElement, IDStep, true);// new AbstrParser.UniEl(rootElement.ancestor) { Name = IDStep };
@@ -635,7 +680,11 @@ public partial class Step : ILiquidizable
 
                 }
             }
+            else
+            {
+                Logger.log("Step {step} not found result ,sender skipped", Serilog.Events.LogEventLevel.Information, "any", this.IDStep);
 
+            }
 
         }
     }
@@ -946,7 +995,7 @@ public partial class Step : ILiquidizable
     {
         int ref1 = 1;
         List<OutputValue> outputs = new List<OutputValue>();
-        foreach (var conv in this.converters)
+        foreach (var conv in this.filterCollection)
             outputs.AddRange(conv.outputFields.Where(ii=>ii.getLiquidDict().Count>0));
         //Dictionary<string,object> outputs1= new Dictionary<string, object>[outp]
         var ret = new Dictionary<string, object> { { "Name", this.IDStep }, { "Description", this.description }, { "filters", outputs }, { "sender", new LiquidPoint(owner.steps, -1, ((this.isender == null)?sender:isender),ref ref1

@@ -50,12 +50,17 @@ using UniElLib;
 using Microsoft.AspNetCore.Http.Features;
 using NLog.Fluent;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.WebEncoders;
+using Microsoft.Extensions.FileProviders;
+using static ParserLibrary.HTTPReceiver;
 
 
 namespace Plugins
 {
     public partial class HTTPReceiverSwagger : IReceiver
     {
+
+        public static string SwaggerUI_www_root_path = "C:\\Users\\jurag\\source\\repos\\ephysix\\ParserLibrary\\Plugins\\SwaggerUIData\\wwwroot\\";
         /// <summary>
         /// Address to listen on. If not set, the server listens on localhost.
         /// </summary>
@@ -95,7 +100,19 @@ namespace Plugins
         /// Body of the mock response to return.
         /// If set, the receiver will return this body instead of waiting for requests.
         /// </summary>
+        string IReceiver.MocBody { 
+            get
+            {
+                return mockBody; 
+            }
+            set
+            {
+                mockBody = value;
+            }
+                }
         public string mockBody;
+        string IReceiver.MocFile { get =>mockFile;
+                 set =>mockFile=value; }
 
         IHostBuilder _hostBuilder;
         
@@ -104,8 +121,12 @@ namespace Plugins
         public bool cantTryParse; // This one comes from the YAML definition of the receiver
         private bool _debugMode;
 
+        public List<PathItem> paths { get; set; } 
+
+
         private X509Certificate2 FindMatchingCertificateBySubject(string subjectCommonName)
         {
+            
             // Find the signing certificate by common name in the local certificate store
             using var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
             store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
@@ -120,6 +141,7 @@ namespace Plugins
         
         public HTTPReceiverSwagger()
         {
+            
             Logger.log("HTTPReceiverSwagger: Creating a host to listen on the port " + port);
             
             // Create a new host listening on the given port
@@ -129,7 +151,7 @@ namespace Plugins
                     webBuilder
                         .ConfigureServices(services =>
                         {
-                            services.AddSwaggerGen(c =>
+                            /*services.AddSwaggerGen(c =>
                             {
                                 c.SwaggerDoc("v1",
                                     new OpenApiInfo
@@ -137,15 +159,23 @@ namespace Plugins
                                         Title = $"HTTPReceiverSwagger API based on {this.swaggerSpecPath}",
                                         Version = "v1"
                                     });
-                            });
+                            });*/
                         })
                         .Configure(app =>
                         {
-                            app.UseSwagger();
+                           // app.Environment.WebRootFileProvider = compositeProvider;
+                            app.UseStaticFiles(new StaticFileOptions
+                            {
+                                FileProvider = new PhysicalFileProvider(
+           Path.GetFullPath(SwaggerUI_www_root_path))/*,
+                                RequestPath = "/"
+ */                           });
+                            app.UseSwaggerUI();
+                            /*app.UseSwagger();
                             app.UseSwaggerUI(c =>
                             {
                                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Integration Utility v1");
-                            });
+                            });*/
                             app.UseRouting();
                             if (jwtIssueSigningCertSubject != null)
                             {
@@ -166,10 +196,10 @@ namespace Plugins
 
         async Task IReceiver.start()
         {
-            if (!string.IsNullOrEmpty(this.mockBody))
+            if (  !string.IsNullOrEmpty(this.mockBody))
             {
                 Logger.log("HTTPReceiverSwagger: Mock mode is enabled, returning the mock body " + this.mockBody);
-                await _host.signal(this.mockBody, "hz");
+                await _host.signal(this.mockBody, null);
                 return;
             }
             
@@ -178,7 +208,7 @@ namespace Plugins
                 Logger.log("HTTPReceiverSwagger: Mock mode is enabled, reading the mock file " + this.mockFile);
                 var mockResponse = File.ReadAllText(this.mockFile);
                 Logger.log("HTTPReceiverSwagger: Mock response: " + mockResponse);
-                await _host.signal(mockResponse, "hz");
+                await _host.signal(mockResponse, null);
                 return;
             }
             
@@ -231,7 +261,14 @@ namespace Plugins
                     services.AddControllers()
                         .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
                         .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(serverPart));
-
+                    //Add Gasnikov
+                    services.Configure<WebEncoderOptions>(options =>
+                    {
+                        options.TextEncoderSettings = new System
+                            .Text.Encodings.Web
+                            .TextEncoderSettings(System.Text.Unicode.UnicodeRanges.All);
+                    });
+                    //Add Gasnikov
                     // Register the IController implementation in the service container
                     var implementationClass = controllerImplAssembly.GetType("ControllerImpl");
                     Debug.Assert(implementationClass != null,
@@ -375,6 +412,7 @@ namespace Plugins
         }
         public class SyncroItem
         {
+            public Step initialStep = null;
             public int srabot = 0;
             public int unwait = 0;
             public string answer="";
@@ -435,7 +473,7 @@ namespace Plugins
         }
 
         bool IReceiver.cantTryParse => this.cantTryParse;
-
+        bool IReceiver.MocMode { get; set; }=false;
         bool IReceiver.debugMode
         {
             get => _debugMode;
