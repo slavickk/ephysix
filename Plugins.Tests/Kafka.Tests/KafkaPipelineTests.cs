@@ -1,6 +1,8 @@
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 using Plugins.Kafka;
+using Serilog;
+using Serilog.Exceptions;
 using Testcontainers.Kafka;
 
 namespace ParserLibrary.Tests;
@@ -24,6 +26,12 @@ public class KafkaPipelineTests
     [OneTimeSetUp]
     public async Task InitAsync()
     {
+        Log.Logger = new LoggerConfiguration()
+            .Enrich.WithExceptionDetails()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .CreateLogger();
+        
         _container = new KafkaBuilder()
             .WithImage("confluentinc/cp-kafka:7.6.1")
             .Build();
@@ -39,8 +47,8 @@ public class KafkaPipelineTests
         {
             await adminClient.CreateTopicsAsync(new TopicSpecification[]
             {
-                new() { Name = "topic1", NumPartitions = 2 },
-                new() { Name = "topic2", NumPartitions = 2 }
+                new() { Name = "topic1", NumPartitions = 1 },
+                new() { Name = "topic2", NumPartitions = 1 }
             });
             Console.WriteLine("Topics created successfully.");
         }
@@ -129,16 +137,16 @@ steps:
         var result2 = _consumer.Consume(TimeSpan.FromSeconds(10));
             
         Console.WriteLine("Stopping the receiver...");
-        kr.Stop();
+        await kr.stop();
         Console.WriteLine("Receiver stopped.");
 
         // Assert
         Assert.Multiple(() =>
         {
             Assert.NotNull(result1);
-            Assert.AreEqual("message1", result1?.Message.Value);
+            Assert.That(result1?.Message.Value, Is.EqualTo("message1"));
             Assert.NotNull(result2);
-            Assert.AreEqual("message2", result2?.Message.Value);
+            Assert.That(result2?.Message.Value, Is.EqualTo("message2"));
         });
     }
 }
