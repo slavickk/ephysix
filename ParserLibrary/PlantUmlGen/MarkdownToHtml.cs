@@ -18,11 +18,11 @@ namespace ParserLibrary.PlantUmlGen
 
             // Convert HTML document to PDF image file format
             Converter.ConvertHTML(document, new PdfSaveOptions(), savePath);*/
-            using (StreamReader sr = new StreamReader("C:\\БГС\\example.md"))
+            using (StreamReader sr = new StreamReader("C:\\***\\example.md"))
             {
                 
                 var result = Markdown.ToHtml(sr.ReadToEnd());
-                using (StreamWriter sw = new StreamWriter("C:\\БГС\\example.html"))
+                using (StreamWriter sw = new StreamWriter("C:\\***\\example.html"))
                 {  sw.Write(result); }
             }
 

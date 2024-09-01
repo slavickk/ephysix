@@ -735,7 +735,8 @@ namespace ParserLibrary
                         var thisUml = new PlantUMLItem() { Name = serviceNameInUml, color = "#00FF00", links = list };
                         last.links = new List<PlantUMLItem.Link>() { new PlantUMLItem.Link() { children = thisUml } };
                     }
-                    using (StreamWriter sw = new StreamWriter($"C:\\Users\\jurag\\source\\repos\\ephysix\\ParserLibrary\\Plugins\\SwaggerUIData\\PlantUML\\{path.path.Substring(path.path.LastIndexOf('/') + 1)}.puml"))
+                    string pathFile = Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"), "PlantUML\\");
+                    using (StreamWriter sw = new StreamWriter(pathFile+$"{ path.path.Substring(path.path.LastIndexOf('/') + 1)}.puml"))
                     {
                         sw.WriteLine(PlantUMLItem.getUML(path.summary, new PlantUMLItem[] { path.PlantUMLTemplate }));
                     }

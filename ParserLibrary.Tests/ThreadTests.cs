@@ -33,7 +33,7 @@ public class ThreadTests
     public static void Compare2Files()
     {
        // XDocument doc1=new XDocument();
-      /*  var doc=XDocument.Load("C:\\¡√—\\AEXPORT.xml");
+      /*  var doc=XDocument.Load("C:\\***\\AEXPORT.xml");
         foreach (XObject obj in doc.DescendantNodes())
         {
             Console.WriteLine(obj.GetXPath());

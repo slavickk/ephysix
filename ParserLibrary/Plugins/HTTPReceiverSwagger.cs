@@ -61,7 +61,7 @@ namespace Plugins
     public partial class HTTPReceiverSwagger : IReceiver
     {
 
-        public static string SwaggerUI_www_root_path = "C:\\Users\\jurag\\source\\repos\\ephysix\\ParserLibrary\\Plugins\\SwaggerUIData\\wwwroot\\";
+       // public static string SwaggerUI_www_root_path = "C:\\Users\\jurag\\source\\repos\\ephysix\\ParserLibrary\\Plugins\\SwaggerUIData\\wwwroot\\";
         /// <summary>
         /// Address to listen on. If not set, the server listens on localhost.
         /// </summary>

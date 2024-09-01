@@ -77,84 +77,10 @@
   <ItemGroup>
     <Folder Include="GeoData\" />
     <Folder Include="JaegerStartup\" />
-    <Folder Include="Plugins\SwaggerUIData\wwwroot\img\" />
-    <Folder Include="Plugins\SwaggerUIData\Cert\" />
   </ItemGroup>
   
   <ItemGroup>
     <None Update="GeoData\GeoLite2-Country.mmdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\Cert\server.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\Config\ExamplePUPAY.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\Config\ExampleStep - Копировать.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\Config\ExampleStep.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\Pipeline\patt1 - Копировать.yml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\doc.pdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\ex.pdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\ExamplePUPAY.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\ExampleStep.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\export.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\finishpayment.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\PictID1.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\PictID14.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\PictID4.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\PictID6.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\PictPYPAYID1S.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\PictPYPAYID4.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\pupay.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\requestotp.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\step.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\Files\UseCaseDiagram1.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\swagger\v1\swagger.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\themes\prism.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugins\SwaggerUIData\wwwroot\themes\prism.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SwaggerTemplate - Copy.txt">

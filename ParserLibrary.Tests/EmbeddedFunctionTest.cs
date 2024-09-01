@@ -22,7 +22,7 @@ namespace ParserLibrary.Tests
             var arr1 = arr.Select(ii => Transliteration.Front(ii)).ToArray();
             XmlDocument doc = new XmlDocument();
             doc.Load(@"C:\Users\jurag\Downloads\Telegram Desktop\RespProviders.xml");
-            using (StreamWriter sw = new StreamWriter(@"c:\БГС\examples5.txt"))
+            using (StreamWriter sw = new StreamWriter(@"c:\***\examples5.txt"))
             {
                 foreach (XmlAttribute attr in doc.DocumentElement.SelectNodes("//@Name_RU"))
                 {
