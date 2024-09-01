@@ -1,0 +1,79 @@
+{
+  "operator": [
+    {
+      "operatorCode": "DBO||51",
+      "name_RU": "ТСЖ Снайперов, 3",
+
+      "param": [
+        {
+          "name": "ZDOKID",
+          "title": "Идентификатор платежного документа",
+          "regularExpression": "^.{1,18}$ ",
+          "required": "0",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%String2Rus",
+          "mask": "18*",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0
+        },
+        {
+          "name": "ACCOUNT",
+          "title": "Номер лицевого счета",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0
+        },
+        {
+          "name": "PERIOD",
+          "title": "Период платежа",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0
+        },
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0
+
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||51",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ Товарищество собственников жилья \"Снайперов, 3\"\r\nИНН 5905239066\r\nКПП 590501001\r\nСЧЕТ 40703810700000000202\r\nАО КБ \"УРАЛ ФД\"\r\nБИК 045773790\r\nКОР.СЧЕТ 40703810700000000202\r\nВИД ПЛАТЕЖА ПЛАТЕЖИ ФИЗ.ЛИЦ ЗА УСЛУГИ ТСЖ \"СНАЙПЕРОВ, 3\".\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "Name_RU": "ТСЖ Снайперов, 3",
+        "NoSavePT": "false",
+        "OperatorCode": "DBO||51",
+        "Senior": "DBO||TSG",
+        "Synonym": "5905239066"
+      }
+    }
+  ]
+}

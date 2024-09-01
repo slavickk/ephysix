@@ -1,0 +1,35 @@
+saver: 
+limitOfSavedContextInMB: 10
+traceSaveDirectory: C:\D\Store
+pipelineDescription: Pipeline example
+skipSelfTest: false
+metricsBuilder: []
+hashWord: {#SECRET_WORD#}
+steps:
+- isBridge: true
+  isHandleSenderError: false
+  maxSavedLimitInMB: 0
+  saveErrorSendDirectory: ''
+  saveScenariousDirectory: C:\d\Scenarious\
+  iDStep: Step_0
+  iDPreviousStep: ''
+  iDResponsedReceiverStep: ''
+  description: Some comments in this place
+  receiver: !TICReceiver
+    ticFrame: 6
+    port: 15001
+    maxConcurrentConnections: 1000
+    connectionTimeoutInMilliseconds: 5000
+    saver: 
+    cantTryParse: true
+    mocFile: 
+    mocBody: ''
+  ireceiver: 
+  converters: []
+  sender: !TICSender
+    twfaHost: 10.74.28.30
+    twfaPort: 5595
+    ticFrame: 6
+    mocFile: 
+    mocBody: ''
+  isender: 

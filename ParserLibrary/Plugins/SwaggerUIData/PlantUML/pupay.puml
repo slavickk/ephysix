@@ -1,0 +1,28 @@
+@startuml
+title = Оплата услуг 
+actor "Клиент"              as Item1  order 10 
+participant "Фронт"              as Item2  order 20 
+participant "СОР"              as Item3  order 30 
+participant "Сервис платежей"              as Item4  order 40 #00FF00
+participant "AnyWay"              as Item5  order 50 
+  activate Item1 
+  activate Item2 
+  Item1 -> Item2 : Заполнение реквизитов платежа и суммы 
+  activate Item3 
+  Item2 -> Item3 : Запрос на проверку правильности реквизитов \n и расчет комиссии
+  activate Item4 #00FF00
+  Item3 -> Item4 : Запрос на проверку правильности реквизитов \n и расчет комиссии
+  activate Item5 
+  Item4 -> Item5 : Запрос PUPAY
+  Item5 -> Item5
+  Item5 --> Item4 : Возврат ответа
+  deactivate Item5
+  Item4 --> Item3 : Возврат суммы комиссии  и \nстатуса проверки реквизитов
+  deactivate Item4
+  Item3 --> Item2 : Возврат суммы комиссии  и \nстатуса проверки реквизитов
+  deactivate Item3
+  Item2 --> Item1 : Возврат суммы комиссии  и \nстатуса проверки реквизитов
+  deactivate Item2
+  deactivate Item1
+@enduml
+

@@ -107,7 +107,7 @@ namespace UniElLib
                 m = m.NextMatch();
             }
 
-            var body = @"using System;
+            /*var body = @"using System;
 using System.Text;
 using System.Linq;
 string[]  ConvObject(string[] params1)
@@ -115,7 +115,7 @@ string[]  ConvObject(string[] params1)
     return new string[] {(" + result + @").ToString() };
 }
 ";
-            checker = CSScript.RoslynEvaluator.CreateDelegate<string[]>(body);
+            checker = CSScript.RoslynEvaluator.CreateDelegate<string[]>(body);*/
             //            checker(new object[] { new string[] { "1000" } });
             int kolGroups = outs.Max(ii => Convert.ToInt32(ii)) + 1;
             return (Enumerable.Range(0,kolGroups).Select(ii => "Input" + ii).ToArray(), new string[] { "OutValue" });

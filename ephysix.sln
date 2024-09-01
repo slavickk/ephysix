@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParserLibrary.Tests", "Pars
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestJsonRazbor", "TestJsonRazbor\TestJsonRazbor.csproj", "{2EC63DE0-48C4-4531-A94F-8354C51D1D84}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebHostIU", "WebHostIU\WebHostIU.csproj", "{4BCDBC5C-C968-49AB-8532-5154A131CC8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +125,10 @@ Global
 		{2EC63DE0-48C4-4531-A94F-8354C51D1D84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2EC63DE0-48C4-4531-A94F-8354C51D1D84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2EC63DE0-48C4-4531-A94F-8354C51D1D84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BCDBC5C-C968-49AB-8532-5154A131CC8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BCDBC5C-C968-49AB-8532-5154A131CC8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BCDBC5C-C968-49AB-8532-5154A131CC8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BCDBC5C-C968-49AB-8532-5154A131CC8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

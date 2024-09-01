@@ -1,0 +1,1435 @@
+{
+  "operator": [
+    {
+      "param": [
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 2,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "FIO",
+          "title": "ФАМИЛИЯ ИМЯ ОТЧЕСТВО",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 1,
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        }
+      ],
+      "extraCommission": ";;;;",
+      "multiCheck": "false",
+      "through": "PDOG||1228",
+      "operatorCode": "DBO||1228",
+      "name_RU": "Всероссийское общество инвалидов .",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ Дзержинская районная организация Пермской краевой организации общероссийской общественной организации \"Всероссийское общество инвалидов\"\r\nИНН 5903011429\r\nКПП 590301001\r\nСЧЕТ 40703810949490050947 \r\nВолго-Вятский банк ПАО \"Сбербанк России\" Г. Нижний Новгород\r\nБИК 042202603\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА благотворительность\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||ETC",
+        "Synonym": "5903011429"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "COUNT2",
+          "title": "счетчик ДО",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Холодная вода. Текущие показания счетчика",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "COUNT",
+          "title": "счетчик ОТ",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Холодная вода. Предыдущие показания счетчика",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "ZDOKID",
+          "title": "Идентификатор платежного документа",
+          "regularExpression": "^.{1,18}$ ",
+          "required": "0",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%String2Rus",
+          "mask": "18*",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        }
+      ],
+      "region": "58.3006,56.41733",
+      "multiCheck": "false",
+      "through": "PDOG||1229",
+      "operatorCode": "DBO||1229",
+      "name_RU": "ОАО Исток",
+      "additionalProperties": {
+        "Check": "false",
+        "ChequeName": "ПОЛУЧАТЕЛЬ ОАО \"Исток\"\r\nИНН 5914025695\r\nКПП 591401001\r\nСЧЕТ 40702810800000004691\r\nАО КБ \"УРАЛ ФД\"\r\nБИК 045773790\r\nКОР.СЧЕТ 40702810800000004691\r\nВИД ПЛАТЕЖА За коммунальные услуги (водопотребление, водоотведение)\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI",
+        "Synonym": "5914025695"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "FIO",
+          "title": "ФИО плательщика",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "NAME",
+          "title": "ФИО ребенка",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%String2Rus",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "DOK1",
+          "title": "Вид документа",
+          "direction": "0",
+          "type": "MaskList",
+          "mask": ";=01=Номер и серия паспорта гражданина РФ;14=СНИЛС;ИНН=ИНН плательщика",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Если не будут заполнено ни одно из полей ИНН плательщика или номер документа, то платеж не будет отправлен",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "MONTH",
+          "title": "Месяц оплаты",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "DOK2",
+          "title": "Номер документа",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "GROUP",
+          "title": "группа",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||176",
+      "operatorCode": "DBO||176",
+      "name_RU": "Д/с N11",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ Департамент финансов администрации города Перми (МАДОУ \"Детский сад № 11\" л/с 08930000854)\r\nИНН 5904114160\r\nКПП 590401001\r\nСЧЕТ 40701810157733000003\r\nОтделение Пермь, г. Пермь\r\nБИК 045773001\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА 02930011894, 21130 РОДИТЕЛЬСКАЯ ПЛАТА.\r\nКБК 00000000000000000130\r\nОКТМО 57701000\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||DSAD",
+        "Synonym": "5904114160"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "FIO",
+          "title": "Фамилия Имя Отчество",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите ФИО плательщика",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "USLUGA",
+          "title": "Назначение платежа",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите ФИО ребенка за кого осуществляется оплата и номер группы",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "DOP_FK",
+          "title": "Дополнительный ФК",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "введите дополнительный финансовый классификатор: 81000 – дополнительный платные услуги; 82000 – целевые безвозмездные поступления; 83000 – родительская плата за содержание ребенка",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "DOK1",
+          "title": "Вид документа",
+          "direction": "0",
+          "type": "MaskList",
+          "mask": ";=01=Номер и серия паспорта гражданина РФ;14=СНИЛС;ИНН=ИНН плательщика",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Если не будут заполнено ни одно из полей ИНН плательщика или номер документа, то платеж не будет отправлен",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "DOK2",
+          "title": "Номер документа",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "city": "Соликамск",
+      "multiCheck": "false",
+      "through": "PDOG||187",
+      "operatorCode": "DBO||187",
+      "name_RU": "Д/с N3 г.Соликамск",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ УФК по Пермскому краю (Финуправление администрации города Соликамска, МАДОУ \"Детский сад № 3\", л/с 306290202)\r\nИНН 5919017063\r\nКПП 591901001\r\nСЧЕТ 40701810165771300333\r\nОтделение Пермь\r\nБИК 045773001\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА Родительская плата за детский сад\r\nКБК 00000000000000000130\r\nОКТМО 57730000\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||DSAD",
+        "Synonym": "5919017063"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ACCOUNT",
+          "title": "Лицевой счет",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%String2Rus",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||320",
+      "operatorCode": "DBO||320",
+      "name_RU": "ООО Империал (Соликамск)",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ ООО Империал\r\nИНН 5919002927\r\nКПП 591901001\r\nСЧЕТ 40702810000570004079\r\nФилиал Центральный Банка ВТБ (ПАО)\r\nБИК 044525411\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА АБОНЕНТСКАЯ ПЛАТА ЗА УСЛУГИ, ОКАЗЫВАЕМЫЕ ОРГАНИЗАЦИЕЙ НАСЕЛЕНИЮ\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||TV",
+        "Synonym": "5919002927"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||321",
+      "operatorCode": "DBO||321",
+      "name_RU": "Экран",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ ООО \"ЭКРАН\"\r\nИНН 5919490294\r\nКПП 591901001\r\nСЧЕТ 40702810149160110086\r\nПАО Сбербанк России\r\nБИК 042202603\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА АБОНЕНТ. ПЛАТА ЗА ПОЛЬЗ-Е КАБЕЛЬН. ТЕЛЕВИЗ-М ВЕЩ-ЕМ\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||TV",
+        "Synonym": "5919490294"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "NUMBER",
+          "title": "Логин",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Логин, от 5 до 12 цифр",
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "city": "Пермь, Березники",
+      "multiCheck": "false",
+      "through": "PDOG||5004",
+      "operatorCode": "DBO||5004",
+      "name_RU": "ООО Юлинк",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ ООО \"Юлинк\"\r\nИНН 5903062487\r\nКПП 590301001\r\nСЧЕТ 40702810749490039033\r\nПАО Сбербанк России\r\nБИК 042202603\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА ЗА КАБЕЛЬНОЕ ТЕЛЕВИДЕНИЕ, ИНТЕРНЕТ\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||INTERNET",
+        "Synonym": "5903062487"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "PHONE",
+          "title": "ТЕЛЕФОН ДЛЯ СВЯЗИ",
+          "required": "1",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Не производите оплату по данной схеме в адрес поставщиков теплоснабжения и ГВС: БСК г. Березники, ПСК, Т-плюс, ИнвестСпецПром. Денежные средства не будут отправлены",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "NO_ADDR",
+          "title": "АДРЕС",
+          "required": "1",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Не производите оплату по данной схеме в адрес поставщиков теплоснабжения и ГВС: БСК г. Березники, ПСК, Т-плюс, ИнвестСпецПром. Денежные средства не будут отправлены",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "NUMBER",
+          "title": "N КЛИЕНТА",
+          "required": "1",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите номер клиента.\r\nНе производите оплату по данной схеме в адрес поставщиков теплоснабжения и ГВС: БСК г. Березники, ПСК, Т-плюс, ИнвестСпецПром. Денежные средства не будут отправлены",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "SumSTrs",
+          "title": "Сумма платежа по квитанции",
+          "direction": "0",
+          "type": "Numeric",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "ZDOKID",
+          "title": "Идентификатор платежного документа",
+          "regularExpression": "^.{1,18}$ ",
+          "required": "0",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%String2Rus",
+          "mask": "18*",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "NAME",
+          "title": "ФИО",
+          "required": "1",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите ФИО плательщика.\r\nНе производите оплату по данной схеме в адрес поставщиков теплоснабжения и ГВС: БСК г. Березники, ПСК, Т-плюс, ИнвестСпецПром. Денежные средства не будут отправлены!",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "CLAIM",
+          "title": "N КВИТАНЦИИ",
+          "required": "1",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Не производите оплату по данной схеме в адрес поставщиков теплоснабжения и ГВС: БСК г. Березники, ПСК, Т-плюс, ИнвестСпецПром. Денежные средства не будут отправлены",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        }
+      ],
+      "extraCommission": ";;;;",
+      "region": "Пермский край",
+      "multiCheck": "false",
+      "through": "PDOG||5040",
+      "operatorCode": "DBO||5040",
+      "name_RU": "КРЦ-Прикамье - ЖКУ (КРОМЕ БСК г. Березники, ПСК, Т-плюс, ИнвестСпецПром, ТС Углеуральский)",
+      "additionalProperties": {
+        "Check": "false",
+        "ChequeName": "ПОЛУЧАТЕЛЬ ОАО \"КРЦ-Прикамье\"\r\nИНН 5904154067\r\nКПП 590401001\r\nСЧЕТ 40702810549090016410\r\nПАО Сбербанк России\r\nБИК 042202603\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА ЖИЛИЩНО-КОММУНАЛЬНЫЕ УСЛУГИ\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI",
+        "Synonym": "5904154067"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ACCOUNT",
+          "title": "Лицевой счет",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%Integer",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите номер лицевого счета",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        },
+        {
+          "name": "PERIOD",
+          "title": "Период платежа",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%Integer",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите Период платежа в формате ММГГГГ",
+          "rawLength": 0,
+          "additionalProperties": {
+            "IsSubscriptionBill": "false"
+          }
+        }
+      ],
+      "region": "58.3006,56.41733",
+      "multiCheck": "false",
+      "through": "PDOG||5085",
+      "operatorCode": "DBO||5085",
+      "name_RU": "МАУ МФЦ Полазна",
+      "additionalProperties": {
+        "Check": "false",
+        "ChequeName": "ПОЛУЧАТЕЛЬ МАУ \"МФЦ\" Полазна\r\nИНН 5914022380\r\nКПП 591401001\r\nСЧЕТ 40703810400000000735 \r\nАО КБ \"УРАЛ ФД\"\r\nБИК 045773790\r\nКОР.СЧЕТ 40703810400000000735 \r\nВИД ПЛАТЕЖА жилищно-коммунальные услуги\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI",
+        "Synonym": "5914022380"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ZDOKID",
+          "title": "Идентификатор платежного документа",
+          "regularExpression": "^.{1,18}$ ",
+          "required": "0",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%String2Rus",
+          "mask": "18*",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ACCOUNT",
+          "title": "Номер лицевого счета",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "PERIOD",
+          "title": "Период платежа",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||51",
+      "operatorCode": "DBO||51",
+      "name_RU": "ТСЖ Снайперов, 3",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ Товарищество собственников жилья \"Снайперов, 3\"\r\nИНН 5905239066\r\nКПП 590501001\r\nСЧЕТ 40703810700000000202\r\nАО КБ \"УРАЛ ФД\"\r\nБИК 045773790\r\nКОР.СЧЕТ 40703810700000000202\r\nВИД ПЛАТЕЖА ПЛАТЕЖИ ФИЗ.ЛИЦ ЗА УСЛУГИ ТСЖ \"СНАЙПЕРОВ, 3\".\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||TSG",
+        "Synonym": "5905239066"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ACCOUNT",
+          "title": "Лицевой счет",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%Integer",
+          "mask": "5N",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "NUMBER",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%Integer",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||5129",
+      "operatorCode": "DBO||5129",
+      "name_RU": "ГудТелеком",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ ООО \"ГудТелеком\"\r\nИНН 5905275258\r\nКПП 590501001\r\nСЧЕТ 40702810424420006509 \r\nФилиал «Центральный» Банка ВТБ ПАО г. Москва\r\nБИК 044525411\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА за интернет\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||INTERNET",
+        "Synonym": "5905275258"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "MONTH",
+          "title": "Месяц оплаты",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ACCOUNT",
+          "title": "Номер лицевого счета",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "COUNT",
+          "title": "счетчик горячей воды (гор;хол)",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "счетчик горячей воды (гор;хол)",
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||53",
+      "operatorCode": "DBO||53",
+      "name_RU": "ООО Исток Д.У.",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ ООО \"Исток\"\r\nИНН 5914019934\r\nКПП 591401001\r\nСЧЕТ 40702810500000002113\r\nАО КБ \"УРАЛ ФД\"\r\nБИК 045773790\r\nКОР.СЧЕТ 40702810500000002113\r\nВИД ПЛАТЕЖА Перечисление платежей физических лиц\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||ETC",
+        "Synonym": "5914019934"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "NUMBER",
+          "title": "Номер договора",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Номер договора",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "NAME",
+          "title": "Фамилия Имя Отчество студента",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите ФИО студента",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "SumSTrs",
+          "title": "Сумма платежа по квитанции",
+          "direction": "0",
+          "type": "Numeric",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "FIO",
+          "title": "Фамилия Имя Отчество плательщика",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите ФИО плательщика",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "DATE_DOG",
+          "title": "Дата договора",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Дата договора",
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||54",
+      "operatorCode": "DBO||54",
+      "name_RU": "Высшая школа экономики_обучение",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ НИУ ВШЭ-Пермь \r\nИНН 7714030726\r\nКПП 590602001\r\nСЧЕТ 40503810649774000003\r\nПАО Сбербанк России\r\nБИК 042202603\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА ПЛАТНЫЕ ОБРАЗОВАТЕЛЬНЫЕ УСЛУГИ\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||EDUCATION",
+        "Synonym": "7714030726"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "CICLE",
+          "title": "Цикл",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "NAME",
+          "title": "Фамилия Имя Отчество студента",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите ФИО студента",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "SumSTrs",
+          "title": "Сумма платежа по квитанции",
+          "direction": "0",
+          "type": "Numeric",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "FACULTY",
+          "title": "Факультет",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "FIO",
+          "title": "Фамилия Имя Отчество плательщика",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите ФИО плательщика",
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||55",
+      "operatorCode": "DBO||55",
+      "name_RU": "ПГМУ имени академика Е.А. Вагнера. Обучение",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ УФК ПО ПЕРМСКОМУ КРАЮ (ФГБОУ ВО ПГМУ им. академика Е.А. Вагнера Минздрава России л/с 20566Х43840)\r\nИНН 5902290120\r\nКПП 590201001\r\nСЧЕТ 40501810965772300004\r\nОтделение Пермь\r\nБИК 045773001\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА КБК 00000000000000000130 ПЛАТНЫЕ ОБРАЗОВАТЕЛЬНЫЕ УСЛУГИ\r\nКБК 00000000000000000130\r\nОКТМО 57701000\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||EDUCATION",
+        "Synonym": "5902290120"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ZDOKID",
+          "title": "Идентификатор платежного документа",
+          "regularExpression": "^.{1,18}$",
+          "required": "0",
+          "direction": "0",
+          "type": "String",
+          "interfaceType": "%String2Rus",
+          "mask": "18*",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ACCOUNT",
+          "title": "Номер лицевого счета",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "PERIOD",
+          "title": "Период платежа",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||58",
+      "operatorCode": "DBO||58",
+      "name_RU": "ТСЖ Сибирская, 52",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ ТСЖ \" Сибирская 52\"\r\nИНН 5904135699\r\nКПП 590401001\r\nСЧЕТ 40703810900000000510\r\nАО КБ \"УРАЛ ФД\"\r\nБИК 045773790\r\nКОР.СЧЕТ 40703810900000000510\r\nВИД ПЛАТЕЖА ПЛАТЕЖИ ФИЗ.ЛИЦ ЗА ЖИЛИЩНО-КОММУНАЛЬНЫЕ УСЛУГИ.\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||TSG",
+        "Synonym": "5904135699"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ZPHONE",
+          "title": "Контактный телефон",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Введите свой контактный телефон",
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||582",
+      "operatorCode": "DBO||582",
+      "name_RU": "Приход храма во имя святителя Николая",
+      "additionalProperties": {
+        "ChequeName": "ПОЛУЧАТЕЛЬ Местная религиозная организация православный Приход храма во имя святителя Николая, архиепископа Мир Ликийских, чудотворца г. Березники Пермского края\r\nИНН 5911061590\r\nКПП 591101001\r\nСЧЕТ 40703810800030000046\r\nАО КБ \"УРАЛ ФД\"\r\nБИК 045773790\r\nКОР.СЧЕТ 40703810800030000046\r\nВИД ПЛАТЕЖА Местная религиозная организация православный Приход храма во имя святителя Николая, архиепископа Мир Ликийских, чудотворца г. Березники Пермского края\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||ETC",
+        "Synonym": "5911061590"
+      }
+    },
+    {
+      "param": [
+        {
+          "name": "ADR",
+          "title": "Адрес",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "comment": "Адрес места регистрации / пребывания",
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "PERIOD",
+          "title": "Период платежа",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        },
+        {
+          "name": "ACCOUNT",
+          "title": "Номер лицевого счета",
+          "direction": "0",
+          "type": "String",
+          "noPTValue": false,
+          "npp": 0,
+          "rawLength": 0,
+          "additionalProperties": {}
+        }
+      ],
+      "multiCheck": "false",
+      "through": "PDOG||90",
+      "operatorCode": "DBO||90",
+      "name_RU": "ГОРСВЯЗЬ (ЭР-Телеком ЗАО)",
+      "additionalProperties": {
+        "ChequeName": "ИНН 5902188230\r\nСЧЕТ 40702810549090112068\r\nПАО Сбербанк России\r\nБИК 042202603\r\nКОР.СЧЕТ 30102810400000000003\r\nВИД ПЛАТЕЖА ПЛАТЕЖИ ФИЗ.ЛИЦ ЗА УСЛУГИ СВЯЗИ \"ДОМАШНИЙ ТЕЛЕФОН ДОМ.RU\".\r\n",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||SVYAZ",
+        "Synonym": "5902188230"
+      }
+    },
+    {
+      "region": "Все регионы",
+      "multiCheck": "false",
+      "through": "A3||4198",
+      "operatorCode": "DBO||A3-4198",
+      "name_RU": "Налоги",
+      "additionalProperties": {
+        "Check": "false",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "true",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||TAX_FINE"
+      }
+    },
+    {
+      "region": "Все регионы",
+      "multiCheck": "false",
+      "through": "A3||4811",
+      "operatorCode": "DBO||A3-4811",
+      "name_RU": "Штрафы ГИБДД (ФК)",
+      "additionalProperties": {
+        "Check": "false",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "true",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||TAX_FINE"
+      }
+    },
+    {
+      "region": "Москва",
+      "multiCheck": "false",
+      "through": "A3||5090",
+      "operatorCode": "DBO||A3-5090",
+      "name_RU": "УК Ромашка",
+      "additionalProperties": {
+        "Check": "false",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "true",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI"
+      }
+    },
+    {
+      "region": "Москва",
+      "multiCheck": "false",
+      "through": "A3||5091",
+      "operatorCode": "DBO||A3-5091",
+      "name_RU": "УК Одуванчик",
+      "additionalProperties": {
+        "Check": "false",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "true",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI"
+      }
+    },
+    {
+      "region": "Москва",
+      "multiCheck": "false",
+      "through": "A3||5092",
+      "operatorCode": "DBO||A3-5092",
+      "name_RU": "УК Терминатор",
+      "additionalProperties": {
+        "Check": "false",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "true",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI"
+      }
+    },
+    {
+      "region": "Московская область",
+      "multiCheck": "false",
+      "through": "A3||5872",
+      "operatorCode": "DBO||A3-5872",
+      "name_RU": "МосОблЕИРЦ",
+      "additionalProperties": {
+        "Address": " ИНН 5037008735",
+        "Check": "false",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "true",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI"
+      }
+    },
+    {
+      "region": "Брянская область",
+      "multiCheck": "false",
+      "through": "A3||7114",
+      "operatorCode": "DBO||A3-7114",
+      "name_RU": "Газпром Энергосбыт Брянск",
+      "additionalProperties": {
+        "Check": "false",
+        "Group": "false",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "IsSupportRequestRSTEP": "true",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI"
+      }
+    },
+    {
+      "extraCommission": ";;;;",
+      "multiCheck": "false",
+      "operatorCode": "DBO||DSAD",
+      "name_RU": "Группа \"Детские сады\"",
+      "additionalProperties": {
+        "Check": "false",
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||EDUCATION"
+      }
+    },
+    {
+      "extraCommission": ";;;;",
+      "multiCheck": "false",
+      "operatorCode": "DBO||EDUCATION",
+      "name_RU": "Образовательные услуги",
+      "additionalProperties": {
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false"
+      }
+    },
+    {
+      "extraCommission": ";;;;",
+      "multiCheck": "false",
+      "operatorCode": "DBO||ETC",
+      "name_RU": "Прочие",
+      "additionalProperties": {
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false"
+      }
+    },
+    {
+      "multiCheck": "false",
+      "operatorCode": "DBO||INTERNET",
+      "name_RU": "Интернет",
+      "additionalProperties": {
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false"
+      }
+    },
+    {
+      "extraCommission": ";;;;",
+      "multiCheck": "false",
+      "operatorCode": "DBO||KOMMUSLUGI",
+      "name_RU": "Коммунальные платежи",
+      "additionalProperties": {
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false"
+      }
+    },
+    {
+      "multiCheck": "false",
+      "operatorCode": "DBO||SVYAZ",
+      "name_RU": "Связь",
+      "additionalProperties": {
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false"
+      }
+    },
+    {
+      "extraCommission": ";;;;",
+      "multiCheck": "false",
+      "operatorCode": "DBO||TAX_FINE",
+      "name_RU": "Налоги, штрафы, сборы",
+      "additionalProperties": {
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false"
+      }
+    },
+    {
+      "extraCommission": ";;;;",
+      "multiCheck": "false",
+      "operatorCode": "DBO||TSG",
+      "name_RU": "Группа ТСЖ",
+      "additionalProperties": {
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false",
+        "Senior": "DBO||KOMMUSLUGI"
+      }
+    },
+    {
+      "extraCommission": ";;;;",
+      "multiCheck": "false",
+      "operatorCode": "DBO||TV",
+      "name_RU": "Телевидение",
+      "additionalProperties": {
+        "Group": "true",
+        "IsAutoPayBilling": "true",
+        "IsBilling": "false",
+        "Lock": "false",
+        "Mrlist": "false",
+        "NoSavePT": "false"
+      }
+    }
+  ],
+  "id": "07121642ty9gP76zVg01",
+  "type": "AWAEXPORT",
+  "ansDateTime": "2024-07-27T10:31:34+05:00",
+  "additionalProperties": {
+    "Localization": {
+      "Lang": [],
+      "Property": []
+    }
+  }
+}

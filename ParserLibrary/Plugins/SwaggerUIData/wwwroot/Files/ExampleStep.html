@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	    <meta charset="UTF-8" />
+	        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-SkmBfuA2hqjzEVpmnMt/LINrjop3GKWqsuLSSB3e7iBmYK7JuWw4ldmmxwD9mdm2IRTTi0OxSAfEGvgEi0i2Kw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body><h1 id="section">Пример выполнения многошагового запроса</h1>
+<h3 id="section-1">Макет ( драфт ) экрана выбор услуги</h3>
+<img src="/Files/PictID1.svg"/>
+<h3 id="section-2">На первом шаге идентификатор операции не задается , возвращается в ответе</h3>
+<pre><code class="language-json">{
+        "PUREF": "PDOG||1228",
+        "Step": "1",
+        "customerId": "A123408767",
+        "CUR": "RUB"
+      }</code></pre><h3 id="section-3">Ответ</h3>
+<pre><code class="language-json">{
+        "ABSMessage": "",
+        "Error": "0",
+        "Name": "Билайн БК  д/б",
+        "FullName": "",
+        "Input": [
+          {
+            "Col": "",
+            "ID": "transactionId",
+            "Order": 1,
+            "Type": "Input",
+            "DataType": "%String",
+            "Print": true,
+            "ReadOnly": true,
+            "Visible": false,
+            "Req": false
+          },
+          {
+            "Col": "",
+            "ID": "a3_NUMBER_1_2",
+            "Order": 2,
+            "Name": "Номер телефона (без +7):",
+            "Type": "Input",
+            "DataType": "%String",
+            "Hint": "Пример: 9051111111",
+            "Mask": "",
+            "RegExp": "^\\d{10}$",
+            "RightNum": 0,
+            "Note": "Номер телефона должен содержать 10 цифр.",
+            "Print": true,
+            "ReadOnly": false,
+            "Visible": true,
+            "Req": false
+          },
+          {
+            "Col": "",
+            "ID": "a3_AMOUNT_2_2",
+            "Order": 2,
+            "Name": "Сумма, руб.:",
+            "Type": "Input",
+            "DataType": "%Numeric",
+            "Hint": "Пример: 1234.12",
+            "Sum": true,
+            "Mask": "",
+            "RegExp": "^\\d{10}$",
+            "RightNum": 0,
+            "Note": "Пример: 1234.12",
+            "Print": true,
+            "ReadOnly": false,
+            "Visible": true,
+            "Req": true
+          }
+        ],
+        "Step": 2,
+        "FinalStep": "",
+        "ID": "AWGW579843",
+        "Type": "AWASTEP",
+        "AnsDateTime": "2024-08-13T20:31:22"
+      }</code></pre><h3 id="section-4">Экран подготовки данных для следующего шага</h3>
+<img src="/Files/PictID4.svg"/>
+<h3 id="section-5">Заключительный ответ</h3>
+<pre><code class="language-json">{
+        "ABSMessage": "",
+        "Error": "0",
+        "Name": "Билайн БК  д/б",
+        "FullName": "",
+        "Input": [
+          {
+            "Col": "",
+            "ID": "transactionId",
+            "Order": 1,
+            "Type": "Input",
+            "DataType": "%String",
+            "Print": true,
+            "ReadOnly": true,
+            "Visible": false,
+            "Req": false
+          },
+          {
+            "Col": "",
+            "ID": "a3_NUMBER_1_2",
+            "Order": 2,
+            "Name": "Номер телефона (без +7):",
+            "Type": "Input",
+            "DataType": "%String",
+            "Hint": "Пример: 9051111111",
+            "Mask": "",
+            "RegExp": "^\\d{10}$",
+            "RightNum": 0,
+            "Note": "Номер телефона должен содержать 10 цифр.",
+            "Print": true,
+            "ReadOnly": true,
+            "Visible": true,
+            "Req": false
+          },
+          {
+            "Col": "",
+            "ID": "a3_AMOUNT_2_2",
+            "Order": 2,
+            "Name": "Сумма, руб.:",
+            "Type": "Input",
+            "DataType": "%Numeric",
+            "Hint": "Пример: 1234.12",
+            "Mask": "",
+            "RegExp": "^\\d{10}$",
+            "RightNum": 0,
+            "Sum": true,
+            "Note": "Пример: 1234.12",
+            "Print": true,
+            "ReadOnly": false,
+            "Visible": true,
+            "Req": true
+          }
+        ],
+        "Sums": {
+          "SumSTrs": "1000",
+          "Fee": "0",
+          "AWGWFee": "5",
+          "AcquireFee": "0",
+          "PaymentCurrency": ""
+        },
+        "Step": 3,
+        "FinalStep": "true",
+        "ABSMessage": "Сумма к оплате: 1005.00руб.",
+        "ID": "AWGW579843",
+        "Type": "AWASTEP",
+        "AnsDateTime": "2024-08-13T20:31:22"
+      }</code></pre><h3 id="section-6">Экран подтверждения платежа</h3>
+<img src="/Files/PictID14.svg"/>
+	<script src="/themes/prism.js"></script>
+</body>
+</html>

@@ -1,22 +1,11 @@
 ﻿@startuml
 title = Совершение платежа в AnyWay с помощью платежного сервиса(блок-схема)
 partition "Запрос справочников "{
-#lightblue :Запрос справочника провайдеров ANYWAY(AWRPROVIDER)\n <color:red><i>[![GET_Documentation](/img/GET_Documentation.svg)] [[/swagger/index.html#/INFO/getexport описание]]</i>\n [[/Files/export.html диаграмма переходов]] |
-detach
-note right
-  Вызов этих справочников кэшируется [[http://plantuml.com сайте plantuml]]
-  и занимает миллисекунды  
-  Это следует учитывать
-  при проектировании вызовов
-end note
-#lightgreen :Запрос идентификатора провайдера<
 
-#lightblue :Запрос справочника вендоров ANYWAY(AWREXPORT)\n  <color:red><i> /api/v1/GetVendors</i>|
+#lightblue :Запрос справочника вендоров EXPORT {#export#}|
 note right
-  Названия методов API 
-  приведены ,как пример.
-  Будут заполняться
-  по мере готовности
+справочник кэшируется
+
 end note
 
 }
@@ -26,38 +15,36 @@ group Выполнение платежа
 partition "Заполнение параметров платежа "{
 #lightgreen :Запрос идентификатора провайдера<
 
-if(AWAEXPORT.IsSupportRequestRSTEP = true) then (многоходовый)
-  :Выбор  конкретного получателя платежа;
+if(Платеж многоходовый?) then (IsSupportRequestRSTEP=true)
+ :Назначение currentStep=1;
+repeat
+#lightgreen :Заполнение формы с реквизитами платежа<
 note left
-  Детали , в каком случае
-  выполняется уточняющий запрос  
-  выясним на тестовом полигоне
+  В случае , когда Step=1 ,
+поля не заполняются,
+для следующих шагов набор полей берется 
+из секции INPUTS предыдущего ответа STEP
 end note
 
-  #lightgreen :Заполнение секции Search<
-#lightblue :Запрос ANYWAY AWRSTEP  Step="0" ,секция Search|
-:Назначение currentStep=0;
-repeat
-#lightgreen :Заполнение реквизитов платежа\n, секция INPUTS предыдущего ответа AWASTEP<
-#lightblue :Запрос ANYWAY AWRSTEP  Step=currentStep |
+#lightblue :Запрос STEP  Step=currentStep {#step#}|
 :currentStep=currentStep+1;
 repeat while(FinalStep !=true) 
 
 else (одноходовый)
 repeat
 #lightgreen :Заполнение реквизитов платежа\n, секция ADDITIONAL ( по справочнику вендоров)<
-#lightblue :Запрос ANYWAY AWRPUPAY  Check=true|
-repeat while(Status!="Executed") 
+#lightblue :Запрос PUPAY  Check=true {#pupay#}|
+repeat while(Error!=0) 
 endif
 
 }
 partition "Финализация платежа "{
 #lightgreen :Показ финальной формы с уточненной комиссией \n, запрос подтверждения платежа<
-#lightblue :Запрос на подтверждение платежа|
+#lightblue :Запрос на подтверждение платежа{#requestotp#}|
 repeat
 #lightgreen :Экран ввода одноразового пароля \nс основными параметрами платежа<
 
-#lightblue :Запрос подтверждения одноразового пароля.\nВозращается результат проведения платежа|
+#lightblue :Запрос подтверждения одноразового пароля.\nВозращается результат проведения платежа{#finishpayment#}|
 repeat while(OTP введен правильно?) 
 if(Результат платежа) then (Успех)
 #lightgreen :Экран сообщения об успешности платеже>

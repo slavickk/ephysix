@@ -53,6 +53,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.WebEncoders;
 using Microsoft.Extensions.FileProviders;
 using static ParserLibrary.HTTPReceiver;
+using Newtonsoft.Json.Linq;
 
 
 namespace Plugins
@@ -84,7 +85,14 @@ namespace Plugins
         /// When omitted, Kestrel is not configured to use HTTPS.
         /// </summary>
         public string certSubject;
-        
+        /// <summary>
+        /// Server certificate path.
+        /// When given, enables HTTPS in Kestrel and is used to locate the certificate in the certPath.
+        /// When omitted, Kestrel is not configured to use HTTPS.
+        /// </summary>
+        public string certPath;
+        public string certPassword;
+
         /// <summary>
         /// File containing the mock response to return.
         /// If set, the receiver will return the contents of this file instead of waiting for requests.
@@ -143,7 +151,7 @@ namespace Plugins
         {
             
             Logger.log("HTTPReceiverSwagger: Creating a host to listen on the port " + port);
-            
+            var SwaggerUI_www_root_path = Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"),"wwwroot");
             // Create a new host listening on the given port
             _hostBuilder = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -196,20 +204,38 @@ namespace Plugins
 
         async Task IReceiver.start()
         {
-            if (  !string.IsNullOrEmpty(this.mockBody))
+            if (_mocMode)
             {
-                Logger.log("HTTPReceiverSwagger: Mock mode is enabled, returning the mock body " + this.mockBody);
-                await _host.signal(this.mockBody, null);
-                return;
-            }
-            
-            if (!string.IsNullOrEmpty(this.mockFile))
-            {
-                Logger.log("HTTPReceiverSwagger: Mock mode is enabled, reading the mock file " + this.mockFile);
-                var mockResponse = File.ReadAllText(this.mockFile);
-                Logger.log("HTTPReceiverSwagger: Mock response: " + mockResponse);
-                await _host.signal(mockResponse, null);
-                return;
+                if (!string.IsNullOrEmpty(this.mockBody))
+                {
+                    var item = new SyncroItem();
+                    var jsonObject = JObject.Parse(mockBody);
+
+                    // Select all Inputs where Visible is true
+                    var visibleInputs = jsonObject["SwaggerMethod"];
+                    //JsonSerializer.this.mockBody
+                        if (!(_host as Step.ReceiverHost).choosePath(item, paths, visibleInputs?.ToString()))
+                        {
+                        Logger.log("HTTPReceiverSwagger: path {} not found" ,LogEventLevel.Error,"any", visibleInputs?.ToString());
+                        return;
+
+        //                return Results.StatusCode(StatusCodes.Status404NotFound);
+
+                        }
+
+                        Logger.log("HTTPReceiverSwagger: Mock mode is enabled, returning the mock body " + this.mockBody);
+                    await _host.signal(this.mockBody, item);
+                    return;
+                }
+
+                if (!string.IsNullOrEmpty(this.mockFile))
+                {
+                    Logger.log("HTTPReceiverSwagger: Mock mode is enabled, reading the mock file " + this.mockFile);
+                    var mockResponse = File.ReadAllText(this.mockFile);
+                    Logger.log("HTTPReceiverSwagger: Mock response: " + mockResponse);
+                    await _host.signal(mockResponse, null);
+                    return;
+                }
             }
             
             // No mocks given, start the server.
@@ -235,31 +261,51 @@ namespace Plugins
                 {
                     if (address == "localhost")
                         ipAddress = IPAddress.Loopback;
+                    if (address == "any")
+                        ipAddress = IPAddress.Any;
                     else if (!IPAddress.TryParse(address, out ipAddress))
                         throw new Exception("Invalid IP address to listen on: " + address);
                 }
-                
-                if (!string.IsNullOrEmpty(certSubject))
+                if (!string.IsNullOrEmpty(certPath))
                 {
-                    Logger.log("HTTPReceiverSwagger: Configuring HTTPS with certificate subject " + certSubject);
+                    if(!File.Exists(certPath))
+                    {
+                        Logger.log("HTTPReceiverSwagger: certificate path not exists {certificatePath}", LogEventLevel.Fatal, "any", certPath);
+                        throw new Exception("Certificate path don't exists");
+                    }
+                    Logger.log("HTTPReceiverSwagger: Configuring HTTPS with certificate path " + certPath);
                     webBuilder.UseKestrel(opt =>
                         opt.Listen(ipAddress, port,
-                            options => options.UseHttps(FindMatchingCertificateBySubject(certSubject))));
+                            options => options.UseHttps(certPath,certPassword)));
                 }
                 else
                 {
-                    webBuilder.UseKestrel(opt => opt.Listen(ipAddress, port));
-                //    webBuilder.
-                    Logger.log(
-                        "HTTPReceiverSwagger: Not using HTTPS because certSubject has not been given in pipeline definition.");
-                }
-               
+
+                    if (!string.IsNullOrEmpty(certSubject))
+                    {
+                        Logger.log("HTTPReceiverSwagger: Configuring HTTPS with certificate subject " + certSubject);
+                        webBuilder.UseKestrel(opt =>
+                            opt.Listen(ipAddress, port,
+                                options => options.UseHttps(FindMatchingCertificateBySubject(certSubject))));
+                    }
+                    else
+                    {
+                        webBuilder.UseKestrel(opt => opt.Listen(ipAddress, port));
+                        //    webBuilder.
+                        Logger.log(
+                            "HTTPReceiverSwagger: Not using HTTPS because certSubject has not been given in pipeline definition.");
+                    }
+                }               
 
                 webBuilder.ConfigureServices(services =>
                 {
-                 
+
                     services.AddControllers()
-                        .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+                        .AddJsonOptions(options => 
+                        {
+                            options.JsonSerializerOptions.IgnoreNullValues = true;
+                            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); 
+                        })
                         .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(serverPart));
                     //Add Gasnikov
                     services.Configure<WebEncoderOptions>(options =>
@@ -373,7 +419,7 @@ namespace Plugins
             if (this._debugMode)
             {
                 Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", this._host.IDStep, response);
-                Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug, response);
+                Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug,"any", response);
             }
 
             if (context is ContextItem { context: SyncroItem item })
@@ -410,13 +456,14 @@ namespace Plugins
                 semaphoreItem.semaphore.Set();
             }
         }
-        public class SyncroItem
+        public class SyncroItem:HTTPReceiver.SyncroItem
         {
-            public Step initialStep = null;
+
+/*            public Step initialStep = null;
             public int srabot = 0;
             public int unwait = 0;
             public string answer="";
-            public List<KestrelServer.Header> headers = new List<KestrelServer.Header>(); 
+            public List<KestrelServer.Header> headers = new List<KestrelServer.Header>();*/ 
             public AsyncAutoResetEvent semaphore = new AsyncAutoResetEvent();
         }
         public class KestrelServer: Kestrel.KestrelServerImplement
@@ -473,7 +520,12 @@ namespace Plugins
         }
 
         bool IReceiver.cantTryParse => this.cantTryParse;
-        bool IReceiver.MocMode { get; set; }=false;
+        bool _mocMode=false;
+        bool IReceiver.MocMode 
+        {
+            get=>_mocMode;
+            set=>_mocMode=value; 
+        }
         bool IReceiver.debugMode
         {
             get => _debugMode;

@@ -13,6 +13,13 @@ using static ParserLibrary.SwaggerDef;
 using System.Text.Encodings.Web;
 using CSScripting;
 using System.Net.Http.Headers;
+using Plugins;
+using System.Drawing;
+using System.IO;
+using UniElLib;
+using System.Xml;
+using static ParserLibrary.RecordExtractor;
+using System.Text.RegularExpressions;
 
 namespace ParserLibrary
 {
@@ -210,6 +217,7 @@ namespace ParserLibrary
                     return $"{name}:{path}";
                 }
                 public string name { get; set; }
+                public string xml_namespace { get; set; } 
                 public string type { get; set; }
                 public string format { get; set; }
                 public string example { get; set; }
@@ -254,6 +262,7 @@ namespace ParserLibrary
             public enum Method { get, post, put, delete };
             public Method method { get; set; }
             public string description { get; set; }
+            public string exampleDoc { get; set; }
             public string operationId {  get; set; }
             public string summary { get; set; }
 
@@ -274,6 +283,10 @@ namespace ParserLibrary
                 public string Name { get; set; }
                 public string examplePathInput { get; set; }
                 public string examplePathOutput { get; set; }
+                public override string ToString()
+                {
+                    return $"{Name}:{provider}";
+                }
             }
                 public List<ExternalItem> externalCallItems { get; set; }
             public string externalPath { get; set; }
@@ -298,15 +311,22 @@ namespace ParserLibrary
                 foreach (var item in paths)
                 {
                     Dictionary<string,object> example = new Dictionary<string,object>();
-                    example.Add("Path", item.path.Substring(item.path.LastIndexOf('/')));
+                    example.Add("SwaggerMethod", item.path.Substring(item.path.LastIndexOf('/')));
                     List<GET.Parameter> parameters = item.inputs.Where(ii => ii.inUrl || item.method == EntryPoint.Method.get).Select(ii => new GET.Parameter() { @in = "query", schema = FormScemasItem(null,ii,example)/* new SwaggerDef.Components.Schemas.Item() { type = ii.type }*/, description = ii.description, name = ii.name, required = ii.required }).ToList();
+                    var example1 = example;
+                    if(item.inputs.Count(ii => !ii.inUrl && item.method != EntryPoint.Method.get)>0)
+                    {
+                        example1 = new Dictionary<string, object>();
+                        example.Add("body", example1);
+                    }
                     Dictionary<string, CodeRet.Content.It> dict = new Dictionary<string, CodeRet.Content.It>();
                     foreach (var item1 in item.inputs.Where(ii => !ii.inUrl && item.method != EntryPoint.Method.get))
                     {
                         dict.Add(item1.name, new CodeRet.Content.It());
                     }
                     var reqBodyCond = item.inputs.Where(ii => !ii.inUrl && item.method != EntryPoint.Method.get);
-                    FormScemasVars(scemas_items, item, reqBodyCond, "Req",example);
+                    FormScemasVars(scemas_items, item, reqBodyCond, "Req",example1);
+                    //777
                     item.exampleJsonInput = Newtonsoft.Json.JsonConvert.SerializeObject(example);
                     example.Clear();
                     FormScemasVars(scemas_items, item, item.outputs, "Resp", example);
@@ -491,7 +511,19 @@ namespace ParserLibrary
             public class DefinitionItem
             {
                 public string key { get; set; }
+                public string newName { get; set; }
                 public string path { get; set; }
+                public string old_path { get; set; }
+
+                public string xml_prefix { get; set; }
+                public string xml_namespace { get; set; }
+                public string clearPath
+                {
+                    get
+                    {
+                        return string.Join('/', path.Split('/').Select(ii => ii.Substring(ii.IndexOf(':') + 1)));
+                    }
+                }
                 public string description { get; set; }
                 public string type { get; set; }
                 public string format { get; set; }
@@ -514,10 +546,296 @@ namespace ParserLibrary
             public List<DefinitionItem> definitionItems { get; set; }= new List<DefinitionItem>();
         }
 
+        string getFullStepPath(Step step, string init = "")
+        {
+            string retValue ="STEPS/"+ step.IDStep + "/" + init;
+          /*  if (!string.IsNullOrEmpty(step.IDPreviousStep))
+                return getFullStepPath(step.owner.steps.First(ii => ii.IDStep == step.IDPreviousStep), retValue);*/
+            return retValue;
+        }
+        string convert(string path, string ResponseType)
+        {
+            if (ResponseType == "text/xml")
+                return path.Replace("@", "-") + "/#text";
+            return path.Replace("@", "-");
+        }
+        string getFullName(OpenApiDef.EntryPoint.Parameter parameter, string init = "")
+        {
+            string retValue = parameter.name + ((init == "") ? "" : "/") + init;
+            if (parameter.ancestor != null)
+                retValue = getFullName(parameter.ancestor, retValue);
+            return retValue;
+        }
+        public static List<AbstrParser.UniEl> parseContent(string line)
+        {
+            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+            AbstrParser.UniEl root = new AbstrParser.UniEl();
+            list.Add(root);
+            root.Name = "Root";
+            if (AbstrParser.getApropriateParser("aa", line, root, list, false))
+                return list;
+            return null;
 
-   
+        }
+
+        public void SavePipeline(string newPath,string templatePath,List<OpenApiDef.EntryPoint.InputParameter> reqProperties, List<OpenApiDef.EntryPoint.Parameter> respProperties, string swaggerJsonPath, List<OutputValue> addCollect, OpenApiDef.EntryPoint currentEntryPoint = null)
+        {
+            //var doc = await NSwag.OpenApiDocument.FromFileAsync(swaggerJsonPath);
+            /* NSwag.OpenApiParameter
+             NSwag.OpenApiExample openApi= new NSwag.OpenApiExample() { }*/
+            string initialPath = newPath;
+            bool isNew = false;
+            if (!File.Exists(initialPath))
+            {
+                initialPath = templatePath;
+                isNew = true;
+            }
+            Pipeline pip = Pipeline.load(initialPath, null);
+            var receiver = pip.steps.First().ireceiver as HTTPReceiverSwagger;
+            receiver.swaggerSpecPath = swaggerJsonPath;
+            if (receiver.paths == null)
+                receiver.paths = new List<HTTPReceiver.PathItem>();
+            pip.xmlNameSpaces=XmlParser.namespaces;
+            List<OpenApiDef.EntryPoint> founded = new List<OpenApiDef.EntryPoint>();
+            if (currentEntryPoint != null)
+                founded.Add(currentEntryPoint);
+            else
+                founded.AddRange(this.paths);
+            string prevPath = "";
+            foreach (var path in founded)
+            {
+                var firstStep = pip.steps.First();
+                // firstStep.ireceiver.
+                foreach (var entry in path.externalCallItems)
+                {
+                    var IDStep0 = $"Step_{path.path.Substring(path.path.LastIndexOf("/") + 1)}_0_{entry.Name}";
+                    var step0 = pip.steps.FirstOrDefault(ii => ii.IDStep == IDStep0);
+                    bool isNewStep0=false,isNewStep1=false;
+                    if (step0 == null)
+                    {
+                        isNewStep0 = true;
+                        step0 = new Step() {  description="Прием входящего запроса",IDStep = IDStep0, IDPreviousStep = (entry == path.externalCallItems.First()) ? "Step_0" : prevPath, filterCollection = new List<Step.ItemFilter>() { new Step.ItemFilter() { Name = "filt1", condition = new ConditionFilter() { conditionPath = "STEPS/Step_0/Rec", conditionCalcer = new ComparerAlwaysTrue() } } } };
+                        receiver.paths.Add(new HTTPReceiver.PathItem() { Path = path.path.Substring(path.path.LastIndexOf("/")), Step = step0.IDStep });
+                        List<Step> llist = new List<Step>();
+                        llist.AddRange(pip.steps);
+                        llist.Add(step0);
+                        pip.steps = llist.ToArray();
+                        step0.owner = pip;
+                        if (!string.IsNullOrEmpty(entry.examplePathInput))
+                        {
+                            var newSender = new HTTPSender();
+                            step0.sender = newSender;
+                            if (Path.GetExtension(entry.examplePathInput) == ".xml")
+                                newSender.ResponseType = "text/xml";
+                            else
+                                newSender.ResponseType = "text/json";
+                            newSender.MocFile = entry.examplePathOutput;
+                            newSender.description = entry.provider;
+                            pip.steps.First().ireceiver.MocBody = path.exampleJsonInput;
+                            //var it = doc.Paths[path.path];
+                            //  it.Values.First()..Parameters
+
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(entry.examplePathInput))
+                        pip.steps.First().ireceiver.MocBody = path.exampleJsonInput;
+
+                    var IDStep1 = $"Step_{path.path.Substring(path.path.LastIndexOf("/") + 1)}_1_{entry.Name}";
+
+                    var step1 = pip.steps.FirstOrDefault(ii => ii.IDStep == IDStep1);
+                    if (step1 == null)
+                    {
+                        isNewStep1 = true;
+                        step1 = new Step() {description="Отправка ответа на запрос", IDStep = IDStep1, IDResponsedReceiverStep = "Step_0", IDPreviousStep = IDStep0, filterCollection = new List<Step.ItemFilter>() { new Step.ItemFilter() { Name = "filt1", condition = new ConditionFilter() { conditionPath = "STEPS/Step_0/Rec", conditionCalcer = new ComparerAlwaysTrue() } } } };
+                        List<Step> llist = new List<Step>();
+                        llist.AddRange(pip.steps);
+                        llist.Add(step1);
+                        pip.steps = llist.ToArray();
+                        step1.owner = pip;
+                    }
+                    if (isNewStep0)
+                    {
+                        var outputCollect0 = step0.filterCollection.First().outputFields = new List<OutputValue>();
+                        Dictionary<string, string> examples = new Dictionary<string, string>();
+                        foreach (var item in getExamplesFromXML(entry.examplePathInput, null))
+                        {
+                            examples.Add(item.Key, item.Value);
+                            // listViewInput.Items.First(ii => ii.path == item.Key).example = item.Value;
+                        }
+
+
+                        foreach (var out1 in addCollect)
+                        {
+                            string example;
+                            if ((out1 is ConstantValue) && examples.TryGetValue(out1.outputPath, out example))
+                                (out1 as ConstantValue).Value = example;
+                            out1.outputPath = convert(out1.outputPath, (step0.sender as HTTPSender).ResponseType);
+                        }
+
+                        outputCollect0.AddRange(addCollect);
+
+                        foreach (var item in /*reqProperties*/path.inputs.Where(ii => ii.externalItemName == entry.Name))
+                        {
+                            outputCollect0.Add(new ExtractFromInputValue() { alwaysInArray = item.repeateable, isExported = true, isUniqOutputPath = !item.repeateable, returnOnlyFirstRow = !item.repeateable, copyChildsOnly = item.repeateable, conditionPath = "STEPS/Step_0/Rec/"+(!item.inUrl?"body/":"") + getFullName(item), outputPath = convert(item.path, (step0.sender as HTTPSender).ResponseType) });
+                        }
+
+                        using (StreamReader sr = new StreamReader(entry.examplePathInput/* @"C:\Users\jurag\Downloads\Telegram Desktop\RespProviders.xml"*/))
+                        {
+                            var paths = parseContent(sr.ReadToEnd()).getOutputPaths1();
+                            var existingPath = outputCollect0.Where(ii => ii != null).Select(ii => ii.outputPath).ToList();
+                            var dict = existingPath.Where(ii => ii.IndexOf(':') >= 0).ToDictionary(x => x.Substring(x.IndexOf(':')), x => x.Substring(0, x.IndexOf(':') - 1));
+                            for(int i=0; i <outputCollect0.Count;i++)
+                            {
+                                var it1 = outputCollect0[i];
+                                foreach( var it3 in it1.outputPath.Split('/'))
+                                {
+                                    int index=it3.IndexOf(":");
+                                    if (index >= 0)
+                                    {
+                                        string value;
+                                        if(dict.TryGetValue(it3.Substring(index), out value ))
+                                        {
+              //                              outputCollect0[i].outputPath= outputCollect0[i].outputPath.Replace()
+                                        }
+                                    }
+                                }
+                            }
+                            foreach (var it in paths)
+                                if (existingPath.Count(ii=>ii==it.Path) ==0 )
+                                    outputCollect0.Insert(0,new ConstantValue() { outputPath = it.Path, Value = it.Value, isUniqOutputPath = false });
+                            // listBox1.Items.Add(it);
+                        }
+
+                        step0.filterCollection.First().outputFields = outputCollect0.OrderBy(ii => ii.outputPath).ToList();
+                    }
+                    if (isNewStep1)
+                    {
+                        var outputCollect1 = step1.filterCollection.First().outputFields = new List<OutputValue>();
+                        foreach (var item in /*respProperties*/path.outputs.Where(ii => ii.externalItemName == entry.Name))
+                        {
+                            if (item.name == "Operator")
+                            {
+                                int yy = 0;
+                            }
+                            outputCollect1.Add(new ExtractFromInputValue() { alwaysInArray = item.repeateable, isExported = true, isUniqOutputPath = !item.repeateable, returnOnlyFirstRow = !item.repeateable, copyChildsOnly = item.repeateable, conditionPath = getFullStepPath(step1) + "Rec/" + convert(item.path, item.repeateable ? "text/json" : "text/xml"), outputPath =/*"Step_0/Ans/"+*/ getFullName(item) });
+                        }
+                        step1.filterCollection.First().outputFields = outputCollect1.OrderBy(ii => ii.outputPath).ToList();
+                        step1.filterCollection.First().transformOutputField();
+                    }
+                    prevPath = IDStep0;
+                    string serviceNameInUml = "Сервис платежей";
+                    //Generate PlantUMLScema
+                    var last = path.PlantUMLTemplate?.getLastChild(serviceNameInUml);
+                    List<PlantUMLItem.Link> list = new List<PlantUMLItem.Link>();
+                    if (last != null)
+                    {
+                        if (step0.sender.cacheTimeInMilliseconds != 0)
+                            list.Add(new PlantUMLItem.Link() { children = new PlantUMLItem() { Name = "REDIS" }, NameRq = "Запрос в кэш" + entry.Name, NameRp = "Данные из кэша" });
+                        list.Add(new PlantUMLItem.Link() { children = new PlantUMLItem() { Name = step0.sender.description }, NameRq = ((step0.sender.cacheTimeInMilliseconds != 0) ? "Кеш пустой." : "") + "Запрос " + entry.Name, NameRp = "Возврат результата" });
+                        var thisUml = new PlantUMLItem() { Name = serviceNameInUml, color = "#00FF00", links = list };
+                        last.links = new List<PlantUMLItem.Link>() { new PlantUMLItem.Link() { children = thisUml } };
+                    }
+                    using (StreamWriter sw = new StreamWriter($"C:\\Users\\jurag\\source\\repos\\ephysix\\ParserLibrary\\Plugins\\SwaggerUIData\\PlantUML\\{path.path.Substring(path.path.LastIndexOf('/') + 1)}.puml"))
+                    {
+                        sw.WriteLine(PlantUMLItem.getUML(path.summary, new PlantUMLItem[] { path.PlantUMLTemplate }));
+                    }
+                }
+
+
+            }
+            pip.Save(newPath, null);
+        }
+
+        string getClearPath(string path)
+        {
+          //  string input = "/aa:bb/cc:dd/ff:ee";
+
+            // Regular Expression
+            string pattern = @"\/[^:]+:([^\/]+)";
+
+            // Replace the matched groups
+            string result = Regex.Replace(path, pattern, "/$1");
+
+            pattern = @"[^:]+:([^\/]+)(?:\/[^:]+:)?([^\/]+)(?:\/[^:]+:)?([^\/]+)?";
+
+            // Replace the matched groups
+            result = Regex.Replace(path, pattern, "$1/$2/$3").Trim('/').Replace("//","/");
+
+            return result;
+         }
+        public  Dictionary<string, string> getExamplesFromXML(string path, List<string> paths)
+        {
+            Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
+            try
+            {
+                XmlDocument xml = new XmlDocument();
+                xml.Load(path);
+                enumerableNodes(xml.DocumentElement, null, paths, keyValuePairs, "");
+            }
+            catch
+            {
+
+            }
+            return keyValuePairs;
+        }
+        void enumerableNodes(XmlNode node, XmlNode parentNode, List<string> paths, Dictionary<string, string> keyValuePairs, string prevPath)
+        {
+            var nodeName = node.Name;
+            if (node.GetType() == typeof(XmlAttribute))
+                nodeName = "@" + ((XmlAttribute)node).Name;
+            var retValue = prevPath + ((node.GetType() != typeof(XmlAttribute) && node.ParentNode.Name == "#document") ? nodeName : ("/" + nodeName));
+            if ((paths == null || paths.Contains(retValue)) && !keyValuePairs.TryGetValue(retValue, out string value) /*&& !node.HasChildNodes*/)
+            {
+                if (node.GetType() == typeof(XmlAttribute))
+                {
+                    int yy = 0;
+                }
+                keyValuePairs.Add(retValue, node.InnerText);
+            }
+            if (node.GetType() == typeof(XmlAttribute))
+            {
+                //   enumerableNodes(parentNode, parentNode.ParentNode, paths, keyValuePairs, retValue);
+
+            }
+            else
+            {
+                /*  if (node.ParentNode.Name != "#document")
+                      enumerableNodes(node.ParentNode, node.ParentNode.ParentNode, paths, keyValuePairs, retValue);*/
+            }
+            foreach (XmlNode node2 in node.ChildNodes)
+            {
+                if (node2.GetType() != typeof(XmlText))
+                    enumerableNodes(node2, node, paths, keyValuePairs, retValue);
+                //getAllPaths(node2, node, list);
+            }
+            if (node.Attributes != null)
+            {
+                foreach (XmlNode node2 in node.Attributes/*.ChildNodes*/)
+                {
+                    if (node2.Name == "OperatorCode")
+                    {
+                        int y = 0;
+                    }
+                    enumerableNodes(node2, node, paths, keyValuePairs, retValue);
+                }
+            }
+        }
+
 
     }
-
+    public static class AnyHelper
+    {
+        public static List<(string Path, string Value)> getOutputPaths1(this List<AbstrParser.UniEl> list)
+        {
+            List<(string, string)> retValue = new List<(string, string)>();
+            foreach (AbstrParser.UniEl ele in list)
+            {
+                var path = ele.path.Replace("Root/", "");
+                if (ele.childs?.Count == 0 && retValue.Count(ii => ii.Item1 == path) == 0)
+                    retValue.Add((path, ele.Value.ToString()));
+            }
+            return retValue;
+        }
+    }
 
 }

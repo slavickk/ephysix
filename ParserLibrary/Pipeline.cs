@@ -40,6 +40,9 @@ using Plugins;
 using UniElLib;
 using DotLiquid;
 using System.Xml.Linq;
+using Parlot.Fluent;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ParserLibrary;
 
@@ -167,7 +170,7 @@ public class Pipeline:ILiquidizable
             if (step.sender != null && string.IsNullOrEmpty(step.IDResponsedReceiverStep))
             {
                 var testableSender = step.sender as ISelfTested;
-                if (testableSender != null)
+                if (testableSender != null && !step.sender.MocMode)
                 {
 
                     var res1 = await testableSender.isOK();
@@ -272,9 +275,28 @@ public class Pipeline:ILiquidizable
 
     public const int keyLength = 256;
     private static string initialisationVector = "26744a68b53dd87b";
-
+    public ConcurrentDictionary<string, string> xmlNameSpaces= new ConcurrentDictionary<string, string>();
+    bool alreadyInit = false;
     public async Task run()
     {
+        if(xmlNameSpaces.Count>0)
+        {
+            XmlParser.namespaces = xmlNameSpaces;
+            XmlParser.isCorrectedNamespace = true;
+        }
+        if (!alreadyInit)
+        {
+            EmbeddedFunctions.Init();
+            if (EmbeddedFunctions.cacheProvider == null)
+            {
+                var services = new ServiceCollection();
+                services.AddDistributedMemoryCache();
+                var provider = services.BuildServiceProvider();
+                EmbeddedFunctions.cacheProvider = provider.GetRequiredService<IDistributedCache>();// (typeof(IDistributedCache)) as IDistributedCache;
+
+            }
+            alreadyInit = true;
+        }
         traceSaveDirectoryStat = traceSaveDirectory;
         var activity = Activity.StartActivity("Process Message", ActivityKind.Consumer);
 
@@ -399,12 +421,12 @@ public class Pipeline:ILiquidizable
             this.deserializer = deserializer;
         }
 
-        bool INodeDeserializer.Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value)
+        public bool Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value, ObjectDeserializer rootDeserializer)
         {
             var scalar = parser.Peek<Scalar>();
             if (scalar != null && scalar.Tag == "!include")
             {
-                var ext=Path.GetExtension(scalar.Value);
+                var ext = Path.GetExtension(scalar.Value);
                 if (ext == ".yml" || ext == ".yaml")
                 {
                     using (var sr = new StreamReader(Path.Combine(Pipeline.basepath, scalar.Value)))
@@ -413,7 +435,7 @@ public class Pipeline:ILiquidizable
                         //      var body = sr.ReadToEnd();
 
                         //Console.WriteLine(expectedType.FullName);
-           //             value = deserializer.Deserialize(new Parser(sr), expectedType);
+                        //             value = deserializer.Deserialize(new Parser(sr), expectedType);
                         value = deserializer.Deserialize<Step>(new Parser(sr));
                         parser.MoveNext();
                         return true;
@@ -435,18 +457,57 @@ public class Pipeline:ILiquidizable
                 }
                 // scalar.Value
                 // Replace this line with code that opens the file from scalar.Value
-  /*              using (var includedFile = new System.IO.StringReader("two"))
-                {
-                    Console.WriteLine(expectedType.FullName);
-                    value = deserializer.Deserialize(new Parser(includedFile), expectedType);
-                    parser.MoveNext();
-                    return true;
-                }*/
+                /*              using (var includedFile = new System.IO.StringReader("two"))
+                              {
+                                  Console.WriteLine(expectedType.FullName);
+                                  value = deserializer.Deserialize(new Parser(includedFile), expectedType);
+                                  parser.MoveNext();
+                                  return true;
+                              }*/
             }
 
             value = null;
             return false;
         }
+/*
+        bool INodeDeserializer.Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value)
+        {
+            var scalar = parser.Peek<Scalar>();
+            if (scalar != null && scalar.Tag == "!include")
+            {
+                var ext=Path.GetExtension(scalar.Value);
+                if (ext == ".yml" || ext == ".yaml")
+                {
+                    using (var sr = new StreamReader(Path.Combine(Pipeline.basepath, scalar.Value)))
+                    {
+
+                        value = deserializer.Deserialize<Step>(new Parser(sr));
+                        parser.MoveNext();
+                        return true;
+                    }
+
+                }
+                else
+                {
+                    using (var sr = new StreamReader(Path.Combine(Pipeline.basepath, scalar.Value)))
+                    {
+
+                        value = sr.ReadToEnd();
+
+                        //Console.WriteLine(expectedType.FullName);
+                        //value = deserializer.Deserialize(new Parser(includedFile), expectedType);
+                        parser.MoveNext();
+                        return true;
+                    }
+                }
+                // scalar.Value
+                // Replace this line with code that opens the file from scalar.Value
+            }
+
+            value = null;
+            return false;
+        }
+*/    
     }
    static TracerProvider tracerBuilder = null;
 
@@ -505,6 +566,20 @@ public class Pipeline:ILiquidizable
     }
     static List<occurencyItem> occurencyItems= new List<occurencyItem>()   ;
 
+
+    public void SetMocModeForSenders(string[] stepNames)
+    {
+        foreach(var name in stepNames)
+        {
+            var step=steps.FirstOrDefault(ii => ii.IDStep == name);
+            if(step != null)
+            {
+                if (step.sender != null)
+                    step.sender.MocMode = true;
+
+            }
+        }
+    }
 
     static List<(string oldValue, string newValue)> replacement = new List<(string oldValue, string newValue)> { { ("converters:", "filterCollection:") }, { ("filter:", "condition:") } };
     public static Pipeline loadFromString(string Body,Assembly assembly)

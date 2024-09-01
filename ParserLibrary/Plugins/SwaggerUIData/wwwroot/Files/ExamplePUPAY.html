@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+	    <meta charset="UTF-8" />
+	        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" integrity="sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-SkmBfuA2hqjzEVpmnMt/LINrjop3GKWqsuLSSB3e7iBmYK7JuWw4ldmmxwD9mdm2IRTTi0OxSAfEGvgEi0i2Kw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body><h1 id="section">Пример выполнения одношагового запроса</h1>
+<h3 id="section-1">Выбираем оплату по вендору со следующим описанием</h3>
+<pre><code class="language-json">{
+        "operator": [
+          {
+            "operatorCode": "DBO||51",
+            "name_RU": "ТСЖ Снайперов, 3",
+
+            "param": [
+              {
+                "name": "ZDOKID",
+                "title": "Идентификатор платежного документа",
+                "regularExpression": "^.{1,18}$ ",
+                "required": "0",
+                "direction": "0",
+                "type": "String",
+                "interfaceType": "%String2Rus",
+                "mask": "18*",
+                "noPTValue": false,
+                "npp": 0,
+                "rawLength": 0
+              },
+              {
+                "name": "ZPHONE",
+                "title": "Контактный телефон",
+                "direction": "0",
+                "type": "String",
+                "noPTValue": false,
+                "npp": 0,
+                "comment": "Введите свой контактный телефон",
+                "rawLength": 0
+              },
+              {
+                "name": "ACCOUNT",
+                "title": "Номер лицевого счета",
+                "direction": "0",
+                "type": "String",
+                "noPTValue": false,
+                "npp": 0,
+                "rawLength": 0
+              },
+              {
+                "name": "PERIOD",
+                "title": "Период платежа",
+                "direction": "0",
+                "type": "String",
+                "noPTValue": false,
+                "npp": 0,
+                "rawLength": 0
+              },
+              {
+                "name": "ADR",
+                "title": "Адрес",
+                "direction": "0",
+                "type": "String",
+                "noPTValue": false,
+                "npp": 0,
+                "comment": "Адрес места регистрации / пребывания",
+                "rawLength": 0
+
+              }
+            ],
+            "multiCheck": "false",
+            "through": "PDOG||51",
+            "additionalProperties": {
+              "ChequeName": "ПОЛУЧАТЕЛЬ Товарищество собственников жилья \"Снайперов, 3\"\r\nИНН 5905239066\r\nКПП 590501001\r\nСЧЕТ 40703810700000000202\r\nАО КБ \"УРАЛ ФД\"\r\nБИК 045773790\r\nКОР.СЧЕТ 40703810700000000202\r\nВИД ПЛАТЕЖА ПЛАТЕЖИ ФИЗ.ЛИЦ ЗА УСЛУГИ ТСЖ \"СНАЙПЕРОВ, 3\".\r\n",
+              "Group": "false",
+              "IsAutoPayBilling": "true",
+              "IsBilling": "false",
+              "IsSupportRequestRSTEP": "false",
+              "Lock": "false",
+              "Mrlist": "false",
+              "Name_RU": "ТСЖ Снайперов, 3",
+              "NoSavePT": "false",
+              "OperatorCode": "DBO||51",
+              "Senior": "DBO||TSG",
+              "Synonym": "5905239066"
+            }
+          }
+        ]
+      }</code></pre><h3 id="section-2">Экран для ввода параметров платежа</h3>
+<img src="/Files/PictPYPAYID1S.svg"/>
+<h3 id="section-3">Запрос на проверку реквизитов и расчет комиссии</h3>
+<pre><code class="language-json">{
+        "ADDITIONAL": [
+          {
+            "FIELDNAME": "ZDOKID",
+            "FIELDID": "1",
+            "FIELDVALUE": "10"
+          },
+          {
+            "FIELDNAME": "ZPHONE",
+            "FIELDID": "2",
+            "FIELDVALUE": "10"
+          },
+          {
+            "FIELDNAME": "ACCOUNT",
+            "FIELDID": "3",
+            "FIELDVALUE": "10"
+          },
+          {
+            "FIELDNAME": "PERIOD",
+            "FIELDID": "4",
+            "FIELDVALUE": "10"
+          },
+          {
+            "FIELDNAME": "ADR",
+            "FIELDID": "5",
+            "FIELDVALUE": "Адрес"
+          }
+        ],
+        "A": "1000",
+        "CUR": "RUB",
+        "PUREF": "DBO||53",
+        "cardId": "A123408767"
+      }</code></pre><h3 id="section-4">Ответ с комиссией</h3>
+<pre><code class="language-json">{
+        "ABSMessage": "Обработали",
+        "Error": "0",
+        "AddInfo": "Платеж проведен через ПС PDOGРеквизиты получателя Дзержинская районная организация Пермской краевой организации общероссийской общественной организации \"Всероссийское общество инвалидов\" ; ИНН 5903011429 ; Р/с 40703810949490050947  в Волго-Вятский банк ПАО \"Сбербанк России\" Г. Нижний Новгород БИК 042202603",
+        "AddInfoKey": "ADDINFO",
+        "AcquireFee": "",
+        "VendorFee": "",
+        "AgentFee": "27.5",
+        "ID": "32222303082024",
+        "AnsDateTime": "2024-08-03T15:32:50"
+      }</code></pre><h3 id="section-5">Экран подтверждения платежа</h3>
+<img src="/Files/PictPYPAYID4.svg"/>
+	<script src="/themes/prism.js"></script>
+</body>
+</html>

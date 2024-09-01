@@ -1,0 +1,52 @@
+@startuml
+title = Проверить подпись и провести платеж
+actor "Клиент"              as Item1  order 10 
+participant "Фронт"              as Item2  order 20 
+participant "СОР"              as Item3  order 30 
+participant "Сервис платежей"              as Item4  order 40 #00FF00
+participant "Редис"              as Item5  order 50 
+participant "Сервис генерации и проверки подписи"              as Item6  order 60 
+participant "Сервис списания"              as Item7  order 70 
+participant "AnyWay"              as Item8  order 80 
+participant "Сервис сохранения\n истории операций"              as Item9  order 90 
+  activate Item1 
+  activate Item2 
+  Item1 -> Item2 : Отправка ОТП
+  activate Item3 
+  Item2 -> Item3 : Запрос на проверку подписи\nпроведение платежа
+  activate Item4 #00FF00
+  Item3 -> Item4 : Запрос на проверку подписи\nпроведение платежа
+  activate Item5 
+  Item4 -> Item5 : Сохранение параметров платежа
+  Item5 -> Item5
+  Item5 --> Item4 : Результат сохранения
+  deactivate Item5
+  activate Item6 
+  Item4 -> Item6 : Проверка подписи и OTP
+  Item6 -> Item6
+  Item6 --> Item4 : Результат проверки
+  deactivate Item6
+  activate Item7 
+  Item4 -> Item7 : Запрос на списание
+  Item7 -> Item7
+  Item7 --> Item4 : Результат списания
+  deactivate Item7
+  activate Item8 
+  Item4 -> Item8 : Запрос на проведение платежа\n AWRPUPAY AHEAD/@Check=False
+  Item8 -> Item8
+  Item8 --> Item4 : Результат платежа\n AWAPUPAY AWANSWER/@Status
+  deactivate Item8
+  activate Item9 
+  Item4 -> Item9 : Запрос на сохранение\n в истории операций 
+  Item9 -> Item9
+  Item9 --> Item4 : Результат сохранения
+  deactivate Item9
+  Item4 --> Item3 : Результат проведения платежа
+  deactivate Item4
+  Item3 --> Item2 : Результат проведения платежа
+  deactivate Item3
+  Item2 --> Item1 : Результат проведения платежа
+  deactivate Item2
+  deactivate Item1
+@enduml
+

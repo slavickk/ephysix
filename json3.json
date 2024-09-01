@@ -1,160 +1,87 @@
 {
-  "type": "table",
-  "id": "Vars",
-  "header": {
-    "position": {
-      "left": 190,
-      "top": 90
-    },
-    "size": {
-      "width": 290,
-      "height": 500
-    },
-    "caption": "ETL params",
-    "description": "ETL params description",
-    "zone_name": "Zone name",
-    "zone_type": "Zone type"
-  },
-  "AppData": {
-    "tableId": 550079,
-    "conditions": [],
-    "tableExistedId": null,
-    "relation": null,
-    "depth": null
-  },
-  "body": {
-    "header": [
-      { "value": "Name" },
-      { "value": "Type" }
-    ],
-    "rows": [
+  "ABSMessage": "",
+  "Error": "0",
+  "Name": "Билайн БК без комиссии д/б",
+  "FullName": "",
+  "Fields": {
+    "Field": [
       {
-        "columns": [
-          {
-            "item": {
-              "caption": "pan",
-              "box_id": "pan_2",
-              "box_links": [
-                {
-                  "link": {
-                    "typelink": 2,
-                    "box_id": "Table_card:id_operuuid"
-                  }
-                },
-                {
-                  "link": {
-                    "typelink": 2,
-                    "box_id": "Table_account:id_operuuid"
-                  }
-                },
-                {
-                  "link": {
-                    "typelink": 2,
-                    "box_id": "Table_customer:id_operuuid"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "item": {
-              "caption": "String",
-              "box_id": "pan",
-              "box_links": [
-                {
-                  "link": {
-                    "typelink": 2,
-                    "box_id": "dummySystem2_GetCardInfo:Params/PAN",
-                    "points": {
-                      "x": 10,
-                      "y": 0
-                    }
-                  }
-                },
-                {
-                  "link": {
-                    "typelink": 2,
-                    "box_id": "Table_card:id_pan"
-                  }
-                }
-              ]
-            }
+        "FieldTable": {
+          "Col": {
+            "Row": {
+              "N": "",
+              "ID": ""
+            },
+            "ID": "",
+            "Name": "",
+            "Visible": ""
           }
-        ],
-        "tooltip_info": {
-          "name": "Name",
-          "description": "Description",
-          "type": "Data type"
-        }
-      },
-      {
-        "columns": [
-          {
-            "item": {
-              "caption": "Conditions",
-              "colspan": 2,
-              "style": "padding: 5px 30px;border-top: 1px solid var(--grey-10); border-bottom: none; background: var(--global-white);vertical-align: top;border-bottom-right-radius: 0;border-bottom-left-radius: 0; font: var(--font-h3-semibold-14);"
-            }
-          }
-        ]
-      },
-      {
-        "columns": [
-          {
-            "item": {
-              "caption": "OriginalTime\u003E@DateFrom",
-              "box_id": "cond_or",
-              "colspan": 2,
-              "style": "padding: 5px 30px;background: var(--global-white);vertical-align: top;border-radius:0; border-top: none; border-bottom: none;",
-              "box_links": [
-                {
-                  "link": {
-                    "typelink": 2,
-                    "box_id": "Table_card:id_operuuid"
-                  }
-                },
-                {
-                  "link": {
-                    "typelink": 2,
-                    "box_id": "Table_account:id_operuuid"
-                  }
-                },
-                {
-                  "link": {
-                    "typelink": 2,
-                    "box_id": "Table_customer:id_operuuid"
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      },
-      {
-        "columns": [
-          {
-            "item": {
-              "caption": "OriginalTime\u003E@DateTo",
-              "box_id": "cond_to",
-              "colspan": 2,
-              "style": "padding: 5px 30px;background: var(--global-white);vertical-align: top;border-bottom: 1px solid var(--grey-10); border-top:none; border-top-right-radius: 0;border-top-left-radius: 0;"
-            }
-          }
-        ]
-      },
-      {
-        "columns": [
-          {
-            "item": {
-              "caption": "New Field",
-              "box_id": "new-item-connector",
-              "colspan": 2,
-              "valid_link_type": [ 3 ],
-              "style": "position: relative;\n    box-sizing: border-box;\n    width: calc(100% - 20px);\n    height: 30px;\n    padding: 5px 30px;\n    margin: 0px auto;\n    border-radius: 8px;\n    border: 1px dashed var(--grey-10);\n    background: var(--grey-1);"
-            }
-          }
-        ]
+        },
+        "ID": "",
+        "Name": "",
+        "Type": "",
+        "Visible": ""
       }
     ]
-  }
+  },
+  "Input": [
+    {
+      "Col": "",
+      "ID": "transactionId",
+      "Order": 1,
+      "Type": "Input",
+      "DataType": "%String",
+      "Print": true,
+      "ReadOnly": true,
+      "Visible": false,
+      "Req": false
+    },
+    {
+      "Col": "",
+      "ID": "a3_NUMBER_1_2",
+      "Order": 2,
+      "Name": "Номер телефона (без +7):",
+      "Type": "Input",
+      "DataType": "%String",
+      "Hint": "Пример: 9051111111",
+      "Mask": "",
+      "RegExp": "^\\d{10}$",
+      "RightNum": 0,
+      "Note": "Номер телефона должен содержать 10 цифр.",
+      "Print": true,
+      "ReadOnly": false,
+      "Visible": true,
+      "Req": false
+    },
+    {
+      "Col": "",
+      "ID": "a3_AMOUNT_2_2",
+      "Order": 2,
+      "Name": "Сумма, руб.:",
+      "Type": "Input",
+      "DataType": "%Numeric",
+      "Hint": "Пример: 1234.12",
+      "Mask": "",
+      "RegExp": "^\\d{10}$",
+      "RightNum": 0,
+      "Note": "Номер телефона должен содержать 10 цифр.",
+      "Print": true,
+      "ReadOnly": false,
+      "Visible": true,
+      "Req": true
+    }
+  ]
+  ,
+  "Sums": {
+    "SumSTrs": "200",
+    "Fee": "0",
+    "AWGWFee": "0",
+    "AcquireFee": "0",
+    "PaymentCurrency": ""
+  },
+  "Step": 2,
+  "FinalStep": "",
+  "ID": "AWGW579843",
+  "Type": "AWASTEP",
+  "AnsDateTime": "2024-08-13T20:31:22"
 }

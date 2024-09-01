@@ -51,6 +51,11 @@ namespace ParserLibrary.Tests
             return new string[] { (Convert.ToDouble(params1[0]) / 1000).ToString() };
         }
         [Test]
+        public void test5()
+        {
+            var res=Transliteration.Front("У попа была собака");
+        }
+        [Test]
         public void TestTransformer()
         {
             var tr1 = new RegexpTransformer();

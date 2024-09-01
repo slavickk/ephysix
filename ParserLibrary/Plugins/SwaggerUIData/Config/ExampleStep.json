@@ -1,0 +1,185 @@
+{
+  "ID": "Example1",
+  "Caption": "Пример выполнения многошагового запроса",
+  "steps": [
+    {
+      "$type": 1,
+      "canDraw": true,
+      "PlantText": "@startsalt\r\n{+\r\nskinparam handwritten true\r\n\r\n  <color:Blue>Выберите услугу\r\n Услуга | ^Билайн БК  д/б^\r\n| [  Начать оплату ]\r\n\r\n}\r\n@endsalt",
+      "ID": "ID1",
+      "Caption": "Макет ( драфт ) экрана выбор услуги"
+    },
+    {
+      "$type": 4,
+      "canDraw": false,
+      "Template": "@startsalt\r\n{+\r\nskinparam handwritten true\r\n\r\n  Услуга:<color:Blue>Билайн БК  д/б\r\n\r\n Номер телефона (без +7):|\"<color:#9a9a9a>9206526152\"\r\n Сумма, руб.:|\"<color:#9a9a9a>1000  \"\r\nСумма к оплате: 1000.00руб.\r\nКомиссия: 0.00руб.\r\n| [  Начать оплату   ]\r\n}\r\n@endsalt",
+      "ID": "ID1S",
+      "Caption": "Макет ( тестовый )"
+    },
+
+    {
+      "$type": 3,
+      "json": {
+        "PUREF": "PDOG||1228",
+        "Step": "1",
+        "customerId": "A123408767",
+        "CUR": "RUB"
+      },
+      "canDraw": true,
+      "ID": "Id2",
+      "Caption": "На первом шаге идентификатор операции не задается , возвращается в ответе"
+    },
+    {
+      "$type": 3,
+      "json": {
+        "ABSMessage": "",
+        "Error": "0",
+        "Name": "Билайн БК  д/б",
+        "FullName": "",
+        "Input": [
+          {
+            "Col": "",
+            "ID": "transactionId",
+            "Order": 1,
+            "Type": "Input",
+            "DataType": "%String",
+            "Print": true,
+            "ReadOnly": true,
+            "Visible": false,
+            "Req": false
+          },
+          {
+            "Col": "",
+            "ID": "a3_NUMBER_1_2",
+            "Order": 2,
+            "Name": "Номер телефона (без +7):",
+            "Type": "Input",
+            "DataType": "%String",
+            "Hint": "Пример: 9051111111",
+            "Mask": "",
+            "RegExp": "^\\d{10}$",
+            "RightNum": 0,
+            "Note": "Номер телефона должен содержать 10 цифр.",
+            "Print": true,
+            "ReadOnly": false,
+            "Visible": true,
+            "Req": false
+          },
+          {
+            "Col": "",
+            "ID": "a3_AMOUNT_2_2",
+            "Order": 2,
+            "Name": "Сумма, руб.:",
+            "Type": "Input",
+            "DataType": "%Numeric",
+            "Hint": "Пример: 1234.12",
+            "Sum": true,
+            "Mask": "",
+            "RegExp": "^\\d{10}$",
+            "RightNum": 0,
+            "Note": "Пример: 1234.12",
+            "Print": true,
+            "ReadOnly": false,
+            "Visible": true,
+            "Req": true
+          }
+        ],
+        "Step": 2,
+        "FinalStep": "",
+        "ID": "AWGW579843",
+        "Type": "AWASTEP",
+        "AnsDateTime": "2024-08-13T20:31:22"
+      },
+      "canDraw": true,
+      "ID": "Id3",
+      "Caption": "Ответ"
+    },
+    {
+      "$type": 1,
+      "canDraw": true,
+      "PlantText": "@startsalt\r\n{+\r\nskinparam handwritten true\r\n\r\n  Услуга:<color:Blue>Билайн БК  д/б\r\n Номер телефона (без +7):|\"Enter text here   \"\r\n Сумма, руб.:|\"Enter summa here   \"\r\n| [  Следующий шаг   ]\r\n}\r\n@endsalt",
+      "ID": "ID4",
+      "Caption": "Экран подготовки данных для следующего шага"
+    },
+    {
+      "$type": 3,
+      "json": {
+        "ABSMessage": "",
+        "Error": "0",
+        "Name": "Билайн БК  д/б",
+        "FullName": "",
+        "Input": [
+          {
+            "Col": "",
+            "ID": "transactionId",
+            "Order": 1,
+            "Type": "Input",
+            "DataType": "%String",
+            "Print": true,
+            "ReadOnly": true,
+            "Visible": false,
+            "Req": false
+          },
+          {
+            "Col": "",
+            "ID": "a3_NUMBER_1_2",
+            "Order": 2,
+            "Name": "Номер телефона (без +7):",
+            "Type": "Input",
+            "DataType": "%String",
+            "Hint": "Пример: 9051111111",
+            "Mask": "",
+            "RegExp": "^\\d{10}$",
+            "RightNum": 0,
+            "Note": "Номер телефона должен содержать 10 цифр.",
+            "Print": true,
+            "ReadOnly": true,
+            "Visible": true,
+            "Req": false
+          },
+          {
+            "Col": "",
+            "ID": "a3_AMOUNT_2_2",
+            "Order": 2,
+            "Name": "Сумма, руб.:",
+            "Type": "Input",
+            "DataType": "%Numeric",
+            "Hint": "Пример: 1234.12",
+            "Mask": "",
+            "RegExp": "^\\d{10}$",
+            "RightNum": 0,
+            "Sum": true,
+            "Note": "Пример: 1234.12",
+            "Print": true,
+            "ReadOnly": false,
+            "Visible": true,
+            "Req": true
+          }
+        ],
+        "Sums": {
+          "SumSTrs": "1000",
+          "Fee": "0",
+          "AWGWFee": "5",
+          "AcquireFee": "0",
+          "PaymentCurrency": ""
+        },
+        "Step": 3,
+        "FinalStep": "true",
+        "ABSMessage": "Сумма к оплате: 1005.00руб.",
+        "ID": "AWGW579843",
+        "Type": "AWASTEP",
+        "AnsDateTime": "2024-08-13T20:31:22"
+      },
+      "canDraw": true,
+      "ID": "Id13",
+      "Caption": "Заключительный ответ"
+    },
+    {
+      "$type": 1,
+      "canDraw": true,
+      "PlantText": "@startsalt\r\n{+\r\nskinparam handwritten true\r\n\r\n  Услуга:<color:Blue>Билайн БК  д/б\r\n Оплата с карты | ^Карта 22202***01^\r\n\r\n\r\n Номер телефона (без +7):|\"<color:#9a9a9a>9206526152\"\r\n Сумма, руб.:|\"<color:#9a9a9a>1000  \"\r\nСумма к оплате: 1005.00руб.\r\nКомиссия: 5.00руб.\r\n| [  Начать оплату   ]\r\n}\r\n@endsalt",
+      "ID": "ID14",
+      "Caption": "Экран подтверждения платежа"
+    }
+  ]
+}

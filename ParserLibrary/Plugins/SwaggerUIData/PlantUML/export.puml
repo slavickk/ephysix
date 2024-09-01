@@ -1,28 +1,29 @@
 @startuml
 title = Выгрузка справочника вендоров (AWREXPORT)
-actor "Клиент"              as Item1  order 10 
-participant "Фронт"              as Item2  order 20 
-participant "СОР"              as Item3  order 30 
-participant "Сервис платежей"              as Item4  order 40 #00FF00
-participant "AnyWay"              as Item5  order 50 
-  activate Item1 
+participant "Фронт"              as Item2  order 10 
+participant "СОР"              as Item3  order 20 
+participant "Сервис платежей"              as Item4  order 30 #00FF00
+participant "Редис"              as Item5  order 40 
+participant "AnyWay"              as Item6  order 50 
   activate Item2 
-  Item1 -> Item2 : Ввод реквизитов платежа и суммы
   activate Item3 
-  Item2 -> Item3 : Запрос на проверку правильности реквизитов \n и расчет комиссии
+  Item2 -> Item3 : Запрос на получение справочника вендоров
   activate Item4 #00FF00
-  Item3 -> Item4 : Запрос на проверку правильности реквизитов \n и расчет комиссии
+  Item3 -> Item4 : Запрос на получение справочника вендоров
   activate Item5 
-  Item4 -> Item5 : Запрос EXPORT
+  Item4 -> Item5 : Запрос данных из кэша
   Item5 -> Item5
-  Item5 --> Item4 : Возврат результата
+  Item5 --> Item4 : Возврат данных
   deactivate Item5
-  Item4 --> Item3 : Возврат результата
+  activate Item6 
+  Item4 -> Item6 : Если кэш пуст,запрос AWEXPORT 
+  Item6 -> Item6
+  Item6 --> Item4 : Возврат справочника
+  deactivate Item6
+  Item4 --> Item3 : Возврат справочника
   deactivate Item4
-  Item3 --> Item2 : Возврат суммы комиссии и \nрезультат проверки корректности ввода
+  Item3 --> Item2 : Возврат справочника
   deactivate Item3
-  Item2 --> Item1 : Возврат суммы комиссии и \nрезультат проверки корректности ввода
   deactivate Item2
-  deactivate Item1
 @enduml
 

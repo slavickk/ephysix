@@ -72,6 +72,7 @@ AbstrParser.UniEl  ConvObject(AbstrParser.UniEl el)
 
 public abstract class OutputValue:ILiquidizable
 {
+    public bool alwaysInArray { get; set; } = false;
     public bool viewAsJsonString = false;
     public string outputPath;
     public bool isUniqOutputPath = true;
@@ -82,6 +83,7 @@ public abstract class OutputValue:ILiquidizable
         Structure
     };
 
+    public bool isExported { get; set; } = false;
     public TypeCopy typeCopy = TypeCopy.Value;
 
     public enum OnEmptyAction
@@ -107,7 +109,11 @@ public abstract class OutputValue:ILiquidizable
         {
             outs = outputPath.Split("/");
         }
-
+        /*if(outputPath.Contains("Operator/Param/"))
+        {
+            int yy = 0;
+        }*/
+        //if(("root/"+outputPath).IndexOf(outputRoot.path)
         if (outs == null)
             return outputRoot;
         var rootEl = outputRoot;
@@ -115,13 +121,39 @@ public abstract class OutputValue:ILiquidizable
         {
             int yy = 0;
         }
+        int ibeg1 = outs.Length - 2;
+        int ibeg = -1;
+        var currRoot = outputRoot;
 
-        for (int i = 0; i < outs.Length; i++)
+        for(int i=ibeg1; i>=0;i-- )
         {
-            var el = rootEl.childs.LastOrDefault(ii => ii.Name == outs[i]);
-            if (el == null || (!isUniqOutputPath && i == outs.Length - 1))
-                el = new AbstrParser.UniEl(rootEl) { Name = outs[i] };
-            rootEl = el;
+            if(currRoot.Name == outs[i])
+            {
+                ibeg = i;
+                break;
+            }
+        }
+        for(int i=ibeg; i>=0;i--)
+        {
+            if(currRoot.Name != outs[i])
+            {
+                ibeg = -1; 
+                break;
+            }
+            //ibeg = i;
+            currRoot = currRoot.ancestor;
+        }
+        for (int i = ibeg+1; i < outs.Length; i++)
+        {
+            // It is not a root
+            //if (!(outs[i] == outputRoot.Name && i == 0))
+            {
+
+                var el = rootEl.childs.LastOrDefault(ii => ii.Name == outs[i]);
+                if (el == null || (!isUniqOutputPath && i == outs.Length - 1))
+                    el = new AbstrParser.UniEl(rootEl) { Name = outs[i] };
+                rootEl = el;
+            }
         }
 
         if (viewAsJsonString)
@@ -187,7 +219,10 @@ public abstract class OutputValue:ILiquidizable
     }
     public virtual bool addToOutput(AbstrParser.UniEl inputRoot, ref AbstrParser.UniEl outputRoot, ContextItem context)
     {
-       
+       if(outputPath=="Operator/Group")
+        {
+            int yy = 0;
+        }
         // skipped--------------------------- Пока поддерживается только линейная структура записи
         //     if (typeCopy == TypeCopy.Value)
         bool found = false;
@@ -201,35 +236,57 @@ public abstract class OutputValue:ILiquidizable
             if (el1 == null && onEmptyValueAction == OnEmptyAction.Skip && this.canReturnObject)
                 return false;
             var el = createOutPath(outputRoot);
+            el.alwaysArray = this.alwaysInArray;
+     //           el.alwaysArray
             //                AbstrParser.UniEl el = new AbstrParser.UniEl(outputRoot);
             //el.Name = outputPath;
             //                if(el.)
             //                if(el1.)
-            if (!this.canReturnObject || el1.childs.Count == 0)
+            if (outputChilds.Count == 0)
             {
-                object elV;
-                if (getNodeNameOnly && el1 != null)
-                    elV = el1.Name;
+                if (this is ExtractFromInputValue && !string.IsNullOrEmpty((this as ExtractFromInputValue).functionCall))
+                {
+                   var  elV = GetValueSimple(el1);
+                    if (elV != null)
+                    {
+                        if (converter != null)
+                            el = converter.Convert(elV.ToString(), inputRoot, el);
+                        else
+                            el.Value = elV;
+                    }
+
+
+                    //Scalar only
+                }
                 else
                 {
-                    if (canReturnObject)
-                        elV = el1?.Value?.ToString()??"";
-                    else
-                        elV = getValue(inputRoot);
-                }
+                    if (!this.canReturnObject || el1.childs.Count == 0)
+                    {
+                        object elV;
+                        if (getNodeNameOnly && el1 != null)
+                            elV = el1.Name;
+                        else
+                        {
+                            if (canReturnObject)
+                                elV = GetValueSimple(el1);
+                            else
+                                elV = getValue(inputRoot);
+                        }
 
-                if (elV != null)
-                {
-                    if (converter != null)
-                        el = converter.Convert(elV.ToString(), inputRoot, el);
+                        if (elV != null)
+                        {
+                            if (converter != null)
+                                el = converter.Convert(elV.ToString(), inputRoot, el);
+                            else
+                                el.Value = elV;
+                        }
+                    }
                     else
-                        el.Value = elV;
+                    {
+                        CopyNode(el1, el);
+                        //                    el.childs.Add(el1.copy(el));
+                    }
                 }
-            }
-            else
-            {
-                CopyNode(el1, el);
-                //                    el.childs.Add(el1.copy(el));
             }
 
             /*   else
@@ -240,13 +297,18 @@ public abstract class OutputValue:ILiquidizable
                    }*/
             var el_root = el1;
             foreach(var el_child in outputChilds)
-                el_child.addToOutput(inputRoot,ref outputRoot/*el_root*//*???*/, context);
+                el_child.addToOutput(el1,ref el/* outputRoot*//*el_root*//*???*/, context);
 
             if (returnOnlyFirstRow)
                 return true;
         }
 
         return found;
+    }
+
+    protected  virtual string GetValueSimple(AbstrParser.UniEl? el1)
+    {
+        return el1?.Value?.ToString() ?? "";
     }
 
     protected virtual void CopyNode(AbstrParser.UniEl el1, AbstrParser.UniEl el)
@@ -405,6 +467,25 @@ public class ExtractFromInputValue : OutputValue
     public bool copyChildsOnly = false;
 
 
+    string funcText;
+    protected Func<AbstrParser.UniEl,object> func=null;
+    public string functionCall {
+        get => funcText;
+       
+        set
+        {
+            funcText= value;
+            if(!string.IsNullOrEmpty(value))
+            {
+                if(!(funcText.Substring(0,1)=="$" && funcText.Substring(funcText.Length-1) == "$"))
+                {
+                    func = EmbeddedFunctions.Parse(funcText);
+
+                }
+            }
+        }
+    }
+
     public string conditionPath { get; set; }
     [YamlIgnore] public string[] conditionPathToken = null;
     public ComparerV conditionCalcer { get; set; }
@@ -433,11 +514,43 @@ public class ExtractFromInputValue : OutputValue
         }
     }
 
+    protected override string GetValueSimple(AbstrParser.UniEl? el1)
+    {
+        var retValue= base.GetValueSimple(el1);
+        if (!string.IsNullOrEmpty(transformRegularExpression))
+            retValue = calcRegEx(retValue);
+        if (!string.IsNullOrEmpty(functionCall))
+        {
+            if (func != null)
+            {
+                retValue=func(el1)?.ToString();
+            }
+            else
+            {
+                var arr = new List<AbstrParser.UniEl>() { (AbstrParser.UniEl)el1 };
+
+                retValue = EmbeddedFunctions.exec(functionCall, arr).ToString();
+            }
+        }
+        return retValue;
+
+    }
     public override object getValue(AbstrParser.UniEl rootEl)
     {
+        object retValue;
+        var nod = getNode(rootEl);
         if (!string.IsNullOrEmpty(transformRegularExpression))
-            return calcRegEx(getNode(rootEl).Value.ToString());
-        return getNode(rootEl).Value;
+            retValue= calcRegEx(nod.Value.ToString());
+        else
+        retValue=nod.Value;
+        if(!string.IsNullOrEmpty(functionCall))
+            if (func != null)
+            {
+                retValue = func(nod)?.ToString();
+            }
+            else
+                retValue = EmbeddedFunctions.exec(functionCall,new List<AbstrParser.UniEl> { nod });
+        return retValue;
     }
 
     private AbstrParser.UniEl getLocalRoot(string[] patts, int indexF, AbstrParser.UniEl item1)
@@ -582,8 +695,9 @@ public class ConstantValue : OutputValue
 
     public override object getValue(AbstrParser.UniEl rootEl)
     {
-        if (Value?.ToString() == "$curr_time$")
-            return DateTime.Now.ToString("o");
+        var valFunc = EmbeddedFunctions.exec(Value?.ToString()).ToString();
+        if (!string.IsNullOrEmpty(valFunc))
+            return valFunc;
         if (Value?.GetType() == typeof(string) && typeConvert != TypeObject.String)
             return ConvertFromType(Value.ToString(), typeConvert);
         return Value;

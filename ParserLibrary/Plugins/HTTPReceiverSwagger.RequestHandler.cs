@@ -73,8 +73,13 @@ public partial class HTTPReceiverSwagger
                 LogEventLevel.Debug);
 
 
+            string PathName = controllerAction.Name.Substring(0, controllerAction.Name.Length - 5);
+            if (PathName.StartsWith("Post"))
+                PathName = PathName.Substring(4);
+            if (PathName.StartsWith("Get"))
+                PathName = PathName.Substring(3);
             //Add method name(without async)
-            parameters.Add("SwaggerMethod", controllerAction.Name.Substring(0, controllerAction.Name.Length - 5));
+            parameters.Add("SwaggerMethod", "/"+PathName);
 
             // Create a JSON object where names are parameter names and values are JSON representations of the parameters.
             // Use dictionary mapping.
@@ -143,7 +148,9 @@ public partial class HTTPReceiverSwagger
                 {
                     // The return type is Task<T>
                     var taskType = returnType.GetGenericArguments()[0];
-                        
+                    //var typeDefinition = taskType.GetGenericTypeDefinition();
+
+
                     if (taskType.IsGenericType && taskType.GetGenericTypeDefinition() == typeof(ICollection<>))
                     {
                         // Parse item.answer as a List of the given return type.
@@ -174,7 +181,11 @@ public partial class HTTPReceiverSwagger
                             // so that data validation attributes are respected.
                             var settings = new Newtonsoft.Json.JsonSerializerSettings
                             {
-                                MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Error
+
+                                MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Ignore
+                                , NullValueHandling= Newtonsoft.Json.NullValueHandling.Ignore
+
+                                  
                             };
                             return Newtonsoft.Json.JsonConvert.DeserializeObject(item.answer, taskType, settings);
 
