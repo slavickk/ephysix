@@ -290,7 +290,7 @@ namespace UniElLib
             string key = "IDPrefix_"+ keyPref;
             var currId = EmbeddedFunctions.cacheProvider.GetString(key);
             if (string.IsNullOrEmpty(currId))
-                currId = "1";
+                currId = "0";
             currId = (Convert.ToInt64(currId) + 1).ToString();
             TimeSpan period;
             if (!TimeSpan.TryParse(fmt, out period))

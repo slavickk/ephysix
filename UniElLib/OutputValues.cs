@@ -486,6 +486,7 @@ public class ExtractFromInputValue : OutputValue
         }
     }
 
+  
     public string conditionPath { get; set; }
     [YamlIgnore] public string[] conditionPathToken = null;
     public ComparerV conditionCalcer { get; set; }

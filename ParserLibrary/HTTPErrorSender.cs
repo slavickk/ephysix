@@ -58,11 +58,14 @@ namespace ParserLibrary
             try
             {
                 var errCodNode = root.childs.FirstOrDefault(ii => ii.Name == "ErrorCode");
-                if(errCodNode != null) 
-                    this.StatusCode = Convert.ToInt32(errCodNode.Value.ToString());
+                if(errCodNode != null)
+                    (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = Convert.ToInt32(errCodNode.Value.ToString());
+                //context.this.StatusCode = Convert.ToInt32(errCodNode.Value.ToString());
                 var errCodNodeText = root.childs.FirstOrDefault(ii => ii.Name == "ErrorMessage");
                 if (errCodNodeText != null)
-                    this.StatusMessage = errCodNodeText.Value.ToString();
+                    (context.context as HTTPReceiver.SyncroItem).SetErrorMessage(errCodNodeText.Value.ToString());
+
+               // this.StatusMessage = errCodNodeText.Value.ToString();
             }
             catch (Exception e77)
             {
@@ -78,7 +81,7 @@ namespace ParserLibrary
     public class HTTPStatusException:Exception
     {
         public int StatusCode;
-        public string Reason;
+        public object StatusReasonObject;
     }
 
 }

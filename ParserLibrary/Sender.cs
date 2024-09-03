@@ -29,10 +29,7 @@ namespace ParserLibrary;
 
 public abstract class Sender: DiagramExecutorItem/*:ISender*/
 {
-    [YamlIgnore]
-    public int StatusCode = 0;
-    [YamlIgnore] 
-    public string StatusMessage;
+    public string IDStepForTransactionRollback = "";
 
     [YamlIgnore]
 
@@ -183,6 +180,12 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
                 }
 
             }
+            if ((context.context as HTTPReceiver.SyncroItem).HTTPStatusCode != 200)
+            {
+                throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonObject = (context.context as HTTPReceiver.SyncroItem).HTTPErrorObject };
+
+            }
+
             if (owner.debugMode)
                 Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(true), ans);
             metricUpTime.Add(time1);

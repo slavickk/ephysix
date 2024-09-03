@@ -325,7 +325,7 @@ namespace Plugins
                     
                     // Register the RequestHandler in the service container
                     services.AddSingleton(requestHandler);
-
+                    services.AddHttpContextAccessor();
                     // Configure JWT validation if jwtIssueSigningKey is provided
                     if (!string.IsNullOrEmpty(jwtIssueSigningCertSubject))
                     {
@@ -444,7 +444,15 @@ namespace Plugins
 
         private async Task signal1(string body,SyncroItem semaphoreItem)
         {
-            await this._host.signal(body, semaphoreItem);
+            try
+            {
+                await this._host.signal(body, semaphoreItem);
+            }
+            catch (HTTPStatusException e77)
+            {
+                semaphoreItem.HTTPStatusCode = e77.StatusCode;
+                semaphoreItem.HTTPErrorObject = e77.StatusReasonObject;
+            }
             // semaphoreItem.semaphore.
             if (semaphoreItem.srabot==0)
             {

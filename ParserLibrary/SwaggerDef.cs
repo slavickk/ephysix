@@ -374,11 +374,20 @@ namespace ParserLibrary
                          "422", new SwaggerDef.GET.Responses.CodeRet()
                          {
                               description="Validation exception"
+                               , content=new Dictionary<string, SwaggerDef.GET.Responses.CodeRet.Content.It>()
+                              {
+                                  {"application/json"  , new SwaggerDef.GET.Responses.CodeRet.Content.It()
+                                  {
+                                      //schema= new SwaggerDef.GET.Responses.CodeRet.Content.Schema(){ @ref=$"#/components/schemas/{form_schemas_item_name(item, "Resp")}"}
+                                  }
+                                   }
+                              }
+
 
                          }
 
                      }
-                 }
+                        }
                     };
                     var defmeth = new Dictionary<string, GET>();
                     

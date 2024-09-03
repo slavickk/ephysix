@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;C:\Users\jurag\source\repos\PaymentService\SwaggerUIData\*.*&quot; &quot;$(OutDir)\Publish\Pubs\&quot; /S /E /Y" />
+    <Exec Command="xcopy &quot;C:\Users\jurag\source\repos\PaymentService\SwaggerUIData\*.*&quot; &quot;$(BaseOutputPath)\$(Configuration)\net6.0\Pubs\&quot; /S /E /Y" />
   </Target>
 
 </Project>

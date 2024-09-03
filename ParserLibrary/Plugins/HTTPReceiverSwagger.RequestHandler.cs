@@ -66,20 +66,22 @@ public partial class HTTPReceiverSwagger
         /// <param name="returnType">The actual return type of the controller method.</param>
         /// <returns></returns>
         /// <exception cref="HttpResponseException"></exception>
-        public async Task<object> ReceiveRequestAsync(MethodInfo controllerAction, Type returnType, IDictionary<string, object> parameters)
+        public async Task<object> ReceiveRequestAsync(MethodInfo controllerAction, Type returnType, IDictionary<string, object> parameters,HttpContext context)
         {
             Logger.log(
-                "HandlerImplementation(), method:"+controllerAction.Name+", parameters: "  + string.Join(", ", parameters.Select(p => p.Value)),
+                "HandlerImplementation(), method:" + controllerAction.Name + ", parameters: " + string.Join(", ", parameters.Select(p => p.Value)),
                 LogEventLevel.Debug);
 
-
-            string PathName = controllerAction.Name.Substring(0, controllerAction.Name.Length - 5);
+            string PathName = context.Request.Path.Value;
+            if(PathName.LastIndexOf('/')>=0)
+                PathName = PathName.Substring(PathName.LastIndexOf('/'));
+         /*       controllerAction.Name.Substring(0, controllerAction.Name.Length - 5);
             if (PathName.StartsWith("Post"))
                 PathName = PathName.Substring(4);
             if (PathName.StartsWith("Get"))
-                PathName = PathName.Substring(3);
+                PathName = PathName.Substring(3);*/
             //Add method name(without async)
-            parameters.Add("SwaggerMethod", "/"+PathName);
+            parameters.Add("SwaggerMethod", "/" + PathName);
 
             // Create a JSON object where names are parameter names and values are JSON representations of the parameters.
             // Use dictionary mapping.
@@ -97,9 +99,12 @@ public partial class HTTPReceiverSwagger
 
             try
             {
-                if (!(_receiver._host as Step.ReceiverHost).choosePath(item, _receiver.paths,parameters.Last().Value.ToString()))
+                if (!(_receiver._host as Step.ReceiverHost).choosePath(item, _receiver.paths, parameters.Last().Value.ToString()))
                 {
-                    return Results.StatusCode(StatusCodes.Status404NotFound);
+                    item.HTTPStatusCode = 404;
+
+                    return await item.formAnswer(context);
+                  //  return Results.StatusCode(StatusCodes.Status404NotFound);
 
                 }
 
@@ -108,6 +113,8 @@ public partial class HTTPReceiverSwagger
                 {
                     metricCountOpened.Decrement();
                     metricErrors.Increment();
+                    item.HTTPStatusCode = 500;
+                    item.HTTPErrorObject = antecedent.Exception.Message;
                     statusCode = StatusCodes.Status404NotFound;
                     item.semaphore.Set();
                 }, TaskContinuationOptions.OnlyOnFaulted);
@@ -119,13 +126,17 @@ public partial class HTTPReceiverSwagger
 
                 metricCountOpened.Decrement();
                 metricErrors.Increment();
+
+                item.HTTPStatusCode = 500;
+                item.HTTPErrorObject = e.Message;
+                return await item.formAnswer(context);
                 return Results.NotFound();
             }
 
             // Wait for the pipeline to signal the completion
             await item.semaphore.WaitAsync();
-            if (statusCode != StatusCodes.Status200OK)
-                return Results.StatusCode(statusCode);
+            if (item.HTTPStatusCode != 200)
+                return await item.formAnswer(context);
 
             Interlocked.Increment(ref item.unwait);
 
@@ -159,7 +170,7 @@ public partial class HTTPReceiverSwagger
                         var answer = JsonSerializer.Deserialize(item.answer, listType);
                         return answer;
                     }
-                        
+
                     if (taskType.IsGenericType && taskType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
                     {
                         // Parse item.answer as a Dictionary with string keys and taskType values.
@@ -168,7 +179,7 @@ public partial class HTTPReceiverSwagger
                         var answer = JsonSerializer.Deserialize(item.answer, dictType);
                         return answer;
                     }
-                        
+
                     if (taskType == typeof(string))
                         return item.answer;
 
@@ -183,9 +194,10 @@ public partial class HTTPReceiverSwagger
                             {
 
                                 MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Ignore
-                                , NullValueHandling= Newtonsoft.Json.NullValueHandling.Ignore
+                                ,
+                                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
 
-                                  
+
                             };
                             return Newtonsoft.Json.JsonConvert.DeserializeObject(item.answer, taskType, settings);
 
@@ -196,7 +208,7 @@ public partial class HTTPReceiverSwagger
                             throw new Exception("Failed to deserialize the answer into " + taskType, e);
                         }
                     }
-                        
+
                     throw new Exception("Unsupported return type: " + taskType);
                 }
                 else
@@ -225,6 +237,161 @@ public partial class HTTPReceiverSwagger
                 throw new Exception("IController interface not found in the assembly");
 
             // Dynamically compile an implementation of the IController interface using System.Reflection.Emit.
+            // The implementation forwards calls to all methods to ReceiveRequestAsync(), which actually handles the request.
+
+            // Create a dynamic assembly
+            var assemblyName = new AssemblyName("ControllerImplAssembly");
+            var assemblyBuilder =
+                AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule("ControllerImplModule");
+
+            // Enumerate all methods in the IController interface
+            var methodInfos = controllerInterface.GetMethods();
+
+            // Define a class named ControllerImpl with constructor that takes a RequestHandler as a parameter and stores it in a private field.
+            // The class implements all methods of the IController interface.
+            // Every method implementation calls the RequestHandler's ReceiveRequest method with the parameters as a string->object dictionary.
+
+            // Create a type that implements the IController interface
+            var typeBuilder =
+                moduleBuilder.DefineType("ControllerImpl", TypeAttributes.Public, null, new[] { controllerInterface });
+            var _rhfld = typeBuilder.DefineField("_requestHandler", typeof(RequestHandler), FieldAttributes.Private);
+            var _contextAccessorField = typeBuilder.DefineField("_contextAccessor", typeof(IHttpContextAccessor), FieldAttributes.Private);
+
+            // Create a constructor that accepts a RequestHandler instance and stores it in a member field
+            var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new[] { typeof(RequestHandler), typeof(IHttpContextAccessor) });
+            var cil = constructorBuilder.GetILGenerator();
+            cil.Emit(OpCodes.Ldarg_0);
+            cil.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes)); // Call the base class constructor first
+                                                                                    // store _requestHandler
+            cil.Emit(OpCodes.Ldarg_0);
+            cil.Emit(OpCodes.Ldarg_1);
+            cil.Emit(OpCodes.Stfld, _rhfld);
+            // store _contextAccessorField
+            cil.Emit(OpCodes.Ldarg_0);
+            cil.Emit(OpCodes.Ldarg_2);
+            cil.Emit(OpCodes.Stfld, _contextAccessorField);
+            cil.Emit(OpCodes.Ret);
+
+            // Implement each method of the IController interface.
+            // Let's make all methods call HandlerImplementation.
+            foreach (var methodInfo in methodInfos)
+            {
+                // Create a method builder
+                var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name,
+                    MethodAttributes.Public | MethodAttributes.Virtual, methodInfo.ReturnType,
+                    methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
+
+                // Build a method that calls HandlerImplementation
+                var il = methodBuilder.GetILGenerator();
+
+                // We are going to call a method in the _requestHandler, so push it to the stack
+                il.Emit(OpCodes.Ldarg_0);  // Arg 0 is "this" pointing to ControllerImpl
+                il.Emit(OpCodes.Ldfld, _rhfld);  // Read the _requestHandler field and push it on the stack
+
+                // PARAMETER: Push the controller method MethodInfo. Use the single-argument form of GetMethodFromHandle().
+                il.Emit(OpCodes.Ldtoken, methodInfo);
+                il.Emit(OpCodes.Call, typeof(MethodBase).GetMethod("GetMethodFromHandle", new[] { typeof(RuntimeMethodHandle) }));
+
+                // PARAMETER: Push the controller method return type
+                il.Emit(OpCodes.Ldtoken, methodInfo.ReturnType);
+                il.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
+
+                // PARAMETER: Pack the arguments in a dictionary and push it as another argument
+                il.Emit(OpCodes.Newobj, typeof(Dictionary<string, object>).GetConstructor(Type.EmptyTypes));
+                for (var i = 0; i < methodInfo.GetParameters().Length; i++)
+                {
+                    il.Emit(OpCodes.Dup);
+                    il.Emit(OpCodes.Ldstr, methodInfo.GetParameters()[i].Name);
+                    il.Emit(OpCodes.Ldarg, i + 1); // Arg 0 is "this", so we need to skip it
+                    il.Emit(OpCodes.Box, methodInfo.GetParameters()[i].ParameterType);
+                    il.Emit(OpCodes.Callvirt, typeof(Dictionary<string, object>).GetMethod("Add"));
+                }
+
+                // PARAMETER: Get the HttpContext from the IHttpContextAccessor
+                var httpContextProperty = typeof(IHttpContextAccessor).GetProperty("HttpContext", BindingFlags.Instance | BindingFlags.Public);
+                il.Emit(OpCodes.Ldarg_0);  // Arg 0 is "this" pointing to ControllerImpl
+                il.Emit(OpCodes.Ldfld, _contextAccessorField);  // Read the _contextAccessorField field and push it on the stack
+                il.Emit(OpCodes.Callvirt, httpContextProperty.GetMethod);
+
+                // Call the HandleRequest method
+                il.Emit(OpCodes.Call, this.GetType().GetMethod(nameof(ReceiveRequestAsync)));
+
+                // RequestHandler returns Task<object> or just Task,
+                // depending on whether the method being implemented has a return value.
+                // If the method has a return value, create a more specific Task<T> object to wrap the return value.
+                // If the method has no return value, return an empty Task.
+                if (methodInfo.ReturnType.IsGenericType)
+                {
+                    if (methodInfo.ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
+                    {
+                        if (this._debugOutput)
+                        {
+                            il.Emit(OpCodes.Ldstr, "Actual type on the stack");
+                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(string) }));
+
+                            // Print the actual return type to the console.
+                            // The actual value is at the top of the stack.
+                            il.Emit(OpCodes.Dup);
+                            il.Emit(OpCodes.Call, typeof(object).GetMethod("GetType"));
+                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(object) }));
+
+                            il.Emit(OpCodes.Ldstr, "Actual object that is wrapped within Task");
+                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(string) }));
+
+                            // Print the type of the value wrapped by Task.
+                            il.Emit(OpCodes.Dup);
+                            var resultMethod = typeof(Task<>).MakeGenericType(methodInfo.ReturnType)
+                                .GetMethod("get_Result");
+                            il.Emit(OpCodes.Call, resultMethod);
+                            il.Emit(OpCodes.Call, typeof(object).GetMethod("GetType"));
+                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(object) }));
+                        }
+
+                        // Get the type of the value wrapped by the Task<T> returned by RequestHandler
+                        var taskType = methodInfo.ReturnType.GetGenericArguments()[0];
+
+
+                        // Create a new Task<T> that wraps the value returned by RequestHandler
+                        var taskResult = typeof(Task<>).MakeGenericType(taskType).GetMethod("get_Result");
+                        il.Emit(OpCodes.Call, taskResult);
+                        il.Emit(OpCodes.Call, typeof(Task).GetMethod("FromResult").MakeGenericMethod(taskType));
+                    }
+                    else
+                    {
+                        throw new Exception("Unsupported return type: " + methodInfo.ReturnType.Name);
+                    }
+                }
+                // However, if the method return type is void (i.e. just Task),
+                // then create a completed task to be the actual return value.
+                else
+                {
+                    // Pop the value first, it is a Task<object> containing null. We don't need it.
+                    il.Emit(OpCodes.Pop);
+                    // Return a completed task
+                    il.Emit(OpCodes.Call, typeof(Task).GetProperty("CompletedTask").GetGetMethod());
+                }
+
+                il.Emit(OpCodes.Ret);
+
+                // Mark the method as an override
+                typeBuilder.DefineMethodOverride(methodBuilder, methodInfo);
+            }
+
+            typeBuilder.CreateType(); // Create the type so that it can be found using reflection later
+
+            return assemblyBuilder;
+        }
+
+
+        public AssemblyBuilder ImplementControllerOld(Assembly assembly)
+        {
+            // Find the IController interface in the assembly
+            var controllerInterface = assembly.DefinedTypes.FirstOrDefault(t => t.Name == "IController");
+            if (controllerInterface == null)
+                throw new Exception("IController interface not found in the assembly");
+
+            // Dynamically compile an implementation of the IController interface using System.Reflection.Emit.
             // The implementation should forward the call to a single method.
 
             // Create a dynamic assembly
@@ -235,7 +402,7 @@ public partial class HTTPReceiverSwagger
 
             // Enumerate all methods in the IController interface
             var methodInfos = controllerInterface.GetMethods();
-                
+
             // Define a class named ControllerImpl with constructor that takes a RequestHandler as a parameter and stores it in a private field.
             // The class implements all methods of the IController interface.
             // Every method implementation calls the RequestHandler's ReceiveRequest method with the parameters as a string->object dictionary.
@@ -244,7 +411,7 @@ public partial class HTTPReceiverSwagger
             var typeBuilder =
                 moduleBuilder.DefineType("ControllerImpl", TypeAttributes.Public, null, new[] { controllerInterface });
             var _rhfld = typeBuilder.DefineField("_requestHandler", typeof(RequestHandler), FieldAttributes.Private);
-                
+
             // Create a constructor that accepts a RequestHandler instance and stores it in a member field
             var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new[] { typeof(RequestHandler) });
             var cil = constructorBuilder.GetILGenerator();
@@ -266,11 +433,11 @@ public partial class HTTPReceiverSwagger
 
                 // Build a method that calls HandlerImplementation
                 var il = methodBuilder.GetILGenerator();
-                    
+
                 // We are going to call a method in the _requestHandler, so push it to the stack
                 il.Emit(OpCodes.Ldarg_0);  // Arg 0 is "this" pointing to ControllerImpl
                 il.Emit(OpCodes.Ldfld, _rhfld);  // Read the _requestHandler field and push it on the stack
-                    
+
                 // PARAMETER: Push the controller method MethodInfo. Use the single-argument form of GetMethodFromHandle().
                 il.Emit(OpCodes.Ldtoken, methodInfo);
                 il.Emit(OpCodes.Call, typeof(MethodBase).GetMethod("GetMethodFromHandle", new[] { typeof(RuntimeMethodHandle) }));
@@ -292,7 +459,7 @@ public partial class HTTPReceiverSwagger
 
                 // Call the HandleRequest method
                 il.Emit(OpCodes.Call, this.GetType().GetMethod(nameof(ReceiveRequestAsync)));
-                    
+
                 // RequestHandler returns Task<object> or just Task,
                 // depending on whether the method being implemented has a return value.
                 // If the method has a return value, create a more specific Task<T> object to wrap the return value.
@@ -304,16 +471,16 @@ public partial class HTTPReceiverSwagger
                         if (this._debugOutput)
                         {
                             il.Emit(OpCodes.Ldstr, "Actual type on the stack");
-                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new [] { typeof(string) }));
+                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(string) }));
 
                             // Print the actual return type to the console.
                             // The actual value is at the top of the stack.
                             il.Emit(OpCodes.Dup);
                             il.Emit(OpCodes.Call, typeof(object).GetMethod("GetType"));
-                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new [] { typeof(object) }));
+                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(object) }));
 
                             il.Emit(OpCodes.Ldstr, "Actual object that is wrapped within Task");
-                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new [] { typeof(string) }));
+                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(string) }));
 
                             // Print the type of the value wrapped by Task.
                             il.Emit(OpCodes.Dup);
@@ -321,9 +488,9 @@ public partial class HTTPReceiverSwagger
                                 .GetMethod("get_Result");
                             il.Emit(OpCodes.Call, resultMethod);
                             il.Emit(OpCodes.Call, typeof(object).GetMethod("GetType"));
-                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new [] { typeof(object) }));
+                            il.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(object) }));
                         }
-                            
+
                         // Get the type of the value wrapped by the Task<T> returned by RequestHandler
                         var taskType = methodInfo.ReturnType.GetGenericArguments()[0];
 

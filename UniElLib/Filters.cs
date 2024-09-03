@@ -75,7 +75,9 @@ public class AndOrFilter : Filter
     {
         OR,
         AND,
-        DEL
+        DEL,
+        EQ,
+        NOT_EQ
     };
 
     public Action action { get; set; } = Action.AND;
@@ -119,19 +121,67 @@ public class AndOrFilter : Filter
 
     IEnumerable<AbstrParser.UniEl> filt(List<AbstrParser.UniEl> list,ContextItem context)
     {
-        //            List<AbstrParser.UniEl> answers = new List<AbstrParser.UniEl>();
-        if (action == Action.OR)
+        if (action == Action.EQ)
         {
+            string val = null;
             foreach (var flt in filters)
             {
                 AbstrParser.UniEl rEl = null;
-                foreach (var res in flt.filter(list, ref rEl,context))
-                    yield return res;
+                bool found = false;
+                foreach (var res in flt.filter(list, ref rEl, context))
+                {
+                    found = true;
+                    if (val != null && val != res?.Value?.ToString())
+                        yield break;
+                    val = res?.Value?.ToString();
+                    break;
+                }
+                if (!found)
+                    yield break;
+
             }
+            yield return list[0];
         }
         else
-            foreach (var res in filterForFilterAnd(list, 0, null,context))
-                yield return res;
+        {
+            if (action == Action.NOT_EQ)
+            {
+                string val = null;
+                foreach (var flt in filters)
+                {
+                    AbstrParser.UniEl rEl = null;
+                    bool found = false;
+                    foreach (var res in flt.filter(list, ref rEl, context))
+                    {
+                        found = true;
+                        if (val != null && val == res?.Value?.ToString())
+                            yield break;
+                        val = res?.Value?.ToString();
+                        break;
+                    }
+                    if (!found)
+                        yield break;
+
+                }
+                yield return list[0];
+            }
+            else
+            {
+                //            List<AbstrParser.UniEl> answers = new List<AbstrParser.UniEl>();
+                if (action == Action.OR)
+                {
+                    foreach (var flt in filters)
+                    {
+                        AbstrParser.UniEl rEl = null;
+                        foreach (var res in flt.filter(list, ref rEl, context))
+                            yield return res;
+                    }
+                }
+                else
+                    foreach (var res in filterForFilterAnd(list, 0, null, context))
+                        yield return res;
+            }
+        }
     }
 }
 

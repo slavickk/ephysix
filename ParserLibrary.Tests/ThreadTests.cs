@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using FrontInterfaceSupport;
 using System.Xml.Linq;
 using System.Xml;
+using System.Text.Json;
 
 namespace ParserLibrary.Tests;
 
@@ -47,6 +48,12 @@ public class ThreadTests
             var paths = FrontInterfaceSupport.ReceiverHelper.parseContent(sr.ReadToEnd()).getOutputPaths();
         }
       */
+    }
+    [Test]
+    public static void TestSerialize()
+    {
+        object ob = new HTTPSender();
+        var st = JsonSerializer.Serialize(ob, ob.GetType());
     }
 
     [Test]

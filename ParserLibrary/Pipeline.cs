@@ -151,6 +151,7 @@ public class Pipeline:ILiquidizable
                 var testableSender = step.isender as ISelfTested;
                 if (testableSender != null)
                 {
+                    Logger.log("SelfTest {Step} ", Serilog.Events.LogEventLevel.Information, "any", step.IDStep);
 
                     var res1 = await testableSender.isOK();
                     if (res1.Item3 == null)
@@ -172,6 +173,7 @@ public class Pipeline:ILiquidizable
                 var testableSender = step.sender as ISelfTested;
                 if (testableSender != null && !step.sender.MocMode)
                 {
+                    Logger.log("SelfTest {Step} ", Serilog.Events.LogEventLevel.Information, "any", step.IDStep);
 
                     var res1 = await testableSender.isOK();
                     if (res1.Item3 == null)

@@ -79,7 +79,13 @@ namespace ParserLibrary
                 else
                 {
                     var body=await EmbeddedFunctions.cacheProvider.GetStringAsync(key);
-                    
+                    if(string.IsNullOrEmpty(body))
+                    {
+                        (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = 422;
+                        if (!string.IsNullOrEmpty(this.OnGetErrorMessage))
+                            (context.context as HTTPReceiver.SyncroItem).SetErrorMessage(string.Format(this.OnGetErrorMessage,key));
+                    }
+
                     return body;
                 }
             }
