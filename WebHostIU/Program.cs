@@ -6,6 +6,7 @@ using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using ParserLibrary;
 using Serilog;
 using Serilog.Core;
@@ -26,6 +27,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Serilog.Enrichers.OpenTracing;
 using Serilog.Sinks.SystemConsole.Themes;
+using Microsoft.Extensions.Configuration;
+
 
 namespace WebHostIU
 {
@@ -125,15 +128,19 @@ namespace WebHostIU
                         levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);*/
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
             AssemblyLoadContext.Default.Unloading += Default_Unloading;
-            string LogPath = Environment.GetEnvironmentVariable("LOG_PATH");
-            string YamlPath = Environment.GetEnvironmentVariable("YAML_PATH");
-            string LogLevel = Environment.GetEnvironmentVariable("LOG_LEVEL");
-            string DEBUG_MODE = Environment.GetEnvironmentVariable("DEBUG_MODE");
-            string LOG_HISTORY_MODE = Environment.GetEnvironmentVariable("LOG_HISTORY_MODE");
-            string LOG_EXT_STAT = Environment.GetEnvironmentVariable("LOG_EXT_STAT");
-            Pipeline.AgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
-            string sport = Environment.GetEnvironmentVariable("JAEGER_AGENT_PORT");
-            string SAVE_CONTEXT = Environment.GetEnvironmentVariable("JAEGER_SAVE_CONTEXT");
+            var builder = new ConfigurationBuilder()
+.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).AddEnvironmentVariables(prefix: "");
+            var configuration = builder.Build();
+            Pipeline.configuration = configuration;
+            string LogPath = configuration["LOG_PATH"];
+            string YamlPath = configuration["YAML_PATH"];
+            string LogLevel = configuration["LOG_LEVEL"];
+            string DEBUG_MODE = configuration["DEBUG_MODE"];
+            string LOG_HISTORY_MODE = configuration["LOG_HISTORY_MODE"];
+            string LOG_EXT_STAT = configuration["LOG_EXT_STAT"];
+            Pipeline.AgentHost = configuration["JAEGER_AGENT_HOST"];
+            string sport = configuration["JAEGER_AGENT_PORT"];
+            string SAVE_CONTEXT = configuration["JAEGER_SAVE_CONTEXT"];
             if (string.IsNullOrEmpty(sport))
                 Pipeline.AgentPort = -1;
             else
@@ -142,11 +149,11 @@ namespace WebHostIU
                 Pipeline.saveContext = true;
             else
                 Pipeline.saveContext = false;
-            Pipeline.ServiceAddr = Environment.GetEnvironmentVariable(Pipeline.EnvironmentVar);
+            Pipeline.ServiceAddr = configuration[Pipeline.EnvironmentVar];
             if (Pipeline.ServiceAddr == null)
                 Pipeline.ServiceAddr = "localhost:44352";
             LogEventLevel defLevel = LogEventLevel.Information;
-            bool LogHealthAndMonitoring = (Environment.GetEnvironmentVariable("LOG_HELTH_CHECK") != null);
+            bool LogHealthAndMonitoring = (configuration["LOG_HELTH_CHECK"] != null);
 
             // TODO: add Enrich with error details in the Serilog.Exception initialization
 
@@ -167,10 +174,10 @@ namespace WebHostIU
 
                 ParserLibrary.Logger.levelSwitch = new LoggingLevelSwitch(defLevel);
                 Log.Logger = CreateSerilog("IU", ParserLibrary.Logger.levelSwitch,
-                    Environment.GetEnvironmentVariable("SYNC_LOG") == null,
-                    Environment.GetEnvironmentVariable("LOG_HTTP_REQUESTS") != null);
+                    configuration["SYNC_LOG"] == null,
+                    configuration["LOG_HTTP_REQUESTS"] != null);
                     Log.Information($"Service url on {Pipeline.ServiceAddr}");
-                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUFF_DIR")))
+                if (string.IsNullOrEmpty(configuration["BUFF_DIR"]))
                     Log.Information("save error messages is off");
                 else
                     Log.Information("save error messages is on");
@@ -233,7 +240,7 @@ namespace WebHostIU
                         }
 
                         Log.Information("Parsing done");
-                        var mocks = Environment.GetEnvironmentVariable("MOCKED");
+                        var mocks = configuration["MOCKED"];
                         if (!string.IsNullOrEmpty(mocks))
                         {
                             pip.SetMocModeForSenders(mocks.Split(";"));
@@ -285,7 +292,7 @@ namespace WebHostIU
                                 "Environment variable LOG_PATH undefined.Logging to standard stdout/stderr.");
                         else
                             Log.Information("Logging to " + LogPath + ".");
-                        await CreateHostBuilder(args).Build().RunAsync();
+                        await CreateHostBuilder(args,configuration).Build().RunAsync();
                     }
                     catch (Exception ex)
                     {
@@ -299,8 +306,12 @@ namespace WebHostIU
                 }
                 else
                 {
+    
                     Log.Information("Starting Integrity Utility web host ");
-                    await CreateHostBuilder(args).Build().RunAsync();
+                    var build = CreateHostBuilder(args,configuration);
+                   
+           //         build.Use
+                    await CreateHostBuilder(args, configuration).Build().RunAsync();
                 }
             }
         }
@@ -320,9 +331,14 @@ namespace WebHostIU
             //            throw new NotImplementedException();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string[] args,IConfiguration configuration) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); })
+            .ConfigureAppConfiguration(builder =>
+            {
+                builder.Sources.Clear();
+                builder.AddConfiguration(configuration);
+            })
                 .UseSerilog();
     }
 }

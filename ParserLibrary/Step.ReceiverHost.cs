@@ -115,11 +115,11 @@ public /*static*/   bool choosePath(HTTPReceiver.SyncroItem item, List<PathItem>
                       return;
                     */
                 }
-                Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Information, nextStep.IDStep);
+                Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Debug, "any", nextStep.IDStep);
                 item.initialStep = nextStep;
             }
             else
-                Logger.log("paths is empty");
+                Logger.log("paths is empty", Serilog.Events.LogEventLevel.Debug);
             return true;
         }
 

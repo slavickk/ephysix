@@ -109,15 +109,15 @@ public partial class Step : ILiquidizable
     [YamlIgnore]
     public bool debugMode
     {
-        get => this._debugMode;
-        set
+        get => ParserLibrary.Logger.levelSwitch.MinimumLevel <= Serilog.Events.LogEventLevel.Debug;
+      /*  set
         {
             this._debugMode = value;
             if (this.ireceiver != null)
                 this.ireceiver.debugMode = value;
             if (this.receiver != null)
                 this.receiver.debugMode = value;
-        }
+        }*/
     }
     private bool _debugMode = false;
 
@@ -247,6 +247,8 @@ public partial class Step : ILiquidizable
 
     [YamlIgnore]
     public Pipeline owner { get; set; }
+
+
     [YamlIgnore]
     public int countDelayMessages = 0;
     public void Init(Pipeline owner)
@@ -481,7 +483,7 @@ public partial class Step : ILiquidizable
     private async Task checkChilds(ContextItem contextItem, AbstrParser.UniEl rootElement)
     {
 
-        foreach (var nextStep in this.owner.steps.Where(ii => ii.IDPreviousStep == this.IDStep))
+        foreach (var nextStep in this.owner.steps.Where(ii => ii.IDPreviousStep == this.IDStep || (!string.IsNullOrEmpty(this.IDFamilyStep) && this.IDFamilyStep == ii.IDFamilyPreviousStep)))
         {
             await nextStep.FilterStep(contextItem, rootElement);
             await nextStep.checkChilds(contextItem, rootElement);
@@ -658,7 +660,7 @@ public partial class Step : ILiquidizable
             }
             if (found)
             {
-                Logger.log("Step {step} found result ,call sender", Serilog.Events.LogEventLevel.Information, "any", this.IDStep);
+                Logger.log("Step {step} found result ,call sender {sender}", Serilog.Events.LogEventLevel.Information, "any", this.IDStep,this.sender);
                 if (rootElement?.ancestor?.Name != this.IDStep)
                 {
                     var root = CheckAndFillNode(rootElement, IDStep, true,true);// new AbstrParser.UniEl(rootElement.ancestor) { Name = IDStep };
@@ -959,9 +961,9 @@ public partial class Step : ILiquidizable
                         }
                     }*/
                 // Swap the statements
-                if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
+                if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep || (!string.IsNullOrEmpty(this.IDFamilyStep) && this.IDFamilyStep == ii.IDFamilyPreviousStep)) > 0)
                 {
-                    var nextStep = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep);
+                    var nextStep = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep || (!string.IsNullOrEmpty(this.IDFamilyStep) && this.IDFamilyStep == ii.IDFamilyPreviousStep));
                     if(nextStep.IDStep =="Step_ToTWO")
                     {
                         int yy = 0;

@@ -232,8 +232,11 @@ namespace ParserLibrary
         }
         public static bool isEqual(string Name, string pattern)
         {
-            if(pattern=="*")
+            bool isFound
+            if(!(pattern=="*") && pattern.Contains("*"))
             {
+                HHHH
+                Wildcard
                 int yy = 0;
             }
             return pattern == "*" || Name == pattern;

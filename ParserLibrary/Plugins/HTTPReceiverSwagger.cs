@@ -127,7 +127,7 @@ namespace Plugins
         public string ResponseType = "application/json";
         private IReceiverHost _host;
         public bool cantTryParse; // This one comes from the YAML definition of the receiver
-        private bool _debugMode;
+       // private bool _debugMode;
 
         public List<PathItem> paths { get; set; } 
 
@@ -414,6 +414,10 @@ namespace Plugins
             }
             public virtual void Dispose() => _subscription.Dispose();
         }
+        bool _debugMode
+        {
+            get => ParserLibrary.Logger.levelSwitch.MinimumLevel <= Serilog.Events.LogEventLevel.Debug;
+        }
         async Task IReceiver.sendResponse(string response, object context)
         {
             if (this._debugMode)
@@ -536,8 +540,8 @@ namespace Plugins
         }
         bool IReceiver.debugMode
         {
-            get => _debugMode;
-            set => _debugMode = value;
+            get => ParserLibrary.Logger.levelSwitch.MinimumLevel <= Serilog.Events.LogEventLevel.Debug;
+           // set => _debugMode = value;
         }
     }
 

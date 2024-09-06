@@ -14,6 +14,7 @@
  *
  ******************************************************************/
 
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -27,7 +28,7 @@ namespace ParserLibrary
 {
     public class Logger
     {
-        public static LoggingLevelSwitch levelSwitch;
+        public static LoggingLevelSwitch levelSwitch = new LoggingLevelSwitch();
         public static void log(string message, LogEventLevel level = LogEventLevel.Information, params object[] propertyValues)
         {
             Log.ForContext("ctn", "any").Write(level, message, propertyValues);
@@ -60,5 +61,9 @@ namespace ParserLibrary
             Log.ForContext("ctn", context).ForContext("intr", (DateTime.Now-prevTime).TotalMilliseconds.ToString()).Write(level,message);
         }
 
+    }
+    public interface TraceInfo
+    {
+        string TraceInfo { get; }
     }
 }

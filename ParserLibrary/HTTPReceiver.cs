@@ -75,7 +75,7 @@ namespace ParserLibrary
         {
             if (debugMode)
             {
-                Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
+                Logger.log(" Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any",  owner, response.MaskSensitive());
             }
 
             var item = context.context as SyncroItem;
@@ -382,7 +382,7 @@ namespace ParserLibrary
                           return;
                         */
                     }
-                    Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Information, nextStep.IDStep);
+                    Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Debug,"any", nextStep.IDStep);
                     item.initialStep = nextStep;
                 }
                 else

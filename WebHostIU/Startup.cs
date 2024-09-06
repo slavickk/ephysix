@@ -48,6 +48,7 @@ namespace WebHostIU
                 builder.AddSource("TIC.TICSender");
                 builder.AddSource("TIC.TICReciever");
             });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

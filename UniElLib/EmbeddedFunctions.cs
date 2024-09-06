@@ -123,7 +123,7 @@ namespace UniElLib
         public static bool isEmbeddedFunc(string val)
         {
             var arr=val.ToCharArray();
-            return arr[0] == '$' && arr[arr.Length - 1] == '$';
+            return arr.Length>1 && arr[0] == '$' && arr[arr.Length - 1] == '$';
         }
 
         static char[] ffind = new char[] { '(', ')' };

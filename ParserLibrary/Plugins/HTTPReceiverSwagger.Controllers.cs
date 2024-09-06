@@ -26,6 +26,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSwag.CodeGeneration.CSharp;
 using ParserLibrary;
+using UniElLib;
 
 namespace Plugins;
 

@@ -323,11 +323,19 @@ namespace UniElLib
         }
         public static bool isEqual(string Name, string pattern)
         {
-            if(pattern=="*")
+            bool isFound = false;
+            if (!(pattern == "*") && pattern.Contains("*"))
             {
-                int yy = 0;
+                
+                isFound=Wildcard.Match(Name, pattern);
+                if(isFound)
+                {
+                    int yy = 0;
+                }
+              //  int yy = 0;
             }
-            return pattern == "*" || Name == pattern;
+
+            return pattern == "*" || Name == pattern || isFound;
         }
 
         public class UniEl

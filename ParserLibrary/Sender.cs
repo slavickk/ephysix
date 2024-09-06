@@ -187,7 +187,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
             }
 
             if (owner.debugMode)
-                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(true), ans);
+                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Debug, this, root.toJSON(true), ans);
             metricUpTime.Add(time1);
         }
         catch (Exception ex)
