@@ -141,7 +141,7 @@ public partial class Step
 
                 if (owner.debugMode)
                     Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender",
-                        Serilog.Events.LogEventLevel.Information, this, root.toJSON(true), ans);
+                        Serilog.Events.LogEventLevel.Debug, this, root.toJSON(true), ans);
                 metricUpTime.Add(time1);
             }
             catch (Exception ex)

@@ -116,7 +116,7 @@ public abstract class Receiver: DiagramExecutorItem/*:IReceiver*/
     }
 
     [YamlIgnore]
-    public bool debugMode = false;
+    public bool debugMode { get => ParserLibrary.Logger.levelSwitch.MinimumLevel <= Serilog.Events.LogEventLevel.Debug; }
     public bool ignoreNamespace = false;
 
     [YamlIgnore]
@@ -127,7 +127,7 @@ public abstract class Receiver: DiagramExecutorItem/*:IReceiver*/
         set
         {
             owner_internal = value;
-            debugMode = value.debugMode;
+          //  debugMode = value.debugMode;
         }
         get
         {

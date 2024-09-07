@@ -92,7 +92,7 @@ public partial class Step
         }
         [YamlIgnore]
         Step owner_internal;
-public /*static*/   bool choosePath(HTTPReceiverSwagger.SyncroItem item, List<PathItem> paths, string path)
+public /*static*/   bool choosePath(HTTPReceiver.SyncroItem item, List<PathItem> paths, string path)
         {
             if (paths?.Count > 0)
             {
@@ -115,11 +115,11 @@ public /*static*/   bool choosePath(HTTPReceiverSwagger.SyncroItem item, List<Pa
                       return;
                     */
                 }
-                Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Information, nextStep.IDStep);
+                Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Debug, "any", nextStep.IDStep);
                 item.initialStep = nextStep;
             }
             else
-                Logger.log("paths is empty");
+                Logger.log("paths is empty", Serilog.Events.LogEventLevel.Debug);
             return true;
         }
 
@@ -144,7 +144,7 @@ public /*static*/   bool choosePath(HTTPReceiverSwagger.SyncroItem item, List<Pa
                     saver.save(input);
                 HTTPReceiverSwagger.SyncroItem context1 = context as HTTPReceiverSwagger.SyncroItem;
 
-                await ((context1?.initialStep != null) ? context1.initialStep : owner).Receiver_stringReceived(input, context);
+                await ((context1?.initialStep != null) ? context1.initialStep : owner).Receiver_stringReceived(input, context,this.IDStep);
                 //await owner.Receiver_stringReceived(input, context);
                         
                 metricUpTime.Add(time1);

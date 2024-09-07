@@ -594,8 +594,9 @@ public class ConstantValue : OutputValue
 
     public override object getValue(AbstrParser.UniEl rootEl)
     {
-        if (Value.ToString() == "$curr_time$")
-            return DateTime.Now.ToString("o");
+        var valFunc = EmbeddedFunctions.exec(Value?.ToString());
+        if (!string.IsNullOrEmpty(valFunc))
+            return valFunc;
         if (Value.GetType() == typeof(string) && typeConvert != TypeObject.String)
             return ConvertFromType(Value.ToString(), typeConvert);
         return Value;

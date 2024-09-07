@@ -72,7 +72,8 @@ public class AndOrFilter : Filter
     {
         OR,
         AND,
-        DEL
+        EQ,
+        NOT_EQ
     };
 
     public Action action { get; set; } = Action.AND;
@@ -116,6 +117,44 @@ public class AndOrFilter : Filter
 
     IEnumerable<AbstrParser.UniEl> filt(List<AbstrParser.UniEl> list)
     {
+        if(action == Action.EQ)
+        {
+            var val = null;
+            foreach (var flt in filters)
+            {
+                AbstrParser.UniEl rEl = null;
+                foreach (var res in flt.filter(list, ref rEl))
+                {
+                    if(val != null && val != res.value)
+                        yield break;
+                    val=res.value;
+                    break;
+                }
+                if(val== null)
+                    yield break;
+
+            }
+            yield return list[0];
+        }
+        if (action == Action.NOT_EQ)
+        {
+            var val = null;
+            foreach (var flt in filters)
+            {
+                AbstrParser.UniEl rEl = null;
+                foreach (var res in flt.filter(list, ref rEl))
+                {
+                    if (val != null && val == res.value)
+                        yield break;
+                    val = res.value;
+                    break;
+                }
+                if (val == null)
+                    yield break;
+
+            }
+            yield return list[0];
+        }
         //            List<AbstrParser.UniEl> answers = new List<AbstrParser.UniEl>();
         if (action == Action.OR)
         {

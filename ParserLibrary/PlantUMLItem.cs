@@ -10,13 +10,15 @@ namespace ParserLibrary
     public class PlantUMLItem
     {
 
-        public PlantUMLItem getLastChild()
+        public PlantUMLItem getLastChild(string MyServiceName="Сервис платежей")
         {
+            if (this.Name == MyServiceName)
+                return null;
             if (this.links == null || this.links.Count == 0)
                 return this;
             foreach(Link link in this.links)
             {
-                return link.children.getLastChild();
+                return link.children.getLastChild(MyServiceName);
             }
             return null;//????
         }
@@ -72,7 +74,7 @@ namespace ParserLibrary
                 index++;
                 if (string.IsNullOrEmpty(item.shortName))
                     item.shortName = $"Item{index}";
-                retValue += $"{Enum.GetName<TypeItem>(item.type)} \"{item.Name}\"              as {item.shortName}  order {index * 10} {item.color}\r\n";
+                retValue += $"{Enum.GetName<TypeItem>(item.type)} \"{item.Name.Replace("\n", "\\n")}\"              as {item.shortName}  order {index * 10} {item.color}\r\n";
             }
             return retValue;
         }

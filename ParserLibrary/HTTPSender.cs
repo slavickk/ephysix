@@ -134,7 +134,10 @@ public  class HTTPSender:Sender,ISelfTested
 
     }
 
-
+    public override string ToString()
+    {
+        return base.ToString()+" url:"+this.url;
+    }
     public async Task<string> internSend(string body)
     {
         if(!init)

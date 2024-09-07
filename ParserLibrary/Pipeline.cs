@@ -40,12 +40,23 @@ using Plugins;
 using UniElLib;
 using DotLiquid;
 using System.Xml.Linq;
-using Serilog.Events;
+using Parlot.Fluent;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using static ParserLibrary.PlantUmlGen.ShablonizeHelper;
+using System.Xml;
+using System.Text.Json;
+using System.Collections.Specialized;
+using System.Text.Encodings.Web;
 
 namespace ParserLibrary;
 
 public class Pipeline:ILiquidizable
 {
+    [YamlIgnore]
+    public static IConfiguration configuration;
+
     public ReplaySaver saver = null;
 
     private static readonly ActivitySource Activity = new("Pipeline");
@@ -113,13 +124,20 @@ public class Pipeline:ILiquidizable
     {
         set
         {
+            if (value)
+                ParserLibrary.Logger.levelSwitch.MinimumLevel = Serilog.Events.LogEventLevel.Debug;//<= Serilog.Events.LogEventLevel.Debug
+            else
+                ParserLibrary.Logger.levelSwitch.MinimumLevel = Serilog.Events.LogEventLevel.Information;
+        }
+ /*       set
+        {
             foreach (Step step in steps)
             {
                 step.debugMode = value;
-                /*if (step.sender != null)
-                        step.sender.debugMode = value;*/
+
             }
-        }
+        }*/
+        get => ParserLibrary.Logger.levelSwitch.MinimumLevel <= Serilog.Events.LogEventLevel.Debug;
     }
 
     /// <summary>
@@ -149,6 +167,7 @@ public class Pipeline:ILiquidizable
                 var testableSender = step.isender as ISelfTested;
                 if (testableSender != null)
                 {
+                    Logger.log("SelfTest {Step} ", Serilog.Events.LogEventLevel.Information, "any", step.IDStep);
 
                     var res1 = await testableSender.isOK();
                     if (res1.Item3 == null)
@@ -168,8 +187,9 @@ public class Pipeline:ILiquidizable
             if (step.sender != null && string.IsNullOrEmpty(step.IDResponsedReceiverStep))
             {
                 var testableSender = step.sender as ISelfTested;
-                if (testableSender != null)
+                if (testableSender != null && !step.sender.MocMode)
                 {
+                    Logger.log("SelfTest {Step} ", Serilog.Events.LogEventLevel.Information, "any", step.IDStep);
 
                     var res1 = await testableSender.isOK();
                     if (res1.Item3 == null)
@@ -275,9 +295,28 @@ public class Pipeline:ILiquidizable
 
     public const int keyLength = 256;
     private static string initialisationVector = "26744a68b53dd87b";
-
+    public ConcurrentDictionary<string, string> xmlNameSpaces= new ConcurrentDictionary<string, string>();
+    bool alreadyInit = false;
     public async Task run()
     {
+        if(xmlNameSpaces.Count>0)
+        {
+            XmlParser.namespaces = xmlNameSpaces;
+            XmlParser.isCorrectedNamespace = true;
+        }
+        if (!alreadyInit)
+        {
+            EmbeddedFunctions.Init();
+            if (EmbeddedFunctions.cacheProvider == null)
+            {
+                var services = new ServiceCollection();
+                services.AddDistributedMemoryCache();
+                var provider = services.BuildServiceProvider();
+                EmbeddedFunctions.cacheProvider = provider.GetRequiredService<IDistributedCache>();// (typeof(IDistributedCache)) as IDistributedCache;
+
+            }
+            alreadyInit = true;
+        }
         traceSaveDirectoryStat = traceSaveDirectory;
         var activity = Activity.StartActivity("Process Message", ActivityKind.Consumer);
 
@@ -332,7 +371,29 @@ public class Pipeline:ILiquidizable
     {
         return steps.First(ii => ii.IDPreviousStep == "" && (ii.ireceiver != null || ii.receiver != null));
     }
+    public static IEnumerable<(string variable, string defaultValue,string pattern)> getEnvVariables1(string input)
+    {
+        // Regular expression to match both patterns
+        string pattern = @"{#\b([\w:]+)(?:##(\w+))?\b#}";
+       // pattern = "{#\\b\\w+\\b#}";
 
+        var matches = Regex.Matches(input, pattern,
+                     RegexOptions.None,
+                     TimeSpan.FromSeconds(1));
+
+        //var results = new (string variable, string defaultValue)[matches.Count];
+
+        for (int i = 0; i < matches.Count; i++)
+        {
+            var match = matches[i];
+            string variable = match.Groups[1].Value; // First capture group
+            string defaultValue = match.Groups[2].Success ? match.Groups[2].Value : null; // Second capture group
+            yield return (variable, defaultValue, match.Groups[0].Value);
+           // results[i] = (variable, defaultValue);
+        }
+
+        //return results;
+    }
     static IEnumerable<string> getEnvVariables(string body)
     {
         string pattern = "{#\\b\\w+\\b#}";
@@ -402,12 +463,12 @@ public class Pipeline:ILiquidizable
             this.deserializer = deserializer;
         }
 
-        bool INodeDeserializer.Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value)
+        public bool Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value, ObjectDeserializer rootDeserializer)
         {
             var scalar = parser.Peek<Scalar>();
             if (scalar != null && scalar.Tag == "!include")
             {
-                var ext=Path.GetExtension(scalar.Value);
+                var ext = Path.GetExtension(scalar.Value);
                 if (ext == ".yml" || ext == ".yaml")
                 {
                     using (var sr = new StreamReader(Path.Combine(Pipeline.basepath, scalar.Value)))
@@ -416,7 +477,7 @@ public class Pipeline:ILiquidizable
                         //      var body = sr.ReadToEnd();
 
                         //Console.WriteLine(expectedType.FullName);
-           //             value = deserializer.Deserialize(new Parser(sr), expectedType);
+                        //             value = deserializer.Deserialize(new Parser(sr), expectedType);
                         value = deserializer.Deserialize<Step>(new Parser(sr));
                         parser.MoveNext();
                         return true;
@@ -438,18 +499,57 @@ public class Pipeline:ILiquidizable
                 }
                 // scalar.Value
                 // Replace this line with code that opens the file from scalar.Value
-  /*              using (var includedFile = new System.IO.StringReader("two"))
-                {
-                    Console.WriteLine(expectedType.FullName);
-                    value = deserializer.Deserialize(new Parser(includedFile), expectedType);
-                    parser.MoveNext();
-                    return true;
-                }*/
+                /*              using (var includedFile = new System.IO.StringReader("two"))
+                              {
+                                  Console.WriteLine(expectedType.FullName);
+                                  value = deserializer.Deserialize(new Parser(includedFile), expectedType);
+                                  parser.MoveNext();
+                                  return true;
+                              }*/
             }
 
             value = null;
             return false;
         }
+/*
+        bool INodeDeserializer.Deserialize(IParser parser, Type expectedType, Func<IParser, Type, object> nestedObjectDeserializer, out object value)
+        {
+            var scalar = parser.Peek<Scalar>();
+            if (scalar != null && scalar.Tag == "!include")
+            {
+                var ext=Path.GetExtension(scalar.Value);
+                if (ext == ".yml" || ext == ".yaml")
+                {
+                    using (var sr = new StreamReader(Path.Combine(Pipeline.basepath, scalar.Value)))
+                    {
+
+                        value = deserializer.Deserialize<Step>(new Parser(sr));
+                        parser.MoveNext();
+                        return true;
+                    }
+
+                }
+                else
+                {
+                    using (var sr = new StreamReader(Path.Combine(Pipeline.basepath, scalar.Value)))
+                    {
+
+                        value = sr.ReadToEnd();
+
+                        //Console.WriteLine(expectedType.FullName);
+                        //value = deserializer.Deserialize(new Parser(includedFile), expectedType);
+                        parser.MoveNext();
+                        return true;
+                    }
+                }
+                // scalar.Value
+                // Replace this line with code that opens the file from scalar.Value
+            }
+
+            value = null;
+            return false;
+        }
+*/    
     }
    static TracerProvider tracerBuilder = null;
 
@@ -505,9 +605,24 @@ public class Pipeline:ILiquidizable
         public string pattern;
         public string value;
         public string comment = "";
+        public string defaultValue;
     }
     static List<occurencyItem> occurencyItems= new List<occurencyItem>()   ;
 
+
+    public void SetMocModeForSenders(string[] stepNames)
+    {
+        foreach(var name in stepNames)
+        {
+            var step=steps.FirstOrDefault(ii => ii.IDStep == name);
+            if(step != null)
+            {
+                if (step.sender != null)
+                    step.sender.MocMode = true;
+
+            }
+        }
+    }
 
     static List<(string oldValue, string newValue)> replacement = new List<(string oldValue, string newValue)> { { ("converters:", "filterCollection:") }, { ("filter:", "condition:") } };
     public static Pipeline loadFromString(string Body,Assembly assembly)
@@ -534,31 +649,46 @@ public class Pipeline:ILiquidizable
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .WithNodeDeserializer(new YamlIncludeNodeDeserializer(ser.Build()), s => s.OnTop())
         .Build();
-        foreach (var var in getEnvVariables(Body))
+        foreach (var var in getEnvVariables1(Body))
         {
-            string val = Environment.GetEnvironmentVariable(var);
-            if (val == null)
+            string val;
+            if (configuration == null)
+                val = Environment.GetEnvironmentVariable(var.variable);
+            else
+                val = configuration[var.variable];
+            if (val == null )
             {
-                throw new Exception($"Unknown environment variable {var}");
+                if(var.defaultValue == null)
+                throw new Exception($"Unknown configuration variable {var.variable}");
+                val = var.defaultValue;
             }
             //    MessageBox.Show($"{var}:{val}");
             int index = -1;
-            while ((index = Body.IndexOf("{#" + var + "#}", index + 1)) != -1)
+            while ((index = Body.IndexOf(/*"{#" + var + "#}"*/var.pattern, index + 1)) != -1)
             {
                 int indexBeg = Body.LastIndexOf("\n", index);
-                occurencyItems.Add(new occurencyItem() { pattern = ((indexBeg >= 0) ? (Body.Substring(indexBeg + 1, index - indexBeg - 1)) : ""), variable = var, value = val });
+
+                occurencyItems.Add(new occurencyItem() { defaultValue=var.defaultValue, pattern = var.pattern/*((indexBeg >= 0) ? (Body.Substring(indexBeg + 1, index - indexBeg - 1)) : "")*/, variable = var.variable, value = val });
             }
             // Body.
         }
-        foreach (var var in getEnvVariables(Body))
+        foreach (var var in getEnvVariables1(Body))
         {
-            string val = Environment.GetEnvironmentVariable(var);
+            string val;
+            if(configuration == null)
+             val   = Environment.GetEnvironmentVariable(var.variable);
+            else
+            val = configuration[var.variable];
             if (val == null)
             {
-                throw new Exception($"Unknown environment variable {var}");
+                if (var.defaultValue == null)
+
+                    throw new Exception($"Unknown configuration variable {var}");
+                val = var.defaultValue;
+
             }
             //    MessageBox.Show($"{var}:{val}");
-            Body = Body.Replace("{#" + var + "#}", val);
+            Body = Body.Replace(var.pattern/*"{#" + var + "#}"*/, val);
         }
         //        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         var pip = deserializer.Deserialize<Pipeline>(Body);// (File.OpenText(fileName));
@@ -591,49 +721,131 @@ public class Pipeline:ILiquidizable
             return pip;
         }*/
 
+    public static IEnumerable<(string leadSpaces, string word, string symbols)> ExtractPatternsOfVariable(string input)
+    {
+        // Updated regular expression pattern to match
+        string pattern = @"^(\s*)\*\s*(\w+)([^\n]*)$"; // Capture all after the word till end of line
+        var matches = Regex.Matches(input, pattern, RegexOptions.Multiline);
+         
+       // var results = new (string leadSpaces, string word, string symbols)[matches.Count];
 
+        for (int i = 0; i < matches.Count; i++)
+        {
+            var match = matches[i];
+            string leadSpaces = match.Groups[1].Value; // Capture leading spaces
+            string word = match.Groups[2].Value; // Capture the word after '*'
+            string symbols = match.Groups[3].Value.Trim(); // Capture everything following the word
+            yield return (leadSpaces, word, symbols);
+         //   results[i] = (leadSpaces, word, symbols);
+        }
+
+//        return results;
+    }
+
+    
     void formMD(string fileName)
     {
+        Dictionary<string, (string, object)> oldContent = new Dictionary<string, (string, object)>();
+        return;
+        var currContent=oldContent;
         string md_fileName = fileName.Replace(".yml", ".md");
         if(File.Exists(md_fileName))
         {
+
             using(StreamReader sr= new StreamReader(md_fileName))
             {
                 var content=sr.ReadToEnd();
-                foreach(var item in occurencyItems)
+                occurencyItem lastItem= null;
+                int kolWhitespace = 0;
+                (string leadSpaces, string word, string symbols) prev = ("","","");
+                foreach(var item in ExtractPatternsOfVariable(content))
                 {
-                    string patt = $" * {item.variable} ";
-                    int index=content.IndexOf(patt);
-                    if(index>=0)
+                    if (prev.word != "" && prev.leadSpaces.Length < item.leadSpaces.Length)
                     {
-                        int index1=content.IndexOf("\n",index+1);
+                        var newContent = new Dictionary<string, (string, object)>();
+                        currContent[prev.word] = (currContent.Last().Value.Item1, newContent);
+                        currContent = newContent;
+                    }
+                    currContent.Add(item.word, (item.symbols, null));
+                }
+              /*  foreach(var item in occurencyItems.OrderBy(ii=>ii.variable))
+                {
+                    string patt = string.Join("", Enumerable.Range(0, kolWhitespace).Select(ii => "  ")) + $" * {item.variable} ";
+                    int index = content.IndexOf(patt);
+                    if (index >= 0)
+                    {
+                        int index1 = content.IndexOf("\n", index + 1);
                         if (index1 == -1)
                             index1 = content.Length;
-                        item.comment= content.Substring(index+patt.Length,index1-(index + patt.Length)-1);
+                        item.comment = content.Substring(index + patt.Length, index1 - (index + patt.Length) - 1);
+                        if(string.IsNullOrEmpty(item.comment.Trim()) && !string.IsNullOrEmpty(item.defaultValue))
+                        {
+                            item.comment = ": defaultValue " + item.defaultValue;
+                        }
                     }
-
+                    lastItem = item;
                 }
-                
+              */
+
 
 
             }
         }
+        Dictionary<string, object> rootDict = new Dictionary<string, object>();
         using (StreamWriter sw = new StreamWriter(md_fileName))
         {
             sw.WriteLine($"# {this.pipelineDescription}");
             if (occurencyItems.Count > 0)
-                sw.WriteLine($"## ENVIRONMENT VARIABLES");
+                sw.WriteLine($"## VARIABLE SETTINGS");
 
             List<string> usedVars = new List<string>();
-            foreach (var item in occurencyItems)
+            occurencyItem lastItem = null;
+            int kolWhitespace = 0;
+            var currDict = rootDict;
+            foreach (var item in occurencyItems.OrderBy(ii => ii.variable))
             {
                 if (!usedVars.Contains(item.variable))
                 {
+                    currDict = rootDict;
+                    var currOld = oldContent;
+                    var spl = item.variable.Split(':');
+                    for (int i = 0; i < spl.Length; i++)
+                    {
+                        var it = spl[i];
+                        (string, object) valOld;
+                        if (!currOld.TryGetValue(it, out valOld))
+                        {
+                            valOld = ("", (i < spl.Length - 1) ? new Dictionary<string, (string, object)>() : null);
+                            if (i == spl.Length - 1 && !string.IsNullOrEmpty(item.defaultValue))
+                                valOld.Item1 = " default value:" + item.defaultValue;
+
+                            currOld[it] = valOld;
+                            if (i < spl.Length - 1)
+                                currOld = valOld.Item2 as Dictionary<string, (string, object)>;
+
+                        }
+                        object val;
+                        if (!currDict.TryGetValue(it, out val))
+                        {
+                            currDict.Add(it, (i < spl.Length - 1) ? new Dictionary<string, object>() : item.value);
+                        }
+                        if (i < spl.Length - 1)
+                            currDict = currDict[it] as Dictionary<string, object>;
+
+                    }
+
+
+
                     usedVars.Add(item.variable);
-                    sw.WriteLine($" * {item.variable} {item.comment}");
+                    /*for (int i = 0; i < spl.Length; i++)
+                        sw.WriteLine(string.Join("", Enumerable.Range(0, i).Select(ii => "  ")) +$" * {spl[i]} {((i==spl.Length-1)?item.comment:"")}");*/
+
+                    lastItem = item;
                 }
             }
-            sw.WriteLine($"## PORTS(input)");
+            var currOldContent = oldContent;
+            int level = 0;
+            level = AddContent(sw, currOldContent, level);/*     sw.WriteLine($"## PORTS(input)");
             sw.WriteLine(@"|PORT|PROTOCOL|
 | ------ | ------ |");
             foreach (var step in steps.Where(ii => ii.receiver?.port > 0))
@@ -644,13 +856,42 @@ public class Pipeline:ILiquidizable
                     sw.WriteLine("\r\nTo check the correctness of the pipeline settings, run ```curl http://<entry_point_url>:<entry_point_port>/SelfTest``` \r\n\r\nOR\r\n\r\n");
                 }
 
-            }
+            }*/
             sw.WriteLine(" run ```curl -X 'GET' 'https://<entry_point_url>:<monitoring_port>/api/Monitoring/SelfTest'  -H 'accept: */*'```");
             sw.WriteLine();
             sw.WriteLine("\r\n\r\nOther ports( output ) see in ENVIRONMENT VARIABLES section");
 
         }
+        using (StreamWriter sw = new StreamWriter(fileName.Replace(".yml", ".json").Replace(Path.GetFileNameWithoutExtension(fileName), Path.GetFileNameWithoutExtension(fileName) + "appSettings")))
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions()
+            {
+                WriteIndented = true,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+,
+                IgnoreNullValues = true
+            };
+
+            sw.Write(JsonSerializer.Serialize<Dictionary<string, object>>(rootDict,options));
+        }
+   
+
     }
+
+    private static int AddContent(StreamWriter sw, Dictionary<string, (string, object)> currOldContent, int level)
+    {
+        foreach (var item in currOldContent)
+        {
+            sw.WriteLine(string.Join("", Enumerable.Range(0, level).Select(ii => "  ")) + $" * {item.Key} {item.Value.Item1}");
+            if (item.Value.Item2 != null)
+            {
+                AddContent(sw, item.Value.Item2 as Dictionary<string, (string, object)>, level + 1);
+            }
+        }
+
+        return level;
+    }
+
     public void Save( string fileName,Assembly assembly)
     {
         ISerializer serializer = getSerializer(assembly);

@@ -61,7 +61,7 @@ namespace UniElLib
 
         public bool Compare(AbstrParser.UniEl el)
         {
-            return isNegative? (el?.Value.ToString() != value_for_compare) : (el?.Value.ToString() == value_for_compare);
+            return isNegative? (el?.Value?.ToString() != value_for_compare) : (el?.Value?.ToString() == value_for_compare);
         }
     }
 
@@ -299,7 +299,11 @@ namespace UniElLib
         }
         public static  UniEl CreateNode(UniEl ancestor, List<UniEl> list, string name)
         {
-            UniEl newEl = new UniEl() { Name = name, ancestor = ancestor };
+            if (name == "Step_requestotp_2_Sign")
+            {
+                int yy = 0;
+            }
+                UniEl newEl = new UniEl() { Name = name, ancestor = ancestor };
             if(drawerFactory != null)
                 newEl.treeNode = drawerFactory.Create(newEl, ancestor);
 //             new TreeNode(newEl.Name);
@@ -319,11 +323,19 @@ namespace UniElLib
         }
         public static bool isEqual(string Name, string pattern)
         {
-            if(pattern=="*")
+            bool isFound = false;
+            if (!(pattern == "*") && pattern.Contains("*"))
             {
-                int yy = 0;
+                
+                isFound=Wildcard.Match(Name, pattern);
+                if(isFound)
+                {
+                    int yy = 0;
+                }
+              //  int yy = 0;
             }
-            return pattern == "*" || Name == pattern;
+
+            return pattern == "*" || Name == pattern || isFound;
         }
 
         public class UniEl
@@ -334,6 +346,10 @@ namespace UniElLib
             }
             public UniEl(UniEl ancestor)
             {
+                if(ancestor.Name== "Step_requestotp_0_Sign")
+                {
+                    int yy = 0;
+                }
                 ancestor.childs.Add(this);
                 this.ancestor = ancestor;
 
@@ -401,7 +417,7 @@ namespace UniElLib
                 }
                // "root/SOAP-ENV:Envelope/SOAP-ENV:Body/Tran/Request/Specific/Tds/TranDetails/-BrowserInfo/#text"
 
-                if (Name== "Tran")
+                if (Name.Contains("UsernameToken"))
                 {
                     int yy = 0;
                 }
@@ -442,14 +458,17 @@ namespace UniElLib
                         node.Attributes.Append(attr);
                 } else
                 {
-                    var new_node = xmlDoc.CreateNode(XmlNodeType.Element, this.Name, Namespace);
+                    if (!this.Name.Contains("comment"))
+                    {
+                        var new_node = xmlDoc.CreateNode(XmlNodeType.Element, this.Name, string.IsNullOrEmpty(Namespace)?node?.NamespaceURI:Namespace);
                         new_node.InnerText = getXMLText();
-                    if (node != null)
-                        node.AppendChild(new_node);
-                    else
-                        xmlDoc.AppendChild(new_node);
-                    foreach(var item in childs)
-                        item.to_xml_internal(xmlDoc,new_node,namespaces);
+                        if (node != null)
+                            node.AppendChild(new_node);
+                        else
+                            xmlDoc.AppendChild(new_node);
+                        foreach (var item in childs)
+                            item.to_xml_internal(xmlDoc, new_node, namespaces);
+                    }
                 }
             }
             
@@ -514,11 +533,18 @@ namespace UniElLib
             
             bool firstElnArray(List<UniEl> arr ,int i)
             {
-                return (i < this.childs.Count - 1 && arr[i].Name == arr[i + 1].Name) && (i == 0 || arr[i].Name != arr[i - 1].Name);
+                /*if (arr[i].alwaysArray)
+                {
+                    if (arr.Count(ii => ii.Name == arr[i].Name) == 1)
+                    {
+                        int yy = 0;
+                    }
+                }*/
+                return (arr[i].alwaysArray&& (i == 0 || arr[i].Name != arr[i - 1].Name)) || ((i < this.childs.Count - 1 && arr[i].Name == arr[i + 1].Name) && (i == 0 || arr[i].Name != arr[i - 1].Name));
             }
             bool lastElInArray(List<UniEl> arr, int i)
             {
-                return (i >0 &&  arr[i].Name == arr[i - 1].Name) && (i == arr.Count-1 || arr[i].Name != arr[i+ 1].Name);
+                return  (( (i >0 &&  arr[i].Name == arr[i - 1].Name) || arr[i].alwaysArray )&& (i == arr.Count-1 || arr[i].Name != arr[i+ 1].Name));
             }
 
             string mask(string value)
@@ -646,6 +672,10 @@ namespace UniElLib
                 }*/
                 for (int i = 0; i < this.childs.Count; i++)
                 {
+                    if (i == 3)
+                    {
+                        int yy = 0;
+                    }
                     isArr = false;
                     if (firstElnArray(this.childs, i))
                     //                        if(isArr==false && i< this.childs.Count-2 && this.childs[i].Name== this.childs[i+1].Name)
@@ -858,6 +888,7 @@ namespace UniElLib
                 }
             }
             public string Name;
+            public bool alwaysArray = false;
             object value1;
             
             // TODO: consider struct for Value to avoid boxing/unboxing, but profile the program first
@@ -1125,6 +1156,10 @@ namespace UniElLib
     }
     public class XmlParser : AbstrParser
     {
+
+        public static bool isCorrectedNamespace = false;
+        public static ConcurrentDictionary<string,string> namespaces = new ConcurrentDictionary<string,string>();
+
         public override bool canRazbor(string context, string line, UniEl ancestor, List<UniEl> list, bool cantTryParse = false)
         {
             if (line.Contains("<SOAP-ENV"))
@@ -1165,6 +1200,28 @@ namespace UniElLib
             var name = property.Name;
             if (AbstrParser.UniEl.ignoreNamespace)
                 name = property.LocalName;
+            var nameSpace = property.NamespaceURI;
+            if(!string.IsNullOrEmpty(nameSpace))
+            {
+               // string myPrefix=n
+                string prefix;
+                if(namespaces.TryGetValue(nameSpace,out prefix))
+                {
+                    if(isCorrectedNamespace)
+                    {
+                        property.Prefix= prefix;
+                        if (!AbstrParser.UniEl.ignoreNamespace)
+                            name = property.Name;
+                    }
+
+                }
+                else
+                {
+
+                    if (!isCorrectedNamespace)
+                        namespaces.TryAdd(nameSpace, property.Prefix);
+                }
+            }
             if(isAttr)
             {
                 name = "-" + name;

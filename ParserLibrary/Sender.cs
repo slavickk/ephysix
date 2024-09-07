@@ -29,8 +29,7 @@ namespace ParserLibrary;
 
 public abstract class Sender: DiagramExecutorItem/*:ISender*/
 {
-    [YamlIgnore]
-    public static IDistributedCache cacheProvider;
+    public string IDStepForTransactionRollback = "";
 
     [YamlIgnore]
 
@@ -42,7 +41,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
     public string description = "";
     [YamlIgnore]
     DistributedCacheEntryOptions cache_options ;
-    public double cacheTimeInMilliseconds { get; set; } = 0;
+    public double cacheTimeInMilliseconds /*{ get; set; } = 0*/;
 
     public virtual void Init(Pipeline owner)
     {
@@ -151,35 +150,44 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
                     }
 
                 }
-                ans = await cacheProvider.GetStringAsync(cacheKey);
+                //cacheProvider.GetStringAsync()
+                ans = await EmbeddedFunctions.cacheProvider.GetStringAsync(cacheKey);
 
             }
             if (string.IsNullOrEmpty(ans))
             {
                 if (!MocMode)
                 {
-                    if (typeContent == TypeContent.internal_list)
-                        ans = await sendInternal(root, context);
-                    else
-                        ans = await send(root.toJSON(), context);
+                    ans = await formAnswer(root, context, ans);
                     if (context.stats != null)
                         context.stats.Add(new ContextItem.StatItem() { Name = description ?? GetType().Name, ticks = (DateTime.Now - time1).Ticks });
                 }
 
                 else
                 {
+                    if ((this as HTTPSender)?.ResponseType?.Contains("/xml") == true)
+                    {
+                        var ans1 = root.childs[0].toXML();
+                    }
+                   // ans = await formAnswer(root, context, ans);
 
                     ans = await mocker.getMock();
 
                 }
                 if (cacheTimeInMilliseconds != 0)
                 {
-                    await cacheProvider.SetStringAsync(cacheKey, ans, cache_options);
+                    await EmbeddedFunctions.cacheProvider.SetStringAsync(cacheKey, ans, cache_options);
                 }
 
             }
+            if ((context.context as HTTPReceiver.SyncroItem).HTTPStatusCode != 200)
+            {
+                throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonObject = (context.context as HTTPReceiver.SyncroItem).HTTPErrorObject };
+
+            }
+
             if (owner.debugMode)
-                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information, this, root.toJSON(true), ans);
+                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Debug, this, root.toJSON(true), ans);
             metricUpTime.Add(time1);
         }
         catch (Exception ex)
@@ -192,6 +200,16 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
         sendActivity?.Dispose();
         return ans;
     }
+
+    private async Task<string> formAnswer(AbstrParser.UniEl root, ContextItem context, string ans)
+    {
+        if (typeContent == TypeContent.internal_list)
+            ans = await sendInternal(root, context);
+        else
+            ans = await send(root.toJSON(), context);
+        return ans;
+    }
+
     public async virtual Task<string> sendInternal(AbstrParser.UniEl root,ContextItem context)
     {
         /*            if (owner.debugMode)

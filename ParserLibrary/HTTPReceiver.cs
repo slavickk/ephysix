@@ -38,6 +38,7 @@ using UniElLib;
 using Serilog;
 using static ParserLibrary.SwaggerDef.GET.Responses.CodeRet;
 using Namotion.Reflection;
+using System.Text.Encodings.Web;
 //using Microsoft.
 
 namespace ParserLibrary
@@ -74,7 +75,7 @@ namespace ParserLibrary
         {
             if (debugMode)
             {
-                Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", owner, response);
+                Logger.log(" Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any",  owner, response.MaskSensitive());
             }
 
             var item = context.context as SyncroItem;
@@ -112,6 +113,37 @@ namespace ParserLibrary
         }
         public class SyncroItem
         {
+            public int HTTPStatusCode = 200;
+            public object HTTPErrorObject = null;
+            public class ErrorMessage
+            {
+                public string[] Reasons { get; set; }    
+            }
+            public void SetErrorMessage(string message)
+            {
+                this.HTTPErrorObject = new ErrorMessage() { Reasons = new string[] { message } };
+            }
+            public async Task<string> formAnswer(HttpContext context)
+            {
+                string answer = "";
+                context.Response.StatusCode = HTTPStatusCode;
+                if(HTTPStatusCode != 200 )
+                {
+
+                    JsonSerializerOptions options = new JsonSerializerOptions()
+                    {
+                        WriteIndented = true,
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                    ,
+                        IgnoreNullValues = true
+                    };
+
+                    answer = JsonSerializer.Serialize(HTTPErrorObject, HTTPErrorObject.GetType(),options);
+                    //await context.Response.Body.WriteAsync(Encoding.ASCII.GetBytes(answer));
+                }
+                return answer;
+            }
+
             public Step initialStep= null;
             public int srabot = 0;
             public int unwait = 0;
@@ -350,7 +382,7 @@ namespace ParserLibrary
                           return;
                         */
                     }
-                    Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Information, nextStep.IDStep);
+                    Logger.log("path found on step {step}", Serilog.Events.LogEventLevel.Debug,"any", nextStep.IDStep);
                     item.initialStep = nextStep;
                 }
                 else

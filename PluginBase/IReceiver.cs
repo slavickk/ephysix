@@ -29,7 +29,7 @@ public interface IReceiver
     IReceiverHost host { get; set; }
     Task sendResponse(string response, object context);
     bool cantTryParse { get; }
-    bool debugMode { get; set; }
+    bool debugMode { get=> ParserLibrary.Logger.levelSwitch.MinimumLevel <= Serilog.Events.LogEventLevel.Debug; }
     [YamlIgnore]
     public bool MocMode { get; set; } 
     public string MocBody {  get; set; }

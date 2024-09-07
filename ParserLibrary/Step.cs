@@ -109,15 +109,15 @@ public partial class Step : ILiquidizable
     [YamlIgnore]
     public bool debugMode
     {
-        get => this._debugMode;
-        set
+        get => ParserLibrary.Logger.levelSwitch.MinimumLevel <= Serilog.Events.LogEventLevel.Debug;
+      /*  set
         {
             this._debugMode = value;
             if (this.ireceiver != null)
                 this.ireceiver.debugMode = value;
             if (this.receiver != null)
                 this.receiver.debugMode = value;
-        }
+        }*/
     }
     private bool _debugMode = false;
 
@@ -139,12 +139,26 @@ public partial class Step : ILiquidizable
     public class ItemFilter
     {
 
+        public bool returnOnlyRootIfFound { get; set; } = false;
         public string Name { get; set; } = "example";
         public override string ToString()
         {
             return $"filter:{Name}";
         }
         public Filter condition { get; set; } = new ConditionFilter();
+        public  IEnumerable<AbstrParser.UniEl> filterForCondition(List<AbstrParser.UniEl> list, ContextItem context, ref AbstrParser.UniEl rootEl)
+        {
+            if(returnOnlyRootIfFound)
+            {
+                if (this.condition.filter(list, ref rootEl, context).Count() > 0)
+                {
+                    rootEl = list[0];
+                    return new List<AbstrParser.UniEl>() { rootEl };
+                } else
+                    return Enumerable.Empty<AbstrParser.UniEl>();  
+            } else
+                return this.condition.filter(list, ref rootEl, context);
+        }
 
 
         bool getLastOutput(OutputValue parent,OutputValue child)
@@ -152,7 +166,7 @@ public partial class Step : ILiquidizable
             if (parent.outputChilds.Count > 0)
                 if (getLastOutput(parent.outputChilds.Last(), child))
                     return true;
-            if(parent.outputPath.Length >0 && parent.outputPath.Length< child.outputPath.Length && parent.outputPath == child.outputPath.Substring(0, parent.outputPath.Length))
+            if(parent.outputPath.Length >0 && parent.outputPath.Length< child.outputPath.Length && parent.outputPath == child.outputPath.Substring(0, parent.outputPath.Length) && child.outputPath.Substring(parent.outputPath.Length,1)=="/")
             { 
                 parent.outputChilds.Add(child);
                 return true;
@@ -200,7 +214,7 @@ public partial class Step : ILiquidizable
 
             foreach (var ff in outputFields)
             {
-                if(ff.outputPath=="browserIP")
+                if(ff.outputPath.Contains("awl:ADDITIONAL"))
                 {
                     int yy = 0;
                 }
@@ -233,6 +247,8 @@ public partial class Step : ILiquidizable
 
     [YamlIgnore]
     public Pipeline owner { get; set; }
+
+
     [YamlIgnore]
     public int countDelayMessages = 0;
     public void Init(Pipeline owner)
@@ -338,9 +354,10 @@ public partial class Step : ILiquidizable
         var item = context as HTTPReceiver.SyncroItem;
         if (item != null)
             item.ctnx = contextItem;
-            //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
-        var rootElement = AbstrParser.CreateNode(null, contextItem.list, IDCalledStep??this.IDStep);
-        if (!string.IsNullOrEmpty(item.UrlPath))
+        //            List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+        var rootElement1 = AbstrParser.CreateNode(null, contextItem.list, "STEPS");
+        var rootElement = AbstrParser.CreateNode(rootElement1, contextItem.list, IDCalledStep??this.IDStep);
+        if (!string.IsNullOrEmpty(item?.UrlPath))
         {
             var tmpNode = AbstrParser.CreateNode(rootElement, contextItem.list, "RequestParam");
             var pathNode = AbstrParser.CreateNode(tmpNode, contextItem.list, "UrlPath"); 
@@ -466,7 +483,7 @@ public partial class Step : ILiquidizable
     private async Task checkChilds(ContextItem contextItem, AbstrParser.UniEl rootElement)
     {
 
-        foreach (var nextStep in this.owner.steps.Where(ii => ii.IDPreviousStep == this.IDStep))
+        foreach (var nextStep in this.owner.steps.Where(ii => ii.IDPreviousStep == this.IDStep || (!string.IsNullOrEmpty(this.IDFamilyStep) && this.IDFamilyStep == ii.IDFamilyPreviousStep)))
         {
             await nextStep.FilterStep(contextItem, rootElement);
             await nextStep.checkChilds(contextItem, rootElement);
@@ -516,20 +533,20 @@ public partial class Step : ILiquidizable
                     {
                         bool found = false;
                         foreach (var item in filterCollection/*.First().filter(list)*/)
+                    {
+                        AbstrParser.UniEl rEl = null;
+                        foreach (var item1 in item.filterForCondition(list, context, ref rEl))
                         {
-                            AbstrParser.UniEl rEl = null;
-                            foreach (var item1 in item.condition.filter(list, ref rEl, context))
-                            {
-                                var st = await FindAndCopy1(rootElement, time1, item, item1, list,context);
-                                if (st != "")
-                                    return st;
-                            }
-                            found = true;
+                            var st = await FindAndCopy1(rootElement, time1, item, item1, list, context);
+                            if (st != "")
+                                return st;
                         }
-                        /*                        if (!found && debugMode)
-                                                        Console.WriteLine("no filtered records");*/
+                        found = true;
+                    }
+                    /*                        if (!found && debugMode)
+                                                    Console.WriteLine("no filtered records");*/
 
-                    } /*else
+                } /*else
                     {
                         FindAndCopy(rootElInput, time1);
                     }*/
@@ -544,6 +561,7 @@ public partial class Step : ILiquidizable
         }
     }
 
+   
 
 
 
@@ -636,16 +654,16 @@ public partial class Step : ILiquidizable
                 {
                     int y = 0;
                 }
-                foreach (var item1 in item.condition.filter(context.list, ref rEl,context))
+                foreach (var item1 in item.filterForCondition(context.list,context, ref rEl))
                     found = await FindAndCopy(rootElement, time1, item, item1, context, local_rootOutput);
                 //                    found = true;
             }
             if (found)
             {
-                Logger.log("Step {step} found result ,call sender", Serilog.Events.LogEventLevel.Information, "any", this.IDStep);
+                Logger.log("Step {step} found result ,call sender {sender}", Serilog.Events.LogEventLevel.Information, "any", this.IDStep,this.sender);
                 if (rootElement?.ancestor?.Name != this.IDStep)
                 {
-                    var root = CheckAndFillNode(rootElement, IDStep, true);// new AbstrParser.UniEl(rootElement.ancestor) { Name = IDStep };
+                    var root = CheckAndFillNode(rootElement, IDStep, true,true);// new AbstrParser.UniEl(rootElement.ancestor) { Name = IDStep };
                     rootElement = CheckAndFillNode(root, "Rec");
                 }
                 try
@@ -943,15 +961,16 @@ public partial class Step : ILiquidizable
                         }
                     }*/
                 // Swap the statements
-                if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep) > 0)
+                if (this.owner.steps.Count(ii => ii.IDPreviousStep == this.IDStep || (!string.IsNullOrEmpty(this.IDFamilyStep) && this.IDFamilyStep == ii.IDFamilyPreviousStep)) > 0)
                 {
-                    var nextStep = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep);
+                    var nextStep = this.owner.steps.First(ii => ii.IDPreviousStep == this.IDStep || (!string.IsNullOrEmpty(this.IDFamilyStep) && this.IDFamilyStep == ii.IDFamilyPreviousStep));
                     if(nextStep.IDStep =="Step_ToTWO")
                     {
                         int yy = 0;
                     }
                     //                        tryParse(ans, context, CheckAndFillNode(sendNode, "From"));
                     StoreAnswer("Rec",rootElInput, context, ans, nextStep);
+                    StoreAnswer("Ans", rootElInput, context, ans, this);
                 }
 
 
@@ -971,7 +990,12 @@ public partial class Step : ILiquidizable
         {
             int yy = 0;
         }
-        var newRoot = new AbstrParser.UniEl(rootElInput.ancestor) { Name = nextStep.IDStep };
+        var rootElInput1= rootElInput;
+        while (rootElInput1.ancestor.ancestor != null)
+            rootElInput1 = rootElInput1.ancestor;
+        var newRoot = rootElInput1.ancestor.childs.FirstOrDefault(ii => ii.Name == nextStep.IDStep);
+        if(newRoot == null)
+           newRoot = new AbstrParser.UniEl(rootElInput1.ancestor) { Name = nextStep.IDStep };
         newRoot = new AbstrParser.UniEl(newRoot) { Name = name_ans };
 
 
@@ -979,15 +1003,24 @@ public partial class Step : ILiquidizable
         nextStep.tryParse(nextStep.IDStep+ans,ans, context, newRoot);
     }
 
-    private static AbstrParser.UniEl CheckAndFillNode(AbstrParser.UniEl rootElInput,string Name,bool getAncestor =false)
+    private static AbstrParser.UniEl CheckAndFillNode(AbstrParser.UniEl rootElInput,string Name,bool getAncestor =false,bool newStep=false)
     {
-        if(Name=="Step_ToTWO")
+        if(Name== "Step_requestotp_2_Sign")
+//        if(Name=="Step_ToTWO")
         {
             int yy = 0;
         }
-        AbstrParser.UniEl contextNode = (getAncestor?(rootElInput.ancestor): rootElInput).childs.FirstOrDefault(ii => ii.Name == Name);
+        var rootElInput1 = rootElInput;
+        if(newStep)
+        {
+            while(rootElInput1.ancestor?.ancestor != null)
+            {
+                rootElInput1=rootElInput1.ancestor;
+            }
+        }
+        AbstrParser.UniEl contextNode = (getAncestor?(rootElInput1.ancestor): rootElInput1).childs.FirstOrDefault(ii => ii.Name == Name);
         if (contextNode == null)
-            contextNode = new AbstrParser.UniEl((getAncestor ? (rootElInput.ancestor) : rootElInput)) { Name = Name};
+            contextNode = new AbstrParser.UniEl((getAncestor ? (rootElInput1.ancestor) : rootElInput1)) { Name = Name};
         return contextNode;
     }
 
