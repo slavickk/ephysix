@@ -31,7 +31,6 @@ public class KafkaReceiver : IReceiver, IDisposable
     
     private IReceiverHost _host;
     private bool _cantTryParse;
-    private bool _debugMode;
     
     Task IReceiver.start()
     {
@@ -132,12 +131,6 @@ public class KafkaReceiver : IReceiver, IDisposable
     }
     
     bool IReceiver.cantTryParse => _cantTryParse;
-    
-    bool IReceiver.debugMode
-    {
-        get => _debugMode;
-        set => _debugMode = value;
-    }
     
     public void Dispose()
     {
