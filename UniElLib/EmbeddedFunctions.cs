@@ -249,6 +249,15 @@ namespace UniElLib
     }
     public class EmbeddedClass
     {
+        public string guid(int len=16)
+        {
+            Random rnd = new Random();
+            string retValue=rnd.Next().ToString("X");
+            for(int i=1; i<len/16; i++) 
+                retValue+=rnd.Next(len).ToString("X");
+
+            return retValue;
+        }
         public  string curr_time(string format= "o")
         {
             return DateTime.Now.ToString(format);

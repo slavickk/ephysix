@@ -37,20 +37,27 @@ public  class HTTPSender:Sender,ISelfTested
     [YamlIgnore]
     HttpClient client;
     public string certName = "";
+    public bool allowAutoRedirect; 
     public string certPassword = "";
+  //  public string headers = "";
 //        public string certThumbprint= "E77587679318FED87BB040F00D76AB461B962D95";
     public List<string> certThumbprints = new List<string> { "A77587679318FED87BB040F00D76AB461B962D95" };
     public double timeoutSendInMilliseconds = 5000;
-    public List<HTTPReceiver.KestrelServer.Header> headers;
+    public Dictionary<string, string> headers= new Dictionary<string, string>() { { "aa", "bb" } };
+
+   // public List<HTTPReceiver.KestrelServer.Header> headers;
     public HTTPSender()
     {
+       /* headers = new List<HTTPReceiver.KestrelServer.Header> 
+        { 
+            new HTTPReceiver.KestrelServer.Header() {Key="SOAPAction",Value="fdsa44" } };*/
         createMetrics();
         //     InitClient();
     }
 
     private void InitClient()
     {
-        var handler = new HttpClientHandler();
+        var handler = new HttpClientHandler() {  AllowAutoRedirect = allowAutoRedirect};
         handler.MaxConnectionsPerServer = 256;
         handler.ServerCertificateCustomValidationCallback = ServerCertificateCustomValidation;
 
@@ -63,6 +70,7 @@ public  class HTTPSender:Sender,ISelfTested
         }
         client = new HttpClient(handler);
         client.Timeout = TimeSpan.FromMilliseconds(timeoutSendInMilliseconds);
+        
        // client.DefaultRequestHeaders.Add("Content-Type", ResponseType);
 
     }
@@ -97,7 +105,7 @@ public  class HTTPSender:Sender,ISelfTested
 
     public override async Task<string> send(string JsonBody, ContextItem context)
     {
-        return await  internSend(JsonBody);
+        return await  internSend(JsonBody,context);
     }
     protected async Task<bool> testGet()
     {
@@ -138,7 +146,7 @@ public  class HTTPSender:Sender,ISelfTested
     {
         return base.ToString()+" url:"+this.url;
     }
-    public async Task<string> internSend(string body)
+    public async Task<string> internSend(string body, ContextItem context)
     {
         if(!init)
         {
@@ -158,6 +166,7 @@ public  class HTTPSender:Sender,ISelfTested
 
         /*            var buffer = System.Text.Encoding.UTF8.GetBytes(body);
                     var byteContent = new ByteArrayContent(buffer);
+
                     HttpContent content;
                     content.
         */
@@ -165,6 +174,11 @@ public  class HTTPSender:Sender,ISelfTested
         kolRetry++;
         HttpResponseMessage result = null;
         var stringContent = new StringContent(body, UnicodeEncoding.UTF8, ResponseType); // use MediaTypeNames.Application.Json in Core 3.0+ and Standard 2.1+
+        if (headers != null)
+        {
+            foreach (var item in headers)
+                stringContent.Headers.Add(item.Key, item.Value);
+        }
         if (0 == 1)
         {
             client.DefaultRequestHeaders.Clear();
@@ -203,8 +217,13 @@ public  class HTTPSender:Sender,ISelfTested
                 result = await client.PostAsync(urls[index], stringContent);
                 if (!result.IsSuccessStatusCode)
                 {
-                    Logger.log("Error send http request {res}", Serilog.Events.LogEventLevel.Error, result.StatusCode.ToString());
-                    result.EnsureSuccessStatusCode();//Add throw
+                    string answer =await result.Content.ReadAsStringAsync();
+                    Logger.log("Error send http request {res} {answer}", Serilog.Events.LogEventLevel.Error,"any", result.StatusCode.ToString(),answer);
+                    (context.context as HTTPReceiver.SyncroItem).isError = true;
+                    (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode=((int)result.StatusCode);
+                    (context.context as HTTPReceiver.SyncroItem).errorContent = answer;
+                    (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText = System.Text.Json.JsonSerializer.Serialize(result.ReasonPhrase);
+                    //result.EnsureSuccessStatusCode();//Add throw
                 }
             } else
             {
@@ -310,7 +329,7 @@ public  class HTTPSender:Sender,ISelfTested
         try
         {
 
-            var ans = await internSend(str);
+            var ans = await internSend(str,context);
             sendActivity?.AddTag("answer", ans);
             sendActivity?.AddTag("send.url", this.url);
 

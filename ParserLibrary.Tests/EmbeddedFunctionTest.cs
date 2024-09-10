@@ -10,11 +10,46 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using UniElLib;
+using System.Net.Http;
+using Confluent.Kafka;
+using System.Reflection;
 
 namespace ParserLibrary.Tests
 {
     internal static class EmbeddedFunctionTest
     {
+        [Test]
+        public static async Task  TestAnyWay()
+        {
+            var handler=new HttpClientHandler { AllowAutoRedirect = true };
+            HttpClient client;
+            client = new HttpClient(handler);
+            client.Timeout = new TimeSpan(0, 0, 25);
+            Dictionary<string, string> headers =new Dictionary<string, string> { { "SOAPAction", "http://10.200.200.112:10001/csp/awl/AWGW.WS.PUPAY" } };
+            string body;
+            using(StreamReader sr = new StreamReader(@"C:\Users\jurag\source\repos\ms-payment-service\AnyWay.Sample\ReqPuPay_DBO_51_Check.xml"))
+            {
+                body=sr.ReadToEnd();
+            }
+            var stringContent = new StringContent(body, UnicodeEncoding.UTF8, "text/xml"); // use MediaTypeNames.Application.Json in Core 3.0+ and Standard 2.1+
+            if (headers != null)
+            {
+                foreach (var item in headers)
+                    stringContent.Headers.Add(item.Key, item.Value);
+            }
+            try
+            {
+                var result = await client.PostAsync(@"http://10.200.200.112:10001/csp/awl/AWGW.WS.cls", stringContent);
+                if (result.IsSuccessStatusCode)
+                {
+                    string resultStr = await result.Content.ReadAsStringAsync();
+                }
+            }
+            catch (Exception ex) 
+            {
+            }
+        }
+
         [Test]
         public static void test5()
         {

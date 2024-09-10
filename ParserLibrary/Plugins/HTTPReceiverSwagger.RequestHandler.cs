@@ -102,7 +102,7 @@ public partial class HTTPReceiverSwagger
                 if (!(_receiver._host as Step.ReceiverHost).choosePath(item, _receiver.paths, parameters.Last().Value.ToString()))
                 {
                     item.HTTPStatusCode = 404;
-
+                    item.isError = true;
                     return await item.formAnswer(context);
                   //  return Results.StatusCode(StatusCodes.Status404NotFound);
 
@@ -114,7 +114,8 @@ public partial class HTTPReceiverSwagger
                     metricCountOpened.Decrement();
                     metricErrors.Increment();
                     item.HTTPStatusCode = 500;
-                    item.HTTPErrorObject = antecedent.Exception.Message;
+                    item.isError = true;
+                    item.HTTPErrorJsonText =JsonSerializer.Serialize( antecedent.Exception.Message);
                     statusCode = StatusCodes.Status404NotFound;
                     item.semaphore.Set();
                 }, TaskContinuationOptions.OnlyOnFaulted);
@@ -126,16 +127,15 @@ public partial class HTTPReceiverSwagger
 
                 metricCountOpened.Decrement();
                 metricErrors.Increment();
-
-                item.HTTPStatusCode = 500;
-                item.HTTPErrorObject = e.Message;
+                item.isError=true;
+                item.HTTPErrorJsonText =JsonSerializer.Serialize( e.Message);
                 return await item.formAnswer(context);
                 return Results.NotFound();
             }
 
             // Wait for the pipeline to signal the completion
             await item.semaphore.WaitAsync();
-            if (item.HTTPStatusCode != 200)
+            if (item.isError)
                 return await item.formAnswer(context);
 
             Interlocked.Increment(ref item.unwait);

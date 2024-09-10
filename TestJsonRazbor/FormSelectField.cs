@@ -963,6 +963,7 @@ namespace TestJsonRazbor
                     {
                         ComparerForValue cv = val1.conditionCalcer as ComparerForValue;
                         textBoxFalueFieldSearchValue.Text = cv.value_for_compare;
+                        
                     }
                     else
                         textBoxFalueFieldSearchValue.Text = "";

@@ -369,14 +369,16 @@ public class Pipeline:ILiquidizable
     {
         return steps.First(ii => ii.IDPreviousStep == "" && (ii.ireceiver != null || ii.receiver != null));
     }
-    public static IEnumerable<(string variable, string defaultValue,string pattern)> getEnvVariables1(string input)
+    public static IEnumerable<(string variable, string defaultValue,string pattern,string whole_string)> getEnvVariables1(string input)
     {
         // Regular expression to match both patterns
-        string pattern = @"{#\b([\w:]+)(?:##(\w+))?\b#}";
-       // pattern = "{#\\b\\w+\\b#}";
+       // string pattern = @"(^*?{#\b([\w:]+)(?:##(\w+))?\b#}*?$)";
 
+         string pattern = @"{#\b([\w:]+)(?:##(\w+))?\b#}";
+        // pattern = "{#\\b\\w+\\b#}";
+        
         var matches = Regex.Matches(input, pattern,
-                     RegexOptions.None,
+                     RegexOptions.Multiline,
                      TimeSpan.FromSeconds(1));
 
         //var results = new (string variable, string defaultValue)[matches.Count];
@@ -384,9 +386,18 @@ public class Pipeline:ILiquidizable
         for (int i = 0; i < matches.Count; i++)
         {
             var match = matches[i];
+            int begIndex=input.Substring(0, match.Index).LastIndexOf('\n');
+            /*if (begIndex == -1)
+                begIndex = 0;*/
+            int endIndex= input.Substring(begIndex + 1).IndexOf('\n');
+            if (endIndex < 0)
+                endIndex = input.Length-begIndex+1;
+            /*else
+                endIndex += begIndex;*/
+            var line =input.Substring(begIndex+1, endIndex /*- begIndex*/);
             string variable = match.Groups[1].Value; // First capture group
             string defaultValue = match.Groups[2].Success ? match.Groups[2].Value : null; // Second capture group
-            yield return (variable, defaultValue, match.Groups[0].Value);
+            yield return (variable, defaultValue, match.Groups[0].Value,line);
            // results[i] = (variable, defaultValue);
         }
 
@@ -604,6 +615,7 @@ public class Pipeline:ILiquidizable
         public string value;
         public string comment = "";
         public string defaultValue;
+        public string line;
     }
     static List<occurencyItem> occurencyItems= new List<occurencyItem>()   ;
 
@@ -658,17 +670,18 @@ public class Pipeline:ILiquidizable
                 throw new Exception($"Unknown configuration variable {var.variable}");
                 val = var.defaultValue;
             }
+            occurencyItems.Add(new occurencyItem() { line = var.whole_string, defaultValue = var.defaultValue, pattern = var.pattern/*((indexBeg >= 0) ? (Body.Substring(indexBeg + 1, index - indexBeg - 1)) : "")*/, variable = var.variable, value = val });
             //    MessageBox.Show($"{var}:{val}");
-            int index = -1;
-            while ((index = Body.IndexOf(/*"{#" + var + "#}"*/var.pattern, index + 1)) != -1)
+           /* int index = -1;
+            while ((index = Body.IndexOf(var.pattern, index + 1)) != -1)
             {
                 int indexBeg = Body.LastIndexOf("\n", index);
 
-                occurencyItems.Add(new occurencyItem() { defaultValue=var.defaultValue, pattern = var.pattern/*((indexBeg >= 0) ? (Body.Substring(indexBeg + 1, index - indexBeg - 1)) : "")*/, variable = var.variable, value = val });
-            }
+                occurencyItems.Add(new occurencyItem() {line=var.whole_string, defaultValue=var.defaultValue, pattern = var.pattern, variable = var.variable, value = val });
+            }*/
             // Body.
         }
-        foreach (var var in getEnvVariables1(Body))
+        foreach (var var in occurencyItems)
         {
             string val;
             if(configuration == null)
@@ -683,8 +696,10 @@ public class Pipeline:ILiquidizable
                 val = var.defaultValue;
 
             }
+            var.value = val;
+            string newLine = var.line.Replace(var.pattern, var.value);
             //    MessageBox.Show($"{var}:{val}");
-            Body = Body.Replace(var.pattern/*"{#" + var + "#}"*/, val);
+            Body = Body.Replace(var.line/*"{#" + var + "#}"*/, newLine);
         }
         //        var deserializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         var pip = deserializer.Deserialize<Pipeline>(Body);// (File.OpenText(fileName));
@@ -888,6 +903,7 @@ public class Pipeline:ILiquidizable
         return level;
     }
 
+
     public void Save( string fileName,Assembly assembly)
     {
         ISerializer serializer = getSerializer(assembly);
@@ -896,11 +912,8 @@ public class Pipeline:ILiquidizable
         using (StringWriter sw1 = new StringWriter())
         {
             serializer.Serialize(sw1, this);
-            var content=sw1.ToString();
-            foreach(var item in occurencyItems)
-            {
-                content=content.Replace(item.pattern + item.value, item.pattern + "{#" + item.variable + "#}");
-            }
+            var content = sw1.ToString();
+            content = ReplaceStringForOccurences(content); 
             using (StreamWriter sw = new StreamWriter(fileName))
             {
                 sw.Write(content);
@@ -908,6 +921,18 @@ public class Pipeline:ILiquidizable
             formMD(fileName);
         }
 
+    }
+
+    public static string ReplaceStringForOccurences(string content)
+    {
+        foreach (var item in occurencyItems)
+        {
+            string newLine = item.line.Replace(item.pattern, item.value);
+
+            content = content.Replace(newLine, item.line );
+        }
+
+        return content;
     }
 
     private static ISerializer getSerializer(Assembly assembly)

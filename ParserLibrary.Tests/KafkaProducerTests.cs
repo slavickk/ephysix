@@ -163,14 +163,14 @@ public class KafkaProducerTests
             
             BootstrapServers = "10.200.100.11:9093", // Your Kafka server
             SecurityProtocol = SecurityProtocol.Plaintext,
-          //  SslCaLocation/*SslCertificateLocation*/ = @"C:\¡√—\KafkaSSL\CARoot.pem",
-          //  SslCertificateLocation/*SslCaLocation*/ = @"C:\¡√—\KafkaSSL\certificate.pem",
+          //  SslCaLocation/*SslCertificateLocation*/ = @"C:\Users\jurag\source\repos\ms-payment-service\RawDocs\KafkaSSL\CARoot.pem",
+          //  SslCertificateLocation/*SslCaLocation*/ = @"C:\Users\jurag\source\repos\ms-payment-service\RawDocs\KafkaSSL\certificate.pem",
             /*   SslTruststoreLocation = "path/to/truststore.p12", // Path to your truststore
                SslTruststorePassword = "1qazXSW@",               // Password for truststore
               */
-         //   SslKeyLocation= @"C:\¡√—\KafkaSSL\key.pem",
+         //   SslKeyLocation= @"C:\Users\jurag\source\repos\ms-payment-service\RawDocs\KafkaSSL\key.pem",
          //   SslKeyPassword= "1qazXSW@",
-           /* SslKeystoreLocation = "C:/¡√—/KafkaSSL/keystore.p12",     // Path to your keystore
+           /* SslKeystoreLocation = "C:/RawDocs/KafkaSSL/keystore.p12",     // Path to your keystore
             SslKeystorePassword = "1qazXSW@",*/
             SslEndpointIdentificationAlgorithm = SslEndpointIdentificationAlgorithm.None/*.Https*/,
             SaslMechanism = SaslMechanism.Plain,

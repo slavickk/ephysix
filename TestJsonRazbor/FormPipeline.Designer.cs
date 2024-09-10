@@ -46,63 +46,65 @@ namespace TestJsonRazbor
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Steps");
-            splitContainer1 = new System.Windows.Forms.SplitContainer();
-            treeView1 = new System.Windows.Forms.TreeView();
-            contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(components);
-            addStepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            removeStepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            button6 = new System.Windows.Forms.Button();
-            buttonOpen = new System.Windows.Forms.Button();
-            buttonPlantUml = new System.Windows.Forms.Button();
-            buttonNew = new System.Windows.Forms.Button();
-            buttonSavePipeline = new System.Windows.Forms.Button();
-            buttonYaml = new System.Windows.Forms.Button();
-            button1 = new System.Windows.Forms.Button();
-            groupBox1 = new System.Windows.Forms.GroupBox();
-            button8 = new System.Windows.Forms.Button();
-            button7 = new System.Windows.Forms.Button();
-            buttonPaste = new System.Windows.Forms.Button();
-            buttonCopy = new System.Windows.Forms.Button();
-            button5 = new System.Windows.Forms.Button();
-            textBoxRestorePath = new System.Windows.Forms.TextBox();
-            label7 = new System.Windows.Forms.Label();
-            checkBoxHandleSendError = new System.Windows.Forms.CheckBox();
-            checkBox1 = new System.Windows.Forms.CheckBox();
-            textBoxResponceStep = new System.Windows.Forms.TextBox();
-            label6 = new System.Windows.Forms.Label();
-            button3 = new System.Windows.Forms.Button();
-            button2 = new System.Windows.Forms.Button();
-            buttonUp = new System.Windows.Forms.Button();
-            buttonDown = new System.Windows.Forms.Button();
-            buttonSenderMoc = new System.Windows.Forms.Button();
-            buttonReceiverMoc = new System.Windows.Forms.Button();
-            label5 = new System.Windows.Forms.Label();
-            listBox1 = new System.Windows.Forms.ListBox();
-            contextMenuStripFilters = new System.Windows.Forms.ContextMenuStrip(components);
-            addFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            removeFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            buttonTestServer = new System.Windows.Forms.Button();
-            buttonTestReceiver = new System.Windows.Forms.Button();
-            button4 = new System.Windows.Forms.Button();
-            buttonSetupSender = new System.Windows.Forms.Button();
-            buttonSetupReceiver = new System.Windows.Forms.Button();
-            textBoxStepDescription = new System.Windows.Forms.TextBox();
-            label4 = new System.Windows.Forms.Label();
-            textBoxIDPrevStep = new System.Windows.Forms.TextBox();
-            label3 = new System.Windows.Forms.Label();
-            textBoxIDStep = new System.Windows.Forms.TextBox();
-            label2 = new System.Windows.Forms.Label();
-            textBoxPipelineDescription = new System.Windows.Forms.TextBox();
-            label1 = new System.Windows.Forms.Label();
-            saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(components);
-            openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            textBoxIDFamilyPrevious = new System.Windows.Forms.TextBox();
-            label8 = new System.Windows.Forms.Label();
-            textBoxFamilyStep = new System.Windows.Forms.TextBox();
-            label9 = new System.Windows.Forms.Label();
+            TreeNode treeNode1 = new TreeNode("Steps");
+            splitContainer1 = new SplitContainer();
+            treeView1 = new TreeView();
+            contextMenuStrip1 = new ContextMenuStrip(components);
+            addStepToolStripMenuItem = new ToolStripMenuItem();
+            removeStepToolStripMenuItem = new ToolStripMenuItem();
+            buttonCorrectOccurences = new Button();
+            button6 = new Button();
+            buttonOpen = new Button();
+            buttonPlantUml = new Button();
+            buttonNew = new Button();
+            buttonSavePipeline = new Button();
+            buttonYaml = new Button();
+            button1 = new Button();
+            groupBox1 = new GroupBox();
+            textBoxIDFamilyPrevious = new TextBox();
+            label8 = new Label();
+            textBoxFamilyStep = new TextBox();
+            label9 = new Label();
+            button8 = new Button();
+            buttonSwagger = new Button();
+            buttonPaste = new Button();
+            buttonCopy = new Button();
+            button5 = new Button();
+            textBoxRestorePath = new TextBox();
+            label7 = new Label();
+            checkBoxHandleSendError = new CheckBox();
+            checkBox1 = new CheckBox();
+            textBoxResponceStep = new TextBox();
+            label6 = new Label();
+            button3 = new Button();
+            button2 = new Button();
+            buttonUp = new Button();
+            buttonDown = new Button();
+            buttonSenderMoc = new Button();
+            buttonReceiverMoc = new Button();
+            label5 = new Label();
+            listBox1 = new ListBox();
+            contextMenuStripFilters = new ContextMenuStrip(components);
+            addFilterToolStripMenuItem = new ToolStripMenuItem();
+            removeFilterToolStripMenuItem = new ToolStripMenuItem();
+            buttonTestServer = new Button();
+            buttonTestReceiver = new Button();
+            button4 = new Button();
+            buttonSetupSender = new Button();
+            buttonSetupReceiver = new Button();
+            textBoxStepDescription = new TextBox();
+            label4 = new Label();
+            textBoxIDPrevStep = new TextBox();
+            label3 = new Label();
+            textBoxIDStep = new TextBox();
+            label2 = new Label();
+            textBoxPipelineDescription = new TextBox();
+            label1 = new Label();
+            saveFileDialog1 = new SaveFileDialog();
+            contextMenuStrip2 = new ContextMenuStrip(components);
+            openFileDialog1 = new OpenFileDialog();
+            folderBrowserDialog1 = new FolderBrowserDialog();
+            iNSERToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -114,9 +116,9 @@ namespace TestJsonRazbor
             // 
             // splitContainer1
             // 
-            splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            splitContainer1.Location = new System.Drawing.Point(0, 0);
-            splitContainer1.Margin = new System.Windows.Forms.Padding(4);
+            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.Location = new Point(0, 0);
+            splitContainer1.Margin = new Padding(2, 2, 2, 2);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -125,6 +127,7 @@ namespace TestJsonRazbor
             // 
             // splitContainer1.Panel2
             // 
+            splitContainer1.Panel2.Controls.Add(buttonCorrectOccurences);
             splitContainer1.Panel2.Controls.Add(button6);
             splitContainer1.Panel2.Controls.Add(buttonOpen);
             splitContainer1.Panel2.Controls.Add(buttonPlantUml);
@@ -136,21 +139,22 @@ namespace TestJsonRazbor
             splitContainer1.Panel2.Controls.Add(textBoxPipelineDescription);
             splitContainer1.Panel2.Controls.Add(label1);
             splitContainer1.Panel2.Paint += splitContainer1_Panel2_Paint;
-            splitContainer1.Size = new System.Drawing.Size(1573, 929);
-            splitContainer1.SplitterDistance = 520;
+            splitContainer1.Size = new Size(847, 436);
+            splitContainer1.SplitterDistance = 280;
+            splitContainer1.SplitterWidth = 2;
             splitContainer1.TabIndex = 0;
             // 
             // treeView1
             // 
             treeView1.ContextMenuStrip = contextMenuStrip1;
-            treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            treeView1.Location = new System.Drawing.Point(0, 0);
-            treeView1.Margin = new System.Windows.Forms.Padding(4);
+            treeView1.Dock = DockStyle.Fill;
+            treeView1.Location = new Point(0, 0);
+            treeView1.Margin = new Padding(2, 2, 2, 2);
             treeView1.Name = "treeView1";
-            treeNode2.Name = "Steps";
-            treeNode2.Text = "Steps";
-            treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] { treeNode2 });
-            treeView1.Size = new System.Drawing.Size(520, 929);
+            treeNode1.Name = "Steps";
+            treeNode1.Text = "Steps";
+            treeView1.Nodes.AddRange(new TreeNode[] { treeNode1 });
+            treeView1.Size = new Size(280, 436);
             treeView1.TabIndex = 0;
             treeView1.AfterSelect += treeView1_AfterSelect;
             treeView1.NodeMouseClick += treeView1_NodeMouseClick;
@@ -158,31 +162,43 @@ namespace TestJsonRazbor
             // 
             // contextMenuStrip1
             // 
-            contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
-            contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { addStepToolStripMenuItem, removeStepToolStripMenuItem });
+            contextMenuStrip1.ImageScalingSize = new Size(32, 32);
+            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { addStepToolStripMenuItem, removeStepToolStripMenuItem, iNSERToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new System.Drawing.Size(227, 80);
+            contextMenuStrip1.Size = new Size(181, 92);
             contextMenuStrip1.Opening += contextMenuStrip1_Opening;
             // 
             // addStepToolStripMenuItem
             // 
             addStepToolStripMenuItem.Name = "addStepToolStripMenuItem";
-            addStepToolStripMenuItem.Size = new System.Drawing.Size(226, 38);
+            addStepToolStripMenuItem.Size = new Size(180, 22);
             addStepToolStripMenuItem.Text = "Add step";
             addStepToolStripMenuItem.Click += AddNode;
             // 
             // removeStepToolStripMenuItem
             // 
             removeStepToolStripMenuItem.Name = "removeStepToolStripMenuItem";
-            removeStepToolStripMenuItem.Size = new System.Drawing.Size(226, 38);
+            removeStepToolStripMenuItem.Size = new Size(180, 22);
             removeStepToolStripMenuItem.Text = "Remove step";
             removeStepToolStripMenuItem.Click += removeStepToolStripMenuItem_Click;
             // 
+            // buttonCorrectOccurences
+            // 
+            buttonCorrectOccurences.Location = new Point(442, 21);
+            buttonCorrectOccurences.Margin = new Padding(1, 1, 1, 1);
+            buttonCorrectOccurences.Name = "buttonCorrectOccurences";
+            buttonCorrectOccurences.Size = new Size(76, 20);
+            buttonCorrectOccurences.TabIndex = 35;
+            buttonCorrectOccurences.Text = "Correct Occ";
+            buttonCorrectOccurences.UseVisualStyleBackColor = true;
+            buttonCorrectOccurences.Click += buttonCorrectOccurences_Click;
+            // 
             // button6
             // 
-            button6.Location = new System.Drawing.Point(22, 32);
+            button6.Location = new Point(12, 15);
+            button6.Margin = new Padding(1, 1, 1, 1);
             button6.Name = "button6";
-            button6.Size = new System.Drawing.Size(184, 46);
+            button6.Size = new Size(99, 22);
             button6.TabIndex = 34;
             button6.Text = "button6";
             button6.UseVisualStyleBackColor = true;
@@ -190,10 +206,10 @@ namespace TestJsonRazbor
             // 
             // buttonOpen
             // 
-            buttonOpen.Location = new System.Drawing.Point(342, 41);
-            buttonOpen.Margin = new System.Windows.Forms.Padding(4);
+            buttonOpen.Location = new Point(184, 19);
+            buttonOpen.Margin = new Padding(2, 2, 2, 2);
             buttonOpen.Name = "buttonOpen";
-            buttonOpen.Size = new System.Drawing.Size(89, 47);
+            buttonOpen.Size = new Size(48, 22);
             buttonOpen.TabIndex = 33;
             buttonOpen.Text = "Open";
             buttonOpen.UseVisualStyleBackColor = true;
@@ -201,10 +217,10 @@ namespace TestJsonRazbor
             // 
             // buttonPlantUml
             // 
-            buttonPlantUml.Location = new System.Drawing.Point(702, 41);
-            buttonPlantUml.Margin = new System.Windows.Forms.Padding(4);
+            buttonPlantUml.Location = new Point(378, 19);
+            buttonPlantUml.Margin = new Padding(2, 2, 2, 2);
             buttonPlantUml.Name = "buttonPlantUml";
-            buttonPlantUml.Size = new System.Drawing.Size(89, 47);
+            buttonPlantUml.Size = new Size(48, 22);
             buttonPlantUml.TabIndex = 33;
             buttonPlantUml.Text = "ToMd";
             buttonPlantUml.UseVisualStyleBackColor = true;
@@ -212,10 +228,10 @@ namespace TestJsonRazbor
             // 
             // buttonNew
             // 
-            buttonNew.Location = new System.Drawing.Point(230, 41);
-            buttonNew.Margin = new System.Windows.Forms.Padding(4);
+            buttonNew.Location = new Point(124, 19);
+            buttonNew.Margin = new Padding(2, 2, 2, 2);
             buttonNew.Name = "buttonNew";
-            buttonNew.Size = new System.Drawing.Size(93, 47);
+            buttonNew.Size = new Size(50, 22);
             buttonNew.TabIndex = 6;
             buttonNew.Text = "New";
             buttonNew.UseVisualStyleBackColor = true;
@@ -223,10 +239,10 @@ namespace TestJsonRazbor
             // 
             // buttonSavePipeline
             // 
-            buttonSavePipeline.Location = new System.Drawing.Point(423, 41);
-            buttonSavePipeline.Margin = new System.Windows.Forms.Padding(4);
+            buttonSavePipeline.Location = new Point(228, 19);
+            buttonSavePipeline.Margin = new Padding(2, 2, 2, 2);
             buttonSavePipeline.Name = "buttonSavePipeline";
-            buttonSavePipeline.Size = new System.Drawing.Size(80, 47);
+            buttonSavePipeline.Size = new Size(43, 22);
             buttonSavePipeline.TabIndex = 33;
             buttonSavePipeline.Text = "Save";
             buttonSavePipeline.UseVisualStyleBackColor = true;
@@ -234,10 +250,10 @@ namespace TestJsonRazbor
             // 
             // buttonYaml
             // 
-            buttonYaml.Location = new System.Drawing.Point(511, 41);
-            buttonYaml.Margin = new System.Windows.Forms.Padding(4);
+            buttonYaml.Location = new Point(275, 19);
+            buttonYaml.Margin = new Padding(2, 2, 2, 2);
             buttonYaml.Name = "buttonYaml";
-            buttonYaml.Size = new System.Drawing.Size(74, 47);
+            buttonYaml.Size = new Size(40, 22);
             buttonYaml.TabIndex = 4;
             buttonYaml.Text = "Yaml";
             buttonYaml.UseVisualStyleBackColor = true;
@@ -245,10 +261,10 @@ namespace TestJsonRazbor
             // 
             // button1
             // 
-            button1.Location = new System.Drawing.Point(602, 41);
-            button1.Margin = new System.Windows.Forms.Padding(4);
+            button1.Location = new Point(324, 19);
+            button1.Margin = new Padding(2, 2, 2, 2);
             button1.Name = "button1";
-            button1.Size = new System.Drawing.Size(67, 47);
+            button1.Size = new Size(36, 22);
             button1.TabIndex = 5;
             button1.Text = "Test";
             button1.UseVisualStyleBackColor = true;
@@ -256,13 +272,13 @@ namespace TestJsonRazbor
             // 
             // groupBox1
             // 
-            groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBox1.Controls.Add(textBoxIDFamilyPrevious);
             groupBox1.Controls.Add(label8);
             groupBox1.Controls.Add(textBoxFamilyStep);
             groupBox1.Controls.Add(label9);
             groupBox1.Controls.Add(button8);
-            groupBox1.Controls.Add(button7);
+            groupBox1.Controls.Add(buttonSwagger);
             groupBox1.Controls.Add(buttonPaste);
             groupBox1.Controls.Add(buttonCopy);
             groupBox1.Controls.Add(button5);
@@ -291,43 +307,81 @@ namespace TestJsonRazbor
             groupBox1.Controls.Add(label3);
             groupBox1.Controls.Add(textBoxIDStep);
             groupBox1.Controls.Add(label2);
-            groupBox1.Location = new System.Drawing.Point(11, 68);
-            groupBox1.Margin = new System.Windows.Forms.Padding(4);
+            groupBox1.Location = new Point(6, 32);
+            groupBox1.Margin = new Padding(2, 2, 2, 2);
             groupBox1.Name = "groupBox1";
-            groupBox1.Padding = new System.Windows.Forms.Padding(4);
-            groupBox1.Size = new System.Drawing.Size(1033, 854);
+            groupBox1.Padding = new Padding(2, 2, 2, 2);
+            groupBox1.Size = new Size(557, 401);
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
             groupBox1.Text = "Step detail";
             groupBox1.Enter += groupBox1_Enter;
             // 
+            // textBoxIDFamilyPrevious
+            // 
+            textBoxIDFamilyPrevious.Location = new Point(254, 36);
+            textBoxIDFamilyPrevious.Margin = new Padding(2, 2, 2, 2);
+            textBoxIDFamilyPrevious.Name = "textBoxIDFamilyPrevious";
+            textBoxIDFamilyPrevious.Size = new Size(64, 23);
+            textBoxIDFamilyPrevious.TabIndex = 49;
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(164, 37);
+            label8.Margin = new Padding(2, 0, 2, 0);
+            label8.Name = "label8";
+            label8.Size = new Size(76, 15);
+            label8.TabIndex = 48;
+            label8.Text = "IDFamilyPrev";
+            // 
+            // textBoxFamilyStep
+            // 
+            textBoxFamilyStep.Location = new Point(94, 37);
+            textBoxFamilyStep.Margin = new Padding(2, 2, 2, 2);
+            textBoxFamilyStep.Name = "textBoxFamilyStep";
+            textBoxFamilyStep.Size = new Size(68, 23);
+            textBoxFamilyStep.TabIndex = 47;
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(4, 38);
+            label9.Margin = new Padding(2, 0, 2, 0);
+            label9.Name = "label9";
+            label9.Size = new Size(76, 15);
+            label9.TabIndex = 46;
+            label9.Text = "IDFamilyStep";
+            // 
             // button8
             // 
-            button8.Location = new System.Drawing.Point(744, 227);
+            button8.Location = new Point(400, 107);
+            button8.Margin = new Padding(1, 1, 1, 1);
             button8.Name = "button8";
-            button8.Size = new System.Drawing.Size(82, 46);
+            button8.Size = new Size(44, 22);
             button8.TabIndex = 45;
             button8.Text = "button8";
             button8.UseVisualStyleBackColor = true;
             button8.Click += button8_Click;
             // 
-            // button7
+            // buttonSwagger
             // 
-            button7.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            button7.Location = new System.Drawing.Point(949, 227);
-            button7.Name = "button7";
-            button7.Size = new System.Drawing.Size(89, 46);
-            button7.TabIndex = 44;
-            button7.Text = "Swag";
-            button7.UseVisualStyleBackColor = true;
-            button7.Click += button7_Click;
+            buttonSwagger.Location = new Point(456, 107);
+            buttonSwagger.Margin = new Padding(1, 1, 1, 1);
+            buttonSwagger.Name = "buttonSwagger";
+            buttonSwagger.Size = new Size(48, 22);
+            buttonSwagger.TabIndex = 44;
+            buttonSwagger.Text = "Swag";
+            buttonSwagger.UseVisualStyleBackColor = true;
+            buttonSwagger.Click += button7_Click;
             // 
             // buttonPaste
             // 
-            buttonPaste.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonPaste.Location = new System.Drawing.Point(989, 533);
+            buttonPaste.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonPaste.Location = new Point(533, 250);
+            buttonPaste.Margin = new Padding(1, 1, 1, 1);
             buttonPaste.Name = "buttonPaste";
-            buttonPaste.Size = new System.Drawing.Size(45, 46);
+            buttonPaste.Size = new Size(24, 22);
             buttonPaste.TabIndex = 43;
             buttonPaste.Text = "p";
             buttonPaste.UseVisualStyleBackColor = true;
@@ -335,10 +389,11 @@ namespace TestJsonRazbor
             // 
             // buttonCopy
             // 
-            buttonCopy.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonCopy.Location = new System.Drawing.Point(989, 484);
+            buttonCopy.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonCopy.Location = new Point(533, 227);
+            buttonCopy.Margin = new Padding(1, 1, 1, 1);
             buttonCopy.Name = "buttonCopy";
-            buttonCopy.Size = new System.Drawing.Size(45, 46);
+            buttonCopy.Size = new Size(24, 22);
             buttonCopy.TabIndex = 42;
             buttonCopy.Text = "c";
             buttonCopy.UseVisualStyleBackColor = true;
@@ -346,10 +401,11 @@ namespace TestJsonRazbor
             // 
             // button5
             // 
-            button5.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            button5.Location = new System.Drawing.Point(449, 802);
+            button5.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            button5.Location = new Point(242, 376);
+            button5.Margin = new Padding(1, 1, 1, 1);
             button5.Name = "button5";
-            button5.Size = new System.Drawing.Size(253, 46);
+            button5.Size = new Size(136, 22);
             button5.TabIndex = 41;
             button5.Text = "Pipeline metrics";
             button5.UseVisualStyleBackColor = true;
@@ -357,26 +413,29 @@ namespace TestJsonRazbor
             // 
             // textBoxRestorePath
             // 
-            textBoxRestorePath.Location = new System.Drawing.Point(435, 140);
+            textBoxRestorePath.Location = new Point(234, 65);
+            textBoxRestorePath.Margin = new Padding(1, 1, 1, 1);
             textBoxRestorePath.Name = "textBoxRestorePath";
-            textBoxRestorePath.Size = new System.Drawing.Size(200, 39);
+            textBoxRestorePath.Size = new Size(110, 23);
             textBoxRestorePath.TabIndex = 40;
             // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new System.Drawing.Point(288, 144);
+            label7.Location = new Point(155, 67);
+            label7.Margin = new Padding(1, 0, 1, 0);
             label7.Name = "label7";
-            label7.Size = new System.Drawing.Size(139, 32);
+            label7.Size = new Size(70, 15);
             label7.TabIndex = 39;
             label7.Text = "RestorePath";
             // 
             // checkBoxHandleSendError
             // 
             checkBoxHandleSendError.AutoSize = true;
-            checkBoxHandleSendError.Location = new System.Drawing.Point(17, 143);
+            checkBoxHandleSendError.Location = new Point(9, 67);
+            checkBoxHandleSendError.Margin = new Padding(1, 1, 1, 1);
             checkBoxHandleSendError.Name = "checkBoxHandleSendError";
-            checkBoxHandleSendError.Size = new System.Drawing.Size(240, 36);
+            checkBoxHandleSendError.Size = new Size(121, 19);
             checkBoxHandleSendError.TabIndex = 38;
             checkBoxHandleSendError.Text = "Handle Send Error";
             checkBoxHandleSendError.UseVisualStyleBackColor = true;
@@ -384,10 +443,10 @@ namespace TestJsonRazbor
             // checkBox1
             // 
             checkBox1.AutoSize = true;
-            checkBox1.Location = new System.Drawing.Point(648, 32);
-            checkBox1.Margin = new System.Windows.Forms.Padding(6);
+            checkBox1.Location = new Point(349, 15);
+            checkBox1.Margin = new Padding(4, 3, 4, 3);
             checkBox1.Name = "checkBox1";
-            checkBox1.Size = new System.Drawing.Size(115, 36);
+            checkBox1.Size = new Size(60, 19);
             checkBox1.TabIndex = 37;
             checkBox1.Text = "bridge";
             checkBox1.UseVisualStyleBackColor = true;
@@ -395,29 +454,29 @@ namespace TestJsonRazbor
             // 
             // textBoxResponceStep
             // 
-            textBoxResponceStep.Location = new System.Drawing.Point(511, 26);
-            textBoxResponceStep.Margin = new System.Windows.Forms.Padding(4);
+            textBoxResponceStep.Location = new Point(275, 12);
+            textBoxResponceStep.Margin = new Padding(2, 2, 2, 2);
             textBoxResponceStep.Name = "textBoxResponceStep";
-            textBoxResponceStep.Size = new System.Drawing.Size(127, 39);
+            textBoxResponceStep.Size = new Size(70, 23);
             textBoxResponceStep.TabIndex = 36;
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new System.Drawing.Point(409, 30);
-            label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label6.Location = new Point(220, 14);
+            label6.Margin = new Padding(2, 0, 2, 0);
             label6.Name = "label6";
-            label6.Size = new System.Drawing.Size(111, 32);
+            label6.Size = new Size(55, 15);
             label6.TabIndex = 35;
             label6.Text = "RespStep";
             // 
             // button3
             // 
-            button3.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            button3.Location = new System.Drawing.Point(709, 802);
-            button3.Margin = new System.Windows.Forms.Padding(4);
+            button3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            button3.Location = new Point(382, 376);
+            button3.Margin = new Padding(2, 2, 2, 2);
             button3.Name = "button3";
-            button3.Size = new System.Drawing.Size(74, 43);
+            button3.Size = new Size(40, 20);
             button3.TabIndex = 34;
             button3.Text = "dmn";
             button3.UseVisualStyleBackColor = true;
@@ -425,10 +484,10 @@ namespace TestJsonRazbor
             // 
             // button2
             // 
-            button2.Location = new System.Drawing.Point(592, 226);
-            button2.Margin = new System.Windows.Forms.Padding(4);
+            button2.Location = new Point(318, 106);
+            button2.Margin = new Padding(2, 2, 2, 2);
             button2.Name = "button2";
-            button2.Size = new System.Drawing.Size(124, 47);
+            button2.Size = new Size(66, 22);
             button2.TabIndex = 33;
             button2.Text = "Moc Text";
             button2.UseVisualStyleBackColor = true;
@@ -436,11 +495,11 @@ namespace TestJsonRazbor
             // 
             // buttonUp
             // 
-            buttonUp.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonUp.Location = new System.Drawing.Point(988, 319);
-            buttonUp.Margin = new System.Windows.Forms.Padding(4);
+            buttonUp.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonUp.Location = new Point(533, 149);
+            buttonUp.Margin = new Padding(2, 2, 2, 2);
             buttonUp.Name = "buttonUp";
-            buttonUp.Size = new System.Drawing.Size(41, 47);
+            buttonUp.Size = new Size(22, 22);
             buttonUp.TabIndex = 31;
             buttonUp.Text = "^";
             buttonUp.UseVisualStyleBackColor = true;
@@ -448,23 +507,23 @@ namespace TestJsonRazbor
             // 
             // buttonDown
             // 
-            buttonDown.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonDown.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            buttonDown.Location = new System.Drawing.Point(988, 371);
-            buttonDown.Margin = new System.Windows.Forms.Padding(4);
+            buttonDown.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            buttonDown.Font = new Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point);
+            buttonDown.Location = new Point(533, 174);
+            buttonDown.Margin = new Padding(2, 2, 2, 2);
             buttonDown.Name = "buttonDown";
-            buttonDown.Size = new System.Drawing.Size(43, 47);
+            buttonDown.Size = new Size(23, 22);
             buttonDown.TabIndex = 32;
             buttonDown.Text = "V";
             buttonDown.UseVisualStyleBackColor = true;
             // 
             // buttonSenderMoc
             // 
-            buttonSenderMoc.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            buttonSenderMoc.Location = new System.Drawing.Point(605, 739);
-            buttonSenderMoc.Margin = new System.Windows.Forms.Padding(4);
+            buttonSenderMoc.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            buttonSenderMoc.Location = new Point(326, 347);
+            buttonSenderMoc.Margin = new Padding(2, 2, 2, 2);
             buttonSenderMoc.Name = "buttonSenderMoc";
-            buttonSenderMoc.Size = new System.Drawing.Size(97, 47);
+            buttonSenderMoc.Size = new Size(52, 22);
             buttonSenderMoc.TabIndex = 15;
             buttonSenderMoc.Text = "Moc";
             buttonSenderMoc.UseVisualStyleBackColor = true;
@@ -472,10 +531,10 @@ namespace TestJsonRazbor
             // 
             // buttonReceiverMoc
             // 
-            buttonReceiverMoc.Location = new System.Drawing.Point(472, 226);
-            buttonReceiverMoc.Margin = new System.Windows.Forms.Padding(4);
+            buttonReceiverMoc.Location = new Point(254, 106);
+            buttonReceiverMoc.Margin = new Padding(2, 2, 2, 2);
             buttonReceiverMoc.Name = "buttonReceiverMoc";
-            buttonReceiverMoc.Size = new System.Drawing.Size(115, 47);
+            buttonReceiverMoc.Size = new Size(62, 22);
             buttonReceiverMoc.TabIndex = 14;
             buttonReceiverMoc.Text = "Moc File";
             buttonReceiverMoc.UseVisualStyleBackColor = true;
@@ -484,56 +543,56 @@ namespace TestJsonRazbor
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new System.Drawing.Point(17, 279);
-            label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label5.Location = new Point(9, 131);
+            label5.Margin = new Padding(2, 0, 2, 0);
             label5.Name = "label5";
-            label5.Size = new System.Drawing.Size(77, 32);
+            label5.Size = new Size(38, 15);
             label5.TabIndex = 13;
             label5.Text = "Filters";
             // 
             // listBox1
             // 
-            listBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            listBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             listBox1.ContextMenuStrip = contextMenuStripFilters;
             listBox1.FormattingEnabled = true;
-            listBox1.ItemHeight = 32;
-            listBox1.Location = new System.Drawing.Point(15, 311);
-            listBox1.Margin = new System.Windows.Forms.Padding(4);
+            listBox1.ItemHeight = 15;
+            listBox1.Location = new Point(8, 146);
+            listBox1.Margin = new Padding(2, 2, 2, 2);
             listBox1.Name = "listBox1";
-            listBox1.Size = new System.Drawing.Size(968, 388);
+            listBox1.Size = new Size(524, 184);
             listBox1.TabIndex = 12;
             listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
             listBox1.DoubleClick += listBox1_DoubleClick;
             // 
             // contextMenuStripFilters
             // 
-            contextMenuStripFilters.ImageScalingSize = new System.Drawing.Size(32, 32);
-            contextMenuStripFilters.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { addFilterToolStripMenuItem, removeFilterToolStripMenuItem });
+            contextMenuStripFilters.ImageScalingSize = new Size(32, 32);
+            contextMenuStripFilters.Items.AddRange(new ToolStripItem[] { addFilterToolStripMenuItem, removeFilterToolStripMenuItem });
             contextMenuStripFilters.Name = "contextMenuStripFilters";
-            contextMenuStripFilters.Size = new System.Drawing.Size(231, 80);
+            contextMenuStripFilters.Size = new Size(145, 48);
             // 
             // addFilterToolStripMenuItem
             // 
             addFilterToolStripMenuItem.Name = "addFilterToolStripMenuItem";
-            addFilterToolStripMenuItem.Size = new System.Drawing.Size(230, 38);
+            addFilterToolStripMenuItem.Size = new Size(144, 22);
             addFilterToolStripMenuItem.Text = "Add filter";
             addFilterToolStripMenuItem.Click += toolStripMenuItem3_Click;
             // 
             // removeFilterToolStripMenuItem
             // 
             removeFilterToolStripMenuItem.Name = "removeFilterToolStripMenuItem";
-            removeFilterToolStripMenuItem.Size = new System.Drawing.Size(230, 38);
+            removeFilterToolStripMenuItem.Size = new Size(144, 22);
             removeFilterToolStripMenuItem.Text = "Remove filter";
             removeFilterToolStripMenuItem.Click += toolStripMenuItem4_Click;
             // 
             // buttonTestServer
             // 
-            buttonTestServer.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            buttonTestServer.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             buttonTestServer.Enabled = false;
-            buttonTestServer.Location = new System.Drawing.Point(448, 739);
-            buttonTestServer.Margin = new System.Windows.Forms.Padding(4);
+            buttonTestServer.Location = new Point(242, 347);
+            buttonTestServer.Margin = new Padding(2, 2, 2, 2);
             buttonTestServer.Name = "buttonTestServer";
-            buttonTestServer.Size = new System.Drawing.Size(149, 47);
+            buttonTestServer.Size = new Size(80, 22);
             buttonTestServer.TabIndex = 11;
             buttonTestServer.Text = "Test";
             buttonTestServer.UseVisualStyleBackColor = true;
@@ -542,10 +601,10 @@ namespace TestJsonRazbor
             // buttonTestReceiver
             // 
             buttonTestReceiver.Enabled = false;
-            buttonTestReceiver.Location = new System.Drawing.Point(383, 226);
-            buttonTestReceiver.Margin = new System.Windows.Forms.Padding(4);
+            buttonTestReceiver.Location = new Point(206, 106);
+            buttonTestReceiver.Margin = new Padding(2, 2, 2, 2);
             buttonTestReceiver.Name = "buttonTestReceiver";
-            buttonTestReceiver.Size = new System.Drawing.Size(82, 47);
+            buttonTestReceiver.Size = new Size(44, 22);
             buttonTestReceiver.TabIndex = 10;
             buttonTestReceiver.Text = "Test";
             buttonTestReceiver.UseVisualStyleBackColor = true;
@@ -553,11 +612,11 @@ namespace TestJsonRazbor
             // 
             // button4
             // 
-            button4.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            button4.Location = new System.Drawing.Point(15, 801);
-            button4.Margin = new System.Windows.Forms.Padding(4);
+            button4.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            button4.Location = new Point(8, 376);
+            button4.Margin = new Padding(2, 2, 2, 2);
             button4.Name = "button4";
-            button4.Size = new System.Drawing.Size(427, 47);
+            button4.Size = new Size(230, 22);
             button4.TabIndex = 9;
             button4.Text = "Save step";
             button4.UseVisualStyleBackColor = true;
@@ -565,11 +624,11 @@ namespace TestJsonRazbor
             // 
             // buttonSetupSender
             // 
-            buttonSetupSender.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-            buttonSetupSender.Location = new System.Drawing.Point(15, 739);
-            buttonSetupSender.Margin = new System.Windows.Forms.Padding(4);
+            buttonSetupSender.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            buttonSetupSender.Location = new Point(8, 347);
+            buttonSetupSender.Margin = new Padding(2, 2, 2, 2);
             buttonSetupSender.Name = "buttonSetupSender";
-            buttonSetupSender.Size = new System.Drawing.Size(427, 47);
+            buttonSetupSender.Size = new Size(230, 22);
             buttonSetupSender.TabIndex = 8;
             buttonSetupSender.Text = "Sender";
             buttonSetupSender.UseVisualStyleBackColor = true;
@@ -577,10 +636,10 @@ namespace TestJsonRazbor
             // 
             // buttonSetupReceiver
             // 
-            buttonSetupReceiver.Location = new System.Drawing.Point(15, 226);
-            buttonSetupReceiver.Margin = new System.Windows.Forms.Padding(4);
+            buttonSetupReceiver.Location = new Point(8, 106);
+            buttonSetupReceiver.Margin = new Padding(2, 2, 2, 2);
             buttonSetupReceiver.Name = "buttonSetupReceiver";
-            buttonSetupReceiver.Size = new System.Drawing.Size(362, 47);
+            buttonSetupReceiver.Size = new Size(195, 22);
             buttonSetupReceiver.TabIndex = 6;
             buttonSetupReceiver.Text = "Receiver";
             buttonSetupReceiver.UseVisualStyleBackColor = true;
@@ -588,77 +647,77 @@ namespace TestJsonRazbor
             // 
             // textBoxStepDescription
             // 
-            textBoxStepDescription.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            textBoxStepDescription.Location = new System.Drawing.Point(178, 181);
-            textBoxStepDescription.Margin = new System.Windows.Forms.Padding(4);
+            textBoxStepDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxStepDescription.Location = new Point(96, 85);
+            textBoxStepDescription.Margin = new Padding(2, 2, 2, 2);
             textBoxStepDescription.Name = "textBoxStepDescription";
-            textBoxStepDescription.Size = new System.Drawing.Size(840, 39);
+            textBoxStepDescription.Size = new Size(455, 23);
             textBoxStepDescription.TabIndex = 5;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new System.Drawing.Point(7, 181);
-            label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label4.Location = new Point(4, 85);
+            label4.Margin = new Padding(2, 0, 2, 0);
             label4.Name = "label4";
-            label4.Size = new System.Drawing.Size(132, 32);
+            label4.Size = new Size(66, 15);
             label4.TabIndex = 4;
             label4.Text = "description";
             // 
             // textBoxIDPrevStep
             // 
-            textBoxIDPrevStep.Location = new System.Drawing.Point(292, 30);
-            textBoxIDPrevStep.Margin = new System.Windows.Forms.Padding(4);
+            textBoxIDPrevStep.Location = new Point(158, 14);
+            textBoxIDPrevStep.Margin = new Padding(2, 2, 2, 2);
             textBoxIDPrevStep.Name = "textBoxIDPrevStep";
-            textBoxIDPrevStep.Size = new System.Drawing.Size(114, 39);
+            textBoxIDPrevStep.Size = new Size(64, 23);
             textBoxIDPrevStep.TabIndex = 3;
             textBoxIDPrevStep.TextChanged += textBoxIDPrevStep_TextChanged;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new System.Drawing.Point(171, 32);
-            label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label3.Location = new Point(92, 15);
+            label3.Margin = new Padding(2, 0, 2, 0);
             label3.Name = "label3";
-            label3.Size = new System.Drawing.Size(129, 32);
+            label3.Size = new Size(65, 15);
             label3.TabIndex = 2;
             label3.Text = "IDAncestor";
             // 
             // textBoxIDStep
             // 
-            textBoxIDStep.Location = new System.Drawing.Point(45, 32);
-            textBoxIDStep.Margin = new System.Windows.Forms.Padding(4);
+            textBoxIDStep.Location = new Point(24, 15);
+            textBoxIDStep.Margin = new Padding(2, 2, 2, 2);
             textBoxIDStep.Name = "textBoxIDStep";
-            textBoxIDStep.Size = new System.Drawing.Size(123, 39);
+            textBoxIDStep.Size = new Size(68, 23);
             textBoxIDStep.TabIndex = 1;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(7, 34);
-            label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label2.Location = new Point(4, 16);
+            label2.Margin = new Padding(2, 0, 2, 0);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(37, 32);
+            label2.Size = new Size(18, 15);
             label2.TabIndex = 0;
             label2.Text = "ID";
             // 
             // textBoxPipelineDescription
             // 
-            textBoxPipelineDescription.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            textBoxPipelineDescription.Location = new System.Drawing.Point(241, 0);
-            textBoxPipelineDescription.Margin = new System.Windows.Forms.Padding(4);
+            textBoxPipelineDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxPipelineDescription.Location = new Point(130, 0);
+            textBoxPipelineDescription.Margin = new Padding(2, 2, 2, 2);
             textBoxPipelineDescription.Name = "textBoxPipelineDescription";
-            textBoxPipelineDescription.Size = new System.Drawing.Size(788, 39);
+            textBoxPipelineDescription.Size = new Size(427, 23);
             textBoxPipelineDescription.TabIndex = 1;
             textBoxPipelineDescription.TextChanged += textBoxPipelineDescription_TextChanged;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(11, 0);
-            label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label1.Location = new Point(6, 0);
+            label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(224, 32);
+            label1.Size = new Size(111, 15);
             label1.TabIndex = 0;
             label1.Text = "Pipeline description";
             // 
@@ -668,57 +727,28 @@ namespace TestJsonRazbor
             // 
             // contextMenuStrip2
             // 
-            contextMenuStrip2.ImageScalingSize = new System.Drawing.Size(32, 32);
+            contextMenuStrip2.ImageScalingSize = new Size(32, 32);
             contextMenuStrip2.Name = "contextMenuStrip2";
-            contextMenuStrip2.Size = new System.Drawing.Size(61, 4);
+            contextMenuStrip2.Size = new Size(61, 4);
             // 
             // openFileDialog1
             // 
             openFileDialog1.FileName = "openFileDialog1";
             // 
-            // textBoxIDFamilyPrevious
+            // iNSERToolStripMenuItem
             // 
-            textBoxIDFamilyPrevious.Location = new System.Drawing.Point(472, 77);
-            textBoxIDFamilyPrevious.Margin = new System.Windows.Forms.Padding(4);
-            textBoxIDFamilyPrevious.Name = "textBoxIDFamilyPrevious";
-            textBoxIDFamilyPrevious.Size = new System.Drawing.Size(114, 39);
-            textBoxIDFamilyPrevious.TabIndex = 49;
-            // 
-            // label8
-            // 
-            label8.AutoSize = true;
-            label8.Location = new System.Drawing.Point(305, 79);
-            label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            label8.Name = "label8";
-            label8.Size = new System.Drawing.Size(151, 32);
-            label8.TabIndex = 48;
-            label8.Text = "IDFamilyPrev";
-            // 
-            // textBoxFamilyStep
-            // 
-            textBoxFamilyStep.Location = new System.Drawing.Point(174, 79);
-            textBoxFamilyStep.Margin = new System.Windows.Forms.Padding(4);
-            textBoxFamilyStep.Name = "textBoxFamilyStep";
-            textBoxFamilyStep.Size = new System.Drawing.Size(123, 39);
-            textBoxFamilyStep.TabIndex = 47;
-            // 
-            // label9
-            // 
-            label9.AutoSize = true;
-            label9.Location = new System.Drawing.Point(7, 81);
-            label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            label9.Name = "label9";
-            label9.Size = new System.Drawing.Size(152, 32);
-            label9.TabIndex = 46;
-            label9.Text = "IDFamilyStep";
+            iNSERToolStripMenuItem.Name = "iNSERToolStripMenuItem";
+            iNSERToolStripMenuItem.Size = new Size(180, 22);
+            iNSERToolStripMenuItem.Text = "Insert between";
+            iNSERToolStripMenuItem.Click += iNSERToolStripMenuItem_Click;
             // 
             // FormPipeline
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1573, 929);
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(847, 436);
             Controls.Add(splitContainer1);
-            Margin = new System.Windows.Forms.Padding(4);
+            Margin = new Padding(2, 2, 2, 2);
             Name = "FormPipeline";
             Text = "FormPipeline";
             FormClosed += FormPipeline_FormClosed;
@@ -752,7 +782,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button buttonSetupSender;
         private System.Windows.Forms.Button buttonSetupReceiver;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button buttonTestReceiver;
@@ -792,11 +821,13 @@ namespace TestJsonRazbor
         private System.Windows.Forms.Button buttonCopy;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button buttonSwagger;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.TextBox textBoxIDFamilyPrevious;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox textBoxFamilyStep;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button buttonCorrectOccurences;
+        private ToolStripMenuItem iNSERToolStripMenuItem;
     }
 }

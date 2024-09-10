@@ -134,13 +134,19 @@ namespace UniElLib
         {
             List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
             var rootElement = AbstrParser.CreateNode(null, list, "Root");
+            ParseString1(templ, cantTryParse, list, rootElement);
+            return rootElement;
+        }
+
+        public static AbstrParser.UniEl ParseString1(string body, bool cantTryParse, List<UniEl> list, UniEl rootElement)
+        {
             try
             {
                 //            AbstrParser.UniEl rootElOutput = new AbstrParser.UniEl() { Name = "root" };
                 foreach (var pars in AbstrParser.availParser)
-                    if (pars.canRazbor("", templ, rootElement, list,cantTryParse))
+                    if (pars.canRazbor("", body, rootElement, list, cantTryParse))
                     {
-
+                        return rootElement;
                     }
             }
             catch
@@ -149,6 +155,7 @@ namespace UniElLib
             }
             return rootElement;
         }
+
         public static AbstrParser.UniEl ParseStringTest(string templ, List<AbstrParser.UniEl> list,AbstrParser.UniEl rootElement , bool cantTryParse = false)
         {
 

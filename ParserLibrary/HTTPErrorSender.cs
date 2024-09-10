@@ -58,12 +58,15 @@ namespace ParserLibrary
             try
             {
                 var errCodNode = root.childs.FirstOrDefault(ii => ii.Name == "ErrorCode");
-                if(errCodNode != null)
+                if (errCodNode != null)
+                {
+                    (context.context as HTTPReceiver.SyncroItem).isError = true;
                     (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = Convert.ToInt32(errCodNode.Value.ToString());
+                    root.childs.Remove(errCodNode);
+                }
                 //context.this.StatusCode = Convert.ToInt32(errCodNode.Value.ToString());
-                var errCodNodeText = root.childs.FirstOrDefault(ii => ii.Name == "ErrorMessage");
-                if (errCodNodeText != null)
-                    (context.context as HTTPReceiver.SyncroItem).SetErrorMessage(errCodNodeText.Value.ToString());
+                if((context.context as HTTPReceiver.SyncroItem).isError)
+                    (context.context as HTTPReceiver.SyncroItem).SetErrorMessage(root.toJSON()/*errCodNodeText.Value.ToString()*/);
 
                // this.StatusMessage = errCodNodeText.Value.ToString();
             }
@@ -81,7 +84,7 @@ namespace ParserLibrary
     public class HTTPStatusException:Exception
     {
         public int StatusCode;
-        public object StatusReasonObject;
+        public object StatusReasonJson;
     }
 
 }

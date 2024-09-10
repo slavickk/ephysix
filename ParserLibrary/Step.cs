@@ -33,6 +33,7 @@ using static ParserLibrary.Pipeline;
 using System.Reflection.Emit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using System.Net.WebSockets;
 
 namespace ParserLibrary;
 /// <summary>
@@ -641,6 +642,10 @@ public partial class Step : ILiquidizable
     private async Task FilterStep(ContextItem context, AbstrParser.UniEl rootElement)
     {
         DateTime time1 = DateTime.Now;
+        if(this.IDStep== "Step_export_analyse")
+        {
+            int yy = 0;
+        }
 
         //                    var fltr = filters.First().filter(list);
         if (filterCollection != null && filterCollection.Count > 0)
@@ -670,12 +675,12 @@ public partial class Step : ILiquidizable
                 {
                     if (!isErrorSending)
                     {
-                            await SendToSender(rootElement, context, local_rootOutput);
+                        await SendToSender(rootElement, context, local_rootOutput);
                     }
                     else
                         SaveRestoreFile(local_rootOutput);
+                    //if ((context.context as HTTPReceiver.SyncroItem).isError)
 
-                    new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode", Value = (isErrorSending?1: 0) };
                 }
                 catch (Exception e77)
                 {
@@ -704,6 +709,29 @@ public partial class Step : ILiquidizable
 
             }
 
+        }
+    }
+
+    public static void FillCodeResult(ContextItem context, AbstrParser.UniEl rootElement)
+    {
+        var el = new AbstrParser.UniEl(rootElement.ancestor) { Name = "SendErrorCode" };
+        new AbstrParser.UniEl(el) { Name = "Code", Value = ((context.context as HTTPReceiver.SyncroItem).isError ? (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode : 0) };
+        if ((context.context as HTTPReceiver.SyncroItem).isError)
+        {
+            if (!string.IsNullOrEmpty((context.context as HTTPReceiver.SyncroItem).errorContent))
+            {
+                var el1 = new AbstrParser.UniEl(el) { Name = "Content" };
+                AbstrParser.ParseString1((context.context as HTTPReceiver.SyncroItem).errorContent, true, context.list, el1);
+                //             new AbstrParser.UniEl(el) { Name = "Content", Value = ((context.context as HTTPReceiver.SyncroItem).isError ? (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode : 0) };
+            }
+            if (!string.IsNullOrEmpty((context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText))
+            {
+                var el1 = new AbstrParser.UniEl(el) { Name = "ErrorMessage" };
+                AbstrParser.ParseString1((context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText, true, context.list, el1);
+                if (el1.childs.Count == 0)
+                    el1.Value = (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText;
+                //             new AbstrParser.UniEl(el) { Name = "Content", Value = ((context.context as HTTPReceiver.SyncroItem).isError ? (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode : 0) };
+            }
         }
     }
 
@@ -940,6 +968,7 @@ public partial class Step : ILiquidizable
                 ans = await isender.send(local_rootOutput,context);
             else
                 ans = await sender.send(local_rootOutput, context);
+            FillCodeResult(context, rootElInput);
 
             foreach (var node in local_rootOutput.childs)
             {

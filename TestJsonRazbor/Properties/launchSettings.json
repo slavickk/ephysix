@@ -3,7 +3,7 @@
     "TestJsonRazbor": {
       "commandName": "Project",
       "environmentVariables": {
-        "DATA_ROOT_DIR": "C:/Users/jurag/source/repos/PaymentService/SwaggerUIData/",
+        "DATA_ROOT_DIR": "C:\\Users\\jurag\\source\\repos\\ms-payment-service\\PaymentService\\SwaggerUIData\\",
         "MOCKED": "Step_step_0_STEP;Step_export_0_EXPORT;Step_finishpayment_0_PUPAY;Step_requestotp_0_Sign;Step_requestotp_1_Sign;Step_requestotp_2_Sign;Step_pupay_0_PUPAY;Step_finishpayment_Sign_PUPAY;Step_finishpayment_EndPay_PUPAY",
         "SECRET_WORD": "QWE123",
         "CCFA_SEND_TIMEOUT": "5000",
@@ -12,8 +12,10 @@
         "REX_URL2": "_dummy_",
         "REX_URL": "http://nginx-np.service.dev-ep.consul:30011",
         "REX_URL1": "http://nginx-np.service.ccfa-stage-pc.consul:30011",
+        "CHRONO_SERVICE__KAFKA__bootstrapServers": "10.200.100.11:9092",
         "SIGN_SERVICE__SIGN__ADDRESS": "http://212.233.113.20:8070/mb-sign-doc/ws/sign",
         "SIGN_SERVICE__VERIFY__ADDRESS": "http://212.233.113.20:8070/mb-sign-doc/ws/verify",
+        "ANYWAY__ADDRESS": "http://10.200.200.112:10001",
         "YAML_PATH": "Data\\ACS_TW.yml",
         "AUTH_HOST_URL": "http://10.74.28.30:30212",
         "FID": "Bank1",

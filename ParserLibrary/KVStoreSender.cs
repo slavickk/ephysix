@@ -82,6 +82,7 @@ namespace ParserLibrary
                     if(string.IsNullOrEmpty(body))
                     {
                         (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = 422;
+                        (context.context as HTTPReceiver.SyncroItem).isError = true;
                         if (!string.IsNullOrEmpty(this.OnGetErrorMessage))
                             (context.context as HTTPReceiver.SyncroItem).SetErrorMessage(string.Format(this.OnGetErrorMessage,key));
                     }

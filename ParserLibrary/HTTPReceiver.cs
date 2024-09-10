@@ -114,31 +114,34 @@ namespace ParserLibrary
         public class SyncroItem
         {
             public int HTTPStatusCode = 200;
-            public object HTTPErrorObject = null;
+            public string HTTPErrorJsonText = "";
+            public string errorContent = "";
+            public bool isError = false;
             public class ErrorMessage
             {
                 public string[] Reasons { get; set; }    
             }
             public void SetErrorMessage(string message)
             {
-                this.HTTPErrorObject = new ErrorMessage() { Reasons = new string[] { message } };
+                this.HTTPErrorJsonText = message;
             }
             public async Task<string> formAnswer(HttpContext context)
             {
                 string answer = "";
                 context.Response.StatusCode = HTTPStatusCode;
-                if(HTTPStatusCode != 200 )
+                if(isError )
                 {
-
-                    JsonSerializerOptions options = new JsonSerializerOptions()
-                    {
-                        WriteIndented = true,
-                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                    ,
-                        IgnoreNullValues = true
-                    };
-
-                    answer = JsonSerializer.Serialize(HTTPErrorObject, HTTPErrorObject.GetType(),options);
+                    context.Response.ContentType = "application/json";
+                   //       context.Response.
+                   /*            JsonSerializerOptions options = new JsonSerializerOptions()
+                               {
+                                   WriteIndented = true,
+                                   Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                               ,
+                                   IgnoreNullValues = true
+                               };
+                   */
+                   answer = HTTPErrorJsonText;// JsonSerializer.Serialize(HTTPErrorJsonText, HTTPErrorJsonText.GetType(),options);
                     //await context.Response.Body.WriteAsync(Encoding.ASCII.GetBytes(answer));
                 }
                 return answer;
