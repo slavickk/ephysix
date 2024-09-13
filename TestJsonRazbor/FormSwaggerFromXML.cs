@@ -628,6 +628,9 @@ end
                 if (def.paths.Count(ii => ii.path == currentEntryPoint.path) > 0)
                     def.paths.RemoveAll(ii => ii.path == currentEntryPoint.path);
                 def.paths.Add(currentEntryPoint);
+
+                var aa = def.jsonBody;
+
                 // return System.Text.Json.JsonSerializer.Serialize<SwaggerDef>(def, options);
                 if (File.Exists(summaryJsonFilePath) && new FileInfo(summaryJsonFilePath).Length > 0)
                     File.Copy(summaryJsonFilePath, summaryJsonFilePath.Replace(".json", ".bak"), true);
