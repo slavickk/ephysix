@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -23,10 +24,36 @@ namespace ParserLibrary.PlantUmlGen
         {
             var path = def.paths.First(ii => ii.path.Substring(ii.path.LastIndexOf("/") + 1) == context);
             string ex = "";
-            if(!string.IsNullOrEmpty(path.exampleDoc))
-                ex= "      [[/Files/" + path.exampleDoc.Replace(".json", ".html") + " Пример использования]] ";
-            return $"\\n \\n<i> [[/swagger/index.html#/INFO/get{context} {path.path}]]     [[/Files/{context}.html Диаграмма переходов]]  {ex}</i>";
+            ex = FillExamplesDescription(path, ex,2); return $"\\n \\n<i> [[/swagger/index.html#/INFO/get{context} {path.path}]]     [[/Files/{context}.html Диаграмма переходов]]  {ex}</i>";
         }
+
+        public static string FillExamplesDescription(OpenApiDef.EntryPoint path, string ex,int type)
+        {
+            string descr = "";
+            if (path.exampleDoc != null)
+            {
+                if (type==3)
+                ex += "<b>Примеры использования:</b>\r\n  r\n";
+                foreach (var path1 in path.exampleDoc)
+                {
+                    using (StreamReader sr = new StreamReader(Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"], "Config/" + path1)))
+                    {
+                        var jsonObject = JObject.Parse(sr.ReadToEnd());
+
+                        // Select all Inputs where Visible is true
+                        descr = jsonObject["Caption"].ToString();
+                    }
+                    if(type ==2)
+                     ex += "\\n<i>[[/Files/" + path1.Replace(".json", ".html") + " " + descr + "]]";
+                    else
+                        ex += "  ["+descr+"](/Files/" + path1.Replace(".json", ".html") +")  \r\n ";
+
+                }
+            }
+
+            return ex;
+        }
+
         static string FindAndReplaceSubstrings(string input, OpenApiDef def)
         {
             // Regular expression to find substrings starting with "{#" and ending with "#}"
@@ -46,6 +73,7 @@ namespace ParserLibrary.PlantUmlGen
         }
         public static async Task GenerateHtml(string inputDir, string outputDir, OpenApiDef def)
         {
+            
             var httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = true });
 
             foreach (var file in Directory.GetFiles(inputDir, "*.puml"))
@@ -62,6 +90,10 @@ namespace ParserLibrary.PlantUmlGen
                         {
                             sw.WriteLine(html);
                         }
+                    }
+                    else
+                    {
+                        int yy = 0;
                     }
                 }
 

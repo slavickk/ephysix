@@ -25,7 +25,7 @@ namespace ParserLibrary.PlantUmlGen
         public List<ExampleItem> steps { get; set; } = new List<ExampleItem>();
         public static async Task generateExample(string jsonFileName)
         {
-            var rootDir = Environment.GetEnvironmentVariable("DATA_ROOT_DIR");
+            var rootDir = Pipeline.configuration["DATA_ROOT_DIR"];
             using (StreamReader sr = new StreamReader(Path.Combine(Path.Combine(rootDir, "Config"), jsonFileName)))
 
             {
@@ -58,7 +58,7 @@ namespace ParserLibrary.PlantUmlGen
             var aa = "@startsalt\r\n{+\r\nskinparam handwritten true\r\n\r\n  Услуга:<color:Blue>Билайн БК без комиссии д/б\r\n Оплата с карты | ^Карта 22202***01^\r\n\r\n\r\n Номер телефона (без +7):|\"<color:#9a9a9a>9206526152\"\r\n Сумма, руб.:|\"<color:#9a9a9a>1000  \"\r\nСумма к оплате: 1000.00руб.\r\nКомиссия: 0.00руб.\r\n| [  Начать оплату   ]\r\n}\r\n@endsalt";
             var result = "<!DOCTYPE html>\r\n<html>\r\n<head>\r\n\t    <meta charset=\"UTF-8\" />\r\n\t        <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css\" integrity=\"sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\" />\r\n    \r\n        <script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js\" integrity=\"sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\r\n        <script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js\" integrity=\"sha512-SkmBfuA2hqjzEVpmnMt/LINrjop3GKWqsuLSSB3e7iBmYK7JuWw4ldmmxwD9mdm2IRTTi0OxSAfEGvgEi0i2Kw==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\r\n</head>\r\n<body>" + Markdown.ToHtml(retvalue,MarkdownPipeline)+ "\t<script src=\"/themes/prism.js\"></script>\r\n</body>\r\n</html>";
            // var result = "<!DOCTYPE html>\r\n<html>\r\n<head>\r\n\t    <meta charset=\"UTF-8\" />\r\n\t        <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css\" integrity=\"sha512-vswe+cgvic/XBoF1OcM/TeJ2FW0OofqAVdCZiEYkd6dwGXthvkSFWOoGGJgS2CW70VK5dQM5Oh+7ne47s74VTg==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\" />\r\n    \r\n        <script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js\" integrity=\"sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\r\n        <script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js\" integrity=\"sha512-SkmBfuA2hqjzEVpmnMt/LINrjop3GKWqsuLSSB3e7iBmYK7JuWw4ldmmxwD9mdm2IRTTi0OxSAfEGvgEi0i2Kw==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\r\n<link href=\"/themes/prism.css\" rel=\"stylesheet\" />\r\n</head>\r\n<body>" + Markdown.ToHtml(retvalue, MarkdownPipeline) + "\t<script src=\"/themes/prism.js\"></script>\r\n</body>\r\n</html>";
-            using (StreamWriter sw = new StreamWriter(Path.Combine(Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"), "wwwroot/Files"), fileName.Replace(".json", ".html"))))
+            using (StreamWriter sw = new StreamWriter(Path.Combine(Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"], "wwwroot/Files"), fileName.Replace(".json", ".html"))))
             {
                 sw.Write(result);
             }
@@ -93,11 +93,11 @@ namespace ParserLibrary.PlantUmlGen
             static HttpClient  httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = true });
             string getFileName()
             {
-                return  "Pict"+this.ID + ".svg";
+                return  "Pict"+owner.ID+"-"+this.ID + ".svg";
             }
             string getFullPath()
             {
-                return Path.Combine(Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"), "wwwroot/files"),getFileName());
+                return Path.Combine(Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"], "wwwroot/files"),getFileName());
             }
             string getRelativePath()
             {

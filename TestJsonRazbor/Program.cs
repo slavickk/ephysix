@@ -44,7 +44,7 @@ namespace TestJsonRazbor
         {
             Environment.SetEnvironmentVariable("aa__bb__cc", "fff");
 
-          /*  var input = @"
+            var input = @"
  - A77587679318FED87BB040F00D76AB461B962D95
     timeoutSendInMilliseconds: {#SIGN_SERVICE:VERIFY:TIMEOUT_SEND_MSEC##5000#}
     headers: 
@@ -57,12 +57,12 @@ namespace TestJsonRazbor
     {#asdd#}
     description: Сервис подписи
     cacheTimeInMilliseconds: 0
-    url: {#SIGN_SERVICE:VERIFY:ADDRESS#}
+    url: {#SIGN_SERVICE:VERIFY:ADDRESS#}  
    ";
             foreach (var ff in Pipeline.getEnvVariables1(input)) 
             {
                 var tt=0;
-            }*/
+            }
             var builder = new ConfigurationBuilder()
    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).AddEnvironmentVariables(prefix: "");
             Pipeline.configuration = builder.Build();

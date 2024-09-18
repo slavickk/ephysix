@@ -44,149 +44,134 @@ namespace TestJsonRazbor
         /// </summary>
         private void InitializeComponent()
         {
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.Key = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            listView1 = new ListView();
+            Key = new ColumnHeader();
+            columnHeader1 = new ColumnHeader();
+            label1 = new Label();
+            textBox1 = new TextBox();
+            label2 = new Label();
+            textBox2 = new TextBox();
+            checkBox1 = new CheckBox();
+            button1 = new Button();
+            button2 = new Button();
+            button3 = new Button();
+            SuspendLayout();
             // 
             // listView1
             // 
-            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.Key,
-            this.columnHeader1});
-            this.listView1.FullRowSelect = true;
-            this.listView1.GridLines = true;
-            this.listView1.Location = new System.Drawing.Point(6, 109);
-            this.listView1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(479, 286);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
+            listView1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            listView1.Columns.AddRange(new ColumnHeader[] { Key, columnHeader1 });
+            listView1.FullRowSelect = true;
+            listView1.GridLines = true;
+            listView1.Location = new Point(3, 51);
+            listView1.Name = "listView1";
+            listView1.Size = new Size(260, 136);
+            listView1.TabIndex = 0;
+            listView1.UseCompatibleStateImageBehavior = false;
+            listView1.View = View.Details;
+            listView1.SelectedIndexChanged += listView1_SelectedIndexChanged;
             // 
             // Key
             // 
-            this.Key.Text = "Key";
-            this.Key.Width = 100;
+            Key.Text = "Key";
+            Key.Width = 100;
             // 
             // columnHeader1
             // 
-            this.columnHeader1.Text = "Value";
-            this.columnHeader1.Width = 100;
+            columnHeader1.Text = "Value";
+            columnHeader1.Width = 100;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 9);
-            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 32);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Key";
+            label1.AutoSize = true;
+            label1.Location = new Point(3, 4);
+            label1.Name = "label1";
+            label1.Size = new Size(26, 15);
+            label1.TabIndex = 1;
+            label1.Text = "Key";
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(54, 2);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(104, 39);
-            this.textBox1.TabIndex = 2;
+            textBox1.Location = new Point(29, 1);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(58, 23);
+            textBox1.TabIndex = 2;
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(167, 9);
-            this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(72, 32);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Value";
+            label2.AutoSize = true;
+            label2.Location = new Point(90, 4);
+            label2.Name = "label2";
+            label2.Size = new Size(35, 15);
+            label2.TabIndex = 3;
+            label2.Text = "Value";
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(236, 4);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(104, 39);
-            this.textBox2.TabIndex = 4;
+            textBox2.Location = new Point(127, 2);
+            textBox2.Name = "textBox2";
+            textBox2.Size = new Size(58, 23);
+            textBox2.TabIndex = 4;
             // 
             // checkBox1
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(355, 13);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(139, 36);
-            this.checkBox1.TabIndex = 5;
-            this.checkBox1.Text = "overwise";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(191, 6);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(72, 19);
+            checkBox1.TabIndex = 5;
+            checkBox1.Text = "overwise";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(6, 64);
-            this.button1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(76, 49);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Add";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            button1.Location = new Point(3, 30);
+            button1.Name = "button1";
+            button1.Size = new Size(41, 23);
+            button1.TabIndex = 6;
+            button1.Text = "Add";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(93, 64);
-            this.button2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(76, 49);
-            this.button2.TabIndex = 7;
-            this.button2.Text = "Mod";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            button2.Location = new Point(50, 30);
+            button2.Name = "button2";
+            button2.Size = new Size(41, 23);
+            button2.TabIndex = 7;
+            button2.Text = "Mod";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(180, 64);
-            this.button3.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(76, 49);
-            this.button3.TabIndex = 8;
-            this.button3.Text = "Del";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            button3.Location = new Point(97, 30);
+            button3.Name = "button3";
+            button3.Size = new Size(41, 23);
+            button3.TabIndex = 8;
+            button3.Text = "Del";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
             // 
             // UserControlSwitch
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.listView1);
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.Name = "UserControlSwitch";
-            this.Size = new System.Drawing.Size(498, 405);
-            this.Load += new System.EventHandler(this.UserControlSwitch_Load);
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(button3);
+            Controls.Add(button2);
+            Controls.Add(button1);
+            Controls.Add(checkBox1);
+            Controls.Add(textBox2);
+            Controls.Add(label2);
+            Controls.Add(textBox1);
+            Controls.Add(label1);
+            Controls.Add(listView1);
+            Name = "UserControlSwitch";
+            Size = new Size(268, 190);
+            Load += UserControlSwitch_Load;
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

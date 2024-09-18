@@ -152,7 +152,7 @@ namespace ParserLibrary
         public List<Tag> tags { get; set; }
 
 
-       
+
         public Dictionary<string,Dictionary<string, GET>> paths { get; set; }
 
         public class Components
@@ -227,29 +227,60 @@ namespace ParserLibrary
                 public string externalItemName { get; set; }
 
                 public string path {get;set;}
+                public string output_path { get; set; }
+
                 public Parameter ancestor;
                 public List<Parameter> childs= new List<Parameter>();
                 public static void MarkChildsAndAncestor(List<Parameter> list)
                 {
                     foreach(var item in list)
                     {
-                        var arr=item.path.Split("/");
-                        foreach(var item2 in list)
+                       // item.ancestor = null;
+                        item.childs.Clear();
+                        string[] arr;
+                        if(string.IsNullOrEmpty(item.output_path))
+                            arr=item.path.Split("/");
+                        else
+                            arr = item.output_path.Split("/");
+                        if (string.IsNullOrEmpty(item.output_path))
                         {
-                            if(item2.path != item.path)
+                            foreach (var item2 in list)
                             {
-                                var arr2=item2.path.Split("/");
-                                if(arr.Length==arr2.Length-1 && arr.SequenceEqual(arr2.Take(arr.Length)))
+                                if (item2.path != item.path)
                                 {
-                                    item.childs.Add(item2);
-                                    item2.ancestor = item;
+                                    var arr2 = item2.path.Split("/");
+                                    if (arr.Length == arr2.Length - 1 && arr.SequenceEqual(arr2.Take(arr.Length)))
+                                    {
+                                        item.childs.Add(item2);
+                                        item2.ancestor = item;
+                                    }
+
+
+
                                 }
-                                    
 
-                                
                             }
-
                         }
+                        else
+                        {
+                            foreach (var item2 in list)
+                            {
+                                if (item2.output_path != item.output_path)
+                                {
+                                    var arr2 = item2.output_path.Split("/");
+                                    if (arr.Length == arr2.Length - 1 && arr.SequenceEqual(arr2.Take(arr.Length)))
+                                    {
+                                        item.childs.Add(item2);
+                                        item2.ancestor = item;
+                                    }
+
+
+
+                                }
+
+                            }
+                        }
+                        item.output_path = getFullName(item, "");
                     }
 
                 }
@@ -262,7 +293,7 @@ namespace ParserLibrary
             public enum Method { get, post, put, delete };
             public Method method { get; set; }
             public string description { get; set; }
-            public string exampleDoc { get; set; }
+            public string[] exampleDoc { get; set; }
             public string operationId {  get; set; }
             public string summary { get; set; }
 
@@ -293,7 +324,10 @@ namespace ParserLibrary
             //****XML parameters
 
         }
+        public List<EntryPoint.Parameter> errorParams { get; set; }
+
         public List<EntryPoint> paths { get; set; }= new List<EntryPoint>(){ };
+
 
         string form_schemas_item_name(EntryPoint item,string suffics)
         {
@@ -303,11 +337,13 @@ namespace ParserLibrary
         {
             get
             {
+                OpenApiDef.EntryPoint.Parameter.MarkChildsAndAncestor(this.errorParams);
                 SwaggerDef def = new SwaggerDef();
                 def.paths = new Dictionary<string, Dictionary<string, GET>>();
                 def.info = this.info;
                 def.externalDocs = this.externalDocs;
                 var scemas_items = new Dictionary<string, SwaggerDef.Components.Schemas.Item>();
+                FormScemasVars(scemas_items, null, errorParams, "Error_description", new Dictionary<string, object>());
                 foreach (var item in paths)
                 {
                     Dictionary<string,object> example = new Dictionary<string,object>();
@@ -376,11 +412,7 @@ namespace ParserLibrary
                               description="Validation exception"
                                , content=new Dictionary<string, SwaggerDef.GET.Responses.CodeRet.Content.It>()
                               {
-                                  {"application/json"  , new SwaggerDef.GET.Responses.CodeRet.Content.It()
-                                  {
-                                      //schema= new SwaggerDef.GET.Responses.CodeRet.Content.Schema(){ @ref=$"#/components/schemas/{form_schemas_item_name(item, "Resp")}"}
-                                  }
-                                   }
+                                  {"application/json" , new SwaggerDef.GET.Responses.CodeRet.Content.It() { schema= new SwaggerDef.GET.Responses.CodeRet.Content.Schema(){ @ref=$"#/components/schemas/Error_description"} }}
                               }
 
 
@@ -420,7 +452,7 @@ namespace ParserLibrary
             }
 
             if(respProperties.Count>0)
-                scemas_items.Add(form_schemas_item_name(item, suff), new SwaggerDef.Components.Schemas.Item() { type = "object", properties = respProperties });
+                scemas_items.Add((item==null)?suff:form_schemas_item_name(item, suff), new SwaggerDef.Components.Schemas.Item() { type = "object", properties = respProperties });
 
           /*  foreach (var itemHead in cond.Where(ii => ii.childs.Count > 0))
             {
@@ -522,6 +554,7 @@ namespace ParserLibrary
                 public string key { get; set; }
                 public string newName { get; set; }
                 public string path { get; set; }
+                public string out_path { get; set; }
                 public string old_path { get; set; }
 
                 public string xml_prefix { get; set; }
@@ -568,7 +601,7 @@ namespace ParserLibrary
                 return path.Replace("@", "-") + "/#text";
             return path.Replace("@", "-");
         }
-        string getFullName(OpenApiDef.EntryPoint.Parameter parameter, string init = "")
+        static string getFullName(OpenApiDef.EntryPoint.Parameter parameter, string init = "")
         {
             string retValue = parameter.name + ((init == "") ? "" : "/") + init;
             if (parameter.ancestor != null)
@@ -744,7 +777,7 @@ namespace ParserLibrary
                         var thisUml = new PlantUMLItem() { Name = serviceNameInUml, color = "#00FF00", links = list };
                         last.links = new List<PlantUMLItem.Link>() { new PlantUMLItem.Link() { children = thisUml } };
                     }
-                    string pathFile = Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"), "PlantUML\\");
+                    string pathFile = Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"], "PlantUML\\");
                     using (StreamWriter sw = new StreamWriter(pathFile+$"{ path.path.Substring(path.path.LastIndexOf('/') + 1)}.puml"))
                     {
                         sw.WriteLine(PlantUMLItem.getUML(path.summary, new PlantUMLItem[] { path.PlantUMLTemplate }));

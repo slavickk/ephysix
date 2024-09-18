@@ -28,12 +28,14 @@ using System.Text.Json;
 //using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using DotLiquid;
 using Newtonsoft.Json;
 using ParserLibrary;
 using PluginBase;
 using Plugins;
 using UniElLib;
+using static ScintillaNET.Style;
 //using TICSender = Plugins.TICSender;
 
 namespace TestJsonRazbor
@@ -254,7 +256,7 @@ namespace TestJsonRazbor
                 MessageBox.Show("current step is null");
                 return;
             }
-            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(IReceiver), tObject = (currentStep.receiver == null && currentStep.ireceiver == null) ? new HTTPReceiverSwagger/*PacketBeatReceiver*/() : (currentStep.receiver == null) ? currentStep.ireceiver : currentStep.receiver };
+            FormTypeDefiner frm = new FormTypeDefiner() { tDefine = new Type[] { typeof(Receiver), typeof(IReceiver) }, tObject = (currentStep.receiver == null && currentStep.ireceiver == null) ? new HTTPReceiverSwagger/*PacketBeatReceiver*/() : (currentStep.receiver == null) ? currentStep.ireceiver : currentStep.receiver };
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 SetReceiverObject(frm.tObject);
@@ -320,7 +322,7 @@ namespace TestJsonRazbor
         {
             if (currentStep != null)
             {
-                FormTypeDefiner frm = new FormTypeDefiner() { tDefine = typeof(Sender), tObject = ((currentStep.sender == null) ? new ParserLibrary.HTTPSender() : currentStep.sender) };
+                FormTypeDefiner frm = new FormTypeDefiner() { tDefine = new Type[] { typeof(Sender), typeof(ISender) }, tObject = ((currentStep.sender == null) ? new ParserLibrary.HTTPSender() : currentStep.sender) };
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
                     SetSenderObject(frm.tObject);
@@ -444,8 +446,17 @@ namespace TestJsonRazbor
             {
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
+                    File.Copy(saveFileDialog1.FileName, saveFileDialog1.FileName.Replace(".yml", ".bak"), true);
                     pip.Save(saveFileDialog1.FileName, Assembly.GetAssembly(typeof(Samples)));
                     saveStorageContext(saveFileDialog1.FileName);
+                    if (checkBoxShowVars.Checked)
+                    {
+                        using (StreamReader sr = new StreamReader(saveFileDialog1.FileName))
+                        {
+                            var body = sr.ReadToEnd();
+                            MessageBox.Show(string.Join(',', Pipeline.getEnvVariables1(body).Select(ii => ii.pattern).Distinct()));
+                        }
+                    }
                 }
             }
             catch (Exception e77)
@@ -490,15 +501,18 @@ namespace TestJsonRazbor
 
         private void button4_Click(object sender, EventArgs e)
         {
+            var oldID = currentStep.IDStep;
             currentStep.IDStep = textBoxIDStep.Text;
             currentStep.IDPreviousStep = textBoxIDPrevStep.Text;
-            currentStep.IDFamilyStep=textBoxFamilyStep.Text;
+            currentStep.IDFamilyStep = textBoxFamilyStep.Text;
             currentStep.IDFamilyPreviousStep = textBoxIDFamilyPrevious.Text;
             currentStep.isBridge = checkBox1.Checked;
             currentStep.isHandleSenderError = checkBoxHandleSendError.Checked;
             currentStep.IDResponsedReceiverStep = textBoxResponceStep.Text;
             currentStep.description = textBoxStepDescription.Text;
             currentStep.SaveErrorSendDirectory = textBoxRestorePath.Text;
+            foreach (var step in pip.steps.Where(ii => ii.IDPreviousStep == oldID))
+                step.IDPreviousStep = currentStep.IDStep;
             treeView1.Refresh();
 
         }
@@ -743,8 +757,92 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         private void button8_Click(object sender, EventArgs e)
         {
             var frm = new FormConv();
-           // var frm = new FormTestShablon();
+            // var frm = new FormTestShablon();
             frm.ShowDialog();
+        }
+
+        private void buttonCorrectOccurences_Click(object sender, EventArgs e)
+        {
+            foreach (var item in Pipeline.configuration.GetChildren())
+            {
+
+            }
+        }
+
+        private void iNSERToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var stepName = "Step_" + pip.steps.Length;
+            var IDNextStep = ((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? "");
+            var oldStep = pip.steps.FirstOrDefault(ii => ii.IDPreviousStep == IDNextStep);
+            var newStep = new Step() { owner = pip, IDStep = stepName, IDPreviousStep = ((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? "") };
+            List<Step> steps = pip.steps.ToList();
+            steps.Add(newStep);
+            pip.steps = steps.ToArray();
+            (selectedNode == null ? treeView1.Nodes : selectedNode.Nodes).Add(new TreeNode(stepName) { ContextMenuStrip = this.contextMenuStrip1, Tag = newStep });
+            if (!string.IsNullOrEmpty(IDNextStep) && oldStep != null)
+            {
+                oldStep.IDPreviousStep = newStep.IDStep;
+            }
+            treeView1.ExpandAll();
+        }
+
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? ""));
+
+        }
+        public static T DeepCopyJSON<T>(T input)
+        {
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+            var jsonString = JsonConvert.SerializeObject(input,settings); // new Newtonsoft.Json.JsonSerializer().Serialize();//.Serialize(input,);
+            return JsonConvert.DeserializeObject<T>(jsonString, settings);
+           // return Newtonsoft.Json.JsonSerializer.Deserialize<T>(jsonString);
+        }
+        public static T DeepCopyXML<T>(T input)
+        {
+            using var stream = new MemoryStream();
+
+            var serializer = new XmlSerializer(typeof(T));
+            serializer.Serialize(stream, input);
+            stream.Position = 0;
+            return (T)serializer.Deserialize(stream);
+        }
+        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var idStep=Clipboard.GetText();
+
+            var copyStep = pip.steps.FirstOrDefault(ii => ii.IDStep == idStep);
+            try
+            {
+                if (copyStep != null)
+                {
+                    var stepName = "Step_" + pip.steps.Length;
+                    var IDNextStep = ((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? "");
+                    var oldStep = pip.steps.FirstOrDefault(ii => ii.IDPreviousStep == IDNextStep);
+                    var newStep = DeepCopyJSON<Step>(copyStep);
+                    newStep.owner = pip;
+                    newStep.IDStep = stepName;
+                    newStep.IDPreviousStep = ((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? "");
+                    // new Step() { owner = pip, IDStep = stepName, IDPreviousStep = ((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? "") };
+                    List<Step> steps = pip.steps.ToList();
+                    steps.Add(newStep);
+                    pip.steps = steps.ToArray();
+                    // newStep.filterCollection.AddRange(copyStep.filterCollection.Select(ii=>new Step.ItemFilter() {  condition=ii.condition, Name=ii.Name, outputFields=ii.outputFields.})
+
+                    (selectedNode == null ? treeView1.Nodes : selectedNode.Nodes).Add(new TreeNode(stepName) { ContextMenuStrip = this.contextMenuStrip1, Tag = newStep });
+                    if (!string.IsNullOrEmpty(IDNextStep) && oldStep != null)
+                    {
+                        oldStep.IDPreviousStep = newStep.IDStep;
+                    }
+                    treeView1.ExpandAll();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
         }
     }
 }

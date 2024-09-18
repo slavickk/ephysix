@@ -45,8 +45,6 @@
     <ProjectReference Include="..\UniElLib\UniElLib.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;C:\Users\jurag\source\repos\PaymentService\SwaggerUIData\*.*&quot; &quot;$(BaseOutputPath)\$(Configuration)\net6.0\Pubs\&quot; /S /E /Y" />
-  </Target>
+  
 
 </Project>

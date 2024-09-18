@@ -138,11 +138,11 @@ using (StreamReader sr = new StreamReader("C:\\Users\\jurag\\source\\repos\\ms-p
 {
     allProviders = JsonSerializer.Deserialize<List<OpenApiDef.EntryPoint.ExternalItem>>(sr.ReadToEnd());
 }
-if(nname.Substring(0,1)== "R")
+/*if(nname.Substring(0,1)== "R")
     MyExtensions.compare2XML($"C:\\Users\\jurag\\source\\repos\\ms-payment-service\\RawDocs\\{nname}.xml",allProviders.First(ii=>ii.Name==nname.Substring(1)).examplePathInput );
 else
     MyExtensions.compare2XML($"C:\\Users\\jurag\\source\\repos\\ms-payment-service\\RawDocs\\{nname}.xml", allProviders.First(ii => ii.Name == nname.Substring(1)).examplePathOutput);
-
+*/
 JsonSerializerOptions options = new JsonSerializerOptions()
 {
     WriteIndented = true,

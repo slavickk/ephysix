@@ -42,6 +42,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
     [YamlIgnore]
     DistributedCacheEntryOptions cache_options ;
     public double cacheTimeInMilliseconds /*{ get; set; } = 0*/;
+    public bool ignoreErrors = false;
 
     public virtual void Init(Pipeline owner)
     {
@@ -180,12 +181,15 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
                 }
 
             }
-            if ((context.context as HTTPReceiver.SyncroItem).HTTPStatusCode != 200)
+
+
+            if (!this.ignoreErrors && (context.context as HTTPReceiver.SyncroItem).isError)
             {
-                throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonObject = (context.context as HTTPReceiver.SyncroItem).HTTPErrorObject };
+                throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonJson = (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText };
 
             }
-
+            if (this.ignoreErrors && (context.context as HTTPReceiver.SyncroItem).isError)
+                ans = (context.context as HTTPReceiver.SyncroItem).errorContent;
             if (owner.debugMode)
                 Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Debug, this, root.toJSON(true), ans);
             metricUpTime.Add(time1);

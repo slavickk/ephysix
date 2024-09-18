@@ -171,7 +171,7 @@ namespace Plugins
                         .Configure(app =>
                         {
                             // app.Environment.WebRootFileProvider = compositeProvider;
-                            if (Environment.GetEnvironmentVariable("DATA_ROOT_DIR") is { } DATA_ROOT_DIR)
+                            if (Pipeline.configuration["DATA_ROOT_DIR"] is { } DATA_ROOT_DIR)
                             {
                                 Logger.log($"DATA_ROOT_DIR is set to {DATA_ROOT_DIR}, using the static files middleware", LogEventLevel.Debug, "any", DATA_ROOT_DIR);
                                 app.UseStaticFiles(new StaticFileOptions
@@ -439,7 +439,7 @@ namespace Plugins
                 Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", this._host.IDStep, response);
                 Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug,"any", response);
             }
-
+          //  "@startsalt\r\nTitle Выберите начисления\r\n{#\r\n. | Идентификатор | Наименование | Сумма\r\n[V]|20248 | ОБРАЩЕНИЕ С ТКО | 12345\r\n[ ]|20306 | ЭЛЕКТРОСНАБЖЕНИЕ | 2356.36\r\n[ ]|99999 | Общее начисление по ЕПД | 2356.36\r\n}\r\n@endsalt"
             if (context is ContextItem { context: SyncroItem item })
             {
                 Logger.log(
@@ -447,7 +447,7 @@ namespace Plugins
                     "Most likely this branch will be unused.");
                 item.answer = response;
                 Interlocked.Increment(ref item.srabot);
-                item.semaphore.Set();
+             //   item.semaphore.Set();
             }
             
             // The context may be SyncroItem item directly
@@ -456,7 +456,7 @@ namespace Plugins
                 Logger.log("HTTPReceiverSwagger: Main sendResponse branch with context being SyncroItem directly");
                 syncroItem.answer = response;
                 Interlocked.Increment(ref syncroItem.srabot);
-                syncroItem.semaphore.Set();
+             //   syncroItem.semaphore.Set();
             }
         }
 
@@ -469,7 +469,8 @@ namespace Plugins
             catch (HTTPStatusException e77)
             {
                 semaphoreItem.HTTPStatusCode = e77.StatusCode;
-                semaphoreItem.HTTPErrorObject = e77.StatusReasonObject;
+                semaphoreItem.isError = true;
+                semaphoreItem.HTTPErrorJsonText = e77.StatusReasonJson.ToString();
             }
             // semaphoreItem.semaphore.
             if (semaphoreItem.srabot==0)

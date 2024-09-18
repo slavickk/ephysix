@@ -36,7 +36,7 @@ namespace TestJsonRazbor
     public partial class FormTypeDefiner : Form
     {
 
-        public Type tDefine;
+        public Type[] tDefine;
         public object tObject;
         public FormTypeDefiner()
         {
@@ -68,14 +68,15 @@ namespace TestJsonRazbor
        //     ttypes[240]
             var ttypes = PluginsInterface.getAllTypes();
 //            var act=Activator.CreateInstance(ttypes[240].Assembly.FullName, ttypes[240].Name);
-            var tt = ttypes.Where(ii => ii.IsAssignableTo(tDefine) && !ii.IsAbstract).ToList();
+            var tt = ttypes.Where(ii => tDefine.Any(i1=>ii.IsAssignableTo(i1)) && !ii.IsAbstract).ToList();
 
-
-            foreach (var t in PluginsInterface.getAllTypes().Where(ii => ii.IsAssignableTo(tDefine) && !ii.IsAbstract))
+            Type selT = null;
+                foreach (var t in PluginsInterface.getAllTypes().Where(ii => tDefine.Any(i1 => ii.IsAssignableTo(i1)) && !ii.IsAbstract))
             {
+                selT=t;
                 comboBox1.Items.Add(new TypeDefiner(t));
             }
-            this.Text = "Configure " + tDefine.Name;
+            this.Text = "Configure " + selT.Name;
             if (tObject != null)
             {
                 object[] objs = new object[comboBox1.Items.Count];
