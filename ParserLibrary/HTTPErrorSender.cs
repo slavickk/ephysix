@@ -34,7 +34,7 @@ namespace ParserLibrary
 
         public override string getTemplate(string key)
         {
-            return "{\"ErrorCode\":\"\",\"ErrorMessage\":\"\" }";
+            return "{  \"ErrorCode\": \"\",\r\n  \"data\": { \"operationId\": \"\" },\r\n  \"error\": {\r\n    \"code\": \"\",\r\n    \"message\": \"\"\r\n  }\r\n}";
             //            return base.getTemplate(key);
         }
         public override string getExample()

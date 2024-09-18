@@ -214,6 +214,7 @@ public  class HTTPSender:Sender,ISelfTested
         {
             if (!urls[index].Contains("_dummy_") )
             {
+                
                 result = await client.PostAsync(urls[index], stringContent);
                 if (!result.IsSuccessStatusCode)
                 {
@@ -253,7 +254,18 @@ public  class HTTPSender:Sender,ISelfTested
                 response=response.Substring(0,response.Length - 1)+((response.Length>2)?",":"")+"{\"Inactive\":["+string.Join(",",values.First().Split(";").Select(ii=>$"\"{ii}\""))+"]}]";
                 //rules = values.First();
             }
+            //if(result.Content.Headers..ContentType.MediaType;)
             //if (result.Headers["AAA"])
+            if (result.Content.Headers.ContentType.MediaType.ToUpper() != this.ResponseType.ToUpper())
+            {
+                Logger.log("Error send http request {res} {answer}", Serilog.Events.LogEventLevel.Error, "any", result.StatusCode.ToString(), response);
+                (context.context as HTTPReceiver.SyncroItem).isError = true;
+                (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = 415;
+                (context.context as HTTPReceiver.SyncroItem).errorContent = result.Content.Headers.ContentType.MediaType;
+                (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText = System.Text.Json.JsonSerializer.Serialize("Unexpected media type "+ result.Content.Headers.ContentType.MediaType);
+
+
+            }
             return response;
         }
         if (kolRetry / urls.Length >= timeoutsBetweenRetryInMilli.Length)

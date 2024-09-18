@@ -3,7 +3,7 @@
     "TestJsonRazbor": {
       "commandName": "Project",
       "environmentVariables": {
-        "DATA_ROOT_DIR": "C:\\Users\\jurag\\source\\repos\\ms-payment-service\\PaymentService\\SwaggerUIData\\",
+        "DATA_ROOT_DIR1": "C:\\Users\\jurag\\source\\repos\\ms-payment-service\\PaymentService\\WebHostIU\\SwaggerUIData\\",
         "MOCKED": "Step_step_0_STEP;Step_export_0_EXPORT;Step_finishpayment_0_PUPAY;Step_requestotp_0_Sign;Step_requestotp_1_Sign;Step_requestotp_2_Sign;Step_pupay_0_PUPAY;Step_finishpayment_Sign_PUPAY;Step_finishpayment_EndPay_PUPAY",
         "SECRET_WORD": "QWE123",
         "CCFA_SEND_TIMEOUT": "5000",

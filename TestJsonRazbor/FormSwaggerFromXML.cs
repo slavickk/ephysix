@@ -150,12 +150,12 @@ end
         }
         void fromXmlToList(XmlNode node, XmlNode parentNode, List<OpenApiDef.SenderPartDefinition.DefinitionItem> list, List<OpenApiDef.SenderPartDefinition.DefinitionItem> definitionItems)
         {
-            if(node.Name=="ADDITIONAL")
+            if (node.Name == "ADDITIONAL")
             {
                 int yy = 0;
             }
             var path = calcPath(node, parentNode);
-            var clearPath= string.Join('/', path.Split('/').Select(ii => ii.Substring(ii.IndexOf(':') + 1)));
+            var clearPath = string.Join('/', path.Split('/').Select(ii => ii.Substring(ii.IndexOf(':') + 1)));
             var ff = definitionItems.FirstOrDefault(ii => clearPath.Length - ii.clearPath.Length >= 0 && clearPath.Substring(clearPath.Length - ii.clearPath.Length) == ii.clearPath);
             //    var comment = "";
             if (ff != null)
@@ -164,12 +164,12 @@ end
                 ff.path = path;
                 //          comment = ff.description;
                 list.Add(ff);
-                AddNamespaces(node, ff,ref path);
+                AddNamespaces(node, ff, ref path);
                 ff.path = path;
                 var currNode = parentNode;
-                while(currNode!= null)
+                while (currNode != null)
                 {
-                    AddNamespaces(currNode, null,ref path);
+                    AddNamespaces(currNode, null, ref path);
                     ff.path = path;
 
                     currNode = currNode.ParentNode;
@@ -178,7 +178,7 @@ end
                 var ff1 = list.FirstOrDefault(ii => ii.path == ff.path);
                 if (ff1 != null)
                 {
-                    if(ff1.path.Contains("@Direction"))
+                    if (ff1.path.Contains("@Direction"))
                     {
                         int yy = 0;
                     }
@@ -214,7 +214,7 @@ end
               */                                        // Use Regex to replace occurrences of the variable with "pref:variable"
             return Regex.Replace(input, pattern, m => m.Value.Replace(oldString, newString));
         }
-        private static void AddNamespaces(XmlNode node, OpenApiDef.SenderPartDefinition.DefinitionItem ff,ref string path)
+        private static void AddNamespaces(XmlNode node, OpenApiDef.SenderPartDefinition.DefinitionItem ff, ref string path)
         {
             if (!string.IsNullOrEmpty(node.NamespaceURI))
             {
@@ -234,10 +234,10 @@ end
                         {
                             if (string.IsNullOrEmpty(node.Prefix))
                                 path = RepString(path, node.Name, prefix + ":" + node.Name);
-//                            path = path.Replace("/" + node.Name, "/"+prefix + ":" + node.Name+"/");
+                            //                            path = path.Replace("/" + node.Name, "/"+prefix + ":" + node.Name+"/");
                             else
                                 path = RepString(path, node.Prefix + ":" + node.Name, prefix + ":" + node.Name);
-//                            path = path.Replace("/" + node.Prefix + ":" + node.Name + "/", "/" + prefix + ":" + node.Name + "/");
+                            //                            path = path.Replace("/" + node.Prefix + ":" + node.Name + "/", "/" + prefix + ":" + node.Name + "/");
 
                         }
                     }
@@ -249,12 +249,12 @@ end
                 else
                 {
                     XmlParser.namespaces.TryAdd(node.NamespaceURI, node.Prefix);
-                    if(string.IsNullOrEmpty(node.Prefix))
+                    if (string.IsNullOrEmpty(node.Prefix))
                     {
                         prefix = node.NamespaceURI.Substring(node.NamespaceURI.LastIndexOf('/') + 1);
                         XmlParser.namespaces[node.NamespaceURI] = prefix;
-                                                path = RepString(path,  node.Name, prefix + ":" + node.Name);
-//                           path = path.Replace("/" + node.Name + "/", "/" + prefix + ":" + node.Name + "/");
+                        path = RepString(path, node.Name, prefix + ":" + node.Name);
+                        //                           path = path.Replace("/" + node.Name + "/", "/" + prefix + ":" + node.Name + "/");
                         node.Prefix = prefix;
                     }
                 }
@@ -266,7 +266,7 @@ end
             }
         }
 
-        string summaryJsonFilePath = Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"),"swaggerSummary.json");
+        string summaryJsonFilePath = Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"], "swaggerSummary.json");
         private void FormSwaggerFromXML_Load(object sender, EventArgs e)
         {
             //  await GeneratePlant();
@@ -324,13 +324,13 @@ end
         }
 
 
-       
-        private void FillListView(string nname, ListView listViewInput, bool withPars, bool add, string sourceName,List<OpenApiDef.EntryPoint.Parameter> inputs=null)
+
+        private void FillListView(string nname, ListView listViewInput, bool withPars, bool add, string sourceName, List<OpenApiDef.EntryPoint.Parameter> inputs = null)
         {
             List<OpenApiDef.SenderPartDefinition.DefinitionItem> list = new List<OpenApiDef.SenderPartDefinition.DefinitionItem>();
             if (inputs?.Count > 0)
             {
-                list.AddRange(inputs.Select(ii => new OpenApiDef.SenderPartDefinition.DefinitionItem() { newName = ii.name, description = ii.description, example = ii.example, format = ii.format, key = ii.name, path = ii.path, old_path=ii.path, repeatable = ii.repeateable, required = ii.required, type = ii.type }));
+                list.AddRange(inputs.Select(ii => new OpenApiDef.SenderPartDefinition.DefinitionItem() { newName = ii.name, description = ii.description, example = ii.example, format = ii.format, key = ii.name, path = ii.path, out_path = ii.output_path, old_path = ii.path, repeatable = ii.repeateable, required = ii.required, type = ii.type }));
 
             }
 
@@ -338,7 +338,7 @@ end
             {
                 List<OpenApiDef.SenderPartDefinition.DefinitionItem> list1 = new List<OpenApiDef.SenderPartDefinition.DefinitionItem>();
                 string path = $"C:\\Users\\jurag\\source\\repos\\ms-payment-service\\RawDocs\\{nname}.json";
-               // List<OpenApiDef.SenderPartDefinition.DefinitionItem> list = new List<OpenApiDef.SenderPartDefinition.DefinitionItem>();
+                // List<OpenApiDef.SenderPartDefinition.DefinitionItem> list = new List<OpenApiDef.SenderPartDefinition.DefinitionItem>();
                 OpenApiDef.SenderPartDefinition def;
                 using (StreamReader sr = new StreamReader(path))
                 {
@@ -347,7 +347,7 @@ end
                 }
                 foreach (var itemList in list)
                 {
-                    var found = def.definitionItems.FirstOrDefault(ii => ii.path == itemList.path);
+                    var found = def.definitionItems.FirstOrDefault(ii => ii.path == itemList.path /*&& ii.out_path==itemList.out_path*/);
                     if (itemList.path.Contains("@Direction"))
                     {
                         int yy = 0;
@@ -361,9 +361,9 @@ end
                 {
                     xml.Load($"C:\\Users\\jurag\\source\\repos\\ms-payment-service\\RawDocs\\{nname}.xml");
                     fromXmlToList(xml.DocumentElement, null, list1, list);
-                    foreach(var inp in inputs)
+                    foreach (var inp in inputs)
                     {
-                        inp.path=list.First(ii=>ii.old_path==inp.path).path;
+                        inp.path = list.First(ii => ii.old_path == inp.path).path;
                     }
                     fromXmlToList(xml.DocumentElement, null, list1, def.definitionItems);
 
@@ -374,8 +374,8 @@ end
 
                     list1 = def.definitionItems.ToList();
                 }
-    
-                list.AddRange(list1.Where(ii => list.Count(i1 => i1.path == ii.path) == 0));
+
+                list.AddRange(list1.Where(ii => list.Count(i1 => i1.path == ii.path /*&& i1.out_path==ii.out_path*/) == 0));
 
             }
             /*  if (inputs?.Count > 0)
@@ -393,9 +393,9 @@ end
             foreach (var item in list)
             {
                 if (withPars)
-                    listViewInput.Items.Add(new ListViewItem(new string[] { item.path, item.description, string.IsNullOrEmpty(item.newName)?item.path.Split("/").Last().Replace("@", ""):item.newName, getType(item), "", item.example, "N", item.required ? "Y" : "N", item.repeatable? "Y" : "N", sourceName }));
+                    listViewInput.Items.Add(new ListViewItem(new string[] { item.path, item.description, string.IsNullOrEmpty(item.newName) ? item.path.Split("/").Last().Replace("@", "") : item.newName, getType(item), "", item.example, "N", item.required ? "Y" : "N", item.repeatable ? "Y" : "N", sourceName, item.out_path }));
                 else
-                    listViewInput.Items.Add(new ListViewItem(new string[] { item.path, item.description, string.IsNullOrEmpty(item.newName) ? item.path.Split("/").Last().Replace("@", "") : item.newName, getType(item), "", item.example, item.repeatable.ToString(), sourceName }));
+                    listViewInput.Items.Add(new ListViewItem(new string[] { item.path, item.description, string.IsNullOrEmpty(item.newName) ? item.path.Split("/").Last().Replace("@", "") : item.newName, getType(item), "", item.example, item.repeatable.ToString(), sourceName, item.out_path }));
 
             }
         }
@@ -446,7 +446,7 @@ end
                 oldInputItem.SubItems[4].Text = textBoxInputFormat.Text;
                 oldInputItem.SubItems[5].Text = textBoxInputExample.Text;
                 oldInputItem.SubItems[7].Text = checkBoxInputRequired.Checked ? "Y" : "N";
-                oldInputItem.SubItems[8].Text =checkBoxRepeatable.Checked ? "Y" : "N";
+                oldInputItem.SubItems[8].Text = checkBoxRepeatable.Checked ? "Y" : "N";
             }
             if (listViewInput.SelectedIndices.Count > 0)
             {
@@ -506,13 +506,15 @@ end
         async Task<string> AddFooterInDescription(OpenApiDef.EntryPoint entry)
         {
             var retValue = "\r\n\r\n\r\n<h><i>[Диаграмма переходов](/Files/" + entry.path.Substring(entry.path.LastIndexOf('/') + 1) + ".html)             \r\n";
-            if (!string.IsNullOrEmpty(entry.exampleDoc))
+            retValue = PlantUMLUrl.FillExamplesDescription(entry, retValue, 1);
+            if (entry.exampleDoc != null)
             {
-                await GenExample.generateExample(entry.exampleDoc);
-                retValue += "        [Пример использования](/Files/" + entry.exampleDoc.Replace(".json", ".html")+")       \r\n";
+                foreach (var ex in entry.exampleDoc)
+                    await GenExample.generateExample(ex);
+                //   retValue += "        [Пример использования](/Files/" + entry.exampleDoc.Replace(".json", ".html")+")       \r\n";
             }
             return retValue;
-       //     retValue += "        [Документация AnyWay](/Files/doc.pdf#" + entry.path.Substring(entry.path.LastIndexOf('/') + 1) + "_bookmark)";
+            //     retValue += "        [Документация AnyWay](/Files/doc.pdf#" + entry.path.Substring(entry.path.LastIndexOf('/') + 1) + "_bookmark)";
         }
 
         string clarifyTypeField(string inputType, out string outputFormat)
@@ -597,11 +599,12 @@ end
                             required = item.SubItems[7].Text == "Y",
                             repeateable = item.SubItems[8].Text == "Y"
                             ,
-                            externalItemName = item.SubItems[9].Text
+                            externalItemName = item.SubItems[9].Text,
+                            output_path = item.SubItems[10].Text
 
                         });
                 }
-                FormList(respProperties); 
+                FormList(respProperties);
                 foreach (var itemName in currentEntryPoint.externalCallItems)
                 {
                     string fileNameInput = itemName.examplePathInput;// @"C:\Users\jurag\Downloads\Telegram Desktop\AWRProvider.xml";
@@ -635,7 +638,7 @@ end
                 if (File.Exists(summaryJsonFilePath) && new FileInfo(summaryJsonFilePath).Length > 0)
                     File.Copy(summaryJsonFilePath, summaryJsonFilePath.Replace(".json", ".bak"), true);
                 string swaggerJsonPathShab = "{#DATA_ROOT_DIR#}wwwroot\\swagger\\v1\\swagger.json";
-                string swaggerJsonPath = Environment.GetEnvironmentVariable("DATA_ROOT_DIR") + "wwwroot\\swagger\\v1\\swagger.json";
+                string swaggerJsonPath = Pipeline.configuration["DATA_ROOT_DIR"] + "wwwroot\\swagger\\v1\\swagger.json";
                 try
                 {
                     using (StreamWriter sw = new StreamWriter(summaryJsonFilePath))
@@ -658,8 +661,8 @@ end
 
                 if (checkBoxSavePipeline.Checked)
                 {
-                    def.SavePipeline(Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"),@"Pipeline\patt1.yml"), @"C:\Users\jurag\source\repos\ms-payment-service\RawDocs \patt.yml",reqProperties, respProperties, swaggerJsonPathShab,getOutputCollect(),checkBoxOnlyCurrent.Checked?currentEntryPoint:null);
-                    await PlantUMLUrl.GenerateHtml(Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"), "PlantUML"), Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"), "wwwroot/files"), def);
+                    def.SavePipeline(Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"], @"Pipeline\patt1.yml"), @"C:\Users\jurag\source\repos\ms-payment-service\RawDocs \patt.yml", reqProperties, respProperties, swaggerJsonPathShab, getOutputCollect(), checkBoxOnlyCurrent.Checked ? currentEntryPoint : null);
+                    await PlantUMLUrl.GenerateHtml(Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"], "PlantUML"), Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"], "wwwroot/files"), def);
                 }
 
             }
@@ -672,7 +675,7 @@ end
 
         private List<OpenApiDef.EntryPoint.Parameter> FormList(List<OpenApiDef.EntryPoint.Parameter> respProperties)
         {
-           // List<OpenApiDef.EntryPoint.Parameter> respProperties = new List<OpenApiDef.EntryPoint.Parameter>();
+            // List<OpenApiDef.EntryPoint.Parameter> respProperties = new List<OpenApiDef.EntryPoint.Parameter>();
             foreach (ListViewItem item in listViewOutput.Items)
             {
                 string format = "";
@@ -689,13 +692,14 @@ end
                         example = item.SubItems[5].Text,
                         repeateable = Convert.ToBoolean(item.SubItems[6].Text)
                         ,
-                        externalItemName = item.SubItems[7].Text
+                        externalItemName = item.SubItems[7].Text,
+                        output_path = item.SubItems[8].Text
                     });
             }
             return respProperties;
         }
 
-  
+
         private List<OutputValue> getOutputCollect(/*Step step0,*/ )
         {
             List<OutputValue> outputCollect0 = new List<OutputValue>();
@@ -710,7 +714,7 @@ end
                             alwaysInArray = repeated,
                             isExported = true,
                             typeConvert = ConstantValue.TypeObject.String,
-                            outputPath = item.SubItems[0].Text                            ,
+                            outputPath = item.SubItems[0].Text,
                             isUniqOutputPath = !repeated,
                             returnOnlyFirstRow = !repeated,
                             Value = item.SubItems[5].Text
@@ -787,7 +791,7 @@ end
             foreach (var item in currentEntryPoint.externalCallItems)
             {
                 FillListView("R" + item.Name, listViewInput, true, init, item.Name, ((IEnumerable<OpenApiDef.EntryPoint.Parameter>)currentEntryPoint.inputs).ToList());
-                FillListView("A" + item.Name, listViewOutput, false, init, item.Name,currentEntryPoint.outputs);
+                FillListView("A" + item.Name, listViewOutput, false, init, item.Name, currentEntryPoint.outputs);
                 init = true;
             }
             textBoxAPIPath.Text = currentEntryPoint.path;
@@ -825,7 +829,7 @@ end
                         item.ForeColor = Color.Red;
                     }
                 }
-            }   
+            }
             //textBoxAPIPath.Text = text;
 
 
@@ -905,6 +909,11 @@ end
         private void listViewOutput_KeyDown(object sender, KeyEventArgs e)
         {
             HandleLastViewKeys(sender, e);
+
+        }
+
+        private void textBoxDescrReq_TextChanged(object sender, EventArgs e)
+        {
 
         }
     }

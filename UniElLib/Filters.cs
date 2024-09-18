@@ -17,6 +17,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using YamlDotNet.Serialization;
+using static DotLiquid.Variable;
 
 namespace UniElLib;
 
@@ -27,6 +28,11 @@ public class ArrFilter : List<Filter>
 
 public class ConditionFilter : Filter
 {
+    protected override object clone()
+    {
+        return null;// new ConditionFilter() { conditionPath=conditionPath, conditionCalcer = action, filters = filters.Select(ii => (Filter)ii.Clone()).ToArray() };
+    }
+
     public string conditionPath { get; set; }
     [YamlIgnore] public string[] tokens = null;
 
@@ -71,6 +77,11 @@ public class ConditionFilter : Filter
 
 public class AndOrFilter : Filter
 {
+    protected override object clone()
+    {
+        return new AndOrFilter() {  action=action, filters=filters.Select(ii=>(Filter)ii.Clone()).ToArray()};
+    }
+
     public enum Action
     {
         OR,
@@ -183,10 +194,17 @@ public class AndOrFilter : Filter
             }
         }
     }
+
 }
 
-public abstract class Filter
+public abstract class Filter:ICloneable
 {
+    protected abstract object clone();
+    public object Clone()
+    {
+        return clone();
+    }
+
     public abstract IEnumerable<AbstrParser.UniEl> filter(List<AbstrParser.UniEl> list,
         ref UniElLib.AbstrParser.UniEl rootElement,ContextItem context);
 }

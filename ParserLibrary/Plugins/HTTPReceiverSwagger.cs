@@ -151,7 +151,7 @@ namespace Plugins
         {
             
             Logger.log("HTTPReceiverSwagger: Creating a host to listen on the port " + port);
-            var SwaggerUI_www_root_path = Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"),"wwwroot");
+            var SwaggerUI_www_root_path = Path.Combine(Pipeline.configuration["DATA_ROOT_DIR"],"wwwroot");
             // Create a new host listening on the given port
             _hostBuilder = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -425,7 +425,7 @@ namespace Plugins
                 Logger.log("Send response step:{o} {input}", Serilog.Events.LogEventLevel.Debug, "any", this._host.IDStep, response);
                 Logger.log("Response: {response}", Serilog.Events.LogEventLevel.Debug,"any", response);
             }
-
+          //  "@startsalt\r\nTitle Выберите начисления\r\n{#\r\n. | Идентификатор | Наименование | Сумма\r\n[V]|20248 | ОБРАЩЕНИЕ С ТКО | 12345\r\n[ ]|20306 | ЭЛЕКТРОСНАБЖЕНИЕ | 2356.36\r\n[ ]|99999 | Общее начисление по ЕПД | 2356.36\r\n}\r\n@endsalt"
             if (context is ContextItem { context: SyncroItem item })
             {
                 Logger.log(
@@ -433,7 +433,7 @@ namespace Plugins
                     "Most likely this branch will be unused.");
                 item.answer = response;
                 Interlocked.Increment(ref item.srabot);
-                item.semaphore.Set();
+             //   item.semaphore.Set();
             }
             
             // The context may be SyncroItem item directly
@@ -442,7 +442,7 @@ namespace Plugins
                 Logger.log("HTTPReceiverSwagger: Main sendResponse branch with context being SyncroItem directly");
                 syncroItem.answer = response;
                 Interlocked.Increment(ref syncroItem.srabot);
-                syncroItem.semaphore.Set();
+             //   syncroItem.semaphore.Set();
             }
         }
 

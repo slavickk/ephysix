@@ -34,6 +34,7 @@ using System.Reflection.Emit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Net.WebSockets;
+using Newtonsoft.Json;
 
 namespace ParserLibrary;
 /// <summary>
@@ -189,13 +190,13 @@ public partial class Step : ILiquidizable
         }
         public List<OutputValue> outputFields { get; set; } = new List<OutputValue>
         {
-            new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, 
+            /*new ConstantValue() { outputPath = "stream", Value = "CheckRegistration" }, 
             new ExtractFromInputValue()
             {
                 outputPath = "IP", conditionPath = "aa/bb/cc",
                 conditionCalcer = new ComparerForValue() { value_for_compare = "tutu" },
                 valuePath = "cc/dd"
-            }
+            }*/
         };
 
 
@@ -247,6 +248,7 @@ public partial class Step : ILiquidizable
     private SenderHost _senderHost;
 
     [YamlIgnore]
+    [JsonIgnore]
     public Pipeline owner { get; set; }
 
 

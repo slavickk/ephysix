@@ -28,85 +28,87 @@
         /// </summary>
         private void InitializeComponent()
         {
-            listViewInput = new System.Windows.Forms.ListView();
-            columnHeader1 = new System.Windows.Forms.ColumnHeader();
-            columnHeader2 = new System.Windows.Forms.ColumnHeader();
-            columnHeader5 = new System.Windows.Forms.ColumnHeader();
-            columnHeader6 = new System.Windows.Forms.ColumnHeader();
-            columnHeader8 = new System.Windows.Forms.ColumnHeader();
-            columnHeader9 = new System.Windows.Forms.ColumnHeader();
-            columnHeader10 = new System.Windows.Forms.ColumnHeader();
-            columnHeader14 = new System.Windows.Forms.ColumnHeader();
-            columnHeader15 = new System.Windows.Forms.ColumnHeader();
-            columnHeader17 = new System.Windows.Forms.ColumnHeader();
-            label1 = new System.Windows.Forms.Label();
-            button1 = new System.Windows.Forms.Button();
-            label2 = new System.Windows.Forms.Label();
-            textBoxAPIPath = new System.Windows.Forms.TextBox();
-            label3 = new System.Windows.Forms.Label();
-            buttonFormJson = new System.Windows.Forms.Button();
-            button2 = new System.Windows.Forms.Button();
-            label4 = new System.Windows.Forms.Label();
-            listViewOutput = new System.Windows.Forms.ListView();
-            columnHeader3 = new System.Windows.Forms.ColumnHeader();
-            columnHeader4 = new System.Windows.Forms.ColumnHeader();
-            columnHeader7 = new System.Windows.Forms.ColumnHeader();
-            columnHeader11 = new System.Windows.Forms.ColumnHeader();
-            columnHeader12 = new System.Windows.Forms.ColumnHeader();
-            columnHeader13 = new System.Windows.Forms.ColumnHeader();
-            columnHeader16 = new System.Windows.Forms.ColumnHeader();
-            columnHeader18 = new System.Windows.Forms.ColumnHeader();
-            textBoxNewNameInput = new System.Windows.Forms.TextBox();
-            label5 = new System.Windows.Forms.Label();
-            checkBox1 = new System.Windows.Forms.CheckBox();
-            label6 = new System.Windows.Forms.Label();
-            textBoxNewNameOutput = new System.Windows.Forms.TextBox();
-            comboBoxCommand = new System.Windows.Forms.ComboBox();
-            label7 = new System.Windows.Forms.Label();
-            label8 = new System.Windows.Forms.Label();
-            comboBoxMethod = new System.Windows.Forms.ComboBox();
-            label9 = new System.Windows.Forms.Label();
-            textBoxDescription = new System.Windows.Forms.TextBox();
-            label10 = new System.Windows.Forms.Label();
-            textBoxSummary = new System.Windows.Forms.TextBox();
-            listBoxTags = new System.Windows.Forms.ListBox();
-            comboBoxTag = new System.Windows.Forms.ComboBox();
-            label11 = new System.Windows.Forms.Label();
-            textBoxInputType = new System.Windows.Forms.TextBox();
-            textBoxInputFormat = new System.Windows.Forms.TextBox();
-            label12 = new System.Windows.Forms.Label();
-            textBoxInputExample = new System.Windows.Forms.TextBox();
-            label13 = new System.Windows.Forms.Label();
-            textBoxOutputExample = new System.Windows.Forms.TextBox();
-            label14 = new System.Windows.Forms.Label();
-            textBoxOutputFormat = new System.Windows.Forms.TextBox();
-            label15 = new System.Windows.Forms.Label();
-            textBoxOutputType = new System.Windows.Forms.TextBox();
-            label16 = new System.Windows.Forms.Label();
-            checkBoxInputRequired = new System.Windows.Forms.CheckBox();
-            buttonAddRequest = new System.Windows.Forms.Button();
-            textBoxDescrReq = new System.Windows.Forms.TextBox();
-            buttonRemove = new System.Windows.Forms.Button();
-            checkBoxAddToExist = new System.Windows.Forms.CheckBox();
-            comboBoxAllPaths = new System.Windows.Forms.ComboBox();
-            label17 = new System.Windows.Forms.Label();
-            checkBoxSavePipeline = new System.Windows.Forms.CheckBox();
-            checkBoxOnlyCurrent = new System.Windows.Forms.CheckBox();
-            buttonCheckContent = new System.Windows.Forms.Button();
-            checkBoxRepeatable = new System.Windows.Forms.CheckBox();
+            listViewInput = new ListView();
+            columnHeader1 = new ColumnHeader();
+            columnHeader2 = new ColumnHeader();
+            columnHeader5 = new ColumnHeader();
+            columnHeader6 = new ColumnHeader();
+            columnHeader8 = new ColumnHeader();
+            columnHeader9 = new ColumnHeader();
+            columnHeader10 = new ColumnHeader();
+            columnHeader14 = new ColumnHeader();
+            columnHeader15 = new ColumnHeader();
+            columnHeader17 = new ColumnHeader();
+            columnHeader19 = new ColumnHeader();
+            label1 = new Label();
+            button1 = new Button();
+            label2 = new Label();
+            textBoxAPIPath = new TextBox();
+            label3 = new Label();
+            buttonFormJson = new Button();
+            button2 = new Button();
+            label4 = new Label();
+            listViewOutput = new ListView();
+            columnHeader3 = new ColumnHeader();
+            columnHeader4 = new ColumnHeader();
+            columnHeader7 = new ColumnHeader();
+            columnHeader11 = new ColumnHeader();
+            columnHeader12 = new ColumnHeader();
+            columnHeader13 = new ColumnHeader();
+            columnHeader16 = new ColumnHeader();
+            columnHeader18 = new ColumnHeader();
+            columnHeader20 = new ColumnHeader();
+            textBoxNewNameInput = new TextBox();
+            label5 = new Label();
+            checkBox1 = new CheckBox();
+            label6 = new Label();
+            textBoxNewNameOutput = new TextBox();
+            comboBoxCommand = new ComboBox();
+            label7 = new Label();
+            label8 = new Label();
+            comboBoxMethod = new ComboBox();
+            label9 = new Label();
+            textBoxDescription = new TextBox();
+            label10 = new Label();
+            textBoxSummary = new TextBox();
+            listBoxTags = new ListBox();
+            comboBoxTag = new ComboBox();
+            label11 = new Label();
+            textBoxInputType = new TextBox();
+            textBoxInputFormat = new TextBox();
+            label12 = new Label();
+            textBoxInputExample = new TextBox();
+            label13 = new Label();
+            textBoxOutputExample = new TextBox();
+            label14 = new Label();
+            textBoxOutputFormat = new TextBox();
+            label15 = new Label();
+            textBoxOutputType = new TextBox();
+            label16 = new Label();
+            checkBoxInputRequired = new CheckBox();
+            buttonAddRequest = new Button();
+            textBoxDescrReq = new TextBox();
+            buttonRemove = new Button();
+            checkBoxAddToExist = new CheckBox();
+            comboBoxAllPaths = new ComboBox();
+            label17 = new Label();
+            checkBoxSavePipeline = new CheckBox();
+            checkBoxOnlyCurrent = new CheckBox();
+            buttonCheckContent = new Button();
+            checkBoxRepeatable = new CheckBox();
             SuspendLayout();
             // 
             // listViewInput
             // 
-            listViewInput.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            listViewInput.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader1, columnHeader2, columnHeader5, columnHeader6, columnHeader8, columnHeader9, columnHeader10, columnHeader14, columnHeader15, columnHeader17 });
+            listViewInput.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2, columnHeader5, columnHeader6, columnHeader8, columnHeader9, columnHeader10, columnHeader14, columnHeader15, columnHeader17, columnHeader19 });
             listViewInput.FullRowSelect = true;
-            listViewInput.Location = new System.Drawing.Point(0, 290);
+            listViewInput.Location = new Point(0, 136);
+            listViewInput.Margin = new Padding(2, 1, 2, 1);
             listViewInput.Name = "listViewInput";
-            listViewInput.Size = new System.Drawing.Size(1680, 500);
+            listViewInput.Size = new Size(1061, 236);
             listViewInput.TabIndex = 0;
             listViewInput.UseCompatibleStateImageBehavior = false;
-            listViewInput.View = System.Windows.Forms.View.Details;
+            listViewInput.View = View.Details;
             listViewInput.SelectedIndexChanged += listViewInput_SelectedIndexChanged;
             listViewInput.KeyDown += listViewInput_KeyDown;
             // 
@@ -153,21 +155,27 @@
             // 
             columnHeader17.Text = "Source";
             // 
+            // columnHeader19
+            // 
+            columnHeader19.Text = "out path";
+            // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(0, 255);
+            label1.Location = new Point(0, 120);
+            label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(99, 32);
+            label1.Size = new Size(49, 15);
             label1.TabIndex = 1;
             label1.Text = "Request";
             // 
             // button1
             // 
-            button1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            button1.Location = new System.Drawing.Point(1691, 331);
+            button1.Anchor = AnchorStyles.Top;
+            button1.Location = new Point(1083, 155);
+            button1.Margin = new Padding(2, 1, 2, 1);
             button1.Name = "button1";
-            button1.Size = new System.Drawing.Size(151, 46);
+            button1.Size = new Size(81, 22);
             button1.TabIndex = 2;
             button1.Text = "Select";
             button1.UseVisualStyleBackColor = true;
@@ -176,36 +184,40 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(12, 9);
+            label2.Location = new Point(6, 4);
+            label2.Margin = new Padding(2, 0, 2, 0);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(179, 32);
+            label2.Size = new Size(91, 15);
             label2.TabIndex = 3;
             label2.Text = "XML Command";
             label2.Click += label2_Click;
             // 
             // textBoxAPIPath
             // 
-            textBoxAPIPath.Location = new System.Drawing.Point(1100, 4);
+            textBoxAPIPath.Location = new Point(592, 2);
+            textBoxAPIPath.Margin = new Padding(2, 1, 2, 1);
             textBoxAPIPath.Name = "textBoxAPIPath";
-            textBoxAPIPath.Size = new System.Drawing.Size(200, 39);
+            textBoxAPIPath.Size = new Size(110, 23);
             textBoxAPIPath.TabIndex = 6;
             textBoxAPIPath.TextChanged += textBoxAPIPath_TextChanged;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new System.Drawing.Point(981, 4);
+            label3.Location = new Point(528, 2);
+            label3.Margin = new Padding(2, 0, 2, 0);
             label3.Name = "label3";
-            label3.Size = new System.Drawing.Size(101, 32);
+            label3.Size = new Size(52, 15);
             label3.TabIndex = 5;
             label3.Text = "API Path";
             // 
             // buttonFormJson
             // 
-            buttonFormJson.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonFormJson.Location = new System.Drawing.Point(1680, 5);
+            buttonFormJson.Anchor = AnchorStyles.Top;
+            buttonFormJson.Location = new Point(1077, 2);
+            buttonFormJson.Margin = new Padding(2, 1, 2, 1);
             buttonFormJson.Name = "buttonFormJson";
-            buttonFormJson.Size = new System.Drawing.Size(150, 46);
+            buttonFormJson.Size = new Size(81, 22);
             buttonFormJson.TabIndex = 7;
             buttonFormJson.Text = "Form JSON";
             buttonFormJson.UseVisualStyleBackColor = true;
@@ -213,10 +225,11 @@
             // 
             // button2
             // 
-            button2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            button2.Location = new System.Drawing.Point(1691, 857);
+            button2.Anchor = AnchorStyles.Top;
+            button2.Location = new Point(1083, 402);
+            button2.Margin = new Padding(2, 1, 2, 1);
             button2.Name = "button2";
-            button2.Size = new System.Drawing.Size(151, 46);
+            button2.Size = new Size(81, 22);
             button2.TabIndex = 10;
             button2.Text = "Select";
             button2.UseVisualStyleBackColor = true;
@@ -225,24 +238,25 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new System.Drawing.Point(0, 807);
+            label4.Location = new Point(0, 378);
+            label4.Margin = new Padding(2, 0, 2, 0);
             label4.Name = "label4";
-            label4.Size = new System.Drawing.Size(115, 32);
+            label4.Size = new Size(57, 15);
             label4.TabIndex = 9;
             label4.Text = "Response";
             // 
             // listViewOutput
             // 
             listViewOutput.AllowColumnReorder = true;
-            listViewOutput.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            listViewOutput.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader3, columnHeader4, columnHeader7, columnHeader11, columnHeader12, columnHeader13, columnHeader16, columnHeader18 });
+            listViewOutput.Columns.AddRange(new ColumnHeader[] { columnHeader3, columnHeader4, columnHeader7, columnHeader11, columnHeader12, columnHeader13, columnHeader16, columnHeader18, columnHeader20 });
             listViewOutput.FullRowSelect = true;
-            listViewOutput.Location = new System.Drawing.Point(0, 855);
+            listViewOutput.Location = new Point(0, 401);
+            listViewOutput.Margin = new Padding(2, 1, 2, 1);
             listViewOutput.Name = "listViewOutput";
-            listViewOutput.Size = new System.Drawing.Size(1680, 368);
+            listViewOutput.Size = new Size(1061, 175);
             listViewOutput.TabIndex = 8;
             listViewOutput.UseCompatibleStateImageBehavior = false;
-            listViewOutput.View = System.Windows.Forms.View.Details;
+            listViewOutput.View = View.Details;
             listViewOutput.SelectedIndexChanged += listViewOutput_SelectedIndexChanged;
             listViewOutput.KeyDown += listViewOutput_KeyDown;
             // 
@@ -280,268 +294,299 @@
             // 
             columnHeader18.Text = "Source";
             // 
+            // columnHeader20
+            // 
+            columnHeader20.Text = "out path";
+            // 
             // textBoxNewNameInput
             // 
-            textBoxNewNameInput.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            textBoxNewNameInput.Location = new System.Drawing.Point(1691, 419);
+            textBoxNewNameInput.Anchor = AnchorStyles.Top;
+            textBoxNewNameInput.Location = new Point(1083, 196);
+            textBoxNewNameInput.Margin = new Padding(2, 1, 2, 1);
             textBoxNewNameInput.Name = "textBoxNewNameInput";
-            textBoxNewNameInput.Size = new System.Drawing.Size(139, 39);
+            textBoxNewNameInput.Size = new Size(77, 23);
             textBoxNewNameInput.TabIndex = 11;
             // 
             // label5
             // 
-            label5.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            label5.Anchor = AnchorStyles.Top;
             label5.AutoSize = true;
-            label5.Location = new System.Drawing.Point(1691, 382);
+            label5.Location = new Point(1083, 179);
+            label5.Margin = new Padding(2, 0, 2, 0);
             label5.Name = "label5";
-            label5.Size = new System.Drawing.Size(133, 32);
+            label5.Size = new Size(66, 15);
             label5.TabIndex = 12;
             label5.Text = "New Name";
             // 
             // checkBox1
             // 
-            checkBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            checkBox1.Anchor = AnchorStyles.Top;
             checkBox1.AutoSize = true;
-            checkBox1.Location = new System.Drawing.Point(1691, 467);
+            checkBox1.Location = new Point(1083, 219);
+            checkBox1.Margin = new Padding(2, 1, 2, 1);
             checkBox1.Name = "checkBox1";
-            checkBox1.Size = new System.Drawing.Size(111, 36);
+            checkBox1.Size = new Size(60, 19);
             checkBox1.TabIndex = 13;
             checkBox1.Text = "Param";
             checkBox1.UseVisualStyleBackColor = true;
             // 
             // label6
             // 
-            label6.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            label6.Anchor = AnchorStyles.Top;
             label6.AutoSize = true;
-            label6.Location = new System.Drawing.Point(1691, 917);
+            label6.Location = new Point(1083, 430);
+            label6.Margin = new Padding(2, 0, 2, 0);
             label6.Name = "label6";
-            label6.Size = new System.Drawing.Size(133, 32);
+            label6.Size = new Size(66, 15);
             label6.TabIndex = 16;
             label6.Text = "New Name";
             // 
             // textBoxNewNameOutput
             // 
-            textBoxNewNameOutput.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            textBoxNewNameOutput.Location = new System.Drawing.Point(1691, 952);
+            textBoxNewNameOutput.Anchor = AnchorStyles.Top;
+            textBoxNewNameOutput.Location = new Point(1083, 446);
+            textBoxNewNameOutput.Margin = new Padding(2, 1, 2, 1);
             textBoxNewNameOutput.Name = "textBoxNewNameOutput";
-            textBoxNewNameOutput.Size = new System.Drawing.Size(139, 39);
+            textBoxNewNameOutput.Size = new Size(77, 23);
             textBoxNewNameOutput.TabIndex = 15;
             // 
             // comboBoxCommand
             // 
             comboBoxCommand.FormattingEnabled = true;
-            comboBoxCommand.Location = new System.Drawing.Point(197, 6);
+            comboBoxCommand.Location = new Point(106, 3);
+            comboBoxCommand.Margin = new Padding(2, 1, 2, 1);
             comboBoxCommand.Name = "comboBoxCommand";
-            comboBoxCommand.Size = new System.Drawing.Size(213, 40);
+            comboBoxCommand.Size = new Size(117, 23);
             comboBoxCommand.TabIndex = 17;
             comboBoxCommand.SelectedIndexChanged += comboBoxCommand_SelectedIndexChanged;
             // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new System.Drawing.Point(636, 89);
+            label7.Location = new Point(342, 42);
+            label7.Margin = new Padding(2, 0, 2, 0);
             label7.Name = "label7";
-            label7.Size = new System.Drawing.Size(0, 32);
+            label7.Size = new Size(0, 15);
             label7.TabIndex = 18;
             // 
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new System.Drawing.Point(21, 53);
+            label8.Location = new Point(11, 25);
+            label8.Margin = new Padding(2, 0, 2, 0);
             label8.Name = "label8";
-            label8.Size = new System.Drawing.Size(99, 32);
+            label8.Size = new Size(49, 15);
             label8.TabIndex = 19;
             label8.Text = "Method";
             // 
             // comboBoxMethod
             // 
             comboBoxMethod.FormattingEnabled = true;
-            comboBoxMethod.Location = new System.Drawing.Point(126, 53);
+            comboBoxMethod.Location = new Point(68, 25);
+            comboBoxMethod.Margin = new Padding(2, 1, 2, 1);
             comboBoxMethod.Name = "comboBoxMethod";
-            comboBoxMethod.Size = new System.Drawing.Size(130, 40);
+            comboBoxMethod.Size = new Size(72, 23);
             comboBoxMethod.TabIndex = 20;
             // 
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new System.Drawing.Point(276, 56);
+            label9.Location = new Point(149, 26);
+            label9.Margin = new Padding(2, 0, 2, 0);
             label9.Name = "label9";
-            label9.Size = new System.Drawing.Size(135, 32);
+            label9.Size = new Size(67, 15);
             label9.TabIndex = 21;
             label9.Text = "Description";
             label9.Click += label9_Click;
             // 
             // textBoxDescription
             // 
-            textBoxDescription.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            textBoxDescription.Location = new System.Drawing.Point(430, 56);
+            textBoxDescription.Location = new Point(232, 26);
+            textBoxDescription.Margin = new Padding(2, 1, 2, 1);
             textBoxDescription.Multiline = true;
             textBoxDescription.Name = "textBoxDescription";
-            textBoxDescription.Size = new System.Drawing.Size(1400, 92);
+            textBoxDescription.Size = new Size(829, 45);
             textBoxDescription.TabIndex = 22;
             // 
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new System.Drawing.Point(5, 162);
+            label10.Location = new Point(3, 76);
+            label10.Margin = new Padding(2, 0, 2, 0);
             label10.Name = "label10";
-            label10.Size = new System.Drawing.Size(115, 32);
+            label10.Size = new Size(58, 15);
             label10.TabIndex = 23;
             label10.Text = "Summary";
             label10.Click += label10_Click;
             // 
             // textBoxSummary
             // 
-            textBoxSummary.Location = new System.Drawing.Point(126, 159);
+            textBoxSummary.Location = new Point(68, 75);
+            textBoxSummary.Margin = new Padding(2, 1, 2, 1);
             textBoxSummary.Multiline = true;
             textBoxSummary.Name = "textBoxSummary";
-            textBoxSummary.Size = new System.Drawing.Size(618, 78);
+            textBoxSummary.Size = new Size(335, 39);
             textBoxSummary.TabIndex = 24;
             // 
             // listBoxTags
             // 
             listBoxTags.FormattingEnabled = true;
-            listBoxTags.ItemHeight = 32;
-            listBoxTags.Location = new System.Drawing.Point(759, 155);
+            listBoxTags.ItemHeight = 15;
+            listBoxTags.Location = new Point(409, 73);
+            listBoxTags.Margin = new Padding(2, 1, 2, 1);
             listBoxTags.Name = "listBoxTags";
-            listBoxTags.Size = new System.Drawing.Size(240, 68);
+            listBoxTags.Size = new Size(131, 34);
             listBoxTags.TabIndex = 25;
             // 
             // comboBoxTag
             // 
-            comboBoxTag.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             comboBoxTag.FormattingEnabled = true;
-            comboBoxTag.Location = new System.Drawing.Point(1041, 154);
+            comboBoxTag.Location = new Point(561, 72);
+            comboBoxTag.Margin = new Padding(2, 1, 2, 1);
             comboBoxTag.Name = "comboBoxTag";
-            comboBoxTag.Size = new System.Drawing.Size(789, 40);
+            comboBoxTag.Size = new Size(383, 23);
             comboBoxTag.TabIndex = 26;
             // 
             // label11
             // 
-            label11.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            label11.Anchor = AnchorStyles.Top;
             label11.AutoSize = true;
-            label11.Location = new System.Drawing.Point(1691, 506);
+            label11.Location = new Point(1083, 237);
+            label11.Margin = new Padding(2, 0, 2, 0);
             label11.Name = "label11";
-            label11.Size = new System.Drawing.Size(65, 32);
+            label11.Size = new Size(31, 15);
             label11.TabIndex = 27;
             label11.Text = "Type";
             label11.Click += label11_Click;
             // 
             // textBoxInputType
             // 
-            textBoxInputType.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            textBoxInputType.Location = new System.Drawing.Point(1691, 541);
+            textBoxInputType.Anchor = AnchorStyles.Top;
+            textBoxInputType.Location = new Point(1083, 254);
+            textBoxInputType.Margin = new Padding(2, 1, 2, 1);
             textBoxInputType.Name = "textBoxInputType";
-            textBoxInputType.Size = new System.Drawing.Size(151, 39);
+            textBoxInputType.Size = new Size(83, 23);
             textBoxInputType.TabIndex = 28;
             // 
             // textBoxInputFormat
             // 
-            textBoxInputFormat.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            textBoxInputFormat.Location = new System.Drawing.Point(1691, 617);
+            textBoxInputFormat.Anchor = AnchorStyles.Top;
+            textBoxInputFormat.Location = new Point(1083, 289);
+            textBoxInputFormat.Margin = new Padding(2, 1, 2, 1);
             textBoxInputFormat.Name = "textBoxInputFormat";
-            textBoxInputFormat.Size = new System.Drawing.Size(151, 39);
+            textBoxInputFormat.Size = new Size(83, 23);
             textBoxInputFormat.TabIndex = 30;
             // 
             // label12
             // 
-            label12.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            label12.Anchor = AnchorStyles.Top;
             label12.AutoSize = true;
-            label12.Location = new System.Drawing.Point(1691, 582);
+            label12.Location = new Point(1083, 273);
+            label12.Margin = new Padding(2, 0, 2, 0);
             label12.Name = "label12";
-            label12.Size = new System.Drawing.Size(89, 32);
+            label12.Size = new Size(45, 15);
             label12.TabIndex = 29;
             label12.Text = "Format";
             // 
             // textBoxInputExample
             // 
-            textBoxInputExample.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            textBoxInputExample.Location = new System.Drawing.Point(1691, 698);
+            textBoxInputExample.Anchor = AnchorStyles.Top;
+            textBoxInputExample.Location = new Point(1083, 327);
+            textBoxInputExample.Margin = new Padding(2, 1, 2, 1);
             textBoxInputExample.Name = "textBoxInputExample";
-            textBoxInputExample.Size = new System.Drawing.Size(151, 39);
+            textBoxInputExample.Size = new Size(83, 23);
             textBoxInputExample.TabIndex = 32;
             // 
             // label13
             // 
-            label13.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            label13.Anchor = AnchorStyles.Top;
             label13.AutoSize = true;
-            label13.Location = new System.Drawing.Point(1691, 663);
+            label13.Location = new Point(1083, 311);
+            label13.Margin = new Padding(2, 0, 2, 0);
             label13.Name = "label13";
-            label13.Size = new System.Drawing.Size(103, 32);
+            label13.Size = new Size(52, 15);
             label13.TabIndex = 31;
             label13.Text = "Example";
             // 
             // textBoxOutputExample
             // 
-            textBoxOutputExample.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            textBoxOutputExample.Location = new System.Drawing.Point(1691, 1191);
+            textBoxOutputExample.Anchor = AnchorStyles.Top;
+            textBoxOutputExample.Location = new Point(1083, 558);
+            textBoxOutputExample.Margin = new Padding(2, 1, 2, 1);
             textBoxOutputExample.Name = "textBoxOutputExample";
-            textBoxOutputExample.Size = new System.Drawing.Size(151, 39);
+            textBoxOutputExample.Size = new Size(83, 23);
             textBoxOutputExample.TabIndex = 38;
             // 
             // label14
             // 
-            label14.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            label14.Anchor = AnchorStyles.Top;
             label14.AutoSize = true;
-            label14.Location = new System.Drawing.Point(1691, 1156);
+            label14.Location = new Point(1083, 542);
+            label14.Margin = new Padding(2, 0, 2, 0);
             label14.Name = "label14";
-            label14.Size = new System.Drawing.Size(103, 32);
+            label14.Size = new Size(52, 15);
             label14.TabIndex = 37;
             label14.Text = "Example";
             // 
             // textBoxOutputFormat
             // 
-            textBoxOutputFormat.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            textBoxOutputFormat.Location = new System.Drawing.Point(1691, 1110);
+            textBoxOutputFormat.Anchor = AnchorStyles.Top;
+            textBoxOutputFormat.Location = new Point(1083, 520);
+            textBoxOutputFormat.Margin = new Padding(2, 1, 2, 1);
             textBoxOutputFormat.Name = "textBoxOutputFormat";
-            textBoxOutputFormat.Size = new System.Drawing.Size(151, 39);
+            textBoxOutputFormat.Size = new Size(83, 23);
             textBoxOutputFormat.TabIndex = 36;
             // 
             // label15
             // 
-            label15.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            label15.Anchor = AnchorStyles.Top;
             label15.AutoSize = true;
-            label15.Location = new System.Drawing.Point(1691, 1075);
+            label15.Location = new Point(1083, 504);
+            label15.Margin = new Padding(2, 0, 2, 0);
             label15.Name = "label15";
-            label15.Size = new System.Drawing.Size(89, 32);
+            label15.Size = new Size(45, 15);
             label15.TabIndex = 35;
             label15.Text = "Format";
             // 
             // textBoxOutputType
             // 
-            textBoxOutputType.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            textBoxOutputType.Location = new System.Drawing.Point(1691, 1034);
+            textBoxOutputType.Anchor = AnchorStyles.Top;
+            textBoxOutputType.Location = new Point(1083, 485);
+            textBoxOutputType.Margin = new Padding(2, 1, 2, 1);
             textBoxOutputType.Name = "textBoxOutputType";
-            textBoxOutputType.Size = new System.Drawing.Size(151, 39);
+            textBoxOutputType.Size = new Size(83, 23);
             textBoxOutputType.TabIndex = 34;
             // 
             // label16
             // 
-            label16.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            label16.Anchor = AnchorStyles.Top;
             label16.AutoSize = true;
-            label16.Location = new System.Drawing.Point(1691, 999);
+            label16.Location = new Point(1083, 468);
+            label16.Margin = new Padding(2, 0, 2, 0);
             label16.Name = "label16";
-            label16.Size = new System.Drawing.Size(65, 32);
+            label16.Size = new Size(31, 15);
             label16.TabIndex = 33;
             label16.Text = "Type";
             // 
             // checkBoxInputRequired
             // 
-            checkBoxInputRequired.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            checkBoxInputRequired.Anchor = AnchorStyles.Top;
             checkBoxInputRequired.AutoSize = true;
-            checkBoxInputRequired.Location = new System.Drawing.Point(1694, 743);
+            checkBoxInputRequired.Location = new Point(1087, 348);
+            checkBoxInputRequired.Margin = new Padding(2, 1, 2, 1);
             checkBoxInputRequired.Name = "checkBoxInputRequired";
-            checkBoxInputRequired.Size = new System.Drawing.Size(136, 36);
+            checkBoxInputRequired.Size = new Size(70, 19);
             checkBoxInputRequired.TabIndex = 40;
             checkBoxInputRequired.Text = "required";
             checkBoxInputRequired.UseVisualStyleBackColor = true;
             // 
             // buttonAddRequest
             // 
-            buttonAddRequest.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonAddRequest.Location = new System.Drawing.Point(1691, 228);
+            buttonAddRequest.Anchor = AnchorStyles.Top;
+            buttonAddRequest.Location = new Point(1083, 107);
+            buttonAddRequest.Margin = new Padding(2, 1, 2, 1);
             buttonAddRequest.Name = "buttonAddRequest";
-            buttonAddRequest.Size = new System.Drawing.Size(151, 46);
+            buttonAddRequest.Size = new Size(81, 22);
             buttonAddRequest.TabIndex = 41;
             buttonAddRequest.Text = "Add ";
             buttonAddRequest.UseVisualStyleBackColor = true;
@@ -549,18 +594,20 @@
             // 
             // textBoxDescrReq
             // 
-            textBoxDescrReq.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            textBoxDescrReq.Location = new System.Drawing.Point(639, 245);
+            textBoxDescrReq.Location = new Point(344, 115);
+            textBoxDescrReq.Margin = new Padding(2, 1, 2, 1);
             textBoxDescrReq.Name = "textBoxDescrReq";
-            textBoxDescrReq.Size = new System.Drawing.Size(1041, 39);
+            textBoxDescrReq.Size = new Size(717, 23);
             textBoxDescrReq.TabIndex = 42;
+            textBoxDescrReq.TextChanged += textBoxDescrReq_TextChanged;
             // 
             // buttonRemove
             // 
-            buttonRemove.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonRemove.Location = new System.Drawing.Point(1691, 279);
+            buttonRemove.Anchor = AnchorStyles.Top;
+            buttonRemove.Location = new Point(1083, 131);
+            buttonRemove.Margin = new Padding(2, 1, 2, 1);
             buttonRemove.Name = "buttonRemove";
-            buttonRemove.Size = new System.Drawing.Size(151, 46);
+            buttonRemove.Size = new Size(81, 22);
             buttonRemove.TabIndex = 43;
             buttonRemove.Text = "Remove";
             buttonRemove.UseVisualStyleBackColor = true;
@@ -568,9 +615,10 @@
             // checkBoxAddToExist
             // 
             checkBoxAddToExist.AutoSize = true;
-            checkBoxAddToExist.Location = new System.Drawing.Point(430, 4);
+            checkBoxAddToExist.Location = new Point(232, 2);
+            checkBoxAddToExist.Margin = new Padding(2, 1, 2, 1);
             checkBoxAddToExist.Name = "checkBoxAddToExist";
-            checkBoxAddToExist.Size = new System.Drawing.Size(173, 36);
+            checkBoxAddToExist.Size = new Size(89, 19);
             checkBoxAddToExist.TabIndex = 44;
             checkBoxAddToExist.Text = "Add to exist";
             checkBoxAddToExist.UseVisualStyleBackColor = true;
@@ -578,27 +626,30 @@
             // comboBoxAllPaths
             // 
             comboBoxAllPaths.FormattingEnabled = true;
-            comboBoxAllPaths.Location = new System.Drawing.Point(763, 3);
+            comboBoxAllPaths.Location = new Point(411, 1);
+            comboBoxAllPaths.Margin = new Padding(2, 1, 2, 1);
             comboBoxAllPaths.Name = "comboBoxAllPaths";
-            comboBoxAllPaths.Size = new System.Drawing.Size(213, 40);
+            comboBoxAllPaths.Size = new Size(117, 23);
             comboBoxAllPaths.TabIndex = 46;
             comboBoxAllPaths.SelectedIndexChanged += comboBoxAllPaths_SelectedIndexChanged;
             // 
             // label17
             // 
             label17.AutoSize = true;
-            label17.Location = new System.Drawing.Point(635, 6);
+            label17.Location = new Point(342, 3);
+            label17.Margin = new Padding(2, 0, 2, 0);
             label17.Name = "label17";
-            label17.Size = new System.Drawing.Size(104, 32);
+            label17.Size = new Size(53, 15);
             label17.TabIndex = 45;
             label17.Text = "All Paths";
             // 
             // checkBoxSavePipeline
             // 
             checkBoxSavePipeline.AutoSize = true;
-            checkBoxSavePipeline.Location = new System.Drawing.Point(1485, 7);
+            checkBoxSavePipeline.Location = new Point(800, 3);
+            checkBoxSavePipeline.Margin = new Padding(2, 1, 2, 1);
             checkBoxSavePipeline.Name = "checkBoxSavePipeline";
-            checkBoxSavePipeline.Size = new System.Drawing.Size(189, 36);
+            checkBoxSavePipeline.Size = new Size(95, 19);
             checkBoxSavePipeline.TabIndex = 47;
             checkBoxSavePipeline.Text = "Save pipeline";
             checkBoxSavePipeline.UseVisualStyleBackColor = true;
@@ -607,10 +658,11 @@
             // 
             checkBoxOnlyCurrent.AutoSize = true;
             checkBoxOnlyCurrent.Checked = true;
-            checkBoxOnlyCurrent.CheckState = System.Windows.Forms.CheckState.Checked;
-            checkBoxOnlyCurrent.Location = new System.Drawing.Point(1309, 7);
+            checkBoxOnlyCurrent.CheckState = CheckState.Checked;
+            checkBoxOnlyCurrent.Location = new Point(705, 3);
+            checkBoxOnlyCurrent.Margin = new Padding(2, 1, 2, 1);
             checkBoxOnlyCurrent.Name = "checkBoxOnlyCurrent";
-            checkBoxOnlyCurrent.Size = new System.Drawing.Size(140, 36);
+            checkBoxOnlyCurrent.Size = new Size(73, 19);
             checkBoxOnlyCurrent.TabIndex = 48;
             checkBoxOnlyCurrent.TabStop = false;
             checkBoxOnlyCurrent.Text = "only curr";
@@ -618,9 +670,10 @@
             // 
             // buttonCheckContent
             // 
-            buttonCheckContent.Location = new System.Drawing.Point(12, 102);
+            buttonCheckContent.Location = new Point(6, 48);
+            buttonCheckContent.Margin = new Padding(2, 1, 2, 1);
             buttonCheckContent.Name = "buttonCheckContent";
-            buttonCheckContent.Size = new System.Drawing.Size(199, 46);
+            buttonCheckContent.Size = new Size(107, 22);
             buttonCheckContent.TabIndex = 49;
             buttonCheckContent.Text = "CheckContent";
             buttonCheckContent.UseVisualStyleBackColor = true;
@@ -628,20 +681,21 @@
             // 
             // checkBoxRepeatable
             // 
-            checkBoxRepeatable.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            checkBoxRepeatable.Anchor = AnchorStyles.Top;
             checkBoxRepeatable.AutoSize = true;
-            checkBoxRepeatable.Location = new System.Drawing.Point(1694, 785);
+            checkBoxRepeatable.Location = new Point(1089, 368);
+            checkBoxRepeatable.Margin = new Padding(2, 1, 2, 1);
             checkBoxRepeatable.Name = "checkBoxRepeatable";
-            checkBoxRepeatable.Size = new System.Drawing.Size(160, 36);
+            checkBoxRepeatable.Size = new Size(81, 19);
             checkBoxRepeatable.TabIndex = 50;
             checkBoxRepeatable.Text = "repeteable";
             checkBoxRepeatable.UseVisualStyleBackColor = true;
             // 
             // FormSwaggerFromXML
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1854, 1243);
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new Size(1173, 591);
             Controls.Add(checkBoxRepeatable);
             Controls.Add(buttonCheckContent);
             Controls.Add(checkBoxOnlyCurrent);
@@ -690,6 +744,7 @@
             Controls.Add(button1);
             Controls.Add(label1);
             Controls.Add(listViewInput);
+            Margin = new Padding(2, 1, 2, 1);
             Name = "FormSwaggerFromXML";
             Text = "FormSwaggerFromXML";
             Load += FormSwaggerFromXML_Load;
@@ -765,5 +820,7 @@
         private System.Windows.Forms.CheckBox checkBoxOnlyCurrent;
         private System.Windows.Forms.Button buttonCheckContent;
         private System.Windows.Forms.CheckBox checkBoxRepeatable;
+        private ColumnHeader columnHeader19;
+        private ColumnHeader columnHeader20;
     }
 }

@@ -28,12 +28,14 @@ using System.Text.Json;
 //using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using DotLiquid;
 using Newtonsoft.Json;
 using ParserLibrary;
 using PluginBase;
 using Plugins;
 using UniElLib;
+using static ScintillaNET.Style;
 //using TICSender = Plugins.TICSender;
 
 namespace TestJsonRazbor
@@ -444,8 +446,17 @@ namespace TestJsonRazbor
             {
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
+                    File.Copy(saveFileDialog1.FileName, saveFileDialog1.FileName.Replace(".yml", ".bak"), true);
                     pip.Save(saveFileDialog1.FileName, Assembly.GetAssembly(typeof(Samples)));
                     saveStorageContext(saveFileDialog1.FileName);
+                    if (checkBoxShowVars.Checked)
+                    {
+                        using (StreamReader sr = new StreamReader(saveFileDialog1.FileName))
+                        {
+                            var body = sr.ReadToEnd();
+                            MessageBox.Show(string.Join(',', Pipeline.getEnvVariables1(body).Select(ii => ii.pattern).Distinct()));
+                        }
+                    }
                 }
             }
             catch (Exception e77)
@@ -770,9 +781,68 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
             (selectedNode == null ? treeView1.Nodes : selectedNode.Nodes).Add(new TreeNode(stepName) { ContextMenuStrip = this.contextMenuStrip1, Tag = newStep });
             if (!string.IsNullOrEmpty(IDNextStep) && oldStep != null)
             {
-                oldStep.IDPreviousStep=newStep.IDStep;
+                oldStep.IDPreviousStep = newStep.IDStep;
             }
             treeView1.ExpandAll();
+        }
+
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? ""));
+
+        }
+        public static T DeepCopyJSON<T>(T input)
+        {
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+            var jsonString = JsonConvert.SerializeObject(input,settings); // new Newtonsoft.Json.JsonSerializer().Serialize();//.Serialize(input,);
+            return JsonConvert.DeserializeObject<T>(jsonString, settings);
+           // return Newtonsoft.Json.JsonSerializer.Deserialize<T>(jsonString);
+        }
+        public static T DeepCopyXML<T>(T input)
+        {
+            using var stream = new MemoryStream();
+
+            var serializer = new XmlSerializer(typeof(T));
+            serializer.Serialize(stream, input);
+            stream.Position = 0;
+            return (T)serializer.Deserialize(stream);
+        }
+        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var idStep=Clipboard.GetText();
+
+            var copyStep = pip.steps.FirstOrDefault(ii => ii.IDStep == idStep);
+            try
+            {
+                if (copyStep != null)
+                {
+                    var stepName = "Step_" + pip.steps.Length;
+                    var IDNextStep = ((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? "");
+                    var oldStep = pip.steps.FirstOrDefault(ii => ii.IDPreviousStep == IDNextStep);
+                    var newStep = DeepCopyJSON<Step>(copyStep);
+                    newStep.owner = pip;
+                    newStep.IDStep = stepName;
+                    newStep.IDPreviousStep = ((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? "");
+                    // new Step() { owner = pip, IDStep = stepName, IDPreviousStep = ((selectedNode == null ? "" : (selectedNode.Tag as Step)?.IDStep) ?? "") };
+                    List<Step> steps = pip.steps.ToList();
+                    steps.Add(newStep);
+                    pip.steps = steps.ToArray();
+                    // newStep.filterCollection.AddRange(copyStep.filterCollection.Select(ii=>new Step.ItemFilter() {  condition=ii.condition, Name=ii.Name, outputFields=ii.outputFields.})
+
+                    (selectedNode == null ? treeView1.Nodes : selectedNode.Nodes).Add(new TreeNode(stepName) { ContextMenuStrip = this.contextMenuStrip1, Tag = newStep });
+                    if (!string.IsNullOrEmpty(IDNextStep) && oldStep != null)
+                    {
+                        oldStep.IDPreviousStep = newStep.IDStep;
+                    }
+                    treeView1.ExpandAll();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
         }
     }
 }

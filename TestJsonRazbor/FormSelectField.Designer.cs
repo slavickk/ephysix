@@ -482,7 +482,7 @@ namespace TestJsonRazbor
             userControlSwitch1.Location = new Point(290, 54);
             userControlSwitch1.Margin = new Padding(6);
             userControlSwitch1.Name = "userControlSwitch1";
-            userControlSwitch1.Size = new Size(268, 151);
+            userControlSwitch1.Size = new Size(268, 182);
             userControlSwitch1.TabIndex = 35;
             userControlSwitch1.Visible = false;
             // 
