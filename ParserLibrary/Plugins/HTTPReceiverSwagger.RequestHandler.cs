@@ -229,6 +229,12 @@ public partial class HTTPReceiverSwagger
             }
         }
 
+        /// <summary>
+        /// Dynamically compile an implementation of the IController interface.
+        /// </summary>
+        /// <param name="assembly">The assembly that contains the IController interface to be implemented</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public AssemblyBuilder ImplementController(Assembly assembly)
         {
             // Find the IController interface in the assembly

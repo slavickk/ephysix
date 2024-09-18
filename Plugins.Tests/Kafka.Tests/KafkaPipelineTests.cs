@@ -115,6 +115,19 @@ steps:
         Console.WriteLine($"Kafka container stopped. Teardown completed. {DateTime.Now}");
     }
     
+    /// <summary>
+    /// Add exception logging to the task. If the task fails, the exception will be logged using Log.Error.
+    /// </summary>
+    /// <param name="task"></param>
+    private static void AddExceptionLogging(Task task)
+    {
+        task.ContinueWith(t =>
+        {
+            if (t.IsFaulted && t.Exception != null)
+                Log.Error(t.Exception, "Pipeline execution failed");
+        }, TaskContinuationOptions.OnlyOnFaulted);
+    }
+
     [Test]
     public async Task TestPipelineExecution()
     {
@@ -130,7 +143,7 @@ steps:
 
         // deliberately don't await
         Console.WriteLine("Running the pipeline...");
-        _pipeline.run();
+        AddExceptionLogging(_pipeline.run());
 
         // Consume messages from the destination topic `topic2`
         var result1 = _consumer.Consume(TimeSpan.FromSeconds(10));

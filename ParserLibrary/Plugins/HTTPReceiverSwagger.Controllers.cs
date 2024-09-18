@@ -26,6 +26,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSwag.CodeGeneration.CSharp;
 using ParserLibrary;
+using Serilog.Events;
 using UniElLib;
 
 namespace Plugins;
@@ -44,7 +45,8 @@ public partial class HTTPReceiverSwagger
 
         if (doc == null)
             throw new Exception("Failed to load swagger spec");
-
+        
+        Logger.log("HTTPReceiverSwagger: calling serverGen.GenerateFile() to generate controller code", LogEventLevel.Debug);
         var serverGen = new CSharpControllerGenerator(doc, new CSharpControllerGeneratorSettings());
         var serverCode = serverGen.GenerateFile();
 
@@ -58,6 +60,7 @@ public partial class HTTPReceiverSwagger
             File.WriteAllText(fullPath, serverCode);
         }
 
+        Logger.log("HTTPReceiverSwagger: Compile the controller code using Roslyn", LogEventLevel.Debug);
         // Compile the code using Roslyn
         var syntaxTree = CSharpSyntaxTree.ParseText(serverCode);
 
@@ -94,6 +97,7 @@ public partial class HTTPReceiverSwagger
             File.WriteAllText(fullPath, syntaxTree.ToString());
         }
 
+        Logger.log("HTTPReceiverSwagger: Adding assembly references", LogEventLevel.Debug);
         var references = new List<Assembly>
         {
             Assembly.Load("Newtonsoft.Json"),
@@ -142,6 +146,8 @@ public partial class HTTPReceiverSwagger
         if (assembly == null)
             throw new Exception("Failed to load the server assembly");
 
-        return new AssemblyPart(assembly);
+        var asmPart = new AssemblyPart(assembly);
+        Logger.log("HTTPReceiverSwagger: successfully generated an AssemblyPart for controller code", LogEventLevel.Debug);
+        return asmPart;
     }
 }

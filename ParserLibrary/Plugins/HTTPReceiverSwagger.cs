@@ -136,7 +136,7 @@ namespace Plugins
         {
             
             // Find the signing certificate by common name in the local certificate store
-            using var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+            using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
             var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, subjectCommonName, false);
             
@@ -151,7 +151,6 @@ namespace Plugins
         {
             
             Logger.log("HTTPReceiverSwagger: Creating a host to listen on the port " + port);
-            var SwaggerUI_www_root_path = Path.Combine(Environment.GetEnvironmentVariable("DATA_ROOT_DIR"),"wwwroot");
             // Create a new host listening on the given port
             _hostBuilder = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -171,13 +170,22 @@ namespace Plugins
                         })
                         .Configure(app =>
                         {
-                           // app.Environment.WebRootFileProvider = compositeProvider;
-                            app.UseStaticFiles(new StaticFileOptions
+                            // app.Environment.WebRootFileProvider = compositeProvider;
+                            if (Environment.GetEnvironmentVariable("DATA_ROOT_DIR") is { } DATA_ROOT_DIR)
                             {
-                                FileProvider = new PhysicalFileProvider(
-           Path.GetFullPath(SwaggerUI_www_root_path))/*,
-                                RequestPath = "/"
- */                           });
+                                Logger.log($"DATA_ROOT_DIR is set to {DATA_ROOT_DIR}, using the static files middleware", LogEventLevel.Debug, "any", DATA_ROOT_DIR);
+                                app.UseStaticFiles(new StaticFileOptions
+                                {
+                                    FileProvider = new PhysicalFileProvider(Path.GetFullPath(Path.Combine(DATA_ROOT_DIR, "wwwroot"))) /*,
+                                    RequestPath = "/"
+                                    */
+                                });
+                            }
+                            else
+                            {
+                                Logger.log("DATA_ROOT_DIR is not set, not using the static files middleware");
+                            }
+
                             app.UseSwaggerUI();
                             /*app.UseSwagger();
                             app.UseSwaggerUI(c =>
@@ -246,7 +254,9 @@ namespace Plugins
 
             // Dynamically implement the IController interface for Controller and add it to the service container
             var requestHandler = new RequestHandler(this);
+            Logger.log("HTTPReceiverSwagger: calling requestHandler.ImplementController(serverPart.Assembly)", LogEventLevel.Debug);
             var controllerImplAssembly = requestHandler.ImplementController(serverPart.Assembly);
+            Logger.log("HTTPReceiverSwagger: successfully implemented the generated controller interface", LogEventLevel.Debug);
 
             var host = _hostBuilder.ConfigureWebHost(webBuilder =>
             {
@@ -259,12 +269,13 @@ namespace Plugins
                 }
                 else
                 {
-                    if (address == "localhost")
-                        ipAddress = IPAddress.Loopback;
-                    if (address == "any")
-                        ipAddress = IPAddress.Any;
-                    else if (!IPAddress.TryParse(address, out ipAddress))
-                        throw new Exception("Invalid IP address to listen on: " + address);
+                    ipAddress = address switch
+                    {
+                        "localhost" => IPAddress.Loopback,
+                        "any" => IPAddress.Any,
+                        _ when IPAddress.TryParse(address, out var parsedIp) => parsedIp,
+                        _ => throw new Exception($"Invalid IP address to listen on: {address}")
+                    };
                 }
                 if (!string.IsNullOrEmpty(certPath))
                 {
@@ -305,6 +316,9 @@ namespace Plugins
                         {
                             options.JsonSerializerOptions.IgnoreNullValues = true;
                             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); 
+                            
+                            // to preserve original property names in responses, otherwise they are converted to camelCase
+                            options.JsonSerializerOptions.PropertyNamingPolicy = null;
                         })
                         .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(serverPart));
                     //Add Gasnikov
