@@ -41,6 +41,8 @@ namespace UniElLib
         public static string ConstPrev = new string(Enumerable.Range(0, 3).Select(ii => (char)(65 + new Random().Next(25))).ToArray());
         public int increment;
         public string fileNameT;
+        public List<string> needRollback = new List<string>();
+
         //    public Scenario currentScenario = null;
 
         public string GetPrefix(string context)

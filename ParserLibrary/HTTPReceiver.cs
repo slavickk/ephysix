@@ -83,7 +83,7 @@ namespace ParserLibrary
             {
                 item.answer = response;
 //                item.ctnx = context.GetPrefix("SendResp");
-                Interlocked.Increment(ref item.srabot);
+            //    Interlocked.Increment(ref item.srabot);
            //     item.semaphore.Set();//.Release();
                 /*if (item.semaphore.CurrentCount == 0)
                 {

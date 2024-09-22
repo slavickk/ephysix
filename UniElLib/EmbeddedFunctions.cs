@@ -15,6 +15,7 @@ namespace UniElLib
     {
         
         public static IDistributedCache cacheProvider;
+        public static string  cacheProviderPrefix="";
 
         public static Dictionary<string, Func<List<object>, Task<string>>> embeddedFunctions = new Dictionary<string, Func<List<object>, Task<string>>>();
         public static Dictionary<string, string> embeddedFunctionsMask = new Dictionary<string, string>();
@@ -80,7 +81,7 @@ namespace UniElLib
         static async Task<string> gen_id(List<object> pars)
         {
             string key = "IDPrefix_" + pars[0];
-            var currId = await EmbeddedFunctions.cacheProvider.GetStringAsync(key);
+            var currId = await EmbeddedFunctions.cacheProvider.GetStringAsync(EmbeddedFunctions.cacheProviderPrefix + key);
             if (string.IsNullOrEmpty(currId))
                 currId = "1";
             currId = (Convert.ToInt64(currId) + 1).ToString();
@@ -115,7 +116,7 @@ namespace UniElLib
                 diff = diff.Subtract(new TimeSpan(0, DateTime.Now.Minute, DateTime.Now.Second));
             }
             period = period.Add(diff);
-            await EmbeddedFunctions.cacheProvider.SetStringAsync(key, currId, cache_options);
+            await EmbeddedFunctions.cacheProvider.SetStringAsync(key, EmbeddedFunctions.cacheProviderPrefix + currId, cache_options);
             return currId;
         }
 
@@ -212,6 +213,8 @@ namespace UniElLib
         }
         public static void Init()
         {
+            embeddedFunctions.Clear();
+            embeddedFunctionsMask.Clear();
             var assembly = Assembly.GetExecutingAssembly();
             foreach (var type in assembly.GetTypes())
             {
@@ -297,13 +300,14 @@ namespace UniElLib
         public string gen_id(string keyPref,string fmt)
         {
             string key = "IDPrefix_"+ keyPref;
-            var currId = EmbeddedFunctions.cacheProvider.GetString(key);
-            if (string.IsNullOrEmpty(currId))
+            var currId = EmbeddedFunctions.cacheProvider.GetString(EmbeddedFunctions.cacheProviderPrefix + key);
+            if (string.IsNullOrEmpty(currId) /*|| !int.TryParse(currId,out int result)*/)
                 currId = "0";
             currId = (Convert.ToInt64(currId) + 1).ToString();
             TimeSpan period;
             if (!TimeSpan.TryParse(fmt, out period))
             {
+ //               currId = "0";
                 throw new Exception("Can't parse " + fmt + " to timespan");
             }
             DistributedCacheEntryOptions cache_options = new()
@@ -332,7 +336,7 @@ namespace UniElLib
                 diff = diff.Subtract(new TimeSpan(0, DateTime.Now.Minute, DateTime.Now.Second));
             }
             period = period.Add(diff);
-            EmbeddedFunctions.cacheProvider.SetString(key, currId, cache_options);
+            EmbeddedFunctions.cacheProvider.SetString(EmbeddedFunctions.cacheProviderPrefix + key, currId, cache_options);
             return currId;
         }
 

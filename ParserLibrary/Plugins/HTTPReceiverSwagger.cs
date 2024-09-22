@@ -432,7 +432,7 @@ namespace Plugins
                     "HTTPReceiverSwagger: This is a workaround sendResponse branch with context being SyncroItem wrapped in Step.ContextItem. " +
                     "Most likely this branch will be unused.");
                 item.answer = response;
-                Interlocked.Increment(ref item.srabot);
+              //  Interlocked.Increment(ref item.srabot);
              //   item.semaphore.Set();
             }
             
@@ -441,7 +441,7 @@ namespace Plugins
             {
                 Logger.log("HTTPReceiverSwagger: Main sendResponse branch with context being SyncroItem directly");
                 syncroItem.answer = response;
-                Interlocked.Increment(ref syncroItem.srabot);
+              //  Interlocked.Increment(ref syncroItem.srabot);
              //   syncroItem.semaphore.Set();
             }
         }

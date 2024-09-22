@@ -132,19 +132,38 @@ namespace TestJsonRazbor
                 }
                 else
                 {
-                    System.Windows.Forms.TextBox textBox = new System.Windows.Forms.TextBox();
-                    textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                    | System.Windows.Forms.AnchorStyles.Right)));
-                    textBox.Location = new System.Drawing.Point(379, lastTop);
-                    textBox.Name = "textBox" + fld.Name;
-                    textBox.Size = new System.Drawing.Size(597, 39);
-                    textBox.TabIndex = 1;
-                    if (fld.FieldType.IsArray)
-                        textBox.Text = (fld.GetValue(tObject) as Array).GetValue(i).ToString();
+                    if (fld.FieldType == typeof(bool))
+                    {
+                        System.Windows.Forms.CheckBox comboBox = new System.Windows.Forms.CheckBox();
+                        comboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+                        comboBox.Location = new System.Drawing.Point(379, lastTop);
+                        comboBox.Name = "checkBox" + fld.Name;
+                        comboBox.Size = new System.Drawing.Size(597, 39);
+                        comboBox.TabIndex = 1;
+           //             comboBox.Items.AddRange(Enum.GetNames(fld.FieldType));
+                        comboBox.Checked= (bool)fld.GetValue(tObject) ;
+
+                        textBoxes.Add(comboBox);
+                        this.Controls.Add(comboBox);
+
+                    }
                     else
-                        textBox.Text = fld.GetValue(tObject)?.ToString();
-                    textBoxes.Add(textBox);
-                    this.Controls.Add(textBox);
+                    {
+                        System.Windows.Forms.TextBox textBox = new System.Windows.Forms.TextBox();
+                        textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+                        textBox.Location = new System.Drawing.Point(379, lastTop);
+                        textBox.Name = "textBox" + fld.Name;
+                        textBox.Size = new System.Drawing.Size(597, 39);
+                        textBox.TabIndex = 1;
+                        if (fld.FieldType.IsArray)
+                            textBox.Text = (fld.GetValue(tObject) as Array).GetValue(i).ToString();
+                        else
+                            textBox.Text = fld.GetValue(tObject)?.ToString();
+                        textBoxes.Add(textBox);
+                        this.Controls.Add(textBox);
+                    }
                 }
                 fields.Add(fld);
                 lastTop += (60);
@@ -178,7 +197,7 @@ namespace TestJsonRazbor
             var flds = t.GetFields();
             foreach (var fld in flds.Where(ii => !ii.FieldType.IsClass || ii.FieldType.IsArray || ii.FieldType ==typeof(string)))
             {
-                if (fld.FieldType != typeof(bool))
+               // if (fld.FieldType != typeof(bool))
                 {
                     AddControlGroup(ref lastTop, fld);
                 }
@@ -221,7 +240,11 @@ namespace TestJsonRazbor
                     if (textBoxes[i] is System.Windows.Forms.TextBox)                    
                         fields[i].SetValue(tObject, conv(textBoxes[i].Text, fields[i]));
                     else
-                        fields[i].SetValue(tObject,Enum.GetValues(fields[i].FieldType).Cast<object>().ToList()[(textBoxes[i] as  System.Windows.Forms.ComboBox).SelectedIndex]);
+                        if (textBoxes[i] is System.Windows.Forms.CheckBox)
+                        fields[i].SetValue(tObject, (textBoxes[i] as System.Windows.Forms.CheckBox).Checked);
+                    else
+
+                    fields[i].SetValue(tObject,Enum.GetValues(fields[i].FieldType).Cast<object>().ToList()[(textBoxes[i] as  System.Windows.Forms.ComboBox).SelectedIndex]);
 
                 }
             }

@@ -216,7 +216,7 @@ public partial class Step : ILiquidizable
 
             foreach (var ff in outputFields)
             {
-                if(ff.outputPath.Contains("awl:ADDITIONAL"))
+                if(ff.outputPath.Contains("docNumber"))
                 {
                     int yy = 0;
                 }
@@ -248,7 +248,7 @@ public partial class Step : ILiquidizable
     private SenderHost _senderHost;
 
     [YamlIgnore]
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     public Pipeline owner { get; set; }
 
 
@@ -488,10 +488,16 @@ public partial class Step : ILiquidizable
 
         foreach (var nextStep in this.owner.steps.Where(ii => ii.IDPreviousStep == this.IDStep || (!string.IsNullOrEmpty(this.IDFamilyStep) && this.IDFamilyStep == ii.IDFamilyPreviousStep)))
         {
-            await nextStep.FilterStep(contextItem, rootElement);
-            await nextStep.checkChilds(contextItem, rootElement);
+            await execStep(nextStep,contextItem, rootElement);
         }
     }
+
+    public static async Task execStep(Step nextStep,ContextItem contextItem, AbstrParser.UniEl rootElement)
+    {
+        await nextStep.FilterStep(contextItem, rootElement);
+        await nextStep.checkChilds(contextItem, rootElement);
+    }
+
     public override string ToString()
     {
         return $"Step:{this.IDStep}";

@@ -21,6 +21,7 @@ using CSScriptLib;
 using YamlDotNet.Serialization;
 using DotLiquid;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace UniElLib;
 
@@ -74,6 +75,7 @@ public abstract class OutputValue:ILiquidizable
 {
     public bool alwaysInArray { get; set; } = false;
     public bool viewAsJsonString = false;
+    public string outputType;
     public string outputPath;
     public bool isUniqOutputPath = true;
     public List<OutputValue> outputChilds { get; set; } = new List<OutputValue>();
@@ -186,9 +188,9 @@ public abstract class OutputValue:ILiquidizable
                 else
                 {
                     if (canReturnObject)
-                        elV = el1?.Value?.ToString()??"";
+                        elV = ToOutputType(el1?.Value); //el1?.Value?.ToString()??"";
                     else
-                        elV = getValue(inputRoot);
+                        elV = ToOutputType(getValue(inputRoot));
                 }
 
                 if (elV != null)
@@ -246,7 +248,7 @@ public abstract class OutputValue:ILiquidizable
             {
                 if (this is ExtractFromInputValue && !string.IsNullOrEmpty((this as ExtractFromInputValue).functionCall))
                 {
-                   var  elV = GetValueSimple(el1);
+                   var  elV =ToOutputType( GetValueSimple(el1));
                     if (elV != null)
                     {
                         if (converter != null)
@@ -268,9 +270,9 @@ public abstract class OutputValue:ILiquidizable
                         else
                         {
                             if (canReturnObject)
-                                elV = GetValueSimple(el1);
+                                elV =ToOutputType(GetValueSimple(el1));
                             else
-                                elV = getValue(inputRoot);
+                                elV = ToOutputType(getValue(inputRoot));
                         }
 
                         if (elV != null)
@@ -304,6 +306,31 @@ public abstract class OutputValue:ILiquidizable
         }
 
         return found;
+    }
+
+    public object ToOutputType(object val)
+    {
+        if(string.IsNullOrEmpty(outputType))
+            return (val ?? "").ToString();
+        switch (outputType)
+            {
+            case "string":
+                return (val??"").ToString();
+            case "boolean":
+                return Boolean.Parse(val.ToString());
+            case "integer":
+                return Int32.Parse(val.ToString());
+            case "double":
+                return Double.Parse(val.ToString().Replace(',', '.'), CultureInfo.InvariantCulture);
+                //return double.Parse(val.ToString());
+            default:
+                return val.ToString();
+
+
+        }
+        if (outputType == "string" || string.IsNullOrEmpty(outputType))
+            return val;
+
     }
 
     protected  virtual string GetValueSimple(AbstrParser.UniEl? el1)

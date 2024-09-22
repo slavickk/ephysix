@@ -308,6 +308,23 @@ public class Pipeline:ILiquidizable
             if (EmbeddedFunctions.cacheProvider == null)
             {
                 var services = new ServiceCollection();
+                if (configuration["CACHE_PROVIDER:PREFIX"] != null)
+                    EmbeddedFunctions.cacheProviderPrefix = configuration["CACHE_PROVIDER:PREFIX"];
+                if (configuration["CACHE_PROVIDER:REDIS:CONNECTION_STRING"] != null)
+                {
+                    services.AddStackExchangeRedisCache(options =>
+                    {
+                        options.Configuration = configuration["CACHE_PROVIDER:REDIS:CONNECTION_STRING"];// builder.Configuration.GetConnectionString("MyRedisConStr");
+                        options.InstanceName = configuration["CACHE_PROVIDER:REDIS:INSTANCE_NAME"];
+
+                       /*options.ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions();
+                        options.ConfigurationOptions.EndPoints={
+                            { url,portNumber }
+                        },
+    AbortOnConnectFail = false // this prevents that error
+                        options.ConfigurationOptions.SyncTimeout = Convert.ToInt32(configuration["CACHE_PROVIDER:REDIS:TIMEOUT_MILLI"]);*/
+                    });
+                } else
                 services.AddDistributedMemoryCache();
                 var provider = services.BuildServiceProvider();
                 EmbeddedFunctions.cacheProvider = provider.GetRequiredService<IDistributedCache>();// (typeof(IDistributedCache)) as IDistributedCache;
@@ -757,7 +774,7 @@ public class Pipeline:ILiquidizable
     void formMD(string fileName)
     {
         Dictionary<string, (string, object)> oldContent = new Dictionary<string, (string, object)>();
-        return;
+    //    return;
         var currContent=oldContent;
         string md_fileName = fileName.Replace(".yml", ".md");
         if(File.Exists(md_fileName))
@@ -769,15 +786,34 @@ public class Pipeline:ILiquidizable
                 occurencyItem lastItem= null;
                 int kolWhitespace = 0;
                 (string leadSpaces, string word, string symbols) prev = ("","","");
+                List<((string leadSpaces, string word, string symbols)prev, Dictionary<string, (string, object)> list )> precStack = new List<((string leadSpaces, string word, string symbols), Dictionary<string, (string, object)>)>();
                 foreach(var item in ExtractPatternsOfVariable(content))
                 {
+                    if(item.word=="VERIFY")
+                    {
+                        int yy = 0;
+                    }
                     if (prev.word != "" && prev.leadSpaces.Length < item.leadSpaces.Length)
                     {
+                        precStack.Add((prev,currContent));
                         var newContent = new Dictionary<string, (string, object)>();
                         currContent[prev.word] = (currContent.Last().Value.Item1, newContent);
                         currContent = newContent;
+                    } else
+                    {
+                        if(prev.leadSpaces.Length> item.leadSpaces.Length)
+                        {
+                            while (precStack.Count>0 && precStack.Last().prev.leadSpaces.Length > item.leadSpaces.Length)
+                                precStack.RemoveAt(precStack.Count - 1);
+                            if (precStack.Count > 0)
+                                currContent = precStack.Last().list;
+                            else
+                                currContent = oldContent;
+                        }
                     }
+                    if(!currContent.TryGetValue(item.word,out var  value7))
                     currContent.Add(item.word, (item.symbols, null));
+                    prev = item;
                 }
               /*  foreach(var item in occurencyItems.OrderBy(ii=>ii.variable))
                 {
@@ -806,8 +842,14 @@ public class Pipeline:ILiquidizable
         using (StreamWriter sw = new StreamWriter(md_fileName))
         {
             sw.WriteLine($"# {this.pipelineDescription}");
+
+            using(StreamReader sr = new StreamReader(Path.Combine(Path.GetDirectoryName(md_fileName),"common.md")))
+            {
+                while(!sr.EndOfStream)
+                sw.WriteLine(sr.ReadLine());
+            }
             if (occurencyItems.Count > 0)
-                sw.WriteLine($"## VARIABLE SETTINGS");
+                sw.WriteLine($"## œ≈–≈Ã≈ÕÕ€≈ œ¿…œÀ¿…Õ¿");
 
             List<string> usedVars = new List<string>();
             occurencyItem lastItem = null;
@@ -823,6 +865,10 @@ public class Pipeline:ILiquidizable
                     for (int i = 0; i < spl.Length; i++)
                     {
                         var it = spl[i];
+                        if(it=="USER")
+                        {
+                            int yy = 0;
+                        }
                         (string, object) valOld;
                         if (!currOld.TryGetValue(it, out valOld))
                         {
@@ -831,9 +877,9 @@ public class Pipeline:ILiquidizable
                                 valOld.Item1 = " default value:" + item.defaultValue;
 
                             currOld[it] = valOld;
-                            if (i < spl.Length - 1)
+                            /*if (i < spl.Length - 1)
                                 currOld = valOld.Item2 as Dictionary<string, (string, object)>;
-
+                            */
                         }
                         object val;
                         if (!currDict.TryGetValue(it, out val))
@@ -841,7 +887,15 @@ public class Pipeline:ILiquidizable
                             currDict.Add(it, (i < spl.Length - 1) ? new Dictionary<string, object>() : item.value);
                         }
                         if (i < spl.Length - 1)
+                        {
                             currDict = currDict[it] as Dictionary<string, object>;
+                            currOld = valOld.Item2 as Dictionary<string, (string, object)>;
+                            //    currOld
+                        }
+                        if (currDict.Count != currOld.Count)
+                        {
+                            int yy = 0;
+                        }
 
                     }
 
@@ -868,10 +922,10 @@ public class Pipeline:ILiquidizable
                 }
 
             }*/
-            sw.WriteLine(" run ```curl -X 'GET' 'https://<entry_point_url>:<monitoring_port>/api/Monitoring/SelfTest'  -H 'accept: */*'```");
-            sw.WriteLine();
+      //      sw.WriteLine(" run ```curl -X 'GET' 'https://<entry_point_url>:<monitoring_port>/api/Monitoring/SelfTest'  -H 'accept: */*'```");
+        /*    sw.WriteLine();
             sw.WriteLine("\r\n\r\nOther ports( output ) see in ENVIRONMENT VARIABLES section");
-
+            */
         }
         using (StreamWriter sw = new StreamWriter(fileName.Replace(".yml", ".json").Replace(Path.GetFileNameWithoutExtension(fileName), Path.GetFileNameWithoutExtension(fileName) + "appSettings")))
         {

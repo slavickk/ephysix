@@ -794,7 +794,7 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         }
         public static T DeepCopyJSON<T>(T input)
         {
-            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All , ReferenceLoopHandling = ReferenceLoopHandling.Ignore};
             var jsonString = JsonConvert.SerializeObject(input,settings); // new Newtonsoft.Json.JsonSerializer().Serialize();//.Serialize(input,);
             return JsonConvert.DeserializeObject<T>(jsonString, settings);
            // return Newtonsoft.Json.JsonSerializer.Deserialize<T>(jsonString);
@@ -830,11 +830,11 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
                     pip.steps = steps.ToArray();
                     // newStep.filterCollection.AddRange(copyStep.filterCollection.Select(ii=>new Step.ItemFilter() {  condition=ii.condition, Name=ii.Name, outputFields=ii.outputFields.})
 
-                    (selectedNode == null ? treeView1.Nodes : selectedNode.Nodes).Add(new TreeNode(stepName) { ContextMenuStrip = this.contextMenuStrip1, Tag = newStep });
                     if (!string.IsNullOrEmpty(IDNextStep) && oldStep != null)
                     {
                         oldStep.IDPreviousStep = newStep.IDStep;
                     }
+                    (selectedNode == null ? treeView1.Nodes : selectedNode.Nodes).Add(new TreeNode(stepName) { ContextMenuStrip = this.contextMenuStrip1, Tag = newStep });
                     treeView1.ExpandAll();
                 }
             }
