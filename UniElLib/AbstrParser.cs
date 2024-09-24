@@ -275,7 +275,7 @@ namespace UniElLib
 
         }
 
-        private static void AddAvalParser(UniEl ancestor, AbstrParser parser)
+        public static void AddAvalParser(UniEl ancestor, AbstrParser parser)
         {
             if (ancestor.implementedParsers == null)
                 ancestor.implementedParsers = new List<AbstrParser>();

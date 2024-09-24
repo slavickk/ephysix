@@ -244,7 +244,7 @@ public  class HTTPSender:Sender,ISelfTested
         }
         if (result!= null && result.IsSuccessStatusCode)
         {
-               
+            
             var response = await result.Content.ReadAsStringAsync();
             IEnumerable<string> values;
             //string rules = "";

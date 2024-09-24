@@ -57,6 +57,9 @@ public class Pipeline:ILiquidizable
     [YamlIgnore]
     public static IConfiguration configuration;
 
+
+    public List<string> allMocks;
+
     public ReplaySaver saver = null;
 
     private static readonly ActivitySource Activity = new("Pipeline");

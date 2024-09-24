@@ -230,6 +230,11 @@ namespace TestJsonRazbor
                 selectedNode = treeView1.Nodes[0];
             else
                 selectedNode = null;
+            if (pip.allMocks != null)
+            {
+                comboBoxAllMocks.Items.Clear();
+                comboBoxAllMocks.Items.AddRange(pip.allMocks.ToArray());    
+            }
         }
 
         private void FillStep(Pipeline pip, string prevStep, TreeNodeCollection col)
@@ -794,10 +799,10 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         }
         public static T DeepCopyJSON<T>(T input)
         {
-            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All , ReferenceLoopHandling = ReferenceLoopHandling.Ignore};
-            var jsonString = JsonConvert.SerializeObject(input,settings); // new Newtonsoft.Json.JsonSerializer().Serialize();//.Serialize(input,);
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            var jsonString = JsonConvert.SerializeObject(input, settings); // new Newtonsoft.Json.JsonSerializer().Serialize();//.Serialize(input,);
             return JsonConvert.DeserializeObject<T>(jsonString, settings);
-           // return Newtonsoft.Json.JsonSerializer.Deserialize<T>(jsonString);
+            // return Newtonsoft.Json.JsonSerializer.Deserialize<T>(jsonString);
         }
         public static T DeepCopyXML<T>(T input)
         {
@@ -810,7 +815,7 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         }
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var idStep=Clipboard.GetText();
+            var idStep = Clipboard.GetText();
 
             var copyStep = pip.steps.FirstOrDefault(ii => ii.IDStep == idStep);
             try
@@ -843,6 +848,11 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
                 MessageBox.Show(ex.ToString());
             }
 
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            pip.steps.First().ireceiver.MocBody = comboBoxAllMocks.SelectedItem?.ToString();
         }
     }
 }

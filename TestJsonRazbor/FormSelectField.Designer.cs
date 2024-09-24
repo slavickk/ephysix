@@ -49,12 +49,14 @@ namespace TestJsonRazbor
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormSelectField));
-            TreeNode treeNode5 = new TreeNode("Root");
-            TreeNode treeNode6 = new TreeNode("Root");
+            TreeNode treeNode1 = new TreeNode("Root");
+            TreeNode treeNode2 = new TreeNode("Root");
             button7 = new Button();
             groupBox2 = new GroupBox();
+            label1 = new Label();
             checkBoxTransformOutput = new CheckBox();
             button11 = new Button();
+            comboBoxOutType = new ComboBox();
             buttonAddExtract = new Button();
             button10 = new Button();
             button6 = new Button();
@@ -124,8 +126,7 @@ namespace TestJsonRazbor
             saveFileDialog1 = new SaveFileDialog();
             toolTip1 = new ToolTip(components);
             openFileDialogFromFile = new OpenFileDialog();
-            label1 = new Label();
-            comboBoxOutType = new ComboBox();
+            textBoxPrefParsers = new TextBox();
             groupBox2.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
@@ -159,6 +160,7 @@ namespace TestJsonRazbor
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(textBoxPrefParsers);
             groupBox2.Controls.Add(label1);
             groupBox2.Controls.Add(checkBoxTransformOutput);
             groupBox2.Controls.Add(button11);
@@ -195,6 +197,17 @@ namespace TestJsonRazbor
             groupBox2.TabStop = false;
             groupBox2.Text = "OutputValues";
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(672, 26);
+            label1.Margin = new Padding(2, 0, 2, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(51, 15);
+            label1.TabIndex = 55;
+            label1.Text = "OutType";
+            label1.Click += label1_Click;
+            // 
             // checkBoxTransformOutput
             // 
             checkBoxTransformOutput.AutoSize = true;
@@ -216,6 +229,16 @@ namespace TestJsonRazbor
             button11.Text = "reset";
             button11.UseVisualStyleBackColor = true;
             button11.Click += button11_Click_1;
+            // 
+            // comboBoxOutType
+            // 
+            comboBoxOutType.FormattingEnabled = true;
+            comboBoxOutType.Items.AddRange(new object[] { "string", "integer", "double", "boolean" });
+            comboBoxOutType.Location = new Point(727, 25);
+            comboBoxOutType.Margin = new Padding(2);
+            comboBoxOutType.Name = "comboBoxOutType";
+            comboBoxOutType.Size = new Size(82, 23);
+            comboBoxOutType.TabIndex = 54;
             // 
             // buttonAddExtract
             // 
@@ -834,9 +857,9 @@ namespace TestJsonRazbor
             treeView1.Location = new Point(0, 0);
             treeView1.Margin = new Padding(2);
             treeView1.Name = "treeView1";
-            treeNode5.Name = "Node0";
-            treeNode5.Text = "Root";
-            treeView1.Nodes.AddRange(new TreeNode[] { treeNode5 });
+            treeNode1.Name = "Node0";
+            treeNode1.Text = "Root";
+            treeView1.Nodes.AddRange(new TreeNode[] { treeNode1 });
             treeView1.Size = new Size(212, 568);
             treeView1.TabIndex = 1;
             treeView1.AfterSelect += treeView1_AfterSelect;
@@ -888,9 +911,9 @@ namespace TestJsonRazbor
             treeView2.Location = new Point(0, 0);
             treeView2.Margin = new Padding(2);
             treeView2.Name = "treeView2";
-            treeNode6.Name = "Node0";
-            treeNode6.Text = "Root";
-            treeView2.Nodes.AddRange(new TreeNode[] { treeNode6 });
+            treeNode2.Name = "Node0";
+            treeNode2.Text = "Root";
+            treeView2.Nodes.AddRange(new TreeNode[] { treeNode2 });
             treeView2.Size = new Size(168, 568);
             treeView2.TabIndex = 2;
             treeView2.AfterSelect += treeView1_AfterSelect;
@@ -982,26 +1005,13 @@ namespace TestJsonRazbor
             // 
             openFileDialogFromFile.FileName = "openFileDialog4";
             // 
-            // label1
+            // textBoxPrefParsers
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(672, 26);
-            label1.Margin = new Padding(2, 0, 2, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(51, 15);
-            label1.TabIndex = 55;
-            label1.Text = "OutType";
-            label1.Click += label1_Click;
-            // 
-            // comboBoxOutType
-            // 
-            comboBoxOutType.FormattingEnabled = true;
-            comboBoxOutType.Items.AddRange(new object[] { "string", "integer", "double", "boolean" });
-            comboBoxOutType.Location = new Point(727, 25);
-            comboBoxOutType.Margin = new Padding(2);
-            comboBoxOutType.Name = "comboBoxOutType";
-            comboBoxOutType.Size = new Size(82, 23);
-            comboBoxOutType.TabIndex = 54;
+            textBoxPrefParsers.Location = new Point(327, 2);
+            textBoxPrefParsers.Margin = new Padding(2);
+            textBoxPrefParsers.Name = "textBoxPrefParsers";
+            textBoxPrefParsers.Size = new Size(111, 23);
+            textBoxPrefParsers.TabIndex = 39;
             // 
             // FormSelectField
             // 
@@ -1123,5 +1133,6 @@ namespace TestJsonRazbor
         private System.Windows.Forms.CheckBox checkBoxNoEq;
         private Label label1;
         private ComboBox comboBoxOutType;
+        private TextBox textBoxPrefParsers;
     }
 }

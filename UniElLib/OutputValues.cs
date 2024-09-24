@@ -96,6 +96,8 @@ public abstract class OutputValue:ILiquidizable
 
     public OnEmptyAction onEmptyValueAction = OnEmptyAction.Skip;
 
+    public string[] PreferableParsers;
+
     public ConverterOutput converter = null;
     [YamlIgnore] public virtual bool canReturnObject => true;
 
@@ -157,7 +159,11 @@ public abstract class OutputValue:ILiquidizable
                 rootEl = el;
             }
         }
-
+        if(PreferableParsers != null )
+        {
+            foreach(var el in PreferableParsers)
+                AbstrParser.AddAvalParser(rootEl, AbstrParser.availParser.First(ii=>ii.GetType().Name==el));
+        }
         if (viewAsJsonString)
             rootEl.packToJsonString = true;
         return rootEl;

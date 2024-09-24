@@ -17,7 +17,7 @@ namespace UniElLib
         public static IDistributedCache cacheProvider;
         public static string  cacheProviderPrefix="";
 
-        public static Dictionary<string, Func<List<object>, Task<string>>> embeddedFunctions = new Dictionary<string, Func<List<object>, Task<string>>>();
+        public static Dictionary<string, Func<List<object>, string>> embeddedFunctions = new Dictionary<string, Func<List<object>, string>>();
         public static Dictionary<string, string> embeddedFunctionsMask = new Dictionary<string, string>();
         public class FuncDescriptionAttribute : System.Attribute
         {
@@ -31,7 +31,7 @@ namespace UniElLib
         }
 
         [FuncDescription( "текущее время в ISO ")]
-        static async Task<string> curr_time(List<object> pars)
+        static string curr_time(List<object> pars)
         {
             if (pars.Count == 0)
                  return DateTime.Now.ToString("o");
@@ -40,9 +40,13 @@ namespace UniElLib
 
         }
         [FuncDescription("взять параметр по пути ", "so")]
-        static async Task<string> path(List<object> pars)
+        static string path(List<object> pars)
         {
             string path = pars[0].ToString().Replace("@","-");
+            if (pars[0].ToString().Contains("-AgentFee"))
+            {
+                int yy = 0;
+            }
             AbstrParser.UniEl root = pars[1] as AbstrParser.UniEl;
             foreach( var el in root.getAllDescentants(path.Split('/'),0/* root.rootIndex*/, null))
             { 
@@ -51,13 +55,13 @@ namespace UniElLib
             return "";
         }
         [FuncDescription("форматировать строку  ", "so")]
-        static async Task<string> format(List<object> pars)
+        static string format(List<object> pars)
         {
             return string.Format( pars[0].ToString(),pars.Skip(1).ToArray());
         }
 
         [FuncDescription("транслитерировать строку  ", "so")]
-        static async Task<string> translit(List<object> pars)
+        static string translit(List<object> pars)
         {
             return Transliteration.Front( pars[0].ToString());
         }
@@ -72,16 +76,16 @@ namespace UniElLib
 
 
         [FuncDescription("конкатенировать параметры ","")]
-        static async Task<string> concat(List<object> pars)
+        static string concat(List<object> pars)
         {
 
             return string.Join("",pars.Select(ii=>ii.ToString()));
         }
         [FuncDescription("текущее время в ISO ")]
-        static async Task<string> gen_id(List<object> pars)
+        static string gen_id(List<object> pars)
         {
             string key = "IDPrefix_" + pars[0];
-            var currId = await EmbeddedFunctions.cacheProvider.GetStringAsync(EmbeddedFunctions.cacheProviderPrefix + key);
+            var currId = EmbeddedFunctions.cacheProvider.GetString(EmbeddedFunctions.cacheProviderPrefix + key);
             if (string.IsNullOrEmpty(currId))
                 currId = "1";
             currId = (Convert.ToInt64(currId) + 1).ToString();
@@ -116,7 +120,7 @@ namespace UniElLib
                 diff = diff.Subtract(new TimeSpan(0, DateTime.Now.Minute, DateTime.Now.Second));
             }
             period = period.Add(diff);
-            await EmbeddedFunctions.cacheProvider.SetStringAsync(key, EmbeddedFunctions.cacheProviderPrefix + currId, cache_options);
+            EmbeddedFunctions.cacheProvider.SetString(EmbeddedFunctions.cacheProviderPrefix + key, currId, cache_options);
             return currId;
         }
 
@@ -209,7 +213,7 @@ namespace UniElLib
                 else
                     return parameters[indParam - 1];
             }
-            return embeddedFunctions[funcName](pars).GetAwaiter().GetResult();
+            return embeddedFunctions[funcName](pars);
         }
         public static void Init()
         {
@@ -228,8 +232,8 @@ namespace UniElLib
                     {
                         //  bool isLongExec = (bool)attr.ConstructorArguments[4].Value;
                         string mask = attr.ConstructorArguments[1].Value.ToString();    
-                        Func<List<object>, Task<string>> action = null;
-                            action = (Func<List<object>, Task<string>>)meth.CreateDelegate(typeof(Func<List<object>, Task<string>>));
+                        Func<List<object>, string> action = null;
+                            action = (Func<List<object>, string>)meth.CreateDelegate(typeof(Func<List<object>, string>));
                        /* else
                             actionAsync = (Func<List<object>, Task<object>>)meth.CreateDelegate(typeof(Func<List<object>, Task<object>>));*/
 

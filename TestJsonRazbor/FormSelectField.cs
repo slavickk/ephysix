@@ -32,6 +32,7 @@ using static ParserLibrary.Step;
 using FrontInterfaceSupport;
 using System.Text.Json;
 using Newtonsoft.Json;
+using CodeHelper.Core.Extensions;
 
 namespace TestJsonRazbor
 {
@@ -524,8 +525,7 @@ namespace TestJsonRazbor
 
         private void FormSelectField_Load(object sender, EventArgs e)
         {
-            comboBoxOutType.SelectedIndex = 0;
-
+            
             //            MessageBox.Show($"{this.Width}:{this.Height}:{this.splitContainer1.SplitterDistance}:{this.splitContainer2.SplitterDistance}:{this.splitContainer3.SplitterDistance}");
             //            userControlCondition1.action += UserControlCondition1_action;
             textBoxNameFilter.Text = itemFilter.Name;
@@ -818,19 +818,19 @@ namespace TestJsonRazbor
             switch (comboBox3.SelectedIndex)
             {
                 case 0:
-                    return new ConstantValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter,outputType=comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
+                    return new ConstantValue() {PreferableParsers=(string.IsNullOrEmpty(textBoxPrefParsers.Text)?null: textBoxPrefParsers.Text.Split(',')), viewAsJsonString = checkBoxPackToJson.Checked, converter = converter,outputType=comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
                 case 1:
                     if (comboBox2.SelectedIndex == 0)
-                        return new ExtractFromInputValue() { functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ((checkBox2.Checked) ? textBoxAddFieldPath.Text : "") };
+                        return new ExtractFromInputValue() { PreferableParsers = (string.IsNullOrEmpty(textBoxPrefParsers.Text) ? null : textBoxPrefParsers.Text.Split(',')), functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ((checkBox2.Checked) ? textBoxAddFieldPath.Text : "") };
                     else
                         if (comboBox2.SelectedIndex == 2)
-                        return new ExtractFromInputValueWithSwitch() { functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, SwitchItems = userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
+                        return new ExtractFromInputValueWithSwitch() { PreferableParsers = (string.IsNullOrEmpty(textBoxPrefParsers.Text) ? null : textBoxPrefParsers.Text.Split(',')), functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, SwitchItems = userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
                     else
-                        return new ExtractFromInputValueWithScript() { functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
+                        return new ExtractFromInputValueWithScript() { PreferableParsers = (string.IsNullOrEmpty(textBoxPrefParsers.Text) ? null : textBoxPrefParsers.Text.Split(',')), functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
                 /*case 2:
                         return new ExtractFromInputValueWithSwitch() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text,  SwitchItems =userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };*/
                 case 2:
-                    return new TemplateOutputValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, getNodeNameOnly = checkBoxNameOnly.Checked, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody = textBoxTemplate.Text };
+                    return new TemplateOutputValue() { PreferableParsers = (string.IsNullOrEmpty(textBoxPrefParsers.Text) ? null : textBoxPrefParsers.Text.Split(',')), viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, getNodeNameOnly = checkBoxNameOnly.Checked, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody = textBoxTemplate.Text };
                     break;
                 default:
                     break;
@@ -895,6 +895,10 @@ namespace TestJsonRazbor
             comboBoxTypeAlias.SelectedIndex = -1;
             if (val != null)
             {
+                if (val.PreferableParsers != null)
+                    textBoxPrefParsers.Text = string.Join(',', val.PreferableParsers);
+                else
+                    textBoxPrefParsers.Text = "";
                 if (val.converter != null)
                 {
                     if (val.converter.GetType().IsAssignableTo(typeof(HashOutput)))

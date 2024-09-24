@@ -46,13 +46,15 @@ namespace TestJsonRazbor
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            TreeNode treeNode1 = new TreeNode("Steps");
+            TreeNode treeNode2 = new TreeNode("Steps");
             splitContainer1 = new SplitContainer();
             treeView1 = new TreeView();
             contextMenuStrip1 = new ContextMenuStrip(components);
             addStepToolStripMenuItem = new ToolStripMenuItem();
             removeStepToolStripMenuItem = new ToolStripMenuItem();
             iNSERToolStripMenuItem = new ToolStripMenuItem();
+            copyToolStripMenuItem = new ToolStripMenuItem();
+            pasteToolStripMenuItem = new ToolStripMenuItem();
             groupBox1 = new GroupBox();
             checkBoxShowVars = new CheckBox();
             buttonCorrectOccurences = new Button();
@@ -106,8 +108,7 @@ namespace TestJsonRazbor
             contextMenuStrip2 = new ContextMenuStrip(components);
             openFileDialog1 = new OpenFileDialog();
             folderBrowserDialog1 = new FolderBrowserDialog();
-            copyToolStripMenuItem = new ToolStripMenuItem();
-            pasteToolStripMenuItem = new ToolStripMenuItem();
+            comboBoxAllMocks = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -144,9 +145,9 @@ namespace TestJsonRazbor
             treeView1.Location = new Point(0, 0);
             treeView1.Margin = new Padding(2);
             treeView1.Name = "treeView1";
-            treeNode1.Name = "Steps";
-            treeNode1.Text = "Steps";
-            treeView1.Nodes.AddRange(new TreeNode[] { treeNode1 });
+            treeNode2.Name = "Steps";
+            treeNode2.Text = "Steps";
+            treeView1.Nodes.AddRange(new TreeNode[] { treeNode2 });
             treeView1.Size = new Size(288, 477);
             treeView1.TabIndex = 0;
             treeView1.AfterSelect += treeView1_AfterSelect;
@@ -158,32 +159,47 @@ namespace TestJsonRazbor
             contextMenuStrip1.ImageScalingSize = new Size(32, 32);
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { addStepToolStripMenuItem, removeStepToolStripMenuItem, iNSERToolStripMenuItem, copyToolStripMenuItem, pasteToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(181, 136);
+            contextMenuStrip1.Size = new Size(152, 114);
             contextMenuStrip1.Opening += contextMenuStrip1_Opening;
             // 
             // addStepToolStripMenuItem
             // 
             addStepToolStripMenuItem.Name = "addStepToolStripMenuItem";
-            addStepToolStripMenuItem.Size = new Size(180, 22);
+            addStepToolStripMenuItem.Size = new Size(151, 22);
             addStepToolStripMenuItem.Text = "Add step";
             addStepToolStripMenuItem.Click += AddNode;
             // 
             // removeStepToolStripMenuItem
             // 
             removeStepToolStripMenuItem.Name = "removeStepToolStripMenuItem";
-            removeStepToolStripMenuItem.Size = new Size(180, 22);
+            removeStepToolStripMenuItem.Size = new Size(151, 22);
             removeStepToolStripMenuItem.Text = "Remove step";
             removeStepToolStripMenuItem.Click += removeStepToolStripMenuItem_Click;
             // 
             // iNSERToolStripMenuItem
             // 
             iNSERToolStripMenuItem.Name = "iNSERToolStripMenuItem";
-            iNSERToolStripMenuItem.Size = new Size(180, 22);
+            iNSERToolStripMenuItem.Size = new Size(151, 22);
             iNSERToolStripMenuItem.Text = "Insert between";
             iNSERToolStripMenuItem.Click += iNSERToolStripMenuItem_Click;
             // 
+            // copyToolStripMenuItem
+            // 
+            copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            copyToolStripMenuItem.Size = new Size(151, 22);
+            copyToolStripMenuItem.Text = "Copy";
+            copyToolStripMenuItem.Click += copyToolStripMenuItem_Click;
+            // 
+            // pasteToolStripMenuItem
+            // 
+            pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
+            pasteToolStripMenuItem.Size = new Size(151, 22);
+            pasteToolStripMenuItem.Text = "Paste";
+            pasteToolStripMenuItem.Click += pasteToolStripMenuItem_Click;
+            // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(comboBoxAllMocks);
             groupBox1.Controls.Add(checkBoxShowVars);
             groupBox1.Controls.Add(buttonCorrectOccurences);
             groupBox1.Controls.Add(button6);
@@ -757,19 +773,14 @@ namespace TestJsonRazbor
             // 
             openFileDialog1.FileName = "openFileDialog1";
             // 
-            // copyToolStripMenuItem
+            // comboBoxAllMocks
             // 
-            copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            copyToolStripMenuItem.Size = new Size(180, 22);
-            copyToolStripMenuItem.Text = "Copy";
-            copyToolStripMenuItem.Click += copyToolStripMenuItem_Click;
-            // 
-            // pasteToolStripMenuItem
-            // 
-            pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-            pasteToolStripMenuItem.Size = new Size(180, 22);
-            pasteToolStripMenuItem.Text = "Paste";
-            pasteToolStripMenuItem.Click += pasteToolStripMenuItem_Click;
+            comboBoxAllMocks.FormattingEnabled = true;
+            comboBoxAllMocks.Location = new Point(327, 89);
+            comboBoxAllMocks.Name = "comboBoxAllMocks";
+            comboBoxAllMocks.Size = new Size(249, 23);
+            comboBoxAllMocks.TabIndex = 51;
+            comboBoxAllMocks.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
             // FormPipeline
             // 
@@ -860,5 +871,6 @@ namespace TestJsonRazbor
         private CheckBox checkBoxShowVars;
         private ToolStripMenuItem copyToolStripMenuItem;
         private ToolStripMenuItem pasteToolStripMenuItem;
+        private ComboBox comboBoxAllMocks;
     }
 }
