@@ -134,6 +134,7 @@ public partial class HTTPReceiverSwagger
             }
 
             // Wait for the pipeline to signal the completion
+            // TODO: this hangs - fix it
             await item.semaphore.WaitAsync();
             if (item.isError)
                 return await item.formAnswer(context);

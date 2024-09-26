@@ -171,7 +171,7 @@ namespace Plugins
                         .Configure(app =>
                         {
                             // app.Environment.WebRootFileProvider = compositeProvider;
-                            if (Pipeline.configuration["DATA_ROOT_DIR"] is { } DATA_ROOT_DIR)
+                            if (Pipeline.configuration != null && Pipeline.configuration["DATA_ROOT_DIR"] is { } DATA_ROOT_DIR)
                             {
                                 Logger.log($"DATA_ROOT_DIR is set to {DATA_ROOT_DIR}, using the static files middleware", LogEventLevel.Debug, "any", DATA_ROOT_DIR);
                                 app.UseStaticFiles(new StaticFileOptions

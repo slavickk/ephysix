@@ -24,12 +24,20 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NJsonSchema;
+using NJsonSchema.CodeGeneration;
 using NSwag.CodeGeneration.CSharp;
 using ParserLibrary;
 using Serilog.Events;
 using UniElLib;
 
 namespace Plugins;
+
+
+public class ExactPropertyNameGenerator : IPropertyNameGenerator
+{
+    public string Generate(JsonSchemaProperty property) => property.Name;
+}
 
 public partial class HTTPReceiverSwagger
 {
@@ -48,6 +56,7 @@ public partial class HTTPReceiverSwagger
         
         Logger.log("HTTPReceiverSwagger: calling serverGen.GenerateFile() to generate controller code", LogEventLevel.Debug);
         var serverGen = new CSharpControllerGenerator(doc, new CSharpControllerGeneratorSettings());
+        serverGen.Settings.CSharpGeneratorSettings.PropertyNameGenerator = new ExactPropertyNameGenerator();
         var serverCode = serverGen.GenerateFile();
 
         if (string.IsNullOrWhiteSpace(serverCode))
