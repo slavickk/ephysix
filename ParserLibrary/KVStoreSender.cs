@@ -62,6 +62,8 @@ namespace ParserLibrary
 
             base.Init(owner);
         }
+
+
         public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
         {
             Logger.log("KVStoreSender started", Serilog.Events.LogEventLevel.Information);
@@ -73,12 +75,12 @@ namespace ParserLibrary
                 if (this.typeOper == TypeOper.put)
                 {
                     var body = root.childs.First(ii => ii.Name == "body");
-                    await EmbeddedFunctions.cacheProvider.SetStringAsync(key, body.toJSON(), cache_options);
+                    await EmbeddedFunctions.cacheProvider.SetStringAsync(EmbeddedFunctions.cacheProviderPrefix+key, body.toJSON(), cache_options);
                     return "";
                 }
                 else
                 {
-                    var body=await EmbeddedFunctions.cacheProvider.GetStringAsync(key);
+                    var body=await EmbeddedFunctions.cacheProvider.GetStringAsync(EmbeddedFunctions.cacheProviderPrefix + key);
                     if(string.IsNullOrEmpty(body))
                     {
                         (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = 422;

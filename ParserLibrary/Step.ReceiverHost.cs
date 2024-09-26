@@ -132,6 +132,8 @@ public /*static*/   bool choosePath(HTTPReceiver.SyncroItem item, List<PathItem>
         public async Task signal(string input,object context)
         {
             DateTime time1= DateTime.Now;
+            HTTPReceiverSwagger.SyncroItem context1 = context as HTTPReceiverSwagger.SyncroItem;
+            bool isError = false;
             try
             {
                 if (debugMode)
@@ -142,8 +144,7 @@ public /*static*/   bool choosePath(HTTPReceiver.SyncroItem item, List<PathItem>
 
                 if (saver != null)
                     saver.save(input);
-                HTTPReceiverSwagger.SyncroItem context1 = context as HTTPReceiverSwagger.SyncroItem;
-
+ 
                 await ((context1?.initialStep != null) ? context1.initialStep : owner).Receiver_stringReceived(input, context,this.IDStep);
                 //await owner.Receiver_stringReceived(input, context);
                         
@@ -151,8 +152,26 @@ public /*static*/   bool choosePath(HTTPReceiver.SyncroItem item, List<PathItem>
             }
             catch (Exception e)
             {
-                metricUpTimeError.Add(time1);
-                throw;
+
+                if (context1.ctnx.needRollback.Count != 0)
+                {
+                    bool isFatal = false;
+                    foreach (var nameStep in context1.ctnx.needRollback)
+                    {
+                        try
+                        {
+                            var step = this.owner.owner.steps.First(ii => ii.IDStep == nameStep);
+                            await Step.execStep(step, context1.ctnx, context1.ctnx.list[0].childs[0]);
+                        }
+                        catch (Exception e66)
+                        {
+                            isFatal = true;
+                        }
+                    }
+                }
+                    metricUpTimeError.Add(time1);
+                    throw;
+                
             }
         }
 

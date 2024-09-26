@@ -30,6 +30,7 @@ namespace ParserLibrary;
 public abstract class Sender: DiagramExecutorItem/*:ISender*/
 {
     public string IDStepForTransactionRollback = "";
+    public string IDStepForTransactionRollbackCancel = "";
 
     [YamlIgnore]
 
@@ -152,7 +153,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
 
                 }
                 //cacheProvider.GetStringAsync()
-                ans = await EmbeddedFunctions.cacheProvider.GetStringAsync(cacheKey);
+                ans = await EmbeddedFunctions.cacheProvider.GetStringAsync(EmbeddedFunctions.cacheProviderPrefix + cacheKey);
 
             }
             if (string.IsNullOrEmpty(ans))
@@ -177,7 +178,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
                 }
                 if (cacheTimeInMilliseconds != 0)
                 {
-                    await EmbeddedFunctions.cacheProvider.SetStringAsync(cacheKey, ans, cache_options);
+                    await EmbeddedFunctions.cacheProvider.SetStringAsync(EmbeddedFunctions.cacheProviderPrefix + cacheKey, ans, cache_options);
                 }
 
             }
@@ -188,8 +189,18 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
                 throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonJson = (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText };
 
             }
+
+
             if (this.ignoreErrors && (context.context as HTTPReceiver.SyncroItem).isError)
                 ans = (context.context as HTTPReceiver.SyncroItem).errorContent;
+            if(!(context.context as HTTPReceiver.SyncroItem).isError)
+            {
+                if (!string.IsNullOrEmpty(IDStepForTransactionRollback))
+                    context.needRollback.Add(IDStepForTransactionRollback);
+                if (!string.IsNullOrEmpty(IDStepForTransactionRollbackCancel))
+                    context.needRollback.Remove(IDStepForTransactionRollbackCancel);
+
+            }
             if (owner.debugMode)
                 Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Debug, this, root.toJSON(true), ans);
             metricUpTime.Add(time1);

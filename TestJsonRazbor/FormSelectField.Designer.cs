@@ -53,8 +53,10 @@ namespace TestJsonRazbor
             TreeNode treeNode2 = new TreeNode("Root");
             button7 = new Button();
             groupBox2 = new GroupBox();
+            label1 = new Label();
             checkBoxTransformOutput = new CheckBox();
             button11 = new Button();
+            comboBoxOutType = new ComboBox();
             buttonAddExtract = new Button();
             button10 = new Button();
             button6 = new Button();
@@ -124,6 +126,7 @@ namespace TestJsonRazbor
             saveFileDialog1 = new SaveFileDialog();
             toolTip1 = new ToolTip(components);
             openFileDialogFromFile = new OpenFileDialog();
+            textBoxPrefParsers = new TextBox();
             groupBox2.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
@@ -157,8 +160,11 @@ namespace TestJsonRazbor
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(textBoxPrefParsers);
+            groupBox2.Controls.Add(label1);
             groupBox2.Controls.Add(checkBoxTransformOutput);
             groupBox2.Controls.Add(button11);
+            groupBox2.Controls.Add(comboBoxOutType);
             groupBox2.Controls.Add(buttonAddExtract);
             groupBox2.Controls.Add(button10);
             groupBox2.Controls.Add(button6);
@@ -186,10 +192,21 @@ namespace TestJsonRazbor
             groupBox2.Margin = new Padding(2);
             groupBox2.Name = "groupBox2";
             groupBox2.Padding = new Padding(2);
-            groupBox2.Size = new Size(562, 445);
+            groupBox2.Size = new Size(837, 445);
             groupBox2.TabIndex = 35;
             groupBox2.TabStop = false;
             groupBox2.Text = "OutputValues";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(672, 26);
+            label1.Margin = new Padding(2, 0, 2, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(51, 15);
+            label1.TabIndex = 55;
+            label1.Text = "OutType";
+            label1.Click += label1_Click;
             // 
             // checkBoxTransformOutput
             // 
@@ -213,10 +230,20 @@ namespace TestJsonRazbor
             button11.UseVisualStyleBackColor = true;
             button11.Click += button11_Click_1;
             // 
+            // comboBoxOutType
+            // 
+            comboBoxOutType.FormattingEnabled = true;
+            comboBoxOutType.Items.AddRange(new object[] { "string", "integer", "double", "boolean" });
+            comboBoxOutType.Location = new Point(727, 25);
+            comboBoxOutType.Margin = new Padding(2);
+            comboBoxOutType.Name = "comboBoxOutType";
+            comboBoxOutType.Size = new Size(82, 23);
+            comboBoxOutType.TabIndex = 54;
+            // 
             // buttonAddExtract
             // 
             buttonAddExtract.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonAddExtract.Location = new Point(470, 8);
+            buttonAddExtract.Location = new Point(745, 8);
             buttonAddExtract.Margin = new Padding(2, 1, 2, 1);
             buttonAddExtract.Name = "buttonAddExtract";
             buttonAddExtract.Size = new Size(64, 19);
@@ -306,7 +333,7 @@ namespace TestJsonRazbor
             // 
             button3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             button3.DialogResult = DialogResult.OK;
-            button3.Location = new Point(428, 418);
+            button3.Location = new Point(703, 418);
             button3.Margin = new Padding(2);
             button3.Name = "button3";
             button3.Size = new Size(123, 22);
@@ -389,7 +416,7 @@ namespace TestJsonRazbor
             listBox1.Location = new Point(4, 290);
             listBox1.Margin = new Padding(2);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(547, 124);
+            listBox1.Size = new Size(822, 124);
             listBox1.TabIndex = 29;
             listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
             // 
@@ -438,7 +465,7 @@ namespace TestJsonRazbor
             panel3.Location = new Point(6, 52);
             panel3.Margin = new Padding(2);
             panel3.Name = "panel3";
-            panel3.Size = new Size(548, 212);
+            panel3.Size = new Size(823, 212);
             panel3.TabIndex = 34;
             panel3.Visible = false;
             // 
@@ -468,7 +495,7 @@ namespace TestJsonRazbor
             // textBoxCallFunction
             // 
             textBoxCallFunction.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            textBoxCallFunction.Location = new Point(435, 10);
+            textBoxCallFunction.Location = new Point(710, 10);
             textBoxCallFunction.Margin = new Padding(2, 1, 2, 1);
             textBoxCallFunction.Name = "textBoxCallFunction";
             textBoxCallFunction.Size = new Size(86, 23);
@@ -523,7 +550,7 @@ namespace TestJsonRazbor
             // 
             buttonDown.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             buttonDown.Font = new Font("Segoe UI", 6F, FontStyle.Regular, GraphicsUnit.Point);
-            buttonDown.Location = new Point(513, 78);
+            buttonDown.Location = new Point(788, 78);
             buttonDown.Margin = new Padding(2);
             buttonDown.Name = "buttonDown";
             buttonDown.Size = new Size(23, 22);
@@ -534,7 +561,7 @@ namespace TestJsonRazbor
             // buttonUp
             // 
             buttonUp.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonUp.Location = new Point(513, 54);
+            buttonUp.Location = new Point(788, 54);
             buttonUp.Margin = new Padding(2);
             buttonUp.Name = "buttonUp";
             buttonUp.Size = new Size(22, 22);
@@ -551,7 +578,7 @@ namespace TestJsonRazbor
             textBoxScript.Multiline = true;
             textBoxScript.Name = "textBoxScript";
             textBoxScript.ScrollBars = ScrollBars.Vertical;
-            textBoxScript.Size = new Size(508, 82);
+            textBoxScript.Size = new Size(783, 82);
             textBoxScript.TabIndex = 29;
             // 
             // textBoxValueFieldSearch
@@ -560,7 +587,7 @@ namespace TestJsonRazbor
             textBoxValueFieldSearch.Location = new Point(146, 9);
             textBoxValueFieldSearch.Margin = new Padding(2);
             textBoxValueFieldSearch.Name = "textBoxValueFieldSearch";
-            textBoxValueFieldSearch.Size = new Size(281, 23);
+            textBoxValueFieldSearch.Size = new Size(556, 23);
             textBoxValueFieldSearch.TabIndex = 18;
             // 
             // button4
@@ -667,7 +694,7 @@ namespace TestJsonRazbor
             panel4.Location = new Point(6, 52);
             panel4.Margin = new Padding(2);
             panel4.Name = "panel4";
-            panel4.Size = new Size(548, 74);
+            panel4.Size = new Size(823, 74);
             panel4.TabIndex = 29;
             panel4.Visible = false;
             // 
@@ -706,7 +733,7 @@ namespace TestJsonRazbor
             panel1.Location = new Point(6, 52);
             panel1.Margin = new Padding(2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(548, 212);
+            panel1.Size = new Size(823, 212);
             panel1.TabIndex = 32;
             panel1.Visible = false;
             // 
@@ -717,7 +744,7 @@ namespace TestJsonRazbor
             textBoxTemplate.Margin = new Padding(2);
             textBoxTemplate.Multiline = true;
             textBoxTemplate.Name = "textBoxTemplate";
-            textBoxTemplate.Size = new Size(547, 188);
+            textBoxTemplate.Size = new Size(822, 188);
             textBoxTemplate.TabIndex = 1;
             // 
             // buttonSelectTemplate
@@ -742,7 +769,7 @@ namespace TestJsonRazbor
             groupBox1.Margin = new Padding(2);
             groupBox1.Name = "groupBox1";
             groupBox1.Padding = new Padding(2);
-            groupBox1.Size = new Size(562, 119);
+            groupBox1.Size = new Size(837, 119);
             groupBox1.TabIndex = 34;
             groupBox1.TabStop = false;
             groupBox1.Text = "Filter";
@@ -780,7 +807,7 @@ namespace TestJsonRazbor
             tabControl1.Multiline = true;
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(558, 99);
+            tabControl1.Size = new Size(833, 99);
             tabControl1.TabIndex = 15;
             tabControl1.Visible = false;
             // 
@@ -790,14 +817,14 @@ namespace TestJsonRazbor
             tabPage1.Margin = new Padding(2);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(2);
-            tabPage1.Size = new Size(550, 71);
+            tabPage1.Size = new Size(825, 71);
             tabPage1.TabIndex = 0;
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // textBoxNameFilter
             // 
             textBoxNameFilter.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            textBoxNameFilter.Location = new Point(386, -2);
+            textBoxNameFilter.Location = new Point(661, -2);
             textBoxNameFilter.Margin = new Padding(2);
             textBoxNameFilter.Name = "textBoxNameFilter";
             textBoxNameFilter.Size = new Size(172, 23);
@@ -818,8 +845,8 @@ namespace TestJsonRazbor
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(splitContainer2);
-            splitContainer1.Size = new Size(821, 568);
-            splitContainer1.SplitterDistance = 143;
+            splitContainer1.Size = new Size(1221, 568);
+            splitContainer1.SplitterDistance = 212;
             splitContainer1.SplitterWidth = 2;
             splitContainer1.TabIndex = 38;
             // 
@@ -833,7 +860,7 @@ namespace TestJsonRazbor
             treeNode1.Name = "Node0";
             treeNode1.Text = "Root";
             treeView1.Nodes.AddRange(new TreeNode[] { treeNode1 });
-            treeView1.Size = new Size(143, 568);
+            treeView1.Size = new Size(212, 568);
             treeView1.TabIndex = 1;
             treeView1.AfterSelect += treeView1_AfterSelect;
             treeView1.NodeMouseDoubleClick += treeView1_NodeMouseDoubleClick;
@@ -854,8 +881,8 @@ namespace TestJsonRazbor
             // splitContainer2.Panel2
             // 
             splitContainer2.Panel2.Controls.Add(treeView2);
-            splitContainer2.Size = new Size(676, 568);
-            splitContainer2.SplitterDistance = 562;
+            splitContainer2.Size = new Size(1007, 568);
+            splitContainer2.SplitterDistance = 837;
             splitContainer2.SplitterWidth = 2;
             splitContainer2.TabIndex = 0;
             // 
@@ -873,7 +900,7 @@ namespace TestJsonRazbor
             // splitContainer3.Panel2
             // 
             splitContainer3.Panel2.Controls.Add(groupBox2);
-            splitContainer3.Size = new Size(562, 568);
+            splitContainer3.Size = new Size(837, 568);
             splitContainer3.SplitterDistance = 119;
             splitContainer3.TabIndex = 40;
             // 
@@ -887,7 +914,7 @@ namespace TestJsonRazbor
             treeNode2.Name = "Node0";
             treeNode2.Text = "Root";
             treeView2.Nodes.AddRange(new TreeNode[] { treeNode2 });
-            treeView2.Size = new Size(112, 568);
+            treeView2.Size = new Size(168, 568);
             treeView2.TabIndex = 2;
             treeView2.AfterSelect += treeView1_AfterSelect;
             // 
@@ -919,7 +946,7 @@ namespace TestJsonRazbor
             textBox1.Location = new Point(766, 4);
             textBox1.Margin = new Padding(2);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(1378, 23);
+            textBox1.Size = new Size(1778, 23);
             textBox1.TabIndex = 26;
             textBox1.Visible = false;
             // 
@@ -978,12 +1005,20 @@ namespace TestJsonRazbor
             // 
             openFileDialogFromFile.FileName = "openFileDialog4";
             // 
+            // textBoxPrefParsers
+            // 
+            textBoxPrefParsers.Location = new Point(327, 2);
+            textBoxPrefParsers.Margin = new Padding(2);
+            textBoxPrefParsers.Name = "textBoxPrefParsers";
+            textBoxPrefParsers.Size = new Size(111, 23);
+            textBoxPrefParsers.TabIndex = 39;
+            // 
             // FormSelectField
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
-            ClientSize = new Size(821, 568);
+            ClientSize = new Size(1221, 568);
             Controls.Add(splitContainer1);
             Controls.Add(textBox1);
             Controls.Add(button8);
@@ -1096,5 +1131,8 @@ namespace TestJsonRazbor
         private System.Windows.Forms.CheckBox checkBoxRootOnly;
         private System.Windows.Forms.CheckBox checkBoxCompare2field;
         private System.Windows.Forms.CheckBox checkBoxNoEq;
+        private Label label1;
+        private ComboBox comboBoxOutType;
+        private TextBox textBoxPrefParsers;
     }
 }

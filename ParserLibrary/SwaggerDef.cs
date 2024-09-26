@@ -60,6 +60,7 @@ namespace ParserLibrary
                         public class It
                         {
                             public Schema schema { get; set; }
+                            public JsonElement? example { get; set; }    
                         }
 
                         public Dictionary<string,It> schemas { get; set; }
@@ -363,7 +364,7 @@ namespace ParserLibrary
                     var reqBodyCond = item.inputs.Where(ii => !ii.inUrl && item.method != EntryPoint.Method.get);
                     FormScemasVars(scemas_items, item, reqBodyCond, "Req",example1);
                     //777
-                    item.exampleJsonInput = Newtonsoft.Json.JsonConvert.SerializeObject(example);
+                    //item.exampleJsonInput = Newtonsoft.Json.JsonConvert.SerializeObject(example);
                     example.Clear();
                     FormScemasVars(scemas_items, item, item.outputs, "Resp", example);
                     item.exampleJsonOutput = Newtonsoft.Json.JsonConvert.SerializeObject(example);
@@ -372,8 +373,8 @@ namespace ParserLibrary
                     if(item.inputs.Where(ii => !ii.inUrl && item.method != EntryPoint.Method.get).Count() != 0)
                     requestBody = new CodeRet() { description = "Request body", required = true, content = new Dictionary<string, SwaggerDef.GET.Responses.CodeRet.Content.It>()
                               {
-                                  {"application/json" , new SwaggerDef.GET.Responses.CodeRet.Content.It() { schema= new SwaggerDef.GET.Responses.CodeRet.Content.Schema(){ @ref=$"#/components/schemas/{form_schemas_item_name(item, "Req")}"} }}
-                              }
+                                  {"application/json" , new SwaggerDef.GET.Responses.CodeRet.Content.It() { example=System.Text.Json.JsonSerializer.Deserialize<JsonElement>(item.exampleJsonInput).GetProperty("body"), schema= new SwaggerDef.GET.Responses.CodeRet.Content.Schema(){ @ref=$"#/components/schemas/{form_schemas_item_name(item, "Req")}"} }}
+                              } 
                     };
                     
                     GET Get = new GET()
@@ -644,6 +645,7 @@ namespace ParserLibrary
             else
                 founded.AddRange(this.paths);
             string prevPath = "";
+            pip.allMocks = new List<string>();
             foreach (var path in founded)
             {
                 var firstStep = pip.steps.First();
@@ -680,8 +682,10 @@ namespace ParserLibrary
                         }
                     }
                     if (!string.IsNullOrEmpty(entry.examplePathInput))
+                    {
                         pip.steps.First().ireceiver.MocBody = path.exampleJsonInput;
-
+                        pip.allMocks.Add(path.exampleJsonInput);
+                    }
                     var IDStep1 = $"Step_{path.path.Substring(path.path.LastIndexOf("/") + 1)}_1_{entry.Name}";
 
                     var step1 = pip.steps.FirstOrDefault(ii => ii.IDStep == IDStep1);

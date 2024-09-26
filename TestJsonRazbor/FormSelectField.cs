@@ -32,6 +32,7 @@ using static ParserLibrary.Step;
 using FrontInterfaceSupport;
 using System.Text.Json;
 using Newtonsoft.Json;
+using CodeHelper.Core.Extensions;
 
 namespace TestJsonRazbor
 {
@@ -261,6 +262,7 @@ namespace TestJsonRazbor
 
         private void button7_Click(object sender, EventArgs e)
         {
+            EmbeddedFunctions.Init();
             /*            var st = new string[] { "aa", "bb", "cc" };
                         var sb = new StringBuilder();
                         st.ToList().ForEach(s => sb.Append(s + ";"));
@@ -343,7 +345,7 @@ namespace TestJsonRazbor
                 {
                     checkBox2.Visible = true;
                     userControlSwitch1.Visible =/* textBoxScript.Visible =*/ false;
-                    if (checkBox2.Checked == false && checkBoxCompare2field.Checked== false)
+                    if (checkBox2.Checked == false && checkBoxCompare2field.Checked == false)
                         label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = false;
                     else
                         label9.Visible = button13.Visible = textBoxAddFieldPath.Visible = true;
@@ -523,7 +525,7 @@ namespace TestJsonRazbor
 
         private void FormSelectField_Load(object sender, EventArgs e)
         {
-
+            
             //            MessageBox.Show($"{this.Width}:{this.Height}:{this.splitContainer1.SplitterDistance}:{this.splitContainer2.SplitterDistance}:{this.splitContainer3.SplitterDistance}");
             //            userControlCondition1.action += UserControlCondition1_action;
             textBoxNameFilter.Text = itemFilter.Name;
@@ -554,7 +556,7 @@ namespace TestJsonRazbor
                     {
                         UserControlCondition ctrl = new UserControlCondition(true);
                         ctrlConditions.Add(ctrl);
-                        FillCtrl(ctrl, false,mainAction/* AndOrFilter.Action.AND*/, filt2 as ConditionFilter);
+                        FillCtrl(ctrl, false, mainAction/* AndOrFilter.Action.AND*/, filt2 as ConditionFilter);
 
                     }
                 }
@@ -598,7 +600,7 @@ namespace TestJsonRazbor
             if (itemFilter.outputFields == null)
                 itemFilter.outputFields = new List<OutputValue>();
             itemFilter.outputFields.Clear();
-            foreach (var item in outputFields.Where(ii=>ii != null))
+            foreach (var item in outputFields.Where(ii => ii != null))
             {
                 item.outputChilds.Clear();
                 itemFilter.outputFields.Add(item);
@@ -816,19 +818,19 @@ namespace TestJsonRazbor
             switch (comboBox3.SelectedIndex)
             {
                 case 0:
-                    return new ConstantValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
+                    return new ConstantValue() {PreferableParsers=(string.IsNullOrEmpty(textBoxPrefParsers.Text)?null: textBoxPrefParsers.Text.Split(',')), viewAsJsonString = checkBoxPackToJson.Checked, converter = converter,outputType=comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, typeConvert = (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem, Value = ConstantValue.ConvertFromType(textBoxConstant.Text, (ConstantValue.TypeObject)comboBoxTypeConvert.SelectedItem) };
                 case 1:
                     if (comboBox2.SelectedIndex == 0)
-                        return new ExtractFromInputValue() { functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "" ) ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ((checkBox2.Checked  )? textBoxAddFieldPath.Text : "") };
+                        return new ExtractFromInputValue() { PreferableParsers = (string.IsNullOrEmpty(textBoxPrefParsers.Text) ? null : textBoxPrefParsers.Text.Split(',')), functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), valuePath = ((checkBox2.Checked) ? textBoxAddFieldPath.Text : "") };
                     else
                         if (comboBox2.SelectedIndex == 2)
-                        return new ExtractFromInputValueWithSwitch() { functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, SwitchItems = userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
+                        return new ExtractFromInputValueWithSwitch() { PreferableParsers = (string.IsNullOrEmpty(textBoxPrefParsers.Text) ? null : textBoxPrefParsers.Text.Split(',')), functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, SwitchItems = userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };
                     else
-                        return new ExtractFromInputValueWithScript() { functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
+                        return new ExtractFromInputValueWithScript() { PreferableParsers = (string.IsNullOrEmpty(textBoxPrefParsers.Text) ? null : textBoxPrefParsers.Text.Split(',')), functionCall = textBoxScript.Text, viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, conditionPath = textBoxValueFieldSearch.Text, conditionCalcer = ((textBoxFalueFieldSearchValue.Text == "") ? null : (new ComparerForValue(textBoxFalueFieldSearchValue.Text))), ScriptBody = textBoxScript.Text };
                 /*case 2:
                         return new ExtractFromInputValueWithSwitch() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, isUniqOutputPath = checkBoxIsUniq.Checked, getNodeNameOnly = checkBoxNameOnly.Checked, returnOnlyFirstRow = checkBoxReturnFirstField.Checked, copyChildsOnly = checkBoxCopyChildOnly.Checked, conditionPath = textBoxValueFieldSearch.Text,  SwitchItems =userControlSwitch1.switches.ToList(), valuePath = (checkBox2.Checked ? textBoxAddFieldPath.Text : "") };*/
                 case 2:
-                    return new TemplateOutputValue() { viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputPath = textBoxFieldName.Text, getNodeNameOnly = checkBoxNameOnly.Checked, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody = textBoxTemplate.Text };
+                    return new TemplateOutputValue() { PreferableParsers = (string.IsNullOrEmpty(textBoxPrefParsers.Text) ? null : textBoxPrefParsers.Text.Split(',')), viewAsJsonString = checkBoxPackToJson.Checked, converter = converter, outputType = comboBoxOutType.SelectedItem?.ToString(), outputPath = textBoxFieldName.Text, getNodeNameOnly = checkBoxNameOnly.Checked, isUniqOutputPath = checkBoxIsUniq.Checked, templateBody = textBoxTemplate.Text };
                     break;
                 default:
                     break;
@@ -893,6 +895,10 @@ namespace TestJsonRazbor
             comboBoxTypeAlias.SelectedIndex = -1;
             if (val != null)
             {
+                if (val.PreferableParsers != null)
+                    textBoxPrefParsers.Text = string.Join(',', val.PreferableParsers);
+                else
+                    textBoxPrefParsers.Text = "";
                 if (val.converter != null)
                 {
                     if (val.converter.GetType().IsAssignableTo(typeof(HashOutput)))
@@ -924,6 +930,7 @@ namespace TestJsonRazbor
 
                 buttonDel.Enabled = buttonMod.Enabled = true;
                 textBoxFieldName.Text = val.outputPath;
+                comboBoxOutType.SelectedItem = val.outputType;
                 checkBoxIsUniq.Checked = val.isUniqOutputPath;
                 checkBoxNameOnly.Checked = val.getNodeNameOnly;
                 checkBoxPackToJson.Checked = val.viewAsJsonString;
@@ -963,7 +970,7 @@ namespace TestJsonRazbor
                     {
                         ComparerForValue cv = val1.conditionCalcer as ComparerForValue;
                         textBoxFalueFieldSearchValue.Text = cv.value_for_compare;
-                        
+
                     }
                     else
                         textBoxFalueFieldSearchValue.Text = "";
@@ -1222,7 +1229,7 @@ namespace TestJsonRazbor
 
                         foreach (var it in paths)
                             if (!existingPath.Contains(it.Path))
-                                outputFields.Add(new ConstantValue() { outputPath = it.Path, Value = it.Value, isUniqOutputPath = false });
+                                outputFields.Add(new ConstantValue() { outputType= comboBoxOutType.SelectedItem.ToString(), outputPath = it.Path, Value = it.Value, isUniqOutputPath = false });
                         // listBox1.Items.Add(it);
                         redrawOutput();
                     }
@@ -1256,6 +1263,11 @@ namespace TestJsonRazbor
         private void checkBoxCompare2field_CheckedChanged(object sender, EventArgs e)
         {
             checkBox2_CheckedChanged(sender, e);
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
