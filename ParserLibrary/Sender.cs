@@ -105,7 +105,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
 
     [YamlIgnore]
     public Step owner;
-    public enum TypeContent { internal_list,json};
+    
     [YamlIgnore]
     public abstract TypeContent typeContent
     {

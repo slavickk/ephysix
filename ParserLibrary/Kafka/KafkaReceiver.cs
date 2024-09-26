@@ -5,15 +5,17 @@ using Confluent.Kafka;
 using ParserLibrary;
 using PluginBase;
 using Serilog.Events;
+using UniElLib;
 
 
 namespace Plugins.Kafka;
 
 public class KafkaReceiver : IReceiver, IDisposable
 {
-    Task IReceiver.stop()
+    public Task stop()
     {
-        throw new NotImplementedException();
+        cts.Cancel();
+        return Task.CompletedTask;
     }
     string IReceiver.MocFile { get; set; }
     string IReceiver.MocBody { get; set; }
@@ -120,9 +122,13 @@ public class KafkaReceiver : IReceiver, IDisposable
         if (_consumer == null)
             throw new InvalidOperationException("_consumer is null");
 
-        if (context is not KafkaReceiverContext krctx)
+        if (context is not ContextItem ctxItem)
             throw new ArgumentException(
-                $"Expected context of type {nameof(KafkaReceiverContext)} but got {context?.GetType().Name ?? "null"}");
+                $"Expected context of type {nameof(ContextItem)} but got {context?.GetType().Name ?? "null"}");
+        
+        if (ctxItem.context is not KafkaReceiverContext krctx)
+            throw new ArgumentException(
+                $"Expected context.context of type {nameof(KafkaReceiverContext)} but got {ctxItem.context?.GetType().Name ?? "null"}");
         
         // Assume that "sending a response back to Kafka" means "committing the message".
         // Actual response content is ignored.

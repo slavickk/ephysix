@@ -9,7 +9,7 @@ using UniElLib;
 
 namespace Plugins.Kafka;
 
-public class KafkaSender : Sender, IDisposable,ISelfTested
+public class KafkaSender : Sender, IDisposable, ISelfTested, ISender
 {
     public override TypeContent typeContent =>  TypeContent.internal_list;
     public string BootstrapServers;
@@ -21,7 +21,13 @@ public class KafkaSender : Sender, IDisposable,ISelfTested
     private ISenderHost _host;
     private TypeContent _typeContent;
     private IProducer<Null, string>? _producer;
-    
+
+    ISenderHost ISender.host
+    {
+        get => _host;
+        set => _host = value;
+    }
+
     override  public  Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
     {
         // TODO: do we need to use context here?
@@ -63,12 +69,16 @@ public class KafkaSender : Sender, IDisposable,ISelfTested
 
     //TypeContent ISender.typeContent => _typeContent;
     
-    override public void Init(Pipeline owner)
+    public override void Init(Pipeline owner)
     {
         base.Init(owner);
+        ((ISender)this).Init();
+    }
+
+    void ISender.Init()
+    {
         if (_producer != null)
             _producer.Dispose();
-           // throw new InvalidOperationException("The KafkaSender is already initialized");
         
         _producer = new ProducerBuilder<Null, string>(
             new ProducerConfig
