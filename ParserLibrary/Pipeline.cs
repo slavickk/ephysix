@@ -55,6 +55,7 @@ namespace ParserLibrary;
 
 public class Pipeline:ILiquidizable
 {
+    // TODO: consider making it non-static
     [YamlIgnore]
     public static IConfiguration configuration;
 
@@ -857,7 +858,7 @@ public class Pipeline:ILiquidizable
                 sw.WriteLine(sr.ReadLine());
             }
             if (occurencyItems.Count > 0)
-                sw.WriteLine($"## оепелеммше оюиокюимю");
+                sw.WriteLine($"## О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫");
 
             List<string> usedVars = new List<string>();
             occurencyItem lastItem = null;

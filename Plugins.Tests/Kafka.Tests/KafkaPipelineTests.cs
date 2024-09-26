@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using Microsoft.Extensions.Configuration;
 using Plugins.Kafka;
 using Serilog;
 using Serilog.Exceptions;
@@ -95,6 +96,10 @@ steps:
 ";
         
         _pipeline = Pipeline.loadFromString(pipelineDefinition, typeof(KafkaReceiver).Assembly);
+        
+        var builder = new ConfigurationBuilder().AddEnvironmentVariables(prefix: "");
+        var configuration = builder.Build();
+        Pipeline.configuration = configuration;
     }
     
     [OneTimeTearDown]

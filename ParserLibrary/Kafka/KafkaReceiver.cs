@@ -46,7 +46,7 @@ public class KafkaReceiver : IReceiver, IDisposable
     private bool _cantTryParse;
     private bool _debugMode;
     
-    Task IReceiver.start()
+    public Task start()
     {
         var config = new ConsumerConfig
         {
