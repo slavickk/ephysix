@@ -121,12 +121,12 @@ public partial class HTTPReceiverSwagger
             Assembly.Load("Microsoft.AspNetCore.Mvc.Core"),
         };
 
-        foreach (var rr in references) 
+        /*foreach (var rr in references) 
         {
             Logger.log("Path:"+rr.Location+" Name:"+rr.GetName().Name);
             if(File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{rr.GetName().Name}.dll")))
  Logger.log(" Name:" + rr.GetName().Name+ "exists");
-        }
+        }*/
         //references.Select(r => MetadataReference.CreateFromFile(r.Location))
 
         var compilation = CSharpCompilation.Create("ParserLibrary")

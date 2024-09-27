@@ -136,7 +136,7 @@ namespace Plugins
         {
             
             // Find the signing certificate by common name in the local certificate store
-            using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            using var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
             store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
             var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, subjectCommonName, false);
             
@@ -315,8 +315,7 @@ namespace Plugins
                         .AddJsonOptions(options => 
                         {
                             options.JsonSerializerOptions.IgnoreNullValues = true;
-                            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); 
-                            
+                            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                             // to preserve original property names in responses, otherwise they are converted to camelCase
                             options.JsonSerializerOptions.PropertyNamingPolicy = null;
                         })
