@@ -49,11 +49,13 @@ using System.Xml;
 using System.Text.Json;
 using System.Collections.Specialized;
 using System.Text.Encodings.Web;
+using Serilog.Events;
 
 namespace ParserLibrary;
 
 public class Pipeline:ILiquidizable
 {
+    // TODO: consider making it non-static
     [YamlIgnore]
     public static IConfiguration configuration;
 
@@ -241,17 +243,16 @@ public class Pipeline:ILiquidizable
     }
     public static List<Type> getAllRegTypes(params Assembly[] addAssemblies)
     {
-        if(addAssemblies[0] !=null)
-
-        return addAssemblies.SelectMany(a => a.GetTypes().Where(predicate))
-            .Concat(Assembly.GetAssembly(typeof(OutputValue)).GetTypes().Where(predicate))
-            .Concat(Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(predicate))
+        var assembliesToScan =
+            (addAssemblies?.Where(a => a != null) ?? Array.Empty<Assembly>())
+            .Concat(new[] { Assembly.GetAssembly(typeof(OutputValue)) })
+            .Concat(new[] { Assembly.GetAssembly(typeof(Receiver)) })
+            .DistinctBy(a => a.FullName);
+            
+        return assembliesToScan
+            .SelectMany(a => a.GetTypes())
+            .Where(predicate)
             .ToList();
-        else
-            return Assembly.GetAssembly(typeof(OutputValue)).GetTypes().Where(predicate)
-                 .Concat(Assembly.GetAssembly(typeof(Receiver)).GetTypes().Where(predicate))
-                 .ToList();
-
     }
     static bool predicateParser(Type t)
     {
@@ -280,7 +281,10 @@ public class Pipeline:ILiquidizable
     {
         var ser = new SerializerBuilder();
         foreach (var type in getAllRegTypes(assembly))
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        {
+            var tag = "!" + (type.FullName.StartsWith(nameof(ParserLibrary)) ? type.Name : type.FullName);
+            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
+        }
         var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         using (StringWriter sw = new StringWriter())
         {
@@ -664,14 +668,16 @@ public class Pipeline:ILiquidizable
         if (assembly != null)
         {
             AddCustomParsers(assembly);
-        }
+
             foreach (var type in getAllRegTypes(assembly))
             {
-                // ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.FullName), type);
+                var tag = "!" + (type.FullName.StartsWith(nameof(ParserLibrary)) ? type.Name : type.FullName);
 
-                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+                Logger.log("Registering {type} with tag {tag}", LogEventLevel.Debug, type.FullName, tag);
+                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
             }
-       
+        }
+
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -852,7 +858,7 @@ public class Pipeline:ILiquidizable
                 sw.WriteLine(sr.ReadLine());
             }
             if (occurencyItems.Count > 0)
-                sw.WriteLine($"## оепелеммше оюиокюимю");
+                sw.WriteLine($"## О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫");
 
             List<string> usedVars = new List<string>();
             occurencyItem lastItem = null;
@@ -996,7 +1002,10 @@ public class Pipeline:ILiquidizable
     {
         var ser = new SerializerBuilder();
         foreach (var type in getAllRegTypes(assembly))
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName("!" + type.Name), type);
+        {
+            var tag = "!" + (type.FullName.StartsWith(nameof(ParserLibrary)) ? type.Name : type.FullName);
+            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
+        }
         var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         return serializer;
     }

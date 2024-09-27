@@ -134,6 +134,7 @@ public partial class HTTPReceiverSwagger
             }
 
             // Wait for the pipeline to signal the completion
+            // TODO: this hangs - fix it
             await item.semaphore.WaitAsync();
             if (item.isError)
                 return await item.formAnswer(context);
@@ -229,6 +230,12 @@ public partial class HTTPReceiverSwagger
             }
         }
 
+        /// <summary>
+        /// Dynamically compile an implementation of the IController interface.
+        /// </summary>
+        /// <param name="assembly">The assembly that contains the IController interface to be implemented</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public AssemblyBuilder ImplementController(Assembly assembly)
         {
             // Find the IController interface in the assembly

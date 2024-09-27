@@ -35,6 +35,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontInterfaceSupport", "Fr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassApiExecutor", "ClassApiExecutor\ClassApiExecutor.csproj", "{05A8B7A6-44BA-48F4-8768-F4471229E053}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins", "Plugins\Plugins.csproj", "{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins.Tests", "Plugins.Tests\Plugins.Tests.csproj", "{074808D0-F25C-4D6A-8322-CA5108485833}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleConvertToXML", "ConsoleConvertToXML\ConsoleConvertToXML.csproj", "{B00D5F0B-5367-4D5B-A71B-9220598ACDFF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParserLibrary.Tests", "ParserLibrary.Tests\ParserLibrary.Tests.csproj", "{881EC00F-29CB-4A6B-84D8-3435548DB8AA}"
@@ -125,6 +129,14 @@ Global
 		{2EC63DE0-48C4-4531-A94F-8354C51D1D84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2EC63DE0-48C4-4531-A94F-8354C51D1D84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2EC63DE0-48C4-4531-A94F-8354C51D1D84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{110DBC4C-FB5B-4389-ABA1-D0F5115A3A77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{074808D0-F25C-4D6A-8322-CA5108485833}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{074808D0-F25C-4D6A-8322-CA5108485833}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{074808D0-F25C-4D6A-8322-CA5108485833}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{074808D0-F25C-4D6A-8322-CA5108485833}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4BCDBC5C-C968-49AB-8532-5154A131CC8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4BCDBC5C-C968-49AB-8532-5154A131CC8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BCDBC5C-C968-49AB-8532-5154A131CC8E}.Release|Any CPU.ActiveCfg = Release|Any CPU

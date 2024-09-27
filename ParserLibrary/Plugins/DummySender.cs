@@ -26,7 +26,7 @@ namespace Plugins;
 /// Dummy sender that doesn't send anything anywhere, and returns a predefined response.
 /// This is an ISender-based counterpart to the legacy DummyReceiver. 
 /// </summary>
-public class IDummySender : ISender
+public class DummySender : ISender
 {
     public TypeContent typeContent => TypeContent.json;
     public void Init()

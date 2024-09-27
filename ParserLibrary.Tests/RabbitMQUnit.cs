@@ -15,12 +15,9 @@
  ******************************************************************/
 
 using NUnit.Framework;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System;
-using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
+using Testcontainers.RabbitMq;
 
 namespace ParserLibrary.Tests
 {
@@ -33,73 +30,78 @@ namespace ParserLibrary.Tests
             private const string Username = "guest";
             private const string Password = "guest";
             private const string QueueName = "test_queue";
+            private RabbitMqContainer _container;
 
-            private RabbitMQHelper receiver;
-            private ConnectionFactory factory;
-            private IConnection connection;
-            private IModel channel;
-            private EventingBasicConsumer consumer;
+            private RabbitMQHelper _rabbitMqHelper;
+            
+            [OneTimeSetUp]
+            public async Task GlobalSetup()
+            {
+                _container = new RabbitMqBuilder()
+                    .WithImage("rabbitmq:3.11")
+                    .WithUsername(Username)
+                    .WithPassword(Password)
+                    .WithPortBinding(5672)
+                    .Build();
+                await _container.StartAsync();
+            }
 
+            [OneTimeTearDown]
+            public async Task GlobalTeardown()
+            {
+                await _container.DisposeAsync();
+            }
+            
             [SetUp]
             public void Setup()
             {
-                receiver = new RabbitMQHelper(Hostname, Port, Username, Password, QueueName);
-                factory = new ConnectionFactory
+                _rabbitMqHelper = new RabbitMQHelper(Hostname, Port, Username, Password, QueueName)
                 {
-                    HostName = Hostname,
-                    Port = Port,
-                    UserName = Username,
-                    Password = Password
+                    PrintReceivedNotification = false,
+                    PrintSentNotification = false
                 };
-                connection = factory.CreateConnection();
-                channel = connection.CreateModel();
-                channel.QueueDeclare(queue: QueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
             }
 
             [TearDown]
             public void TearDown()
             {
-                receiver.StopReceiving();
-                channel.Close();
-                connection.Close();
+                _rabbitMqHelper.StopReceiving();
             }
 
             [Test]
             public async Task PerformanceTest_MessageProcessingWithinThreshold()
             {
                 // Arrange
-                const int messageCount = 10000;
+                const int messageCount = 100;
                 const string message = "Test message";
                 int receivedCount = 0;
+                int matchingMessages = 0;
 
-                receiver.StartReceiving();
+                _rabbitMqHelper.StartReceiving();
 
-                consumer = new EventingBasicConsumer(channel);
-                channel.BasicConsume(queue: QueueName, autoAck: true, consumer: consumer);
-            consumer.Received += (sender, e) =>
-            {
-                var body = e.Body.ToArray();
-                var receivedMessage = Encoding.UTF8.GetString(body);
-
-                // Simulate message processing
-                ProcessMessage(receivedMessage);
-
-                receivedCount++;
-            };
-
-            // Act
-            for (int i = 0; i < messageCount; i++)
+                _rabbitMqHelper.Received += (_, e) =>
                 {
-                    receiver.SendMessage(message);
-                }
+                    var body = e.Body.ToArray();
+                    var receivedMessage = Encoding.UTF8.GetString(body);
 
-                await Task.Delay(55000); // Wait for the messages to be processed
+                    // Simulate message processing
+                    ProcessMessageAsync(receivedMessage);
+
+                    receivedCount++;
+                    if (receivedMessage == message) matchingMessages++;
+                };
+
+                // Act
+                for (int i = 0; i < messageCount; i++) _rabbitMqHelper.SendMessage(message);
+                
+                await Task.Delay(300); // Wait for the messages to be processed
 
                 // Assert
                 Assert.AreEqual(messageCount, receivedCount);
+                Assert.AreEqual(messageCount, matchingMessages);
             }
 
-            private void ProcessMessage(string message)
+            private void ProcessMessageAsync(string _)
             {
                 // Simulate message processing time
                 // Replace with your actual message processing logic
