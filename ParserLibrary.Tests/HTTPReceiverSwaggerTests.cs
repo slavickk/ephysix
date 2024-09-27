@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using Serilog;
 using Serilog.Exceptions;
@@ -51,6 +52,10 @@ steps:
         }""
 ", typeof(global::Plugins.HTTPReceiverSwagger).Assembly);
         
+        var builder = new ConfigurationBuilder().AddEnvironmentVariables(prefix: "");
+        var configuration = builder.Build();
+        Pipeline.configuration = configuration;
+
         var task = pip.run();
         
         AddExceptionLogging(task);
@@ -131,6 +136,10 @@ steps:
         }""
 ", null);
         
+        var builder = new ConfigurationBuilder().AddEnvironmentVariables(prefix: "");
+        var configuration = builder.Build();
+        Pipeline.configuration = configuration;
+
         var task = pip.run();
         AddExceptionLogging(task);
         
