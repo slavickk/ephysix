@@ -71,7 +71,7 @@ public partial class HTTPReceiverSwagger
             Logger.log(
                 "HandlerImplementation(), method:" + controllerAction.Name + ", parameters: " + string.Join(", ", parameters.Select(p => p.Value)),
                 LogEventLevel.Debug);
-
+            //var tt=context.Request.Body.ToString();
             string PathName = context.Request.Path.Value;
             if(PathName.LastIndexOf('/')>=0)
                 PathName = PathName.Substring(PathName.LastIndexOf('/'));

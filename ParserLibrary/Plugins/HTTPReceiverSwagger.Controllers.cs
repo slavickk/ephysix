@@ -24,6 +24,8 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NJsonSchema.CodeGeneration;
+using NJsonSchema;
 using NSwag.CodeGeneration.CSharp;
 using ParserLibrary;
 using UniElLib;
@@ -46,6 +48,10 @@ public partial class HTTPReceiverSwagger
             throw new Exception("Failed to load swagger spec");
 
         var serverGen = new CSharpControllerGenerator(doc, new CSharpControllerGeneratorSettings());
+
+        // ADDED
+        serverGen.Settings.CSharpGeneratorSettings.PropertyNameGenerator = new ExactPropertyNameGenerator();
+
         var serverCode = serverGen.GenerateFile();
 
         if (string.IsNullOrWhiteSpace(serverCode))
@@ -108,12 +114,12 @@ public partial class HTTPReceiverSwagger
             Assembly.Load("Microsoft.AspNetCore.Mvc.Core"),
         };
 
-        foreach (var rr in references) 
+        /*foreach (var rr in references) 
         {
             Logger.log("Path:"+rr.Location+" Name:"+rr.GetName().Name);
             if(File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{rr.GetName().Name}.dll")))
  Logger.log(" Name:" + rr.GetName().Name+ "exists");
-        }
+        }*/
         //references.Select(r => MetadataReference.CreateFromFile(r.Location))
 
         var compilation = CSharpCompilation.Create("ParserLibrary")
@@ -143,5 +149,9 @@ public partial class HTTPReceiverSwagger
             throw new Exception("Failed to load the server assembly");
 
         return new AssemblyPart(assembly);
+    }
+    public class ExactPropertyNameGenerator : IPropertyNameGenerator
+    {
+        public string Generate(JsonSchemaProperty property) => property.Name;
     }
 }

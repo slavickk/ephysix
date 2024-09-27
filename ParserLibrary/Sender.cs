@@ -24,6 +24,8 @@ using static ParserLibrary.Step;
 using UniElLib;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ParserLibrary;
 
@@ -44,6 +46,10 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
     DistributedCacheEntryOptions cache_options ;
     public double cacheTimeInMilliseconds /*{ get; set; } = 0*/;
     public bool ignoreErrors = false;
+
+    public string mandatoryFields;
+
+    //Dictionary<string,>
 
     public virtual void Init(Pipeline owner)
     {
@@ -133,6 +139,32 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
     }
     public virtual  async Task<string> send(AbstrParser.UniEl root, ContextItem context)
     {
+        if (Pipeline.configuration["SAVED_DUMP_SENDERS"] != null)
+        {
+            using (StreamWriter sw = new StreamWriter(Path.Combine(Path.GetDirectoryName(owner.owner.fileName), this.owner.IDStep + "_Send.tmp")))
+            {
+                sw.Write(root.toJSON());
+            }
+        }
+        if(!string.IsNullOrEmpty(mandatoryFields))
+        {
+            List<string> mandatory = mandatoryFields.Split(';').ToList();
+            foreach(var el in root.getAllDescentants())
+            {
+                if(mandatory.Contains(el.path.Substring(5)))
+                {
+                    mandatory.Remove(el.path.Substring(5));
+                    if (mandatory.Count == 0)
+                        break;
+                }
+            }
+            if(mandatory.Count >0)
+            {
+                throw new HTTPStatusException() { StatusCode = 400, StatusReasonJson = $"Fields not present on {description} : {string.Join(',',mandatory)} " };
+
+            }
+
+        }
         DateTime time1 = DateTime.Now;
         string ans="";
         sendActivity = owner.owner.GetActivity($"Send{this.GetType().Name}", context?.mainActivity);
@@ -176,6 +208,15 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
                     ans = await mocker.getMock();
 
                 }
+
+                if (Pipeline.configuration["SAVED_DUMP_SENDERS"] != null)
+                {
+                    using (StreamWriter sw = new StreamWriter(Path.Combine(Path.GetDirectoryName(owner.owner.fileName), this.owner.IDStep + "_Ans.tmp")))
+                    {
+                        sw.Write(ans);
+                    }
+                }
+
                 if (cacheTimeInMilliseconds != 0)
                 {
                     await EmbeddedFunctions.cacheProvider.SetStringAsync(EmbeddedFunctions.cacheProviderPrefix + cacheKey, ans, cache_options);

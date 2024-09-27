@@ -304,7 +304,9 @@ namespace Plugins
                         .AddJsonOptions(options => 
                         {
                             options.JsonSerializerOptions.IgnoreNullValues = true;
-                            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); 
+                            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                            // to preserve original property names in responses, otherwise they are converted to camelCase
+                            options.JsonSerializerOptions.PropertyNamingPolicy = null;
                         })
                         .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(serverPart));
                     //Add Gasnikov
