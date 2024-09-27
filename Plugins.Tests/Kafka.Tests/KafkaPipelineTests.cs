@@ -70,7 +70,7 @@ public class KafkaPipelineTests
                 ClientId = "Test Client ID",
                 AutoOffsetReset = AutoOffsetReset.Earliest
             }).Build();
-        _consumer.Subscribe("topic2");
+        _consumer.Subscribe("topic1");
         
         Console.WriteLine("Kafka setup completed.");
         
