@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 
 namespace ParserLibrary.Tests;
@@ -66,6 +67,9 @@ steps:
     {
         // Arrange
         var pipeline = Pipeline.loadFromString(_pipelineDefinition, typeof(global::Plugins.FileReceiver).Assembly);
+        var builder = new ConfigurationBuilder().AddEnvironmentVariables(prefix: "");
+        var configuration = builder.Build();
+        Pipeline.configuration = configuration;
 
         // Act
         await pipeline.run();
