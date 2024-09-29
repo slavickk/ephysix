@@ -669,14 +669,26 @@ public class Pipeline:ILiquidizable
         {
             AddCustomParsers(assembly);
 
-            foreach (var type in getAllRegTypes(assembly))
+            /*foreach (var type in getAllRegTypes(assembly))
             {
                 var tag = "!" + (type.FullName.StartsWith(nameof(ParserLibrary)) ? type.Name : type.FullName);
 
                 Logger.log("Registering {type} with tag {tag}", LogEventLevel.Debug, type.FullName, tag);
                 ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
-            }
+            }*/
         }
+        foreach (var type in getAllRegTypes(assembly))
+        {
+            var tag = "!" + type.Name;
+//            var tag = "!" + ((type.FullName.StartsWith(nameof(ParserLibrary)) || type.FullName.StartsWith(nameof(UniElLib)) || type.FullName.StartsWith("Plugins")) ? type.Name : type.FullName);
+            if(type.Name.Contains("Kafka"))
+            {
+                int yy = 0;
+            }
+            Logger.log("Registering {type} with tag {tag}", LogEventLevel.Debug, type.FullName, tag);
+            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
+        }
+
 
         var deserializer = ser
         .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
@@ -1003,7 +1015,12 @@ public class Pipeline:ILiquidizable
         var ser = new SerializerBuilder();
         foreach (var type in getAllRegTypes(assembly))
         {
-            var tag = "!" + (type.FullName.StartsWith(nameof(ParserLibrary)) ? type.Name : type.FullName);
+            if(type.Name.Contains("Swagger"))
+            {
+                int yy = 0;
+            }
+            var tag = "!" + type.Name ;
+  //          var tag = "!" + (type.FullName.StartsWith(nameof(ParserLibrary)) ? type.Name : type.FullName);
             ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
         }
         var serializer = ser.WithNamingConvention(CamelCaseNamingConvention.Instance).Build();

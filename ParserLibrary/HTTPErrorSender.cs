@@ -85,6 +85,7 @@ namespace ParserLibrary
     {
         public int StatusCode;
         public object StatusReasonJson;
+        public string sourceSender = "";
     }
 
 }

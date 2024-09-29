@@ -160,7 +160,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
             }
             if(mandatory.Count >0)
             {
-                throw new HTTPStatusException() { StatusCode = 400, StatusReasonJson = $"Fields not present on {description} : {string.Join(',',mandatory)} " };
+                throw new HTTPStatusException() { StatusCode = 400, StatusReasonJson = $"Fields not present on {description} : {string.Join(',',mandatory)} ",sourceSender=this.description };
 
             }
 
@@ -227,7 +227,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
 
             if (!this.ignoreErrors && (context.context as HTTPReceiver.SyncroItem).isError)
             {
-                throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonJson = (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText };
+                throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonJson = (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText, sourceSender = this.description };
 
             }
 

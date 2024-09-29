@@ -24,7 +24,7 @@ namespace ParserLibrary;
 /// <summary>
 /// Dummy sender that doesn't send anything anywhere, and returns a predefined response.
 /// </summary>
-public class DummySender : Sender
+public class DummySender_1 : Sender
 {
     public override TypeContent typeContent => TypeContent.json;
 

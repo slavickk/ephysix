@@ -236,7 +236,15 @@ public  class HTTPSender:Sender,ISelfTested
         catch(Exception e63)
         {
             if (kolRetry / urls.Length >= timeoutsBetweenRetryInMilli.Length)
-                throw;
+            {
+                Logger.log("Error send", e63, Serilog.Events.LogEventLevel.Error);
+                (context.context as HTTPReceiver.SyncroItem).isError = true;
+                (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = 503;
+                (context.context as HTTPReceiver.SyncroItem).errorContent =e63.Message;
+                (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText = System.Text.Json.JsonSerializer.Serialize("Service unavailable:"+e63.Message);
+                return "";
+     //           throw;
+            }
             Logger.log("Error send", e63, Serilog.Events.LogEventLevel.Error);
             indexDelay = nextStepCalc(kolRetry, indexDelay);
             goto restart;

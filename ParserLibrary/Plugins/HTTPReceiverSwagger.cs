@@ -469,7 +469,7 @@ namespace Plugins
             {
                 semaphoreItem.HTTPStatusCode = e77.StatusCode;
                 semaphoreItem.isError = true;
-                semaphoreItem.HTTPErrorJsonText = e77.StatusReasonJson.ToString();
+                semaphoreItem.HTTPErrorJsonText ="Service:"+e77.sourceSender+" "+ e77.StatusReasonJson.ToString();
             }
             // semaphoreItem.semaphore.
             if (semaphoreItem.srabot==0)
