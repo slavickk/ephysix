@@ -13,8 +13,6 @@
         "REX_URL": "http://nginx-np.service.dev-ep.consul:30011",
         "REX_URL1": "http://nginx-np.service.ccfa-stage-pc.consul:30011",
         "CHRONO_SERVICE__KAFKA__bootstrapServers": "10.200.100.11:9092",
-        "SIGN_SERVICE__SIGN__ADDRESS": "http://212.233.113.20:8070/mb-sign-doc/ws/sign",
-        "SIGN_SERVICE__VERIFY__ADDRESS": "http://212.233.113.20:8070/mb-sign-doc/ws/verify",
         "ANYWAY__ADDRESS": "http://10.200.200.112:10001",
         "YAML_PATH": "Data\\ACS_TW.yml",
         "AUTH_HOST_URL": "http://10.74.28.30:30212",

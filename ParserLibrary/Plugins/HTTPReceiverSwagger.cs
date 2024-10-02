@@ -54,6 +54,7 @@ using Microsoft.Extensions.WebEncoders;
 using Microsoft.Extensions.FileProviders;
 using static ParserLibrary.HTTPReceiver;
 using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
 
 
 namespace Plugins
@@ -458,8 +459,17 @@ namespace Plugins
              //   syncroItem.semaphore.Set();
             }
         }
-
-        private async Task signal1(string body,SyncroItem semaphoreItem)
+        public class err_mess
+        {
+            public Error error { get; set; }
+            public class Error
+            {
+                public string code { get; set; }
+                public string message { get; set; }
+                public string source { get; set; }
+            }
+        }
+                private async Task signal1(string body,SyncroItem semaphoreItem)
         {
             try
             {
@@ -469,7 +479,26 @@ namespace Plugins
             {
                 semaphoreItem.HTTPStatusCode = e77.StatusCode;
                 semaphoreItem.isError = true;
-                semaphoreItem.HTTPErrorJsonText ="Service:"+e77.sourceSender+" "+ e77.StatusReasonJson.ToString();
+                bool isError = false;
+                JsonElement obj= new JsonElement();
+                try
+                {
+                    obj = JsonSerializer.Deserialize<JsonElement>(e77.StatusReasonJson.ToString());
+                }
+                catch
+                {
+                    isError = true;
+                }
+                if (isError || obj.ValueKind == JsonValueKind.String)
+                {
+                    semaphoreItem.HTTPErrorJsonText =JsonSerializer.Serialize<err_mess>( new err_mess() { error = new err_mess.Error() { code = "UnSpecError", message = e77.StatusReasonJson.ToString().Replace("\"", ""), source = e77.sourceSender } });
+                }
+                else
+                {
+                    var jsonNode = JsonNode.Parse(e77.StatusReasonJson.ToString());
+                    jsonNode["error"]["source"] = e77.sourceSender;
+                    semaphoreItem.HTTPErrorJsonText = jsonNode.ToString();
+                }                    
             }
             // semaphoreItem.semaphore.
             if (semaphoreItem.srabot==0)

@@ -29,6 +29,9 @@ using YamlDotNet.Serialization;
 using static ParserLibrary.Step;
 using UniElLib;
 using Serilog;
+using static Plugins.HTTPReceiverSwagger;
+using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace ParserLibrary;
 
@@ -43,7 +46,7 @@ public  class HTTPSender:Sender,ISelfTested
 //        public string certThumbprint= "E77587679318FED87BB040F00D76AB461B962D95";
     public List<string> certThumbprints = new List<string> { "A77587679318FED87BB040F00D76AB461B962D95" };
     public double timeoutSendInMilliseconds = 5000;
-    public Dictionary<string, string> headers= new Dictionary<string, string>() { { "aa", "bb" } };
+    public Dictionary<string, string> headers  = new Dictionary<string, string>() { { "aa", "bb" } };
 
    // public List<HTTPReceiver.KestrelServer.Header> headers;
     public HTTPSender()
@@ -218,13 +221,32 @@ public  class HTTPSender:Sender,ISelfTested
                 result = await client.PostAsync(urls[index], stringContent);
                 if (!result.IsSuccessStatusCode)
                 {
-                    string answer =await result.Content.ReadAsStringAsync();
-                    Logger.log("Error send http request {res} {answer}", Serilog.Events.LogEventLevel.Error,"any", result.StatusCode.ToString(),answer);
+                    string answer = await result.Content.ReadAsStringAsync();
+                    Logger.log("Error send http request {res} {answer}", Serilog.Events.LogEventLevel.Error, "any", result.StatusCode.ToString(), answer);
                     (context.context as HTTPReceiver.SyncroItem).isError = true;
-                    (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode=((int)result.StatusCode);
+                    (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = ((int)result.StatusCode);
                     (context.context as HTTPReceiver.SyncroItem).errorContent = answer;
+
                     (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText = System.Text.Json.JsonSerializer.Serialize(result.ReasonPhrase);
-                    //result.EnsureSuccessStatusCode();//Add throw
+                    if (string.IsNullOrEmpty(result.ReasonPhrase))
+                    {
+                        try
+                        {
+                            var obj = JsonSerializer.Deserialize<JsonElement>(answer);
+                            if (!(obj.ValueKind == JsonValueKind.String))
+                            {
+                                var jsonNode = JsonNode.Parse(answer);
+                                var err = jsonNode["error"];
+                                if (err != null)
+                                    (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText = System.Text.Json.JsonSerializer.Serialize(err.ToString());
+                            }
+                        }
+                        catch (Exception e67)
+                        {
+
+                        }
+                        //result.EnsureSuccessStatusCode();//Add throw
+                    }
                 }
             } else
             {

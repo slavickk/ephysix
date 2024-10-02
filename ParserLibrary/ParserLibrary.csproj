@@ -9,7 +9,7 @@
 <!--    TODO: sort out this issue -->
 <!--    <PackageReadmeFile>readme.md</PackageReadmeFile>-->
     <Authors>Authors of ProjectX</Authors>
-    <Version>1.1.34</Version>
+    <Version>1.1.38</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -101,6 +101,8 @@ public class KafkaSender : Sender, IDisposable, ISelfTested, ISender
         details = "Make kafka selfTest";
         try
         {
+           // ((ISender)this).Init();
+
             DateTime time1 = DateTime.Now;
             var deliveryResult = await _producer.ProduceAsync(this.Topic, new Message<Null, string> { Value = "{}" });
             Logger.log($"Sent message to partition {deliveryResult.Partition} with offset {deliveryResult.Offset}. Status is {deliveryResult.Status}", LogEventLevel.Debug);

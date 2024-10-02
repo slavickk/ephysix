@@ -207,7 +207,7 @@ namespace TestJsonRazbor
             {
                 try
                 {
-                    if(pip.steps.First().receiver != null && !pip.steps.First().receiver.MocMode)
+                    if(!pip.skipSelfTest)
                     await pip.SelfTest();
                         // specify this thread's Abort() as the cancel delegate
                         using (Canceller.Token.Register(Thread.CurrentThread.Abort))

@@ -160,6 +160,7 @@ public class Pipeline:ILiquidizable
     /// <returns>A boolean value indicating whether the self-test passed or failed.</returns>
     public async Task<(bool Result,string Description)> SelfTest()
     {
+        await Init();
         // check that sender implemented ISelfTested
 /*        if (steps[0].sender is not ISelfTested testableSender)
             return false; // treating this as a failed self test*/
@@ -304,11 +305,23 @@ public class Pipeline:ILiquidizable
     bool alreadyInit = false;
     public async Task run()
     {
-        if(xmlNameSpaces.Count>0)
+        if (xmlNameSpaces.Count > 0)
         {
             XmlParser.namespaces = xmlNameSpaces;
             XmlParser.isCorrectedNamespace = true;
         }
+        await Init();
+        //            step.owner = this;
+        var entryStep = GetEntryStep();
+
+        Logger.log($"Starting the entry step {entryStep.IDStep}", Serilog.Events.LogEventLevel.Debug);
+        await entryStep.run();
+
+        Logger.log($"Entry step {entryStep.IDStep} finished", Serilog.Events.LogEventLevel.Debug);
+    }
+
+    public async Task  Init()
+    {
         if (!alreadyInit)
         {
             EmbeddedFunctions.Init();
@@ -324,55 +337,49 @@ public class Pipeline:ILiquidizable
                         options.Configuration = configuration["CACHE_PROVIDER:REDIS:CONNECTION_STRING"];// builder.Configuration.GetConnectionString("MyRedisConStr");
                         options.InstanceName = configuration["CACHE_PROVIDER:REDIS:INSTANCE_NAME"];
 
-                       /*options.ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions();
-                        options.ConfigurationOptions.EndPoints={
-                            { url,portNumber }
-                        },
-    AbortOnConnectFail = false // this prevents that error
-                        options.ConfigurationOptions.SyncTimeout = Convert.ToInt32(configuration["CACHE_PROVIDER:REDIS:TIMEOUT_MILLI"]);*/
+                        /*options.ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions();
+                         options.ConfigurationOptions.EndPoints={
+                             { url,portNumber }
+                         },
+     AbortOnConnectFail = false // this prevents that error
+                         options.ConfigurationOptions.SyncTimeout = Convert.ToInt32(configuration["CACHE_PROVIDER:REDIS:TIMEOUT_MILLI"]);*/
                     });
-                } else
-                services.AddDistributedMemoryCache();
+                }
+                else
+                    services.AddDistributedMemoryCache();
                 var provider = services.BuildServiceProvider();
                 EmbeddedFunctions.cacheProvider = provider.GetRequiredService<IDistributedCache>();// (typeof(IDistributedCache)) as IDistributedCache;
 
             }
-            alreadyInit = true;
-        }
-        traceSaveDirectoryStat = traceSaveDirectory;
-        var activity = Activity.StartActivity("Process Message", ActivityKind.Consumer);
+            traceSaveDirectoryStat = traceSaveDirectory;
+            var activity = Activity.StartActivity("Process Message", ActivityKind.Consumer);
 
-        Logger.log("Starting the pipeline", Serilog.Events.LogEventLevel.Warning);
-        Metrics.Label lab;
-        if(!Metrics.common_labels.TryGetValue("Pipeline",out lab))
-            Metrics.common_labels.Add( "Pipeline", new Metrics.Label("Pipeline", Path.GetFileNameWithoutExtension(this.fileName)));
-        CryptoHash.pwd = this.hashWord;
-        string keyString = CryptoHash.pwd;
-        if(keyString.Length> keyLength / 8)
-            keyString = CryptoHash.pwd.Substring(0, keyLength / 8);
-        for (int i = CryptoHash.pwd.Length; i < keyLength / 8; i++)
-            keyString += "Y";
-       // string key = "12345reqwt12345abcde";
-        this.key = Encoding.UTF8.GetBytes(keyString);
-/*        using (AesManaged aes = new AesManaged())
-        {
-            aes.GenerateIV();
-            IV = aes.IV;
-        }*/
-            IV= Encoding.UTF8.GetBytes(initialisationVector);
+            Logger.log("Starting the pipeline", Serilog.Events.LogEventLevel.Warning);
+            Metrics.Label lab;
+            if (!Metrics.common_labels.TryGetValue("Pipeline", out lab))
+                Metrics.common_labels.Add("Pipeline", new Metrics.Label("Pipeline", Path.GetFileNameWithoutExtension(this.fileName)));
+            CryptoHash.pwd = this.hashWord;
+            string keyString = CryptoHash.pwd;
+            if (keyString.Length > keyLength / 8)
+                keyString = CryptoHash.pwd.Substring(0, keyLength / 8);
+            for (int i = CryptoHash.pwd.Length; i < keyLength / 8; i++)
+                keyString += "Y";
+            // string key = "12345reqwt12345abcde";
+            this.key = Encoding.UTF8.GetBytes(keyString);
+            /*        using (AesManaged aes = new AesManaged())
+                    {
+                        aes.GenerateIV();
+                        IV = aes.IV;
+                    }*/
+            IV = Encoding.UTF8.GetBytes(initialisationVector);
             //aes.IV = iv;
 
-        foreach (var step in steps)
-            step.Init(this);
-        foreach(var mb in this.metricsBuilder)
-            mb.Init();
-//            step.owner = this;
-        var entryStep = GetEntryStep();
-
-        Logger.log($"Starting the entry step {entryStep.IDStep}", Serilog.Events.LogEventLevel.Debug);
-        await entryStep.run();
-        
-        Logger.log($"Entry step {entryStep.IDStep} finished", Serilog.Events.LogEventLevel.Debug);
+            foreach (var step in steps)
+                step.Init(this);
+            foreach (var mb in this.metricsBuilder)
+                mb.Init();
+            alreadyInit = true;
+        }
     }
 
     /// <summary>
@@ -661,40 +668,10 @@ public class Pipeline:ILiquidizable
     static List<(string oldValue, string newValue)> replacement = new List<(string oldValue, string newValue)> { { ("converters:", "filterCollection:") }, { ("filter:", "condition:") } };
     public static Pipeline loadFromString(string Body,Assembly assembly)
     {
-        foreach(var it in replacement)
-            Body=Body.Replace(it.oldValue,it.newValue);
+        foreach (var it in replacement)
+            Body = Body.Replace(it.oldValue, it.newValue);
         occurencyItems.Clear();
-        var ser = new DeserializerBuilder();
-        if (assembly != null)
-        {
-            AddCustomParsers(assembly);
-
-            /*foreach (var type in getAllRegTypes(assembly))
-            {
-                var tag = "!" + (type.FullName.StartsWith(nameof(ParserLibrary)) ? type.Name : type.FullName);
-
-                Logger.log("Registering {type} with tag {tag}", LogEventLevel.Debug, type.FullName, tag);
-                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
-            }*/
-        }
-        foreach (var type in getAllRegTypes(assembly))
-        {
-            var tag = "!" + type.Name;
-//            var tag = "!" + ((type.FullName.StartsWith(nameof(ParserLibrary)) || type.FullName.StartsWith(nameof(UniElLib)) || type.FullName.StartsWith("Plugins")) ? type.Name : type.FullName);
-            if(type.Name.Contains("Kafka"))
-            {
-                int yy = 0;
-            }
-            Logger.log("Registering {type} with tag {tag}", LogEventLevel.Debug, type.FullName, tag);
-            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
-        }
-
-
-        var deserializer = ser
-        .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
-        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-        .WithNodeDeserializer(new YamlIncludeNodeDeserializer(ser.Build()), s => s.OnTop())
-        .Build();
+        IDeserializer deserializer = GetDeserializer(assembly);
         foreach (var var in getEnvVariables1(Body))
         {
             string val;
@@ -702,30 +679,30 @@ public class Pipeline:ILiquidizable
                 val = Environment.GetEnvironmentVariable(var.variable);
             else
                 val = configuration[var.variable];
-            if (val == null )
+            if (val == null)
             {
-                if(var.defaultValue == null)
-                throw new Exception($"Unknown configuration variable {var.variable}");
+                if (var.defaultValue == null)
+                    throw new Exception($"Unknown configuration variable {var.variable}");
                 val = var.defaultValue;
             }
             occurencyItems.Add(new occurencyItem() { line = var.whole_string, defaultValue = var.defaultValue, pattern = var.pattern/*((indexBeg >= 0) ? (Body.Substring(indexBeg + 1, index - indexBeg - 1)) : "")*/, variable = var.variable, value = val });
             //    MessageBox.Show($"{var}:{val}");
-           /* int index = -1;
-            while ((index = Body.IndexOf(var.pattern, index + 1)) != -1)
-            {
-                int indexBeg = Body.LastIndexOf("\n", index);
+            /* int index = -1;
+             while ((index = Body.IndexOf(var.pattern, index + 1)) != -1)
+             {
+                 int indexBeg = Body.LastIndexOf("\n", index);
 
-                occurencyItems.Add(new occurencyItem() {line=var.whole_string, defaultValue=var.defaultValue, pattern = var.pattern, variable = var.variable, value = val });
-            }*/
+                 occurencyItems.Add(new occurencyItem() {line=var.whole_string, defaultValue=var.defaultValue, pattern = var.pattern, variable = var.variable, value = val });
+             }*/
             // Body.
         }
         foreach (var var in occurencyItems)
         {
             string val;
-            if(configuration == null)
-             val   = Environment.GetEnvironmentVariable(var.variable);
+            if (configuration == null)
+                val = Environment.GetEnvironmentVariable(var.variable);
             else
-            val = configuration[var.variable];
+                val = configuration[var.variable];
             if (val == null)
             {
                 if (var.defaultValue == null)
@@ -748,6 +725,42 @@ public class Pipeline:ILiquidizable
         }
         InitJaeger(pip.pipelineDescription);
         return pip;
+    }
+
+    public static IDeserializer GetDeserializer(Assembly assembly)
+    {
+        var ser = new DeserializerBuilder();
+        if (assembly != null)
+        {
+            AddCustomParsers(assembly);
+
+            /*foreach (var type in getAllRegTypes(assembly))
+            {
+                var tag = "!" + (type.FullName.StartsWith(nameof(ParserLibrary)) ? type.Name : type.FullName);
+
+                Logger.log("Registering {type} with tag {tag}", LogEventLevel.Debug, type.FullName, tag);
+                ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
+            }*/
+        }
+        foreach (var type in getAllRegTypes(assembly))
+        {
+            var tag = "!" + type.Name;
+            //            var tag = "!" + ((type.FullName.StartsWith(nameof(ParserLibrary)) || type.FullName.StartsWith(nameof(UniElLib)) || type.FullName.StartsWith("Plugins")) ? type.Name : type.FullName);
+            if (type.Name.Contains("Kafka"))
+            {
+                int yy = 0;
+            }
+            Logger.log("Registering {type} with tag {tag}", LogEventLevel.Debug, type.FullName, tag);
+            ser = ser.WithTagMapping(new YamlDotNet.Core.TagName(tag), type);
+        }
+
+
+        var deserializer = ser
+        .WithTagMapping("!include", typeof(object)) // This tag needs to be registered so that validation passes
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        .WithNodeDeserializer(new YamlIncludeNodeDeserializer(ser.Build()), s => s.OnTop())
+        .Build();
+        return deserializer;
     }
 
     public static void AddCustomParsers(Assembly assembly)
@@ -1010,7 +1023,7 @@ public class Pipeline:ILiquidizable
         return content;
     }
 
-    private static ISerializer getSerializer(Assembly assembly)
+    public static ISerializer getSerializer(Assembly assembly)
     {
         var ser = new SerializerBuilder();
         foreach (var type in getAllRegTypes(assembly))

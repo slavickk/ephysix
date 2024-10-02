@@ -1,0 +1,117 @@
+- body: >-
+    {
+      "client_id": "string",
+      "sign_type": "CREDIT",
+      "data": "string",
+      "sms": "string"
+    }
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: false
+    certPassword: ''
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://212.233.113.20:8070/mb-sign-doc/ws/sign
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: Подпись документа
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://212.233.113.20:8070/mb-sign-doc/ws/sign
+    mocFile: 
+    mocBody: ''
+  answer: ''
+- body: >-
+    {
+      "client_id": "string",
+      "sign_type": "CREDIT",
+      "data": "string",
+      "sign_id": "string",
+      "token": "string",
+      "signature": "string"
+    }
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: false
+    certPassword: ''
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://212.233.113.20:8070/mb-sign-doc/ws/verify
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: Проверить подпись документа
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://212.233.113.20:8070/mb-sign-doc/ws/verify
+    mocFile: 
+    mocBody: ''
+  answer: ''
+- body: >-
+    <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:awl="http://finstream.ru/csp/awl">
+      <SOAP-ENV:Header>
+        <Security xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+          <UsernameToken>
+            <Username>I_Bank2</Username>
+            <Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">IBank456</Password>
+          </UsernameToken>
+        </Security>
+      </SOAP-ENV:Header>
+      <SOAP-ENV:Body>
+        <awl:PUPAY>
+          <!-- Optional: -->
+          <awl:RPUPAY ID="2024082305" ReqDateTime="2024-08-23T09:40:00" Type="AWRPUPAY">
+            <!-- Optional: -->
+            <awl:AWHead CustomerID="finstream_1" DeptID="DBO" TermNo="DBO" Check="false" Channel="DBO" Lang="RU"/>
+            <!-- Optional: -->
+            <awl:AWRequest PUREF="DBO||54" D="2024-08-21" A="1000" CUR="RUB">
+              <!-- Optional: -->
+              <awl:ADDITIONAL FIELDNAME="ADR" FIELDID="1" FIELDVALUE="Адрес"/>
+              <awl:ADDITIONAL FIELDNAME="NUMBER" FIELDID="2" FIELDVALUE="1233-763"/>
+              <awl:ADDITIONAL FIELDNAME="NAME" FIELDID="3" FIELDVALUE="Иван Иванович Иванов"/>
+              <awl:ADDITIONAL FIELDNAME="SumSTrs" FIELDID="4" FIELDVALUE="122345"/>
+              <awl:ADDITIONAL FIELDNAME="FIO" FIELDID="5" FIELDVALUE="Иван Иванович Иванов"/>
+              <awl:ADDITIONAL FIELDNAME="ZPHONE" FIELDID="6" FIELDVALUE="+78992328832"/>
+              <awl:ADDITIONAL FIELDNAME="DATE_DOG" FIELDID="7" FIELDVALUE="12/12/2024"/>
+            </awl:AWRequest>
+          </awl:RPUPAY>
+        </awl:PUPAY>
+      </SOAP-ENV:Body>
+    </SOAP-ENV:Envelope>
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers:
+      SOAPAction: http://10.0.104.15:80/csp/awl/AWGW.WS.PUPAY
+    responseType: text/xml
+    urls:
+    - http://10.200.200.112:10001/csp/awl/AWGW.WS.cls
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: Запрос в AnyWay
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://10.200.200.112:10001/csp/awl/AWGW.WS.cls
+    mocFile: 
+    mocBody: ''
+  answer: ''

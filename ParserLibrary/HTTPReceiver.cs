@@ -125,7 +125,7 @@ namespace ParserLibrary
             {
                 this.HTTPErrorJsonText = message;
             }
-            public async Task<string> formAnswer(HttpContext context)
+            public async Task<object> formAnswer(HttpContext context)
             {
                 string answer = "";
                 context.Response.StatusCode = HTTPStatusCode;
@@ -141,7 +141,7 @@ namespace ParserLibrary
                                    IgnoreNullValues = true
                                };
                    */
-                   answer = HTTPErrorJsonText;// JsonSerializer.Serialize(HTTPErrorJsonText, HTTPErrorJsonText.GetType(),options);
+                   return JsonSerializer.Deserialize<JsonElement>(HTTPErrorJsonText);// JsonSerializer.Serialize(HTTPErrorJsonText, HTTPErrorJsonText.GetType(),options);
                     //await context.Response.Body.WriteAsync(Encoding.ASCII.GetBytes(answer));
                 }
                 return answer;

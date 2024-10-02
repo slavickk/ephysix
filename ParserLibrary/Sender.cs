@@ -71,7 +71,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
 
     public override string ToString()
     {
-        return $"Sender:{this.GetType().Name} Step:{owner?.IDStep}";
+        return $"Sender:{description} {this.GetType().Name} Step:{owner?.IDStep}";
     }
     public virtual  string getExample()
     {
