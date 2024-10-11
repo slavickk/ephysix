@@ -139,6 +139,8 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
     }
     public virtual  async Task<string> send(AbstrParser.UniEl root, ContextItem context)
     {
+  //      if (owner.debugMode)
+            Logger.log ("BeginRequest {Sender} Send:{Request}  ",Serilog.Events.LogEventLevel.Information,"Sender", this,Pipeline.Unescape( root.toJSON(true)));
         if (Pipeline.configuration["SAVED_DUMP_SENDERS"] != null)
         {
             using (StreamWriter sw = new StreamWriter(Path.Combine(Path.GetDirectoryName(owner.owner.fileName), this.owner.IDStep + "_Send.tmp")))
@@ -242,8 +244,8 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
                     context.needRollback.Remove(IDStepForTransactionRollbackCancel);
 
             }
-            if (owner.debugMode)
-                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Debug, this, root.toJSON(true), ans);
+          //  if (owner.debugMode)
+                Logger.log(time1, "EndRequest {Sender} Send:{Request}  ans:{Response}", "Sender", Serilog.Events.LogEventLevel.Information, this, Pipeline.Unescape(root.toJSON(true)), Pipeline.Unescape(ans));
             metricUpTime.Add(time1);
         }
         catch (Exception ex)

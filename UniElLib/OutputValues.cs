@@ -172,6 +172,8 @@ public abstract class OutputValue:ILiquidizable
     public bool getNodeNameOnly = false;
     public bool returnOnlyFirstRow = true;
 
+    public bool convertEmptyToNull = false;
+
 
     public IEnumerable<object> getAllObject(AbstrParser.UniEl inputRoot,ContextItem context)
     {
@@ -316,8 +318,14 @@ public abstract class OutputValue:ILiquidizable
 
     public object ToOutputType(object val)
     {
+        if(val == null)
+        {
+            int yy = 0;
+        }
+        if (convertEmptyToNull && string.IsNullOrEmpty((val ?? "").ToString()))
+            return null;
         if(string.IsNullOrEmpty(outputType))
-            return (val ?? "").ToString();
+            return (val?.ToString() ?? null)/*.ToString()*/;
         switch (outputType)
             {
             case "string":

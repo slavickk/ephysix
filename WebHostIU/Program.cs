@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Serilog.Enrichers.OpenTracing;
 using Serilog.Sinks.SystemConsole.Themes;
 using Microsoft.Extensions.Configuration;
+using Serilog.Sinks.Kafka;
 
 
 namespace WebHostIU
@@ -70,6 +71,8 @@ namespace WebHostIU
                         { TraceId = "TraceId", SpanId = "SpanId", ParentId = "ParentId" },
                 })
                 .Enrich.FromLogContext();
+            log = log.WriteTo.Kafka(bootstrapServers: "10.200.100.11:9092", topic: "UFD.TOPIC.APPLOGS");
+            /*
             if (isAsync)
             {
 #if DEBUG
@@ -88,7 +91,7 @@ namespace WebHostIU
 
             else
                 log = log.WriteTo.Console(new RenderedCompactJsonFormatter());
-
+            */
             if (maskedSensitive)
                 log = log.Enrich.WithSensitiveDataMasking(
                     options =>

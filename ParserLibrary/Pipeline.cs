@@ -166,6 +166,29 @@ public class Pipeline:ILiquidizable
             return false; // treating this as a failed self test*/
         bool retValue = true;
         string description = "";
+        DistributedCacheEntryOptions cache_options = new()
+        {
+            AbsoluteExpirationRelativeToNow =
+new TimeSpan(0, 0, 10)
+        };
+        try
+        {
+            Logger.log("SelfTest cache ", Serilog.Events.LogEventLevel.Information, "any");
+
+            await EmbeddedFunctions.cacheProvider.SetStringAsync(EmbeddedFunctions.cacheProviderPrefix + "Test", "Test", cache_options);
+            Logger.log("Chache.Results:{Res}", Serilog.Events.LogEventLevel.Information, "any","OK" );
+            description += $"Chache returns OK\r\n";
+
+
+        }
+        catch
+        {
+            Logger.log("Chache.Results:{Res}", Serilog.Events.LogEventLevel.Information, "any", "Fail");
+            description += $"Chache returns Fail\r\n";
+            retValue = false;
+
+
+        }
         foreach (var step in steps)
         {
             if (step.isender != null)
@@ -977,6 +1000,11 @@ public class Pipeline:ILiquidizable
 
     }
 
+    public static string Unescape(string value)
+    {
+        return value;
+        return System.Text.RegularExpressions.Regex.Unescape(value);
+    }
     private static int AddContent(StreamWriter sw, Dictionary<string, (string, object)> currOldContent, int level)
     {
         foreach (var item in currOldContent)

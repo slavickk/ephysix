@@ -602,7 +602,7 @@ namespace UniElLib
                                 return (this.Name, this.Value);
                         }
                         else
-                            return (this.Name,"");
+                            return (this.Name,null);
                     }
                 }
 //                return val;

@@ -53,6 +53,7 @@ namespace TestJsonRazbor
             TreeNode treeNode2 = new TreeNode("Root");
             button7 = new Button();
             groupBox2 = new GroupBox();
+            textBoxPrefParsers = new TextBox();
             label1 = new Label();
             checkBoxTransformOutput = new CheckBox();
             button11 = new Button();
@@ -126,7 +127,7 @@ namespace TestJsonRazbor
             saveFileDialog1 = new SaveFileDialog();
             toolTip1 = new ToolTip(components);
             openFileDialogFromFile = new OpenFileDialog();
-            textBoxPrefParsers = new TextBox();
+            checkBoxConvertToNullIfEmpty = new CheckBox();
             groupBox2.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
@@ -160,6 +161,7 @@ namespace TestJsonRazbor
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(checkBoxConvertToNullIfEmpty);
             groupBox2.Controls.Add(textBoxPrefParsers);
             groupBox2.Controls.Add(label1);
             groupBox2.Controls.Add(checkBoxTransformOutput);
@@ -196,6 +198,14 @@ namespace TestJsonRazbor
             groupBox2.TabIndex = 35;
             groupBox2.TabStop = false;
             groupBox2.Text = "OutputValues";
+            // 
+            // textBoxPrefParsers
+            // 
+            textBoxPrefParsers.Location = new Point(247, 4);
+            textBoxPrefParsers.Margin = new Padding(2);
+            textBoxPrefParsers.Name = "textBoxPrefParsers";
+            textBoxPrefParsers.Size = new Size(111, 23);
+            textBoxPrefParsers.TabIndex = 39;
             // 
             // label1
             // 
@@ -1005,13 +1015,15 @@ namespace TestJsonRazbor
             // 
             openFileDialogFromFile.FileName = "openFileDialog4";
             // 
-            // textBoxPrefParsers
+            // checkBoxConvertToNullIfEmpty
             // 
-            textBoxPrefParsers.Location = new Point(327, 2);
-            textBoxPrefParsers.Margin = new Padding(2);
-            textBoxPrefParsers.Name = "textBoxPrefParsers";
-            textBoxPrefParsers.Size = new Size(111, 23);
-            textBoxPrefParsers.TabIndex = 39;
+            checkBoxConvertToNullIfEmpty.AutoSize = true;
+            checkBoxConvertToNullIfEmpty.Location = new Point(370, 7);
+            checkBoxConvertToNullIfEmpty.Name = "checkBoxConvertToNullIfEmpty";
+            checkBoxConvertToNullIfEmpty.Size = new Size(143, 19);
+            checkBoxConvertToNullIfEmpty.TabIndex = 56;
+            checkBoxConvertToNullIfEmpty.Text = "ConvertToNullIfEmpty";
+            checkBoxConvertToNullIfEmpty.UseVisualStyleBackColor = true;
             // 
             // FormSelectField
             // 
@@ -1134,5 +1146,6 @@ namespace TestJsonRazbor
         private Label label1;
         private ComboBox comboBoxOutType;
         private TextBox textBoxPrefParsers;
+        private CheckBox checkBoxConvertToNullIfEmpty;
     }
 }

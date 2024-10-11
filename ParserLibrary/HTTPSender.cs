@@ -264,6 +264,7 @@ public  class HTTPSender:Sender,ISelfTested
                 (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode = 503;
                 (context.context as HTTPReceiver.SyncroItem).errorContent =e63.Message;
                 (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText = System.Text.Json.JsonSerializer.Serialize("Service unavailable:"+e63.Message);
+               // (context.context as HTTPReceiver.SyncroItem).
                 return "";
      //           throw;
             }

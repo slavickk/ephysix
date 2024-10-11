@@ -216,7 +216,7 @@ public partial class Step : ILiquidizable
 
             foreach (var ff in outputFields)
             {
-                if(ff.outputPath.Contains("docNumber"))
+                if(ff.outputPath.Contains("mac"))
                 {
                     int yy = 0;
                 }
@@ -663,7 +663,7 @@ public partial class Step : ILiquidizable
             foreach (var item in filterCollection/*.First().filter(list)*/)
             {
                 AbstrParser.UniEl rEl = null;
-                if (this.IDStep == "Step_0")
+                if (this.IDStep == "Step_finishpayment_MONEY_PUPAY")
                 {
                     int y = 0;
                 }
