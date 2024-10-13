@@ -32,6 +32,7 @@ using Serilog;
 using static Plugins.HTTPReceiverSwagger;
 using System.Text.Json.Nodes;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace ParserLibrary;
 
@@ -42,6 +43,9 @@ public  class HTTPSender:Sender,ISelfTested
     public string certName = "";
     public bool allowAutoRedirect; 
     public string certPassword = "";
+    public enum Method { POST, PUT,GET,DELETE}
+    public Method method = Method.POST;
+
   //  public string headers = "";
 //        public string certThumbprint= "E77587679318FED87BB040F00D76AB461B962D95";
     public List<string> certThumbprints = new List<string> { "A77587679318FED87BB040F00D76AB461B962D95" };
@@ -57,9 +61,20 @@ public  class HTTPSender:Sender,ISelfTested
         createMetrics();
         //     InitClient();
     }
-
+    string ReplaceParams(string val)
+    {
+        for (int i = 0; i < queryParams.Count; i++)
+            val = val.Replace("{" + queryParams[i] + "}", "{" + i + "}");
+        return val;
+    }
     private void InitClient()
     {
+        queryParams = getAllQueryParam();
+        if(queryParams.Count>0)
+        {
+            urlsShab = urls.Select(ii => ReplaceParams(ii)).ToArray();
+        }
+
         var handler = new HttpClientHandler() {  AllowAutoRedirect = allowAutoRedirect};
         handler.MaxConnectionsPerServer = 256;
         handler.ServerCertificateCustomValidationCallback = ServerCertificateCustomValidation;
@@ -145,6 +160,26 @@ public  class HTTPSender:Sender,ISelfTested
 
     }
 
+    List<string> getAllQueryParam()
+    {
+        string urlTemplate = url;
+
+        // Regular expression to find expressions within curly braces
+        string pattern = @"\{(.*?)\}";
+
+        // Find matches in the URL template
+        MatchCollection matches = Regex.Matches(urlTemplate, pattern);
+
+        // Create a list to hold extracted expressions
+        List<string> extractedExpressions = new List<string>();
+
+        foreach (Match match in matches)
+        {
+            extractedExpressions.Add(match.Groups[1].Value); // Extract captured group
+        }
+        return extractedExpressions;
+    }
+
     public override string ToString()
     {
         return base.ToString()+" url:"+this.url;
@@ -217,8 +252,20 @@ public  class HTTPSender:Sender,ISelfTested
         {
             if (!urls[index].Contains("_dummy_") )
             {
-                
-                result = await client.PostAsync(urls[index], stringContent);
+                var urlT = urls[index];
+                if (queryParams.Count > 0)
+                    urlT = string.Format(urlsShab[index], queryParamsValues); 
+                if (method== Method.POST)
+                result = await client.PostAsync(urlT, stringContent);
+                else
+                if(method== Method.GET)
+                    result=await client.GetAsync(urlT);
+                else
+                if (method == Method.PUT)
+                    result = await client.PutAsync(urlT, stringContent);
+                else
+                    result = await client.DeleteAsync(urlT);
+
                 if (!result.IsSuccessStatusCode)
                 {
                     string answer = await result.Content.ReadAsStringAsync();
@@ -318,6 +365,12 @@ public  class HTTPSender:Sender,ISelfTested
 
         return indexDelay;
     }
+    [YamlIgnore]
+    List<string> queryParams;
+    [YamlIgnore]
+    string[] queryParamsValues;
+    [YamlIgnore]
+    string[] urlsShab; 
 
     public string[] urls = { @"https://195.170.67:51200/Rec" };
     public string url
@@ -353,6 +406,20 @@ public  class HTTPSender:Sender,ISelfTested
     public async override Task<string> sendInternal(AbstrParser.UniEl root, ContextItem context)
     {
         await base.sendInternal(root,context);
+
+        if (!init)
+        {
+            lock (syncro)
+            {
+                if (!init)
+                {
+                    InitClient();
+                    init = true;
+                }
+            }
+        }
+
+
         string str = formBody(root);
         if (sendActivity != null)
         {
@@ -379,7 +446,7 @@ public  class HTTPSender:Sender,ISelfTested
 
             //                Logger.log(time1, "{Sender} Send:{Request}  ans:{Response}", "JsonSender", Serilog.Events.LogEventLevel.Information,this, str, ans);
             //              createMetrics();
-            if (sendToHttp != null)
+            if (sendToHttp != null && this.owner != null)
                 sendToHttp.AddCount(this.owner.IDStep);
             return ans;
         }
@@ -408,6 +475,23 @@ public  class HTTPSender:Sender,ISelfTested
 
     protected override string formBody(AbstrParser.UniEl root)
     {
+        if(queryParams?.Count>0)
+        {
+            queryParamsValues = new string[queryParams.Count];
+            for(int i=0;i<root.childs.Count;i++)// var chld in root.childs)
+            {
+                
+                int index = queryParams.IndexOf(root.childs[i].Name);
+                if (index >= 0)
+                {
+                    queryParamsValues[index] = root.childs[i].Value?.ToString() ?? "";
+                    root.childs.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
+        if (root.childs.Count == 0)
+            return "";
         if (ResponseType == "application/xml" || ResponseType == "text/xml")
             return root.childs[0].toXML();
         else

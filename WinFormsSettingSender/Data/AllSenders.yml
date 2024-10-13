@@ -9,6 +9,7 @@
     certName: ''
     allowAutoRedirect: false
     certPassword: ''
+    method: POST
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
     timeoutSendInMilliseconds: 5000
@@ -41,6 +42,7 @@
     certName: ''
     allowAutoRedirect: false
     certPassword: ''
+    method: POST
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
     timeoutSendInMilliseconds: 5000
@@ -95,6 +97,7 @@
     certName: ''
     allowAutoRedirect: true
     certPassword: ''
+    method: POST
     certThumbprints:
     - A77587679318FED87BB040F00D76AB461B962D95
     timeoutSendInMilliseconds: 5000
@@ -115,3 +118,390 @@
     mocFile: 
     mocBody: ''
   answer: ''
+- body: ''
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    method: GET
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://10.111.51.112:9999/ufd/api/client-profile/client-profile/111154125412577/check
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: >
+      Запрос к CPMS
+
+      CPMS:/client-profile/{customerId}/check	
+
+      Schema: GenericResponseSimpleErrorDataClientDboStatusDto
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://10.111.51.112:9999/ufd/api/client-profile/client-profile/111154125412577/check
+    mocFile: 
+    mocBody: ''
+  answer: '{"data":{"result":true,"clientStatus":"ACTIVE"}}'
+- body: >-
+    {
+      "head": {
+        "head": {
+    "branchId": "2000",
+
+    "customerId": "11119997774444",
+
+    "subSys": "string"
+        }
+      }
+    }
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    method: POST
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://10.111.51.112:9999/ufd/api/tir-integration/accounts
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: TIR:/accounts
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://10.111.51.112:9999/ufd/api/tir-integration/accounts
+    mocFile: 
+    mocBody: ''
+  answer: '{"data":{"body":{"accountResponse":{"accounts":{"accs":[{"account":"40817810200007033590","accountName":"Счет дебетовой карты1","accountState":"OPEN","accountType":"1","branchId":"2000","closeInPc":true,"createDate":"2007-02-28T00:00:00.000+00:00","currencyCode":"810","currencyIsoCode":"RUB","currentRest":21226724.93,"extId":"100023338355","interestRate":"0.0","cardLink":true},{"account":"40817810800000127476","accountName":"Текущий счет","accountState":"OPEN","accountType":"ДЕП_ТекСч","branchId":"2000","closeInPc":true,"createDate":"2010-12-22T00:00:00.000+00:00","currencyCode":"810","currencyIsoCode":"RUB","currentRest":401.79,"extId":"10002573475","interestRate":"0.0","cardLink":false}]}}},"head":{"head":{"branchId":"2000","customerId":"11119997774444","result":"OK","subSys":"ABS"}}}}'
+- body: >-
+    {
+      "head": {
+        "head": {
+    "branchId": "2000",
+
+    "customerId": "11119997774444",
+
+    "subSys": "string"
+        }
+      }
+    }
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    method: POST
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://10.111.51.112:9999/ufd/api/tir-integration/customer-info
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: TIR:/customer-info
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://10.111.51.112:9999/ufd/api/tir-integration/customer-info
+    mocFile: 
+    mocBody: ''
+  answer: '{"data":{"body":{"customer":{"branchId":"2000","cashOff":false,"clientType":"NOT_RESIDENT","countryId":"643","customerId":"11119997774444","dateOfBirth":"1975-06-24T00:00:00.000+00:00","docGivenDate":"2020-11-10T00:00:00.000+00:00","docGivenPlace":"ГУ МВД РОССИИ ПО ПЕРМСКОМУ КРАЮ","docNumber":"111111","docSerial":"6666","email":"НЕ ИМЕЮ","firstName":"СТАНИСЛАВ","fullName":"ШАЙКИЕВ СТАНИСЛАВ АРКАДЬЕВИЧ","gender":"MALE","importType":"UPSERT","inn":"511111111111","issueUnit":"511-111","mobileClient":true,"mobilePhone":"79821111111","name":"ШАЙКИЕВ С.А.","personDocTypeId":"20","placeOfBirth":"СССР, ГОР. ЛЕНИНСК КЗЫЛ-ОРДИНСКОЙ ОБЛАСТИ","secondName":"ШАЙКИЕВ","smsPhone":"79821111111","thirdName":"АРКАДЬЕВИЧ","addresses":{"addresses":[{"addressType":"REGISTRATION","country":"РОССИЯ","fullAddress":"РОССИЯ, 617816, Пермский край, Чернушинский р-н, , Каменные Ключи д, , , ,","zip":"617816"}]},"cryptoProfiles":{"cryptoProfiles":[{"serialNumber":"79824877124","state":"ACTIVE","typeName":"sms"}]}}},"head":{"head":{"branchId":"2000","customerId":"11119997774444","result":"OK","subSys":"ABS"}}}}'
+- body: >+
+    {
+        "async": true,
+        "messageUniqueId": "6e28e69d9053-170783223721426922a_send",
+        "from": "channel_be",
+        "to": "10000709287",
+        "messageCategoryUniqueId": "category_advertisement/bigContent",
+        "timeToLiveMs": 3600000,
+        "timestamp": "2024-09-17T12:27:58.032Z",
+        "channel": {
+            "serverChannelUniqueId": "channel_cnh_dbo",
+            "data": {
+                "confirmType": "internal",
+                "internalMessageId": "internal_6e28e69d9053-170783223721426922a",
+                "messageType": "notification",
+                "priority": "high",
+                "vibrate": true,
+                "sound": true,
+                "style": "bigPicture",
+                "visibility": "public",
+                "title": "Заголовок сообщения",
+                "body": "Тестовое ПУШ уведомление"
+            }
+        },
+        "smsChannel": {
+            "to": "79519511298",
+            "messageCategoryUniqueId": "category_sms_client_verification",
+            "channel": {
+                "serverChannelUniqueId": "channel_sms_proxy",
+                "data": {
+                    "messageType": "sms",
+                    "body": "Нет клиента 10000709287, поэтому шлём SMS на этот номер ТФ."
+                }
+            }
+        },
+        "altChannel": {
+            "messageCategoryUniqueId": "category_sms_client_otp",
+            "channel": {
+                "serverChannelUniqueId": "channel_sms_proxy",
+                "data": {
+                    "messageType": "sms",
+                    "title": "",
+                    "body": "Так как пуш-сообщение недоставлено, то вам прилетает sms"
+                }
+            }
+        }
+    }
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    method: POST
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://gpb.bgs.ru/Messages/auto
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: AS GDU
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://gpb.bgs.ru/Messages/auto
+    mocFile: 
+    mocBody: ''
+  answer: ''
+- body: >-
+    {
+        "body": {
+            "fraudDocument": {
+                "action": "UPDATE",
+                "changeDate": "2024-10-11T11:41:34.663Z",
+                "dateTimeCreate": "2024-10-11T11:41:34.663Z",
+                "docRef": "018f7ba0-bdb6-13f4-8dda-b2cc6b5b2283",
+                "docType": "PDR",
+                "eventType": "SEND",
+                "operationType": "PaymentDocument",
+                "payerId": "018a688b-c950-1420-a232-14bc490f48be",
+                "payerType": "PHYSICAL",
+                "systemId": "CORREQTS RETAIL",
+                "addFields": {
+                    "addFields": [
+                        {
+                            "name": "FAULTPASSATTEMPTCOUNT",
+                            "value": "0"
+                        },
+                        {
+                            "name": "PASSCHANGED",
+                            "value": "false"
+                        },
+                        {
+                            "name": "ACCOUNTREST",
+                            "value": "13091.32"
+                        },
+                        {
+                            "name": "REFUSEDDOCCOUNT",
+                            "value": "0"
+                        },
+                        {
+                            "name": "PAYERINN",
+                            "value": "511111111111"
+                        },
+                        {
+                            "name": "PAYERBIRTHDATE",
+                            "value": "10.10.1990"
+                        },
+                        {
+                            "name": "PAYERPASSPORTHASH",
+                            "value": "23055967edfd0a2726978920f3266f0ef93611c31c78b3dada6a859f4f28c199"
+                        },
+                        {
+                            "name": "RETAILDOCTYPE",
+                            "value": "SBP1ME2ME"
+                        }
+                    ]
+                },
+                "document": {
+                    "documentPayment": {
+                        "acceptTime": "2024-10-11T11:41:34.663Z",
+                        "beginDate": "2024-10-11T11:41:34.663Z",
+                        "billDate": "2024-10-11T11:41:34.663Z",
+                        "commission": 0,
+                        "contractDate": "2024-10-11T11:41:34.663Z",
+                        "creditAmount": 0,
+                        "docDate": "2024-10-11T11:41:34.663Z",
+                        "docNumber": "21",
+                        "docType": "TransferFpsMe2MePullDebit",
+                        "documentGivenDate": "2024-10-11",
+                        "endDate": "2024-10-11T11:41:34.663Z",
+                        "exchangeRepatriationDate": "2024-10-11",
+                        "fineSum": 0,
+                        "fpsAgreement": true,
+                        "fpsDocumentSBPay": true,
+                        "fpsMessageHandlingDate": "2024-10-11T11:41:34.663Z",
+                        "fpsTransactionHandlingDate": "2024-10-11T11:41:34.663Z",
+                        "fromBranchBic": "045773790",
+                        "fromCardExpirationDate": "2024-10-11T11:41:34.663Z",
+                        "fromCurrencyCodeDig": "810",
+                        "fromNumber": "40817810700007524127",
+                        "fromPhoneNumber": "79129333111",
+                        "fromRate": 0,
+                        "fromSum": 12.0,
+                        "inn": "511111111111",
+                        "me2meTransfer": "1",
+                        "name": "ТЕСТОВЫЙ ДАНИИЛ ТЕСТОВИЧ",
+                        "rate": 0,
+                        "receiverCommission": 0,
+                        "repaymentDate": "2024-10-11T11:41:34.663Z",
+                        "toCardExpirationDate": "2024-10-11T11:41:34.663Z",
+                        "toFullName": "Тестовый Даниил Тестович",
+                        "toName": "Даниил Тестович Т",
+                        "toPhoneNumber": "79129333111",
+                        "toRate": 0,
+                        "toSum": 0,
+                        "transitPayment": true,
+                        "withConversion": true
+                    }
+                },
+                "senderTagsFA": {
+                    "addFields": [
+                        {
+                            "name": "robTag01",
+                            "value": "true"
+                        },
+                        {
+                            "name": "robTag02",
+                            "value": "true"
+                        },
+                        {
+                            "name": "robTag03",
+                            "value": "true"
+                        },
+                        {
+                            "name": "modTag01",
+                            "value": "false"
+                        },
+                        {
+                            "name": "modTag02",
+                            "value": "false"
+                        },
+                        {
+                            "name": "modTag03",
+                            "value": "false"
+                        },
+                        {
+                            "name": "modTag04",
+                            "value": "false"
+                        },
+                        {
+                            "name": "traTag01",
+                            "value": "0"
+                        },
+                        {
+                            "name": "traTag02",
+                            "value": "13103.32"
+                        },
+                        {
+                            "name": "locTag01",
+                            "value": "false"
+                        },
+                        {
+                            "name": "sesTag01",
+                            "value": "false"
+                        },
+                        {
+                            "name": "sesTag03",
+                            "value": "false"
+                        },
+                        {
+                            "name": "sesTag04",
+                            "value": "false"
+                        },
+                        {
+                            "name": "sesTag05",
+                            "value": "false"
+                        },
+                        {
+                            "name": "sesTag08",
+                            "value": "false"
+                        },
+                        {
+                            "name": "timTag01",
+                            "value": "15.05.2024 12:25:10;15.05.2024 11:52:52;15.05.2024 09:26:19;15.05.2024 09:23:28;"
+                        },
+                        {
+                            "name": "sesTag02",
+                            "value": "false"
+                        },
+                        {
+                            "name": "sesTag06",
+                            "value": "false"
+                        },
+                        {
+                            "name": "sesTag07",
+                            "value": "false"
+                        },
+                        {
+                            "name": "devTag01",
+                            "value": "true"
+                        },
+                        {
+                            "name": "devTag02",
+                            "value": "false"
+                        }
+                    ]
+                }
+            }
+        },
+        "head": {
+            "head": {
+                "branchId": "2000",
+                "customerId": "10000919477",
+                "subSys": "ABS"
+            }
+        }
+    }
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    method: POST
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://10.111.51.112:9999/ufd/api/tir-integration/fraud-document
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: TIR:/fraud-document
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://10.111.51.112:9999/ufd/api/tir-integration/fraud-document
+    mocFile: 
+    mocBody: ''
+  answer: '{"data":{"body":{"fraudDocument":{"analyzeResult":"OK","comment":"Статус документа: OK","docRef":"018b223f-2761-1c72-a386-9d0acf27594a","operationType":"AnalyzeResult","senderIndicatorFA":"8550540200FDDDDD"}},"head":{"head":{"result":"OK","subSys":"2e8129b8-d9b4-40fe-aa85-ea544f41d364"}}}}'

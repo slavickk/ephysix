@@ -20,11 +20,78 @@ using UniElLib;
 using System.Xml;
 using static ParserLibrary.RecordExtractor;
 using System.Text.RegularExpressions;
+using System.Net.Http;
+using YamlDotNet.Core.Tokens;
+using static ParserLibrary.SwaggerDef.Components;
 
 namespace ParserLibrary
 {
     public class SwaggerDef
     {
+        public class SwaggerMethodInfo
+        {
+            public List<string> requiredFields { get; set; }= new List<string>();
+            public Dictionary<string, object> InputJson { get; set; } = new Dictionary<string, object>();
+            public Dictionary<string, object> OutputJson { get; set; } = new Dictionary<string, object>();
+        }
+        public static async Task<SwaggerMethodInfo> getMethodForUrl(string url,string methName,string method)
+        {
+            SwaggerMethodInfo retValue= new SwaggerMethodInfo();
+            HttpClient client = new HttpClient();
+            var mess=await client.GetAsync(url);
+            if (mess.IsSuccessStatusCode)
+            {
+
+                var swaggerBody=await mess.Content.ReadAsStringAsync();
+                var swag = System.Text.Json.JsonSerializer.Deserialize<SwaggerDef>(swaggerBody);
+                var meth=swag.paths.First(ii=>ii.Key==methName);
+                if (meth.Value[method].parameters != null)
+                {
+                    foreach (var par in meth.Value[method].parameters)
+                    {
+                        retValue.InputJson.Add(par.name, par.schema?.example??par.schema?.type);
+                        if(par.required)
+                            retValue.requiredFields.Add(par.name);
+                    }
+                }
+                if(meth.Value[method].requestBody != null)
+                {
+                   foreach(var it in  meth.Value[method].requestBody.content)
+                    {
+                        var scema = it.Value.schema;
+                        SetValue(retValue.InputJson,retValue, swag, scema?.@ref);// it.Value.schema.
+                    }
+                }
+
+                if (meth.Value[method].responses != null)
+                {
+                    SetValue(retValue.OutputJson, retValue, swag, meth.Value[method].responses["200"].content.First().Value.schema?.@ref);
+                    // meth.Value[method].responses["200"].content).Items[0]).Value.schema
+                    // foreach (var it in meth.Value[method].responses.First().Value.cont
+                }
+            }
+            return retValue;
+        }
+
+        private static void SetValue(Dictionary<string,object> InputJson,SwaggerMethodInfo retValue, SwaggerDef swag, string @ref)
+        {
+            if (@ref != null)
+            {
+                var key = @ref.Substring(@ref.LastIndexOf("/") + 1);
+                foreach (var prop in swag.components.schemas[key].properties)
+                {
+                    if(prop.Value.@ref != null)
+                    {
+                        var dict = new Dictionary<string, object>();
+                        SetValue(dict, retValue, swag, prop.Value.@ref);
+                        InputJson.Add(prop.Key, dict);
+                    }
+                    else
+                    InputJson.Add(prop.Key,prop.Value.example?? prop.Value.type);
+                    // if(prop.)
+                }
+            }
+        }
 
         public class GET
         {
@@ -162,7 +229,10 @@ namespace ParserLibrary
             {
                 public class Item
                 {
-                    public class ItemProp
+                    [System.Text.Json.Serialization.JsonPropertyName("$ref")]
+                    public string @ref { get; set; }
+                
+                public class ItemProp
                     {
                         public string type { get; set; }
                         public Items items { get; set; }
@@ -207,7 +277,7 @@ namespace ParserLibrary
         public Info info { get; set; } = new Info();
         public ExternalDocs externalDocs { get; set; }
         public List<Server> servers { get; set; }
-        public List<Tag> tags { get; set; }
+        public List<SwaggerDef.Tag> tags { get; set; }
 
         public class EntryPoint
         {

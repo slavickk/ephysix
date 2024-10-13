@@ -679,16 +679,20 @@ namespace TestJsonRazbor
             if (flt != null)
             {
                 condCtrl.textBoxFilterFieldPath.Text = flt.conditionPath;
+             //   condCtrl.checkBoxNegative.Checked = flt.isNegative;
+
                 if (flt.conditionCalcer is ComparerForValue)
                 {
                     condCtrl.comboBoxTypeCompare.SelectedIndex = 0;
                     condCtrl.textBoxFilterValue.Text = (flt.conditionCalcer as ComparerForValue).value_for_compare;
+                    condCtrl.checkBoxNegative.Checked = (flt.conditionCalcer as ComparerForValue).isNegative;
                 }
                 else
                 if (flt.conditionCalcer is ComparerForValueList)
                 {
                     condCtrl.comboBoxTypeCompare.SelectedIndex = 3;
                     condCtrl.comboBoxListValues.Items.AddRange((flt.conditionCalcer as ComparerForValueList).values_for_compare);
+                    condCtrl.checkBoxNegative.Checked = (flt.conditionCalcer as ComparerForValueList).isNegative;
 
                 }
                 else

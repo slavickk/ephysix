@@ -9,7 +9,7 @@
 <!--    TODO: sort out this issue -->
 <!--    <PackageReadmeFile>readme.md</PackageReadmeFile>-->
     <Authors>Authors of ProjectX</Authors>
-    <Version>1.1.46</Version>
+    <Version>1.1.51</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -61,10 +61,9 @@
     <PackageReference Include="Serilog" Version="2.12.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="System.Data.HashFunction.xxHash" Version="2.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <PackageReference Include="WebStoating.Markdig.Prism" Version="1.0.0" />
     <PackageReference Include="YamlDotNet" Version="16.0.0" />
-    <PackageReference Include="zlib.net" Version="1.0.4" />
     <PackageReference Include="OpenTelemetry" Version="1.8.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.8.1" />
     <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.5.1" />
@@ -72,6 +71,8 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.8.1" />
 
     <PackageReference Include="OpenTelemetry.Api" Version="1.8.1" />
+
+    <PackageReference Include="zlib.net" Version="1.0.4" />
 
   </ItemGroup>
 

@@ -192,6 +192,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
             }
             if (string.IsNullOrEmpty(ans))
             {
+            //    cacheKey = "";
                 if (!MocMode)
                 {
                     ans = await formAnswer(root, context, ans);
@@ -222,6 +223,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
                 if (cacheTimeInMilliseconds != 0)
                 {
                     await EmbeddedFunctions.cacheProvider.SetStringAsync(EmbeddedFunctions.cacheProviderPrefix + cacheKey, ans, cache_options);
+                    cacheKey = "";
                 }
 
             }
@@ -245,7 +247,7 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
 
             }
           //  if (owner.debugMode)
-                Logger.log(time1, "EndRequest {Sender} Send:{Request}  ans:{Response}", "Sender", Serilog.Events.LogEventLevel.Information, this, Pipeline.Unescape(root.toJSON(true)), Pipeline.Unescape(ans));
+                Logger.log(time1, "EndRequest cache:{cacheKey} s:{Sender} Send:{Request}  ans:{Response}", "Sender", Serilog.Events.LogEventLevel.Information,cacheKey, this, Pipeline.Unescape(root.toJSON(true)), Pipeline.Unescape(ans));
             metricUpTime.Add(time1);
         }
         catch (Exception ex)

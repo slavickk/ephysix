@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
@@ -31,6 +32,12 @@ namespace ParserLibrary.Tests
 {
     public class ParserTest
     {
+        [Test]
+        public async Task testSwagger()
+        {
+           var ret= await SwaggerDef.getMethodForUrl("https://gpb.bgs.ru/ufd/api/client-profile/v3/api-docs", "/client-profile/{customerId}/installations/{id}/block","put");
+            var json=JsonSerializer.Serialize<Dictionary<string, object>>(ret.OutputJson);
+        }
         [Test]
         [Benchmark(Description = "TestMetric")]
         public void test()

@@ -123,7 +123,14 @@ namespace UniElLib
             EmbeddedFunctions.cacheProvider.SetString(EmbeddedFunctions.cacheProviderPrefix + key, currId, cache_options);
             return currId;
         }
+        [FuncDescription("Генерация уникального идентификатора ")]
+        static string gen_id_uniq(List<object> pars)
+        {
+            var val = gen_id(pars);
+            var ticks = DateTime.Now.Ticks.ToString();
 
+            return val + ticks.Substring(ticks.Length - 2);
+        }
 
         public static bool isEmbeddedFunc(string val)
         {
@@ -343,6 +350,15 @@ namespace UniElLib
             EmbeddedFunctions.cacheProvider.SetString(EmbeddedFunctions.cacheProviderPrefix + key, currId, cache_options);
             return currId;
         }
+
+        public string gen_id_uniq(string keyPref, string fmt)
+        {
+            var val = gen_id(keyPref, fmt);
+            var ticks=DateTime.Now.Ticks.ToString();
+
+            return val+ticks.Substring(ticks.Length-2);
+        }
+
 
     }
 }

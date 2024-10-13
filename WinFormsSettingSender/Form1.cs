@@ -1,6 +1,8 @@
 using ParserLibrary;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
+using UniElLib;
 using YamlDotNet.Serialization;
 
 namespace WinFormsSettingSender
@@ -33,6 +35,7 @@ namespace WinFormsSettingSender
             public string body { get; set; }
             public HTTPSender sender { get; set; }
             public string answer { get; set; }
+            public string SwaggerUrl { get; set; }
             public override string ToString()
             {
                 return sender.description;
@@ -72,7 +75,19 @@ namespace WinFormsSettingSender
             try
             {
                 var context = new UniElLib.ContextItem() { context = new HTTPReceiver.SyncroItem() };
-                textBoxAnswer.Text = await sender1.sender.internSend(textBoxBody.Text, context);
+                List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
+                list.Clear();
+                AbstrParser.UniEl rootEl = AbstrParser.CreateNode(null, list, "Item");
+                var line = textBoxBody.Text;
+                if (line != "")
+                {
+                    foreach (var pars in AbstrParser.availParser)
+                        if (pars.canRazbor("", line, rootEl, list))
+                            break;
+                }
+
+
+                textBoxAnswer.Text = await sender1.sender.sendInternal(rootEl, context);//.internSend(textBoxBody.Text, context);
                 if ((context.context as HTTPReceiver.SyncroItem).isError)
                     MessageBox.Show($"Return {(context.context as HTTPReceiver.SyncroItem).HTTPStatusCode} {(context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText}");
                 else
@@ -87,15 +102,18 @@ namespace WinFormsSettingSender
         private SenderItem createSender()
         {
             HTTPSender sender1 = new HTTPSender();
+            sender1.method = Enum.GetValues<HTTPSender.Method>()[Enum.GetNames<HTTPSender.Method>().ToList().IndexOf(comboBoxMethod.SelectedItem.ToString())];
             sender1.url = textBoxUrl.Text;
+            sender1.timeoutSendInMilliseconds = (double)numericUpDownTimeout.Value;
             sender1.allowAutoRedirect = true;
             sender1.headers = new Dictionary<string, string>();
             sender1.ResponseType = textBoxContentType.Text;
             sender1.description = textBoxDescription.Text;
             sender1.headers.Clear();
+           
             foreach (ListViewItem item in listView1.Items)
                 sender1.headers.Add(item.SubItems[0].Text, item.SubItems[1].Text);
-            return new SenderItem() { sender = sender1, body = textBoxBody.Text, answer = textBoxAnswer.Text };
+            return new SenderItem() {SwaggerUrl=textBoxSwaggerPath.Text, sender = sender1, body = textBoxBody.Text, answer = textBoxAnswer.Text };
         }
         void RefreshSenders()
         {
@@ -140,6 +158,7 @@ namespace WinFormsSettingSender
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            comboBoxMethod.SelectedIndex = 0;
             if (File.Exists(fileName))
             {
                 var deser = Pipeline.GetDeserializer(Assembly.GetAssembly(typeof(Pipeline)));
@@ -163,7 +182,7 @@ namespace WinFormsSettingSender
 
                 SaveAllSenders();
                 RefreshSenders();
- 
+
             }
         }
 
@@ -178,17 +197,21 @@ namespace WinFormsSettingSender
 
         private void comboBoxChooseSender_SelectedIndexChanged_2(object sender, EventArgs e)
         {
-            textBoxHeaderName.Text=textBoxHeaderValue.Text="";
+            textBoxHeaderName.Text = textBoxHeaderValue.Text = "";
             if (comboBoxChooseSender.SelectedIndex < 0)
             {
-                textBoxAnswer.Text = textBoxBody.Text = textBoxDescription.Text = textBoxUrl.Text = "";
+                numericUpDownTimeout.Value = 5000;
+                comboBoxMethod.SelectedIndex = 0;
+                textBoxAnswer.Text = textBoxBody.Text = textBoxDescription.Text = textBoxUrl.Text = textBoxSwaggerPath.Text="";
                 listView1.Items.Clear();
             }
             else
             {
                 SenderItem sender1 = comboBoxChooseSender.SelectedItem as SenderItem;
+                comboBoxMethod.SelectedIndex = Enum.GetNames(typeof(HTTPSender.Method)).ToList().IndexOf(Enum.GetName<HTTPSender.Method>(sender1.sender.method));
                 textBoxAnswer.Text = sender1.answer;
                 textBoxBody.Text = sender1.body;
+                numericUpDownTimeout.Value = (decimal)sender1.sender.timeoutSendInMilliseconds;
                 listView1.Items.Clear();
                 foreach (var item in sender1.sender.headers)
                 {
@@ -197,10 +220,23 @@ namespace WinFormsSettingSender
                 textBoxDescription.Text = sender1.sender.description;
                 textBoxContentType.Text = sender1.sender.ResponseType;
                 textBoxUrl.Text = sender1.sender.url;
+                textBoxSwaggerPath.Text=sender1.SwaggerUrl;
                 // textBoxBody.Text=
             }
 
 
+        }
+
+        private void textBoxSwaggerPath_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if(!string.IsNullOrEmpty(textBoxSwaggerPath.Text))
+            {
+                var processes = Process.GetProcessesByName("Chrome");
+                var path = processes.FirstOrDefault()?.MainModule?.FileName;
+
+                System.Diagnostics.Process.Start(path, textBoxSwaggerPath.Text);
+
+            }
         }
     }
 }

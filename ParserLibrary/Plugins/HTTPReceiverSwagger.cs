@@ -151,7 +151,7 @@ namespace Plugins
         
         public HTTPReceiverSwagger()
         {
-            
+            string EnvironmentName="";    
             Logger.log("HTTPReceiverSwagger: Creating a host to listen on the port " + port);
             // Create a new host listening on the given port
             _hostBuilder = Host.CreateDefaultBuilder()
@@ -160,6 +160,7 @@ namespace Plugins
                     webBuilder
                         .ConfigureServices(services =>
                         {
+                            EnvironmentName = services.BuildServiceProvider().GetRequiredService<Microsoft.Extensions.Hosting.IHostingEnvironment>().EnvironmentName;
                             /*services.AddSwaggerGen(c =>
                             {
                                 c.SwaggerDoc("v1",
@@ -172,6 +173,7 @@ namespace Plugins
                         })
                         .Configure(app =>
                         {
+                       
                             // app.Environment.WebRootFileProvider = compositeProvider;
                             if (Pipeline.configuration != null && Pipeline.configuration["DATA_ROOT_DIR"] is { } DATA_ROOT_DIR)
                             {
@@ -187,8 +189,14 @@ namespace Plugins
                             {
                                 Logger.log("DATA_ROOT_DIR is not set, not using the static files middleware");
                             }
+                            //                      if(services.BuildServiceProvider().GetRequiredService<Microsoft.Extensions.Hosting.IHostingEnvironment>().EnvironmentName==)
+                            if (EnvironmentName == "Development")
+                            {
+                                app.UseSwaggerUI();
+                                Logger.log("Environment {env} , swagger switch on",LogEventLevel.Information,"any",EnvironmentName);
+                            } else
+                                Logger.log("Environment {env} , swagger switch off", LogEventLevel.Information, "any", EnvironmentName);
 
-                            app.UseSwaggerUI();
                             /*app.UseSwagger();
                             app.UseSwaggerUI(c =>
                             {
@@ -482,7 +490,7 @@ namespace Plugins
                 semaphoreItem.isError = true;
                 bool isError = false;
 
-                string addMessage = $" source:{e77.sourceSender} origStatus:{e77.StatusCode} trace:{((System.Diagnostics.Activity.Current != null) ? System.Diagnostics.Activity.Current.Id : "unknown")}";
+                string addMessage = $"\nsource:{e77.sourceSender}\norigStatus:{e77.StatusCode}\ntrace:{((System.Diagnostics.Activity.Current != null) ? System.Diagnostics.Activity.Current.Id : "unknown")}";
                 JsonElement obj= new JsonElement();
                 try
                 {
