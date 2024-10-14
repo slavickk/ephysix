@@ -21,6 +21,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -111,11 +112,19 @@ public partial class HTTPReceiverSwagger
                 // TODO: consider reworking the pipeline to use accept UniEl instead of string
                 _receiver.signal1(json, item).ContinueWith(antecedent =>
                 {
+                    JsonSerializerOptions options = new JsonSerializerOptions()
+                    {
+                        WriteIndented = true,
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+,
+                        IgnoreNullValues = true
+                    };
+
                     metricCountOpened.Decrement();
                     metricErrors.Increment();
                     item.HTTPStatusCode = 500;
                     item.isError = true;
-                    item.HTTPErrorJsonText =JsonSerializer.Serialize( antecedent.Exception.Message);
+                    item.HTTPErrorJsonText =JsonSerializer.Serialize( antecedent.Exception.Message,options);
                     statusCode = StatusCodes.Status404NotFound;
                     item.semaphore.Set();
                 }, TaskContinuationOptions.OnlyOnFaulted);
@@ -124,12 +133,21 @@ public partial class HTTPReceiverSwagger
             {
                 // Log the exception
                 Logger.log(e.ToString(), LogEventLevel.Error);
-
+               /* JsonSerializerOptions options = new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+,
+                    IgnoreNullValues = true
+                };
+               */
                 metricCountOpened.Decrement();
                 metricErrors.Increment();
                 item.isError=true;
-                item.HTTPErrorJsonText =JsonSerializer.Serialize( e.Message);
-                return await item.formAnswer(context);
+                item.HTTPErrorJsonText = e.Message;// JsonSerializer.Serialize( e.Message,options);
+                var ans = await item.formAnswer(context);
+                Logger.log("Send error answer {answ} ", LogEventLevel.Error, "error", ans);
+                return ans;
                 return Results.NotFound();
             }
 

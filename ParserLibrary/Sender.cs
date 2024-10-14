@@ -229,22 +229,26 @@ public abstract class Sender: DiagramExecutorItem/*:ISender*/
             }
 
 
-            if (!this.ignoreErrors && (context.context as HTTPReceiver.SyncroItem).isError)
+
+            if (!(context.context as HTTPReceiver.SyncroItem).isRollbackPhase)
             {
-                throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonJson = (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText, sourceSender = this.description };
+                if (!this.ignoreErrors && (context.context as HTTPReceiver.SyncroItem).isError)
+                {
+                    throw new HTTPStatusException() { StatusCode = (context.context as HTTPReceiver.SyncroItem).HTTPStatusCode, StatusReasonJson = (context.context as HTTPReceiver.SyncroItem).HTTPErrorJsonText, sourceSender = this.description };
 
-            }
+                }
 
 
-            if (this.ignoreErrors && (context.context as HTTPReceiver.SyncroItem).isError)
-                ans = (context.context as HTTPReceiver.SyncroItem).errorContent;
-            if(!(context.context as HTTPReceiver.SyncroItem).isError)
-            {
-                if (!string.IsNullOrEmpty(IDStepForTransactionRollback))
-                    context.needRollback.Add(IDStepForTransactionRollback);
-                if (!string.IsNullOrEmpty(IDStepForTransactionRollbackCancel))
-                    context.needRollback.Remove(IDStepForTransactionRollbackCancel);
+                if (this.ignoreErrors && (context.context as HTTPReceiver.SyncroItem).isError)
+                    ans = (context.context as HTTPReceiver.SyncroItem).errorContent;
+                if (!(context.context as HTTPReceiver.SyncroItem).isError)
+                {
+                    if (!string.IsNullOrEmpty(IDStepForTransactionRollback))
+                        context.needRollback.Add(IDStepForTransactionRollback);
+                    if (!string.IsNullOrEmpty(IDStepForTransactionRollbackCancel))
+                        context.needRollback.Remove(IDStepForTransactionRollbackCancel);
 
+                }
             }
           //  if (owner.debugMode)
                 Logger.log(time1, "EndRequest cache:{cacheKey} s:{Sender} Send:{Request}  ans:{Response}", "Sender", Serilog.Events.LogEventLevel.Information,cacheKey, this, Pipeline.Unescape(root.toJSON(true)), Pipeline.Unescape(ans));

@@ -36,6 +36,7 @@ namespace WinFormsSettingSender
             public HTTPSender sender { get; set; }
             public string answer { get; set; }
             public string SwaggerUrl { get; set; }
+            public string SwaggerJsonUrl { get; set; }
             public override string ToString()
             {
                 return sender.description;
@@ -110,10 +111,12 @@ namespace WinFormsSettingSender
             sender1.ResponseType = textBoxContentType.Text;
             sender1.description = textBoxDescription.Text;
             sender1.headers.Clear();
+            sender1.MocBody=textBoxAnswer.Text;
+            sender1.template=textBoxBody.Text;
            
             foreach (ListViewItem item in listView1.Items)
                 sender1.headers.Add(item.SubItems[0].Text, item.SubItems[1].Text);
-            return new SenderItem() {SwaggerUrl=textBoxSwaggerPath.Text, sender = sender1, body = textBoxBody.Text, answer = textBoxAnswer.Text };
+            return new SenderItem() {SwaggerUrl=textBoxSwaggerPath.Text,SwaggerJsonUrl=textBoxSwaggerJsonUrl.Text, sender = sender1, body = textBoxBody.Text, answer = textBoxAnswer.Text };
         }
         void RefreshSenders()
         {
@@ -202,7 +205,7 @@ namespace WinFormsSettingSender
             {
                 numericUpDownTimeout.Value = 5000;
                 comboBoxMethod.SelectedIndex = 0;
-                textBoxAnswer.Text = textBoxBody.Text = textBoxDescription.Text = textBoxUrl.Text = textBoxSwaggerPath.Text="";
+                textBoxAnswer.Text = textBoxBody.Text = textBoxDescription.Text = textBoxUrl.Text = textBoxSwaggerPath.Text=textBoxSwaggerJsonUrl.Text="";
                 listView1.Items.Clear();
             }
             else
@@ -221,6 +224,7 @@ namespace WinFormsSettingSender
                 textBoxContentType.Text = sender1.sender.ResponseType;
                 textBoxUrl.Text = sender1.sender.url;
                 textBoxSwaggerPath.Text=sender1.SwaggerUrl;
+                textBoxSwaggerJsonUrl.Text=sender1.SwaggerJsonUrl;
                 // textBoxBody.Text=
             }
 

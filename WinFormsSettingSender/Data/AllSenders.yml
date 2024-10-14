@@ -29,6 +29,7 @@
     mocFile: 
     mocBody: ''
   answer: ''
+  swaggerUrl: 
 - body: >-
     {
       "client_id": "string",
@@ -62,6 +63,7 @@
     mocFile: 
     mocBody: ''
   answer: ''
+  swaggerUrl: 
 - body: >-
     <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:awl="http://finstream.ru/csp/awl">
       <SOAP-ENV:Header>
@@ -118,36 +120,7 @@
     mocFile: 
     mocBody: ''
   answer: ''
-- body: ''
-  sender: !HTTPSender
-    certName: ''
-    allowAutoRedirect: true
-    certPassword: ''
-    method: GET
-    certThumbprints:
-    - A77587679318FED87BB040F00D76AB461B962D95
-    timeoutSendInMilliseconds: 5000
-    headers: {}
-    responseType: application/json
-    urls:
-    - http://10.111.51.112:9999/ufd/api/client-profile/client-profile/111154125412577/check
-    timeoutsBetweenRetryInMilli:
-    - 100
-    iDStepForTransactionRollback: ''
-    iDStepForTransactionRollbackCancel: ''
-    description: >
-      Запрос к CPMS
-
-      CPMS:/client-profile/{customerId}/check	
-
-      Schema: GenericResponseSimpleErrorDataClientDboStatusDto
-    cacheTimeInMilliseconds: 0
-    ignoreErrors: false
-    mandatoryFields: 
-    url: http://10.111.51.112:9999/ufd/api/client-profile/client-profile/111154125412577/check
-    mocFile: 
-    mocBody: ''
-  answer: '{"data":{"result":true,"clientStatus":"ACTIVE"}}'
+  swaggerUrl: 
 - body: >-
     {
       "head": {
@@ -176,7 +149,7 @@
     - 100
     iDStepForTransactionRollback: ''
     iDStepForTransactionRollbackCancel: ''
-    description: TIR:/accounts
+    description: 4. TIR:/accounts
     cacheTimeInMilliseconds: 0
     ignoreErrors: false
     mandatoryFields: 
@@ -184,6 +157,7 @@
     mocFile: 
     mocBody: ''
   answer: '{"data":{"body":{"accountResponse":{"accounts":{"accs":[{"account":"40817810200007033590","accountName":"Счет дебетовой карты1","accountState":"OPEN","accountType":"1","branchId":"2000","closeInPc":true,"createDate":"2007-02-28T00:00:00.000+00:00","currencyCode":"810","currencyIsoCode":"RUB","currentRest":21226724.93,"extId":"100023338355","interestRate":"0.0","cardLink":true},{"account":"40817810800000127476","accountName":"Текущий счет","accountState":"OPEN","accountType":"ДЕП_ТекСч","branchId":"2000","closeInPc":true,"createDate":"2010-12-22T00:00:00.000+00:00","currencyCode":"810","currencyIsoCode":"RUB","currentRest":401.79,"extId":"10002573475","interestRate":"0.0","cardLink":false}]}}},"head":{"head":{"branchId":"2000","customerId":"11119997774444","result":"OK","subSys":"ABS"}}}}'
+  swaggerUrl: https://gpb.bgs.ru/webjars/swagger-ui/4.15.5/index.html?urls.primaryName=TIR%20Integration%20(INTERNAL)#/API%20%D0%98%D0%BC%D0%BF%D0%BE%D1%80%D1%82%D0%B0%20%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0%20%D1%81%D1%87%D0%B5%D1%82%D0%BE%D0%B2/getAccounts
 - body: >-
     {
       "head": {
@@ -212,7 +186,7 @@
     - 100
     iDStepForTransactionRollback: ''
     iDStepForTransactionRollbackCancel: ''
-    description: TIR:/customer-info
+    description: 4. TIR:/customer-info
     cacheTimeInMilliseconds: 0
     ignoreErrors: false
     mandatoryFields: 
@@ -220,7 +194,8 @@
     mocFile: 
     mocBody: ''
   answer: '{"data":{"body":{"customer":{"branchId":"2000","cashOff":false,"clientType":"NOT_RESIDENT","countryId":"643","customerId":"11119997774444","dateOfBirth":"1975-06-24T00:00:00.000+00:00","docGivenDate":"2020-11-10T00:00:00.000+00:00","docGivenPlace":"ГУ МВД РОССИИ ПО ПЕРМСКОМУ КРАЮ","docNumber":"111111","docSerial":"6666","email":"НЕ ИМЕЮ","firstName":"СТАНИСЛАВ","fullName":"ШАЙКИЕВ СТАНИСЛАВ АРКАДЬЕВИЧ","gender":"MALE","importType":"UPSERT","inn":"511111111111","issueUnit":"511-111","mobileClient":true,"mobilePhone":"79821111111","name":"ШАЙКИЕВ С.А.","personDocTypeId":"20","placeOfBirth":"СССР, ГОР. ЛЕНИНСК КЗЫЛ-ОРДИНСКОЙ ОБЛАСТИ","secondName":"ШАЙКИЕВ","smsPhone":"79821111111","thirdName":"АРКАДЬЕВИЧ","addresses":{"addresses":[{"addressType":"REGISTRATION","country":"РОССИЯ","fullAddress":"РОССИЯ, 617816, Пермский край, Чернушинский р-н, , Каменные Ключи д, , , ,","zip":"617816"}]},"cryptoProfiles":{"cryptoProfiles":[{"serialNumber":"79824877124","state":"ACTIVE","typeName":"sms"}]}}},"head":{"head":{"branchId":"2000","customerId":"11119997774444","result":"OK","subSys":"ABS"}}}}'
-- body: >+
+  swaggerUrl: https://gpb.bgs.ru/webjars/swagger-ui/4.15.5/index.html?urls.primaryName=TIR%20Integration%20(INTERNAL)#/API%20%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%B8%20%D0%BF%D0%BE%20%D0%BA%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%D1%83/getCustomerInfo
+- body: >
     {
         "async": true,
         "messageUniqueId": "6e28e69d9053-170783223721426922a_send",
@@ -278,19 +253,20 @@
     headers: {}
     responseType: application/json
     urls:
-    - http://gpb.bgs.ru/Messages/auto
+    - http://10.111.51.10:63697/backendApi/v1/Messages/auto
     timeoutsBetweenRetryInMilli:
     - 100
     iDStepForTransactionRollback: ''
     iDStepForTransactionRollbackCancel: ''
-    description: AS GDU
+    description: 5. AS GDU
     cacheTimeInMilliseconds: 0
     ignoreErrors: false
     mandatoryFields: 
-    url: http://gpb.bgs.ru/Messages/auto
+    url: http://10.111.51.10:63697/backendApi/v1/Messages/auto
     mocFile: 
     mocBody: ''
-  answer: ''
+  answer: '{"messageId":71343009,"messageUniqueId":"6e28e69d9053-170783223721426922a_send","timeStamp":"2024-10-14T09:34:26.493392Z"}'
+  swaggerUrl: https://gpb.bgs.ru/webjars/swagger-ui/4.15.5/index.html?urls.primaryName=AS%20GDU%20Backend%20API%20(INTERNAL)#/Messages/post_Messages_auto
 - body: >-
     {
         "body": {
@@ -497,11 +473,187 @@
     - 100
     iDStepForTransactionRollback: ''
     iDStepForTransactionRollbackCancel: ''
-    description: TIR:/fraud-document
+    description: 6. TIR:/fraud-document
     cacheTimeInMilliseconds: 0
     ignoreErrors: false
     mandatoryFields: 
     url: http://10.111.51.112:9999/ufd/api/tir-integration/fraud-document
     mocFile: 
     mocBody: ''
-  answer: '{"data":{"body":{"fraudDocument":{"analyzeResult":"OK","comment":"Статус документа: OK","docRef":"018b223f-2761-1c72-a386-9d0acf27594a","operationType":"AnalyzeResult","senderIndicatorFA":"8550540200FDDDDD"}},"head":{"head":{"result":"OK","subSys":"2e8129b8-d9b4-40fe-aa85-ea544f41d364"}}}}'
+  answer: '{"data":{"body":{"fraudDocument":{"analyzeResult":"OK","comment":"Статус документа: OK","docRef":"018b223f-2761-1c72-a386-9d0acf27594a","operationType":"AnalyzeResult","senderIndicatorFA":"8550540200FDDDDD"}},"head":{"head":{"result":"OK","subSys":"656abdba-3dc6-436d-9bc2-a7e5a6fdc0ce"}}}}'
+  swaggerUrl: https://gpb.bgs.ru/webjars/swagger-ui/4.15.5/index.html?urls.primaryName=TIR%20Integration%20(INTERNAL)#/API%20%D0%B4%D0%BB%D1%8F%20%D0%B2%D0%B7%D0%B0%D0%B8%D0%BC%D0%BE%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F%20%D1%81%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BE%D0%B9%20%D0%B0%D0%BD%D1%82%D0%B8%D1%84%D1%80%D0%BE%D0%B4/checkFraud
+- body: '{"customerId":"111154125412577"}'
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    method: POST
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://10.111.51.112:9999/ufd/api/client-profile/client-profile/check
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: >
+      3. Запрос к CPMS
+
+      CPMS:/client-profile/check
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://10.111.51.112:9999/ufd/api/client-profile/client-profile/check
+    mocFile: 
+    mocBody: ''
+  answer: '{"data":{"result":true,"clientStatus":"ACTIVE"}}'
+  swaggerUrl: https://gpb.bgs.ru/webjars/swagger-ui/4.15.5/index.html?urls.primaryName=Client%20Profile%20management%20service%20(EXTERNAL)#/API%20%D0%92%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BA%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%20%D0%BF%D1%80%D0%BE%D1%84%D0%B8%D0%BB%D1%8F/getStatus
+- body: >+
+    {
+        "absId": "10000919477",
+        "amount": 12,
+        "bankRecipientId": "100000000004",
+        "ccyCode": "RUB",
+        "docType": "TransferFpsMe2MePullDebit",
+        "fromBankId": "2000",
+        "fromType": "account",
+        "recipientPhone": "79129333111",
+        "refBizId": "202405151000004HBVA5GZRUFN6402G3",
+        "refTransactionId": "B413609412268800000012II00000044",
+        "senderAccountNumber": "40817810700007524127",
+        "senderAdr": "РОССИЯ, 614022, Пермский край, , Пермь г, , Тестовая ул , 1, , 1",
+        "senderDocId": "5119111119",
+        "senderIndicatorFA": "0050544F00FDDDDD",
+        "senderInn": "511111111111",
+        "senderNm": "ТЕСТОВЫЙ ДАНИИЛ ТЕСТОВИЧ",
+        "senderPhone": "79129333111",
+        "senderProductId": "10003732475",
+        "subSys": "FPS",
+    }
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    method: POST
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://10.111.51.112:9999/ufd/api/sbp-integration//c2c/check-confirmation
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: >+
+      7. SBP:/c2c/check-confirmation (ругается)
+      		
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://10.111.51.112:9999/ufd/api/sbp-integration//c2c/check-confirmation
+    mocFile: 
+    mocBody: ''
+  answer: ''
+  swaggerUrl: https://gpb.bgs.ru/webjars/swagger-ui/4.15.5/index.html?urls.primaryName=SBP%20Integration%20Service%20(INTERNAL)#/API%20%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B8%20%D0%BF%D0%BE%D0%B4%D1%82%D0%B2%D0%B5%D1%80%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BE%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8/checkConfirmation
+- body: >-
+    {
+        "body": {
+            "documentPayment": {
+                "acceptTime": "2024-05-15T12:41:22.997+03:00",
+                "awId": "A4136094129223180000030011250501",
+                "bankRecipientId": "100000000004",
+                "beginDate": "2024-10-14T10:15:57.764Z",
+                "billDate": "2024-10-14T10:15:57.764Z",
+                "commission": 0,
+                "commissionCurrencyIsoCode": "RUB",
+                "contractDate": "2024-10-14T10:15:57.764Z",
+                "creditAmount": 0,
+                "docDate": "2024-05-15T00:00:00.000+03:00",
+                "docId": "018f7ba0-bdb6-13f4-8dda-b2cc6b5b2283",
+                "docNumber": "21",
+                "docType": "TransferFpsMe2MePullDebit",
+                "documentGivenDate": "2024-10-14",
+                "documentNumber": "111119",
+                "documentRegistrationAddress": "РОССИЯ, 614022, Пермский край, , Пермь г, , Тестовая ул , 1, , 1",
+                "documentSerial": "5119",
+                "endDate": "2024-10-14T10:15:57.764Z",
+                "exchangeRepatriationDate": "2024-10-14",
+                "fpsMessageHandlingDate": "2024-10-14T10:15:57.764Z",
+                "fpsRefBizId": "202405151000004HBVA5GZRUFN6402G3",
+                "fpsRefTransactionId": "B413609412268800000012II00000044",
+                "fpsRequestId": "3b372876-f8ad-4f4a-9110-ecb29c9c565d",
+                "fpsTransactionHandlingDate": "2024-10-14T10:15:57.764Z",
+                "fromBranchBic": "045773790",
+                "fromBranchCode": "2000",
+                "fromBranchName": "АО КБ \"УРАЛ ФД\"",
+                "fromCardExpirationDate": "2024-10-14T10:15:57.764Z",
+                "fromCurrencyCodeDig": "810",
+                "fromCurrencyIsoCode": "RUB",
+                "fromExtId": "10003732475",
+                "fromNumber": "40817810700007524127",
+                "fromPhoneNumber": "79129333111",
+                "fromRate": 0,
+                "fromSum": 12,
+                "fromType": "account",
+                "inn": "511111111111",
+                "me2meOperationCategory": "ME2ME_FREE",
+                "me2meTransfer": "1",
+                "name": "ТЕСТОВЫЙ ДАНИИЛ ТЕСТОВИЧ",
+                "recipientAccType": "BnkFulAth",
+                "receiverCommission": 0,
+                "repaymentDate": "2024-10-14T10:15:57.764Z",
+                "senderIndicatorFA": "0050544F00FDDDDD",
+                "toBranchBic": "044525974",
+                "toCardExpirationDate": "2024-10-14T10:15:57.764Z",
+                "toCurrencyCodeDig": "810",
+                "toFullName": "Тестовый Даниил Тестович",
+                "toName": "Даниил Тестович Т",
+                "toNumber": "40817810600040522457",
+                "toPhoneNumber": "79129333111",
+                "toRate": 0,
+                "toSum": 0,
+                "toType": "account",
+                "transitPayment": false,
+                "withConversion": false
+            }
+        },
+        "head": {
+            "head": {
+                "branchId": "2000",
+                "customerId": "10000919477",
+                "subSys": "ABS"
+            }
+        }
+    }
+  sender: !HTTPSender
+    certName: ''
+    allowAutoRedirect: true
+    certPassword: ''
+    method: POST
+    certThumbprints:
+    - A77587679318FED87BB040F00D76AB461B962D95
+    timeoutSendInMilliseconds: 5000
+    headers: {}
+    responseType: application/json
+    urls:
+    - http://10.111.51.112:9999/ufd/api/tir-integration/document-payment
+    timeoutsBetweenRetryInMilli:
+    - 100
+    iDStepForTransactionRollback: ''
+    iDStepForTransactionRollbackCancel: ''
+    description: >+
+      8. TIR:/document-payment
+      		
+    cacheTimeInMilliseconds: 0
+    ignoreErrors: false
+    mandatoryFields: 
+    url: http://10.111.51.112:9999/ufd/api/tir-integration/document-payment
+    mocFile: 
+    mocBody: ''
+  answer: '{"data":{"body":{"stateResponseBody":{"docId":"018b4196-39a6-1efc-bb02-d86fb460da44","docType":"TransferToCard","state":"IMPLEMENTED"}},"head":{"head":{"branchId":"2000","customerId":"10000748789","result":"OK","subSys":"f56c0261-ba37-4fd9-8c83-6e99f0fd763b"}}}}'
+  swaggerUrl: https://gpb.bgs.ru/webjars/swagger-ui/4.15.5/index.html?urls.primaryName=TIR%20Integration%20(INTERNAL)#/API%20%D0%9D%D0%B0%20%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%D0%BE%D0%B2/makePayment

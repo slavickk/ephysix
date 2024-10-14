@@ -57,6 +57,8 @@
             label7 = new Label();
             label8 = new Label();
             textBoxSwaggerPath = new TextBox();
+            textBoxSwaggerJsonUrl = new TextBox();
+            label9 = new Label();
             ((System.ComponentModel.ISupportInitialize)numericUpDownTimeout).BeginInit();
             SuspendLayout();
             // 
@@ -75,14 +77,14 @@
             comboBoxChooseSender.FormattingEnabled = true;
             comboBoxChooseSender.Location = new Point(138, 6);
             comboBoxChooseSender.Name = "comboBoxChooseSender";
-            comboBoxChooseSender.Size = new Size(1106, 33);
+            comboBoxChooseSender.Size = new Size(1186, 33);
             comboBoxChooseSender.TabIndex = 1;
             comboBoxChooseSender.SelectedIndexChanged += comboBoxChooseSender_SelectedIndexChanged_2;
             // 
             // buttonNewSender
             // 
             buttonNewSender.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonNewSender.Location = new Point(1250, 6);
+            buttonNewSender.Location = new Point(1330, 6);
             buttonNewSender.Name = "buttonNewSender";
             buttonNewSender.Size = new Size(64, 34);
             buttonNewSender.TabIndex = 2;
@@ -93,7 +95,7 @@
             // buttonDelSender
             // 
             buttonDelSender.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonDelSender.Location = new Point(1319, 6);
+            buttonDelSender.Location = new Point(1399, 6);
             buttonDelSender.Name = "buttonDelSender";
             buttonDelSender.Size = new Size(64, 34);
             buttonDelSender.TabIndex = 3;
@@ -104,7 +106,7 @@
             // buttonSaveSender
             // 
             buttonSaveSender.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonSaveSender.Location = new Point(1388, 6);
+            buttonSaveSender.Location = new Point(1468, 6);
             buttonSaveSender.Name = "buttonSaveSender";
             buttonSaveSender.Size = new Size(64, 34);
             buttonSaveSender.TabIndex = 4;
@@ -126,7 +128,7 @@
             textBoxUrl.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textBoxUrl.Location = new Point(138, 115);
             textBoxUrl.Name = "textBoxUrl";
-            textBoxUrl.Size = new Size(840, 31);
+            textBoxUrl.Size = new Size(920, 31);
             textBoxUrl.TabIndex = 6;
             // 
             // label3
@@ -145,7 +147,7 @@
             listView1.FullRowSelect = true;
             listView1.Location = new Point(138, 183);
             listView1.Name = "listView1";
-            listView1.Size = new Size(1161, 104);
+            listView1.Size = new Size(1241, 104);
             listView1.TabIndex = 8;
             listView1.UseCompatibleStateImageBehavior = false;
             listView1.View = View.Details;
@@ -170,15 +172,16 @@
             // 
             // textBoxHeaderValue
             // 
+            textBoxHeaderValue.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textBoxHeaderValue.Location = new Point(396, 152);
             textBoxHeaderValue.Name = "textBoxHeaderValue";
-            textBoxHeaderValue.Size = new Size(778, 31);
+            textBoxHeaderValue.Size = new Size(775, 31);
             textBoxHeaderValue.TabIndex = 10;
             // 
             // buttonSaveHeader
             // 
             buttonSaveHeader.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonSaveHeader.Location = new Point(1235, 149);
+            buttonSaveHeader.Location = new Point(1315, 149);
             buttonSaveHeader.Name = "buttonSaveHeader";
             buttonSaveHeader.Size = new Size(64, 34);
             buttonSaveHeader.TabIndex = 13;
@@ -189,7 +192,7 @@
             // buttonDelHeader
             // 
             buttonDelHeader.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonDelHeader.Location = new Point(1166, 149);
+            buttonDelHeader.Location = new Point(1246, 149);
             buttonDelHeader.Name = "buttonDelHeader";
             buttonDelHeader.Size = new Size(64, 34);
             buttonDelHeader.TabIndex = 12;
@@ -200,7 +203,7 @@
             // buttonNewHeader
             // 
             buttonNewHeader.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            buttonNewHeader.Location = new Point(1097, 149);
+            buttonNewHeader.Location = new Point(1177, 149);
             buttonNewHeader.Name = "buttonNewHeader";
             buttonNewHeader.Size = new Size(64, 34);
             buttonNewHeader.TabIndex = 11;
@@ -211,7 +214,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(12, 339);
+            label4.Location = new Point(12, 389);
             label4.Name = "label4";
             label4.Size = new Size(49, 25);
             label4.TabIndex = 14;
@@ -220,17 +223,17 @@
             // textBoxBody
             // 
             textBoxBody.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            textBoxBody.Location = new Point(138, 332);
+            textBoxBody.Location = new Point(138, 366);
             textBoxBody.Multiline = true;
             textBoxBody.Name = "textBoxBody";
             textBoxBody.ScrollBars = ScrollBars.Vertical;
-            textBoxBody.Size = new Size(1308, 228);
+            textBoxBody.Size = new Size(1388, 231);
             textBoxBody.TabIndex = 15;
             // 
             // textBoxAnswer
             // 
-            textBoxAnswer.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            textBoxAnswer.Location = new Point(138, 561);
+            textBoxAnswer.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxAnswer.Location = new Point(138, 598);
             textBoxAnswer.Multiline = true;
             textBoxAnswer.Name = "textBoxAnswer";
             textBoxAnswer.ScrollBars = ScrollBars.Vertical;
@@ -239,7 +242,7 @@
             // 
             // button7
             // 
-            button7.Location = new Point(12, 367);
+            button7.Location = new Point(12, 417);
             button7.Name = "button7";
             button7.Size = new Size(112, 34);
             button7.TabIndex = 17;
@@ -279,7 +282,7 @@
             textBoxDescription.Location = new Point(138, 41);
             textBoxDescription.Multiline = true;
             textBoxDescription.Name = "textBoxDescription";
-            textBoxDescription.Size = new Size(1308, 68);
+            textBoxDescription.Size = new Size(1388, 68);
             textBoxDescription.TabIndex = 21;
             // 
             // comboBoxMethod
@@ -287,7 +290,7 @@
             comboBoxMethod.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             comboBoxMethod.FormattingEnabled = true;
             comboBoxMethod.Items.AddRange(new object[] { "POST", "PUT", "GET", "DELETE" });
-            comboBoxMethod.Location = new Point(1319, 115);
+            comboBoxMethod.Location = new Point(1399, 115);
             comboBoxMethod.Name = "comboBoxMethod";
             comboBoxMethod.Size = new Size(127, 33);
             comboBoxMethod.TabIndex = 22;
@@ -295,7 +298,7 @@
             // numericUpDownTimeout
             // 
             numericUpDownTimeout.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            numericUpDownTimeout.Location = new Point(1319, 295);
+            numericUpDownTimeout.Location = new Point(1399, 295);
             numericUpDownTimeout.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
             numericUpDownTimeout.Name = "numericUpDownTimeout";
             numericUpDownTimeout.Size = new Size(133, 31);
@@ -306,7 +309,7 @@
             // 
             label7.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label7.AutoSize = true;
-            label7.Location = new Point(1231, 298);
+            label7.Location = new Point(1311, 298);
             label7.Name = "label7";
             label7.Size = new Size(77, 25);
             label7.TabIndex = 24;
@@ -326,15 +329,34 @@
             textBoxSwaggerPath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textBoxSwaggerPath.Location = new Point(419, 292);
             textBoxSwaggerPath.Name = "textBoxSwaggerPath";
-            textBoxSwaggerPath.Size = new Size(806, 31);
+            textBoxSwaggerPath.Size = new Size(886, 31);
             textBoxSwaggerPath.TabIndex = 26;
             textBoxSwaggerPath.MouseDoubleClick += textBoxSwaggerPath_MouseDoubleClick;
+            // 
+            // textBoxSwaggerJsonUrl
+            // 
+            textBoxSwaggerJsonUrl.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxSwaggerJsonUrl.Location = new Point(419, 329);
+            textBoxSwaggerJsonUrl.Name = "textBoxSwaggerJsonUrl";
+            textBoxSwaggerJsonUrl.Size = new Size(886, 31);
+            textBoxSwaggerJsonUrl.TabIndex = 28;
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(270, 332);
+            label9.Name = "label9";
+            label9.Size = new Size(143, 25);
+            label9.TabIndex = 27;
+            label9.Text = "Swagger.json url";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1458, 695);
+            ClientSize = new Size(1538, 732);
+            Controls.Add(textBoxSwaggerJsonUrl);
+            Controls.Add(label9);
             Controls.Add(textBoxSwaggerPath);
             Controls.Add(label8);
             Controls.Add(label7);
@@ -401,5 +423,7 @@
         private Label label7;
         private Label label8;
         private TextBox textBoxSwaggerPath;
+        private TextBox textBoxSwaggerJsonUrl;
+        private Label label9;
     }
 }

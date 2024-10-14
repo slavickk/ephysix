@@ -155,6 +155,8 @@ public /*static*/   bool choosePath(HTTPReceiver.SyncroItem item, List<PathItem>
 
                 if (context1.ctnx.needRollback.Count != 0)
                 {
+                    context1.isRollbackPhase = true;
+                   // context1.ctnx.isRollbackPhase = true;
                     bool isFatal = false;
                     foreach (var nameStep in context1.ctnx.needRollback)
                     {

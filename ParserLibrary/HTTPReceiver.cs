@@ -117,6 +117,7 @@ namespace ParserLibrary
             public string HTTPErrorJsonText = "";
             public string errorContent = "";
             public bool isError = false;
+            public bool isRollbackPhase = false;
             public class ErrorMessage
             {
                 public string[] Reasons { get; set; }    
@@ -131,6 +132,14 @@ namespace ParserLibrary
                 context.Response.StatusCode = HTTPStatusCode;
                 if(isError )
                 {
+                    JsonSerializerOptions options = new JsonSerializerOptions()
+                    {
+                        WriteIndented = true,
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+,
+                        IgnoreNullValues = true
+                    };
+
                     context.Response.ContentType = "application/json";
                    //       context.Response.
                    /*            JsonSerializerOptions options = new JsonSerializerOptions()
@@ -141,7 +150,7 @@ namespace ParserLibrary
                                    IgnoreNullValues = true
                                };
                    */
-                   return JsonSerializer.Deserialize<JsonElement>(HTTPErrorJsonText);// JsonSerializer.Serialize(HTTPErrorJsonText, HTTPErrorJsonText.GetType(),options);
+                   return JsonSerializer.Deserialize<JsonElement>(HTTPErrorJsonText,options);// JsonSerializer.Serialize(HTTPErrorJsonText, HTTPErrorJsonText.GetType(),options);
                     //await context.Response.Body.WriteAsync(Encoding.ASCII.GetBytes(answer));
                 }
                 return answer;

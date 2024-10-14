@@ -52,7 +52,15 @@ public  class HTTPSender:Sender,ISelfTested
     public double timeoutSendInMilliseconds = 5000;
     public Dictionary<string, string> headers  = new Dictionary<string, string>() { { "aa", "bb" } };
 
-   // public List<HTTPReceiver.KestrelServer.Header> headers;
+
+    public string template;
+
+    public override string getTemplate(string key)
+    {
+        return template;
+    }
+
+    // public List<HTTPReceiver.KestrelServer.Header> headers;
     public HTTPSender()
     {
        /* headers = new List<HTTPReceiver.KestrelServer.Header> 
@@ -332,6 +340,8 @@ public  class HTTPSender:Sender,ISelfTested
                 response=response.Substring(0,response.Length - 1)+((response.Length>2)?",":"")+"{\"Inactive\":["+string.Join(",",values.First().Split(";").Select(ii=>$"\"{ii}\""))+"]}]";
                 //rules = values.First();
             }
+
+
             //if(result.Content.Headers..ContentType.MediaType;)
             //if (result.Headers["AAA"])
             if (result.Content.Headers.ContentType.MediaType.ToUpper() != this.ResponseType.ToUpper())

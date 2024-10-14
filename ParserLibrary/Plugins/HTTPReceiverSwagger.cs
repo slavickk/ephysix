@@ -56,6 +56,7 @@ using static ParserLibrary.HTTPReceiver;
 using Newtonsoft.Json.Linq;
 using System.Text.Json.Nodes;
 using Newtonsoft.Json;
+using System.Text.Encodings.Web;
 
 
 namespace Plugins
@@ -489,12 +490,20 @@ namespace Plugins
                 semaphoreItem.HTTPStatusCode = e77.StatusCode;
                 semaphoreItem.isError = true;
                 bool isError = false;
+                JsonSerializerOptions options = new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+,
+                    IgnoreNullValues = true
+                };////
 
                 string addMessage = $"\nsource:{e77.sourceSender}\norigStatus:{e77.StatusCode}\ntrace:{((System.Diagnostics.Activity.Current != null) ? System.Diagnostics.Activity.Current.Id : "unknown")}";
                 JsonElement obj= new JsonElement();
                 try
                 {
-                    obj = JsonSerializer.Deserialize<JsonElement>(e77.StatusReasonJson.ToString());
+
+                    obj = JsonSerializer.Deserialize<JsonElement>(e77.StatusReasonJson.ToString(), options);
                 }
                 catch
                 {
@@ -508,8 +517,14 @@ namespace Plugins
                 {
                     var jsonNode = JsonNode.Parse(e77.StatusReasonJson.ToString());
                     jsonNode["error"]["source"] = e77.sourceSender;
-                    jsonNode["error"]["message"] += addMessage;
-                    semaphoreItem.HTTPErrorJsonText = JsonSerializer.Serialize<err_mess>(new err_mess() { error = new err_mess.Error() { code = jsonNode["error"]["code"].ToString(), message = jsonNode["error"]["message"].ToString()} });
+                    string mess;
+                    if (jsonNode["error"]["message"] is JsonArray)
+                        mess = string.Join(' ', jsonNode["error"]["message"] as JsonArray);
+                    else
+                        mess = jsonNode["error"]["message"].ToString();
+
+                    mess += addMessage;
+                    semaphoreItem.HTTPErrorJsonText = JsonSerializer.Serialize<err_mess>(new err_mess() { error = new err_mess.Error() { code = jsonNode["error"]["code"].ToString(), message = mess} },options);
                     //        semaphoreItem.HTTPErrorJsonText = jsonNode.ToString();
                 }         
                 Logger.log("Error body: {err}", LogEventLevel.Error,"any", Pipeline.Unescape(semaphoreItem.HTTPErrorJsonText));
