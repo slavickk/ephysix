@@ -433,62 +433,13 @@ namespace TestJsonRazbor
                 list.Clear();
                 lastFile = openFileDialog1.FileName;
                 treeView1.Nodes[0].Nodes.Clear();
-                ParseInput(ReadFile(lastFile), new string[] { "Item" });
+                TreeDrawHelper.ParseInput(list, TreeDrawHelper.ReadFile(lastFile), new string[] { "Item" });
             }
 
 
 
         }
 
-        string ReadFile(string file_name)
-        {
-            if (!File.Exists(file_name))
-                return "";
-            using (StreamReader sr = new StreamReader(file_name))
-            {
-                return sr.ReadToEnd();
-
-            }
-        }
-        private void ParseInput(string line, string[] paths)
-        {
-            int ind = 0;
-            //            using (StreamReader sr = new StreamReader(file_name))
-            {
-                AbstrParser.UniEl ancestor = null;
-                AbstrParser.UniEl rootEl = null;
-                if (list.Count > 0)
-                    ancestor = list.FirstOrDefault(ii => ii.Name == paths[0]);
-                foreach (var path in paths)
-                {
-                    if (ancestor == null || ancestor.Name != path)
-                    {
-                        if (ancestor != null)
-                            rootEl = ancestor.childs.FirstOrDefault(ii => ii.Name == path);
-                        if (rootEl == null)
-                        {
-
-                            // ancestor = null;
-                            AbstrParser.UniEl lastRoot = null;
-                            /* if (list.Count > 0)
-                                 lastRoot = list.FirstOrDefault(ii => ii.ancestor == null);*/
-                            rootEl = AbstrParser.CreateNode(ancestor, list, path);
-                            if (lastRoot != null)
-                                lastRoot.ancestor = rootEl;
-                        }
-                        ancestor = rootEl;
-                    }
-                }
-                //              var line = sr.ReadToEnd();
-                if (line != "")
-                {
-                    foreach (var pars in AbstrParser.availParser)
-                        if (pars.canRazbor("", line, rootEl, list))
-                            break;
-                }
-
-            }
-        }
         List<AbstrParser.UniEl> list = new List<AbstrParser.UniEl>();
         TreeDrawerFactory drawFactory;
 
@@ -572,7 +523,7 @@ namespace TestJsonRazbor
             {
                 bool first = true;
 
-                FillReceiverMocs(first, currentStep);
+                TreeDrawHelper.FillReceiverMocs(list,first, currentStep);
             }
             foreach (var item in Assembly.GetAssembly(typeof(AliasProducer)).GetTypes().Where(t => t.IsAssignableTo(typeof(AliasProducer)) && !t.IsAbstract))
             {
@@ -726,53 +677,7 @@ namespace TestJsonRazbor
                 tabControl1.TabPages.Remove(tabControl1.SelectedTab);
             }
         }
-        string[] getPaths(Step step, string AddPath = "")
-        {
-            return new string[] { "STEPS", step.IDStep };
-            List<string> paths = new List<string>();
-            Step nextStep = step;
-            do
-            {
-                paths.Insert(0, nextStep.IDStep);
-                nextStep = step.owner.steps.FirstOrDefault(ii => ii.IDStep == nextStep.IDPreviousStep);
-            } while (nextStep != null);
-            if (AddPath != "")
-                paths.Add(AddPath);
-            return paths.ToArray();
-        }
-        private void FillReceiverMocs(bool first, Step currentStep1)
-        {
-            if (currentStep1.owner.tempMocData != "")
-            {
-                ParseInput(currentStep1.owner.tempMocData, new string[] { "STEPS" });
-
-                //      ParseInput(currentStep1.owner.tempMocData, new string[] {"STEPS"/* currentStep1.owner.steps.First(ii => (ii.IDPreviousStep == null || ii.IDPreviousStep == "")).IDStep }*//* getPaths(currentStep1,"")*//*, new string[] { currentStep1.owner.steps.First(ii=>(ii.IDPreviousStep == null || ii.IDPreviousStep =="")).IDStep });
-                return;
-            }
-            else
-            {
-                if (currentStep1.receiver != null && (currentStep1.receiver.MocFile != null || (currentStep1.receiver.MocBody ?? "") != ""))
-                {
-
-                    ParseInput(((currentStep1.receiver.MocBody ?? "") != "") ? currentStep1.receiver.MocBody : ReadFile(currentStep1.receiver.MocFile), getPaths(currentStep1, "Rec")/* new string[] { currentStep1.IDStep, "Rec" }*/);
-                }
-
-                if (currentStep1.sender != null && !first && (currentStep1.sender.MocFile != null || (currentStep1.sender.MocBody ?? "") != ""))
-                {
-                    ParseInput(((currentStep1.sender.MocBody ?? "") != "") ? currentStep1.sender.MocBody : ReadFile(currentStep1.sender.MocFile), getPaths(currentStep1, "Send")/* new string[] { currentStep1.IDStep, "Send" }*/);
-                }
-                first = false;
-                if (currentStep1.IDPreviousStep != null && currentStep1.IDPreviousStep != "")
-                {
-                    // while (currentStep1!= null && currentStep1.IDPreviousStep != "")
-                    {
-                        FillReceiverMocs(first, currentStep1.owner.steps.First(ii => ii.IDStep == currentStep1.IDPreviousStep));
-                        //   currentStep1 = currentStep1.owner.steps.First(ii => ii.IDStep == currentStep1.IDPreviousStep);
-                    }
-                }
-            }
-        }
-
+     
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             var el = e.Node.Tag as AbstrParser.UniEl;

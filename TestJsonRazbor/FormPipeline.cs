@@ -32,6 +32,7 @@ using System.Xml.Serialization;
 using DotLiquid;
 using Newtonsoft.Json;
 using ParserLibrary;
+using ParserLibrary.Plugins;
 using PluginBase;
 using Plugins;
 using UniElLib;
@@ -233,7 +234,7 @@ namespace TestJsonRazbor
             if (pip.allMocks != null)
             {
                 comboBoxAllMocks.Items.Clear();
-                comboBoxAllMocks.Items.AddRange(pip.allMocks.ToArray());    
+                comboBoxAllMocks.Items.AddRange(pip.allMocks.ToArray());
             }
         }
 
@@ -451,7 +452,14 @@ namespace TestJsonRazbor
             {
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    File.Copy(saveFileDialog1.FileName, saveFileDialog1.FileName.Replace(".yml", ".bak"), true);
+                    try
+                    {
+                        File.Copy(saveFileDialog1.FileName, saveFileDialog1.FileName.Replace(".yml", ".bak"), true);
+                    }
+                    catch
+                    {
+
+                    }
                     pip.Save(saveFileDialog1.FileName, Assembly.GetAssembly(typeof(Samples)));
                     saveStorageContext(saveFileDialog1.FileName);
                     if (checkBoxShowVars.Checked)
@@ -481,6 +489,7 @@ namespace TestJsonRazbor
 
         private void button1_Click_1(object sender, EventArgs e)
         {
+            openFileDialog1.FileName=currentStep.sender.MocFile;
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 currentStep.sender.MocFile = openFileDialog1.FileName;
 
@@ -853,6 +862,13 @@ class {{object.Name}} << ({{object.Type}},orchid) >>
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             pip.steps.First().ireceiver.MocBody = comboBoxAllMocks.SelectedItem?.ToString();
+        }
+
+        private void button7_Click_1(object sender, EventArgs e)
+        {
+            if (currentStep.switcher == null)
+                currentStep.switcher = new ExpressionPathsSwitcher();
+            new FormSwitcher(currentStep, currentStep.switcher as ExpressionPathsSwitcher).ShowDialog();
         }
     }
 }

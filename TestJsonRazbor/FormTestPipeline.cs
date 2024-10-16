@@ -139,7 +139,7 @@ namespace TestJsonRazbor
         private void LogHandler(object sender, EventArgs e)
         {
            // this
-            this.Invoke(LogHandler1, new object[] { e as LogEventArgs });
+        //    this.Invoke(LogHandler1, new object[] { e as LogEventArgs });
         }
 
 

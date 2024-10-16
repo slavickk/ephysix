@@ -35,6 +35,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Net.WebSockets;
 using Newtonsoft.Json;
+using ParserLibrary.Plugins;
 
 namespace ParserLibrary;
 /// <summary>
@@ -95,7 +96,7 @@ public partial class Step : ILiquidizable
         if (receiver != null)
             await receiver.stop();
     }
-
+    public Switcher switcher { get; set; }
     public string IDStep { get; set; } = "Example";
 
     public string IDFamilyStep { get; set; } 
